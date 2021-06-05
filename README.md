@@ -9,7 +9,7 @@ A. Classical algorithms based on
   5. Gini (as in Corrado Gini - statistician 1884-1965)
   6. Omega ratio (introduced by Con Keating and William F. Shadwick in 2002)
 
-  XXX Not added yet
+More to add
 
 In each case the optimization strategies are
 1. Minimization of the dispersion.
