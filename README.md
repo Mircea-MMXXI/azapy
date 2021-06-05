@@ -6,7 +6,6 @@ A. Classical algorithms based on
   2. SMCR (second momentum coherent risk)
   3. MV (mean variance)
   4. MAD (mean absolute deviation)
-  5. Gini (as in Corrado Gini - statistician 1884-1965)
   6. Omeaga ratio (introduced by Con Keating and William F. Shadwick in 2002)
   XXX Not added yet
 
