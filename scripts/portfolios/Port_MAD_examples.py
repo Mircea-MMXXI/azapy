@@ -12,12 +12,12 @@ import pandas as pd
 import azapy as az
 
 #=============================================================================
-# Collenct some market data
+# Collect some market data
 sdate = pd.Timestamp("2012-01-01").normalize()
 edate = pd.Timestamp.today().normalize()
 symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
 
-mktdir = "./scripts/portfolios/MkTdata"
+mktdir = "./MkTdata"
 
 # force=True read from alphavantage server
 # force=False read from local directory if data exists
@@ -42,7 +42,7 @@ p7.port_monthly_returns()
 p7.get_nshares()
 p7.get_account(fancy=True)  
         
-# Test using the Port_Weighted weigths schedule ww (from above)
+# Test using the Port_Weighted weights schedule ww (from above)
 p2 = az.Port_Weighted(rprice, symb=symb, sdate=sdate, edate=edate)
 port2  = p2.get_port(ww)     
 
@@ -76,7 +76,7 @@ p7.get_nshares()
 p7.get_account(fancy=True)  
 
 #=============================================================================
-# Compute optimal portfolio with MAD of equaly weighted portfolio
+# Compute optimal portfolio with MAD of equally weighted portfolio
 port5 = p7.get_port(mu=0.1, coef=coef, rtype="InvNrisk")   
 ww = p7.get_weights()
 p7.port_view()

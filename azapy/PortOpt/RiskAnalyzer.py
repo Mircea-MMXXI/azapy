@@ -27,7 +27,7 @@ class RiskAnalyzer:
         Parameters
         ----------
         rrate : pandas.DataFrame, optional
-            MkT data for portfolio componets in the format 
+            MkT data for portfolio components in the format 
             "date", "symbol1", "symbol2", etc. The default is None.
         rtype : string, optional
             Optimization type. Possible values \n
@@ -37,8 +37,8 @@ class RiskAnalyzer:
                 ratio.\n
                 "MinRisk" : optimal portfolio with minimum dispersion (risk) 
                 value.\n
-                "InvNRisk" : optimal portfolio with the same dispersion (rsik)
-                value as equaly weighted portfolio. 
+                "InvNRisk" : optimal portfolio with the same dispersion (risk)
+                value as equally weighted portfolio. 
             The default is "Sharpe".
         
         Returns
@@ -78,7 +78,7 @@ class RiskAnalyzer:
         ----------
         mu : float
             Rate of reference. Its meaning depends on the optimization 
-            chriteria. For rtype set to\n
+            criterion. For rtype set to\n
                 "Risk" : mu is the targeted portfolio rate of returns.\n
                 "Sharpe" and "Sharpe2" : mu is the risk-free rate.\n
                 "MinRisk" and "InvNRisk": mu is ignored.
@@ -92,7 +92,7 @@ class RiskAnalyzer:
             Frontier type. Has effect only if rtype="Risk". A value of 1 will 
             trigger the evaluation of optimal portfolio along the efficient 
             frontier. Otherwise it will find the portfolio with the lowest 
-            rate of return along the unefficient portfolio frontier. 
+            rate of return along the inefficient portfolio frontier. 
             The default is 1.
         
         Returns
@@ -153,7 +153,7 @@ class RiskAnalyzer:
         Parameters
         ----------
         ww : list (np.array or pandas.Series)
-            Portfolio weights. Must have a size equal to tnumber of symbols 
+            Portfolio weights. Must have a size equal to the number of symbols 
             in rrate (MkT data). All weights must by >= 0 with at least one 
             > 0.
         rrate : pandas.sereis, optional
@@ -198,7 +198,7 @@ class RiskAnalyzer:
     
     def set_rrate(self, rrate):
         """
-        Set the Mkt Data.
+        Set the MkT Data.
 
         Parameters
         ----------
@@ -253,21 +253,21 @@ class RiskAnalyzer:
             If True the portfolios containing a single component are evaluated 
             and added to the plot for references. The default is True.
         randomport : int, optional
-            The number of portfolios with random weights (ineficient) to be 
+            The number of portfolios with random weights (inefficient) to be 
             evaluate and added to the plot for reference. The default is 20.
         inverseN : boolean, optional
-            If True the equaly weithed portfolio and the optimal portfolio 
-            with the same dispersion (risk) value are evaluted and added to 
+            If True the equally weighted portfolio and the optimal portfolio 
+            with the same dispersion (risk) value are evaluated and added to 
             the plot. The default is True.
         fig_type : string, optional
-            Graphical represetantion format.
-            If it is set to "RR_risk" the data is ploted in the rate of return 
-            vs dispersion represetnation, otherwise the Sharpe vs rate of 
+            Graphical representation format.
+            If it is set to "RR_risk" the data is plotted in the rate of return 
+            vs dispersion representation, otherwise the Sharpe vs rate of 
             return will be used. The default is 'RR_risk'.
         options : dictionary, optional
-            Aditional graphycal setups (keys): "title", "xlabel", "ylabel", 
+            Additional graphical setups (keys): "title", "xlabel", "ylabel", 
             "tangent".\n
-            "title", "xlabel" and "ylabel" are strings overwriting the defalut 
+            "title", "xlabel" and "ylabel" are strings overwriting the default 
             values. \n
             "tangent" is a boolean. If set to True it will print
             the Sharpe tangent. The default is True.
@@ -276,13 +276,13 @@ class RiskAnalyzer:
         data : dictionary, optional
             Numerical data to construct the plot. If it is not None it 
             will take precedence and no other numerical evaluation will be 
-            performed. It is meant to produce different plot represetnations
+            performed. It is meant to produce different plot representations
             without recomputation. The default is None.
 
         Returns
         -------
         dictionary
-            Numerical data used to make the plots. It can be pased back to
+            Numerical data used to make the plots. It can be passed back to
             reconstruct the plots without reevaluations.
 
         """

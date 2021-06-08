@@ -14,8 +14,8 @@ from .RiskAnalyzer import RiskAnalyzer
 class CVaRAnalyzer(RiskAnalyzer):
     """
     CVaR risk measure based portfolio optimizations.
-        Note: inheritates from azapy.RiskAnalyzer \n
-        Function inheritated\n
+        Note: inherits from azapy.RiskAnalyzer \n
+        Function inherited\n
             getWeights \n
             getRisk \n
             set_rrate \n
@@ -35,7 +35,7 @@ class CVaRAnalyzer(RiskAnalyzer):
             List of coefficients. Must be the same size with 
             alpha. The default is [1.].
         rrate : pandas.DataFrame, optional
-            MkT data for portfolio componets in the format 
+            MkT data for portfolio components in the format 
             "date", "symbol1", "symbol2", etc. The default is None.
         rtype : string, optional
             Optimization type. Possible values \n
@@ -45,8 +45,8 @@ class CVaRAnalyzer(RiskAnalyzer):
                 ratio.\n
                 "MinRisk" : optimal portfolio with minimum dispersion (risk) 
                 value.\n
-                "InvNRisk" : optimal portfolio with the same dispersion (rsik)
-                value as equaly weighted portfolio. 
+                "InvNRisk" : optimal portfolio with the same dispersion (risk)
+                value as equally weighted portfolio. 
             The default is "Sharpe".
         method : string, optional
             Linear programming numerical method. 
@@ -78,7 +78,7 @@ class CVaRAnalyzer(RiskAnalyzer):
 
     
     def _risk_calc(self, prate, alpha):
-        # Order of varaibles:
+        # Order of variables:
         # u <- 0, 
         # s <- [1:nn] 
         # in total dim=nn + 1
@@ -185,7 +185,7 @@ class CVaRAnalyzer(RiskAnalyzer):
              for l in range(ll)])
         # optimal weights
         self.ww = np.array(res.x[:mm])
-        # rate of return
+        # rate of returns
         self.RR = np.dot(self.ww, self.muk)
         
         return self.ww
@@ -222,7 +222,7 @@ class CVaRAnalyzer(RiskAnalyzer):
         # build b_ub
         b = [0] * (nn * ll)
         
-        #build A_eq
+        # build A_eq
         icol = list(range(mm)) + [mm + ll * (nn + 1)]
         irow = [0] * (mm + 1)
         adata = [1.] * mm + [-1]

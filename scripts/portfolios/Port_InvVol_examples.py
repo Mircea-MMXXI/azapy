@@ -2,7 +2,7 @@
 """
 Created on Thu Jun  3 21:34:26 2021
 
-@author: mirce
+@author: mircea
 """
 
 # Examples
@@ -11,12 +11,12 @@ import pandas as pd
 import azapy as az
 
 #=============================================================================
-# Collenct some market data
+# Collect some market data
 sdate = pd.Timestamp("2012-01-01").normalize()
 edate = pd.Timestamp.today().normalize()
 symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
 
-mktdir = "./scripts/portfolios/MkTdata"
+mktdir = "./MkTdata"
 
 # force=True read from alphavantage server
 # force=False read from local directory if data exists
@@ -38,7 +38,7 @@ p4.port_monthly_returns()
 p4.get_nshares()
 p4.get_account(fancy=True)
 
-# Test using the Port_Weighted weigths schedule ww (from above)
+# Test using the Port_Weighted weights schedule ww (from above)
 p2 = az.Port_Weighted(rprice, symb=symb, sdate=sdate, edate=edate)
 port2  = p2.get_port(ww)     
 

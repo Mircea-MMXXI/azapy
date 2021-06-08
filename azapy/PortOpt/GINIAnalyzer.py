@@ -14,8 +14,8 @@ from .RiskAnalyzer import RiskAnalyzer
 class GINIAnalyzer(RiskAnalyzer):
     """
     GINI dispersion measure based portfolio optimization.
-        Note: inheritates from azapy.RiskAnalyzer \n
-        Function inheritated\n
+        Note: inherits from azapy.RiskAnalyzer \n
+        Function inherited\n
             getWeights \n
             getRisk \n
             set_rtype \n
@@ -28,7 +28,7 @@ class GINIAnalyzer(RiskAnalyzer):
         Parameters
         ----------
         rrate : pandas.DataFrame, optional
-            MkT data for portfolio componets in the format 
+            MkT data for portfolio components in the format 
             "date", "symbol1", "symbol2", etc. The default is None.
         rtype : string, optional
             Optimization type. Possible values \n
@@ -38,8 +38,8 @@ class GINIAnalyzer(RiskAnalyzer):
                 ratio.\n
                 "MinRisk" - optimal portfolio with minimum dispersion (risk) 
                 value.\n
-                "InvNRisk" - optimal portfolio with the same dispersion (rsik)
-                value as equaly weighted portfolio.\n
+                "InvNRisk" - optimal portfolio with the same dispersion (risk)
+                value as equally weighted portfolio.\n
             The default is "Sharpe".
         method : string, optional
             Linear programming numerical method. Could be 
@@ -67,7 +67,7 @@ class GINIAnalyzer(RiskAnalyzer):
             
     def set_rrate(self, rrate):
         """
-        Set the Mkt Data.
+        Set the MkT Data.
 
         Parameters
         ----------
@@ -236,7 +236,7 @@ class GINIAnalyzer(RiskAnalyzer):
         # build c
         c = [0.] * mm + [0.5 / nn2] * nn2 + [0.]
         
-        # bild A_up
+        # build A_up
         icol = [m for m in range(mm) for _ in range(nn2)] * 2
         irow = list(range(nn2)) * mm + list(range(nn2, 2 * nn2)) * mm
         data = list(self.drate) + list(-self.drate)

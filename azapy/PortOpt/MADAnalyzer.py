@@ -14,8 +14,8 @@ from .RiskAnalyzer import RiskAnalyzer
 class MADAnalyzer(RiskAnalyzer):
     """
     MAD risk measure based portfolio optimization
-        Note: inheritates from azapy.RiskAnalyzer \n
-        Function inheritated\n
+        Note: inherits from azapy.RiskAnalyzer \n
+        Function inherited\n
             getWeights \n
             set_rrate \n
             set_rtype \n
@@ -32,7 +32,7 @@ class MADAnalyzer(RiskAnalyzer):
             List of coefficients (the list size defines the MAD 
             order).The default is [1.].
         rrate : pandas.DataFrame, optional
-           MkT data for portfolio componets in the format "date",
+           MkT data for portfolio components in the format "date",
             "symbol1", "symbol2", etc. The default is None.
         rtype : TYPE, optional
             Optimization type. Possible values \n
@@ -42,8 +42,8 @@ class MADAnalyzer(RiskAnalyzer):
                 ratio.\n
                 "MinRisk" : optimal portfolio with minimum dispersion (risk) 
                 value.\n
-                "InvNRisk" : optimal portfolio with the same dispersion (rsik)
-                value as equaly weighted portfolio. 
+                "InvNRisk" : optimal portfolio with the same dispersion (risk)
+                value as equally weighted portfolio. 
             The default is "Sharpe".
         method : string, optional
             Linear programming numerical method. 
@@ -75,7 +75,7 @@ class MADAnalyzer(RiskAnalyzer):
 
         Parameters
         ----------
-        ww : list (np.array or pandas.Series)
+        ww : list (numpy.array or pandas.Series)
             Portfolio weights.
         rrate : pandas.sereis, optional 
             MkT Data. If is not None it will overwrite the rrate set by the 

@@ -14,8 +14,8 @@ from .RiskAnalyzer import RiskAnalyzer
 class OmegaAnalyzer(RiskAnalyzer):
     """
     Omega measure based portfolio optimization.
-        Note inheritates from azapy.RiskAnalyzer \n
-        Function inheritated\n
+        Note inherits from azapy.RiskAnalyzer \n
+        Function inherited\n
             getWeights \n
             getRisk \n
             set_rtype \n
@@ -30,7 +30,7 @@ class OmegaAnalyzer(RiskAnalyzer):
         mu0 : float, optional
             Risk-free rate (Omega threshold). The default is 0.
         rrate : pandas.DataFrame, optional
-            MkT data for portfolio componets in the format 
+            MkT data for portfolio components in the format 
             "date", "symbol1", "symbol2", etc. The default is None.
         rtype : string, optional
             Optimization type. Possible values \n
@@ -40,8 +40,8 @@ class OmegaAnalyzer(RiskAnalyzer):
                 ratio.\n
                 "MinRisk" : optimal portfolio with minimum dispersion (risk) 
                 value.\n
-                "InvNRisk" : optimal portfolio with the same dispersion (rsik)
-                value as equaly weighted portfolio. 
+                "InvNRisk" : optimal portfolio with the same dispersion (risk)
+                value as equally weighted portfolio. 
             The default is "Sharpe".
         method : string, optional
             Linear programming numerical method. 
@@ -66,10 +66,10 @@ class OmegaAnalyzer(RiskAnalyzer):
         Parameters
         ----------
         efficient : int, optional
-            Number of points along the optimal frontier (equaly spaced along 
+            Number of points along the optimal frontier (equally spaced along 
             the rate of returns). The default is 20.
         inefficient : int, optional
-            Number of points along the inefficient frontier (equaly spaced 
+            Number of points along the inefficient frontier (equally spaced 
             along the rate of returns). The default is 20.
         musharpe : float, optional
             Value for the risk-free rate of return used in the evaluation of
@@ -78,21 +78,21 @@ class OmegaAnalyzer(RiskAnalyzer):
             If True the portfolios containing a single component are evaluated 
             and added to the plot for references. The default is True.
         randomport : int, optional
-            The number of portfolios with random weights (ineficient) to be 
+            The number of portfolios with random weights (inefficient) to be 
             evaluate and added to the plot for reference. The default is 20.
         inverseN : boolean, optional
-            If True the equaly weithed portfolio and the optimal portfolio 
-            with the same dispersion (risk) value are evaluted and added to 
+            If True the equally weighted portfolio and the optimal portfolio 
+            with the same dispersion (risk) value are evaluated and added to 
             the plot. The default is True.
         fig_type : string, optional
-            Graphical represetantion format.
-            If it is set to "RR_risk" the data is ploted in the rate of return 
-            vs dispersion represetnation, otherwise the Sharpe vs rate of 
+            Graphical representation format.
+            If it is set to "RR_risk" the data is plotted in the rate of return 
+            vs dispersion representation, otherwise the Sharpe vs rate of 
             return will be used. The default is 'RR_risk'.
         options : dictionary, optional
-            Aditional graphycal setups (keys): "title", "xlabel", "ylabel", 
+            Additional graphical setups (keys): "title", "xlabel", "ylabel", 
             "tangent".\n
-            "title", "xlabel" and "ylabel" are strings overwriting the defalut 
+            "title", "xlabel" and "ylabel" are strings overwriting the default 
             values. \n
             "tangent" is a boolean. If set to True it will print
             the Sharpe tangent. The default is True.
@@ -101,14 +101,13 @@ class OmegaAnalyzer(RiskAnalyzer):
         data : dictionary, optional
             Numerical data to construct the plot. If it is not None it 
             will take precedence and no other numerical evaluation will be 
-            performed. It is meant to produce different plot represetnations
+            performed. It is meant to produce different plot representations
             without recomputation. The default is None.
 
         Returns
         -------
         dictionary
-            Numerical data used to make the plots. It can be pased back to
-            reconstruct the plots without reevaluations.
+            Numerical data used to make the plots. 
 
         """
         if musharpe is not None:
@@ -259,9 +258,9 @@ class OmegaAnalyzer(RiskAnalyzer):
         self.ww = np.array(res.x[:mm] * self.risk)
         # rate of return
         self.RR = -res.fun * self.risk + self.mu
-        # primery risk components - default to risk
+        # primary risk components - default to risk
         self.primery_risk_comp = np.array([self.risk])
-        # secondary raisk components - default to risk
+        # secondary risk components - default to risk
         self.secondary_risk_comp = np.array([self.risk])
         
         return self.ww
@@ -324,9 +323,9 @@ class OmegaAnalyzer(RiskAnalyzer):
         self.ww = np.array(res.x[:mm] / t)
         # rate of return
         self.RR = 1. / t + self.mu
-        # primery risk components - default to risk
+        # primary risk components - default to risk
         self.primery_risk_comp = np.array([self.risk])
-        # secondary raisk components - default to risk
+        # secondary risk components - default to risk
         self.secondary_risk_comp = np.array([self.risk])
         
         return self.ww
@@ -381,9 +380,9 @@ class OmegaAnalyzer(RiskAnalyzer):
         # optimal weights
         self.ww = np.array(res.x[:mm])
         
-        # primery risk components - default to risk
+        # primary risk components - default to risk
         self.primery_risk_comp = np.array([self.risk])
-        # secondary raisk components - default to risk
+        # secondary risk components - default to risk
         self.secondary_risk_comp = np.array([self.risk])
         
         return self.ww

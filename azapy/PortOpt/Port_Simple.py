@@ -14,7 +14,7 @@ from azapy.util.drawdown import drawdown, max_drawdown
 
 class Port_Simple:
     """
-    Portfolio with constant initial weigths (no rebalance or dividend 
+    Portfolio with constant initial weights (no rebalance or dividend 
     accumulation).
     It is also a base class for all Port_XXX classes
     """
@@ -40,11 +40,11 @@ class Port_Simple:
             be set to the earliest date in rprice. The default is None.
         edate : datetime, optional
             End date for historical dates and so the simulation. Must be 
-            larget than  sdate. If it iset to None then edate will be sat
+            greater than  sdate. If it is None then edate will be set
             to the latest date in rprice. The default is None.
         col : string, optional
             Name of column in the rprice DataFrame that will be considered 
-            for portfolio agregation.The default is 'adjusted'.
+            for portfolio aggregation.The default is 'adjusted'.
         pname : string, optional
             The name of the portfolio. The default is 'Simple'.
         pcolname : string, optional
@@ -80,20 +80,20 @@ class Port_Simple:
         
     def get_port(self, ww=None):
         """
-        Evaluate the portfolio timeseries.
+        Evaluate the portfolio time-series.
 
         Parameters
         ----------
-        ww : list (numpy.array ot pandas.Series), optional
+        ww : list (numpy.array to pandas.Series), optional
             List of weights. If it is panda.Series the index should match 
-            the basket symb. Othrwise the weights are considered in the symb 
+            the basket symb. Otherwise the weights are considered in the symb 
             order. If it is set to None than ww will be set to equal weights.
             The default is None.
 
         Returns
         -------
         pd.DataFrame
-            The portfolio timeseries in the format "date", "pcolname".
+            The portfolio time-series in the format "date", "pcolname".
 
         """
         if ww is None:
@@ -122,7 +122,7 @@ class Port_Simple:
         
     def get_mktdata(self):
         """
-        Return the actual MkT data relevant for the portfolio evaluation.
+        Returns the actual MkT data relevant for the portfolio evaluation.
         
         Returns
         -------
@@ -131,7 +131,7 @@ class Port_Simple:
         """
         return self.mktdata
         
-    def port_view(self, emas=[30, 200], boillinger=False, 
+    def port_view(self, emas=[30, 200], bollinger=False, 
                   view=True, fancy=False):
         """
         Plot the portfolio time series together with optional technical 
@@ -140,23 +140,23 @@ class Port_Simple:
         Parameters
         ----------
         emas : list of int, optional
-            Values for EMA durations.The default is [30, 200].
-        boillinger : boolean, optional
-            if set True it adds the billinger bands. The default is False.
+            Values for EMA duration.The default is [30, 200].
+        bollinger : boolean, optional
+            if set True it adds the Bollinger bands. The default is False.
         view : boolean, optional
-            If False it suppres the ploting to terminal. The default 
+            False suppresses the plotting to terminal. The default 
             is True.
-        fancy : boolena, optional
+        fancy : boolean, optional
             False : it uses the pandas plot (matplotlib) capabilities.
             
-            True : it uses plotly library for interactive timeseries view.
+            True : it uses plotly library for interactive time-series view.
             
             The default is False.
 
         Returns
         -------
         df : panda.DataFrame
-            The DataFrame with the timeseries included in plot.
+            The DataFrame with the time-series included in plot.
 
         """
         df = self.port.copy()
@@ -168,7 +168,7 @@ class Port_Simple:
                                             fillna=True)
                 df[name] = idx.ema_indicator()
                 
-        if boillinger:
+        if bollinger:
             idx = ta.volatility.BollingerBands(df[self.pcolname], fillna=True)
             df['B_upper'] = idx.bollinger_hband()
             df['B_mvag'] = idx.bollinger_mavg()
@@ -185,17 +185,17 @@ class Port_Simple:
     def port_view_all(self, sdate=None, edate=None, view=True, 
                       fancy=False):
         """
-        Plot the portfolio and its component timeseries.
+        Plot the portfolio and its component time-series.
 
         Parameters
         ----------
         sdate : datetime, optional
-            Start date of ploted timeseries. If it is set to None
-            then the sdate is set to the erliest date in the timeseries. 
+            Start date of ploted time-series. If it is set to None
+            then the sdate is set to the earliest date in the time-series. 
             The default is None.
         edate : TYPE, optional
-            End date of ploted timesereis. If it set to None then the edate
-            is set to the most recent date of the timesereis. 
+            End date of plotted time-series. If it set to None then the edate
+            is set to the most recent date of the time-series. 
             The default is None.
         view : boolean, optional
             If set to True then the plot is printed to the terminal.
@@ -203,14 +203,14 @@ class Port_Simple:
         fancy : boolean, optional
             False : it uses the pandas plot (matplotlib) capabilities.
             
-            True : it uses plotly library for interactive timeseries view.
+            True : it uses plotly library for interactive time-series view.
             
             The default is False.
 
         Returns
         -------
         df : pandas.DataFrame
-            A Data Frame containing the timeseries.
+            A Data Frame containing the time-series.
 
         """
         if sdate is None: 
@@ -267,7 +267,7 @@ class Port_Simple:
     
     def port_perf(self, fancy=False):
         """
-        Brief description of porfolio and its components performances
+        Brief description of portfolio and its components performances
         in terms of average historical rate of returns and maximum drawdowns.
 
         Parameters
@@ -284,7 +284,7 @@ class Port_Simple:
         Returns
         -------
         pandas.DataFrame
-            Table of porfolio and its components performance with the 
+            Table of portfolio and its components performance with the 
             following columns: \n
                 "RR " : rate of returns \n
                 "DD" : maximum rate of drawdown \n
@@ -318,7 +318,7 @@ class Port_Simple:
         
     def port_annual_returns(self, fancy=False):
         """
-        Porfolio historical calendar annual rate of returns
+        Portfolio annual (calendar) rates of returns.
 
         Parameters
         ----------
@@ -354,8 +354,8 @@ class Port_Simple:
         
     
     def port_monthly_returns(self, fancy=False):
-        """calendaristic 
-        Portfolio historical calendar monthly rate of returns.
+        """
+        Portfolio monthly (calendar) rate of returns.
 
         Parameters
         ----------

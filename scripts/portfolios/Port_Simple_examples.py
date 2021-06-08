@@ -12,12 +12,12 @@ import pandas as pd
 import azapy as az
 
 #=============================================================================
-# Collenct some market data
+# Collect some market data
 sdate = pd.Timestamp("2012-01-01").normalize()
 edate = pd.Timestamp.today().normalize()
 symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
 
-mktdir = "./scripts/portfolios/MkTdata"
+mktdir = "./MkTdata"
 
 # force=True read from alphavantage server
 # force=False read from local directory if data exists

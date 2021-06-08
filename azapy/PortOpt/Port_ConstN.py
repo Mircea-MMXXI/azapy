@@ -2,7 +2,7 @@
 """
 Created on Fri Mar 26 12:23:59 2021
 
-@author: mirce
+@author: mircea
 """
 import pandas as pd
 import numpy as np
@@ -13,8 +13,8 @@ from azapy.MkT.readMkTData import NYSEgen
 
 class Port_ConstN(Port_Weighted):
     """
-    Portfolio with constant weights periodicaly rebalanced.
-    Iherited from azapy.Port_Weighted \n
+    Portfolio with constant weights periodically rebalanced.
+    Inherits from azapy.Port_Weighted \n
     Functions: \n
         get_port \n
         get_nshares \n
@@ -50,11 +50,11 @@ class Port_ConstN(Port_Weighted):
             be set to the earliest date in rprice. The default is None.
         edate : datetime, optional
             End date for historical dates and so the simulation. Must be 
-            larget than  sdate. If it iset to None then edate will be sat
+            greater than  sdate. If it is None then edate will be set
             to the latest date in rprice. The default is None.
         col : string, optional
             Name of column in the rprice DataFrame that will be considered 
-            for portfolio agregation.The default is 'close'.
+            for portfolio aggregation.The default is 'close'.
         pname : string, optional
             The name of the portfolio. The default is 'Simple'.
         pcolname : string, optional
@@ -68,13 +68,13 @@ class Port_ConstN(Port_Weighted):
                 "Q" : quarterly rebalancing \n
                 The default is 'Q'. 
         noffset : intE, optional
-            Number of offset business day form the calander end of invetment 
+            Number of offset business day form the calendar end of investment 
             period (rebalancing period). A positive value will add business 
             days beyond the calendar end of the period while a negative value
             will subtract business days. The default is -3.
         calendar : numpy.busdaycalendar, optional
             Business calendar compatible with the MkT data from rprice. If it
-            None then it will be set to NYSE bunsiness calendar.
+            None then it will be set to NYSE business calendar.
             The default is None.
 
         Returns
@@ -93,20 +93,20 @@ class Port_ConstN(Port_Weighted):
         
     def get_port(self, ww=None):
         """
-        Evaluates the portfolio timeseries.
+        Evaluates the portfolio time-series.
 
         Parameters
         ----------
-        ww : list (numpy.array ot pandas.Series), optional
+        ww : list (numpy.array to pandas.Series), optional
             List of weights. If it is panda.Series the index should match 
-            the basket symb. Othrwise the weights are considered in the symb 
+            the basket symb. Otherwise the weights are considered in the symb 
             order. If it is set to None than ww will be set to equal weights.
             The default is None.
 
         Returns
         -------
         pd.DataFrame
-            The portfolio timeseries in the format "date", "pcolname".
+            The portfolio time-series in the format "date", "pcolname".
         """
         if ww is None:
             _ww = pd.Series(1., index=self.symb)
