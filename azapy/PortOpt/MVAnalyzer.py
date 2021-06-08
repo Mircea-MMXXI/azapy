@@ -14,8 +14,8 @@ from .RiskAnalyzer import RiskAnalyzer
 class MVAnalyzer(RiskAnalyzer):
     """
     MV - Mean Variance based portfolio optimization.
-        Note: inheritates from azapy.RiskAnalyzer \n
-        Function inheritated\n
+        Note: inherits from azapy.RiskAnalyzer \n
+        Function inherited\n
             getWeights \n
             getRisk \n
             set_rrate \n
@@ -29,7 +29,7 @@ class MVAnalyzer(RiskAnalyzer):
         Parameters
         ----------
         rrate : pandas.DataFrame, optional
-           MkT data for portfolio componets in the format 
+           MkT data for portfolio components in the format 
            "date", "symbol1", "symbol2", etc. The default is None.
         rtype : TYPE, optional
             Optimization type. Possible values \n
@@ -39,8 +39,8 @@ class MVAnalyzer(RiskAnalyzer):
                 ratio.\n
                 "MinRisk" : optimal portfolio with minimum dispersion (risk) 
                 value.\n
-                "InvNRisk" : optimal portfolio with the same dispersion (rsik)
-                value as equaly weighted portfolio. 
+                "InvNRisk" : optimal portfolio with the same dispersion (risk)
+                value as equally weighted portfolio. 
             The default is "Sharpe".
         method : string, optional
             Quadratic programming numerical method. Could be 'glpk' or
@@ -58,7 +58,7 @@ class MVAnalyzer(RiskAnalyzer):
     def _risk_calc(self, prate, alpha):
         var = np.var(prate)
         
-        # status, varaince, volatility
+        # status, variance, volatility
         return 0, var, np.sqrt(var)
     
     def _risk_min(self, d=1):
@@ -113,7 +113,7 @@ class MVAnalyzer(RiskAnalyzer):
         return self.ww
     
     def _sharpe_max(self):
-        #computes the minimization of the inverse square of sharpe
+        # Computes the minimization of the inverse square of Sharpe
         # Order of variables
         # w <- [0:nn]
         # t <- nn
@@ -139,7 +139,7 @@ class MVAnalyzer(RiskAnalyzer):
         # build A
         A = matrix([1.] * nn + [-1.], size=(1, nn + 1))
         
-        #build b
+        # build b
         b = matrix([0.])
         
         res = solvers.qp(P, q, G, h, A, b,
@@ -169,7 +169,7 @@ class MVAnalyzer(RiskAnalyzer):
         return self.ww
     
     def _sharpe_min(self):
-        #computes the minimization of the inverse square of sharpe
+        # Computes the minimization of the inverse square of Sharpe
         # Order of variables
         # w <- [0:nn]
         # t <- nn
@@ -190,7 +190,7 @@ class MVAnalyzer(RiskAnalyzer):
         zc = matrix(0., size=(2 * nn + 1, 1))
         G = matrix([[dd, zz, -sqc], [zc]])
         
-        #build h
+        # build h
         h = matrix([0.] * nn + [1.] + [0.] * nn )
         
         # def dims
@@ -199,10 +199,10 @@ class MVAnalyzer(RiskAnalyzer):
         # build A_eq
         A = matrix([1.] * nn + [-1], size=(1, nn + 1))
         
-        # buid b_eq
+        # build b_eq
         b = matrix([0.])
         
-        #calc
+        # calc
         res = solvers.conelp(c, G, h, dims, A, b, \
                              options={'show_progress': False})
             
@@ -230,7 +230,7 @@ class MVAnalyzer(RiskAnalyzer):
         return self.ww   
     
     def _rr_max(self):
-        #computes the minimization of the inverse square of sharpe
+        # Computes the minimization of the inverse square of Sharpe
         # Order of variables
         # w <- [0:nn]
         # in total dim = nn 
@@ -249,7 +249,7 @@ class MVAnalyzer(RiskAnalyzer):
 
         G = matrix([dd, zz, -sqc])
         
-        #build h
+        # build h
         h = matrix([0.] * nn + [self.risk] + [0.] * nn )
         
         # def dims
@@ -258,7 +258,7 @@ class MVAnalyzer(RiskAnalyzer):
         # build A_eq
         A = matrix(1., size=(1, nn))
         
-        # buid b_eq
+        # build b_eq
         b = matrix([1.])
         
         #calc

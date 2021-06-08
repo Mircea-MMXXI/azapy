@@ -39,7 +39,7 @@ def NYSEgen(sdate = np.datetime64('1980-01-01'),
     ldates.append(np.datetime64('2012-10-30'))
     ldates.append(np.datetime64('2001-09-11'))
     ldates.sort()
-    # move to np.array and rerurn the business calendar
+    # move to np.array and return the business calendar
     hdates = np.array(ldates)
     hdates = hdates[(hdates >= sdate) & ( hdates <= edate)]
     return np.busdaycalendar(holidays=hdates)
@@ -68,17 +68,17 @@ def readMkT(symbols,
     dend : datetime, optional
         End date. The default is date.today().
     force : boolean, optional
-        True: MkT data will be readed from alphavantage.
-        False: there will be an atempt to read Mkt Data from the disk. If is
-        it dosent exist then read from alphavantage. The default is False.
-    verbose : boolena, optional
+        True: MkT data will be read from alphavantage.
+        False: there will be an attempt to read Mkt Data from the disk. If is
+        it doesn't exist then read from alphavantage. The default is False.
+    verbose : boolean, optional
         True: print progress information. \n
         False: suppress printing of progress information. \n
         The default is True.
     dir : string, optional
         Local director where MkT data can be read/save. 
         The default is 'outData'.
-    save : boolena, optional
+    save : boolean, optional
         DESCRIPTION. 
         True: MkT data will be saved to dir. \n
         False: suppress any saving of data. \n
@@ -87,19 +87,19 @@ def readMkT(symbols,
         Valid alphavantage key.
         The default is '91TEYWAGJWO7QE1Z'.
     maxsymbs : int, optional
-        Maximum number of simpbol that can be read per minute. Should match 
-        alphavantage account limits. Afgter the maxsymbs is reach the program 
-        will sleep ofr 1min before resuming reading more data. 
+        Maximum number of symbol that can be read per minute. Should match 
+        alphavantage account limits. After the maxsymbs is reach the program 
+        will sleep for 1min before resuming reading more data. 
         The default is 5.
     adj_split : boolean, optional
         True: adjust all fields for split events. \n
-        False: no adjustemt is made. \n
+        False: no adjustment is made. \n
         The default is True.
     out_dict : boolean, optional
-        Choose the pitput format
+        Choose the output format.
         True: pandas.DataFrame with columns: "symbol", "date", "open", "high", 
         "low", "close", "volume", "adjusted", "divd", "split". \n
-        False: dict where the keyas are the symbols and items are 
+        False: dict where the keys are the symbols and items are 
         pandas.DataFrame
         with columns: "date", "open", "high", 
         "low", "close", "volume", "adjusted", "divd", "split".  \n
@@ -108,7 +108,7 @@ def readMkT(symbols,
     Returns
     -------
     pandas.DataFrame of a dict of pandas.DataFrame
-        Hist Mkt data in the same foramt as out_dict value.
+        Hist Mkt data in the same format as out_dict value.
     """
     
     if save: pathlib.Path(dir).mkdir(parents=True, exist_ok=True) 
@@ -145,7 +145,7 @@ def readMkT(symbols,
             print("Warning: Cannot read " + symbol)
             continue
         
-        #rename columns
+        # rename columns
         sprice.columns = ['open', 'high', 'low', 'close', 
                           'adjusted', 'volume', 'divd', 'split']
         sprice.index.name = 'date'
@@ -163,12 +163,12 @@ def readMkT(symbols,
             
         rprice[symbol] = sprice
         
-    #Adjust for split
+    # Adjust for split
     if adj_split:
         for k, v in rprice.items():
             rprice[k] = _adjustSplit(v)
             
-    #Return formated output
+    # Return formatted output
     for k in rprice.keys():
         rprice[k].index = pd.to_datetime(rprice[k].index)
         

@@ -2,7 +2,7 @@
 """
 Created on Sun May 30 23:14:06 2021
 
-@author: mirce
+@author: mircea
 """
 
     
@@ -13,7 +13,7 @@ import pandas as pd
 import azapy as az
 
 #=============================================================================
-# Colenct some market data
+# Collect some market data
 sdate = pd.Timestamp("2012-01-01").normalize()
 edate = pd.Timestamp.today().normalize()
 symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
@@ -26,8 +26,8 @@ mktdir = "./scripts/analyzers/MkTdata"
 rprice = az.readMkT(symb, dstart = sdate, dend = edate, 
                     dir=mktdir, force=False) 
 
-# prepare mkt data: compute the 3-month roling rate of return for adjusted 
-# prices (column) and rearange in format "date", "symbol1", "symbol2", etc.
+# prepare mkt data: compute the 3-month rolling rate of return for adjusted 
+# prices (column) and rearrange in format "date", "symbol1", "symbol2", etc.
 # set a shorter hist for these examples (computational time is proportional
 # to the square of number of historical observation)
 hsdate =  pd.Timestamp("2020-01-01").normalize()
@@ -42,8 +42,8 @@ rrate = rprice.loc[rprice.index >= hsdate] \
 cr1 = az.GINIAnalyzer(rrate)
 # computes Sharpe weights for 0 risk-free rate
 ww1 = cr1.getWeights(mu=0.)
-# print portfolio characterisitcs
-# primery risk = set of GINI
+# print portfolio characteristics
+# primary risk = set of GINI
 # secondary risk = set of GINI
 # risk = weighted sum of GINI
 RR = cr1.RR
@@ -55,7 +55,7 @@ print("\nSharpe optimal portfolio\n")
 print(f"status {cr1.status}")
 print(f"coef {ww1}")
 print(f"Secondary risk {seco}")
-print(f"Primery risk {prim}")
+print(f"Primary risk {prim}")
 print(f"Sharpe {sharpe}")
 print(f"RR {RR}")
 print(f"risk {risk}")
@@ -64,7 +64,7 @@ print(f"risk {risk}")
 test_risk = cr1.getRisk(ww1)
 print(f"Test for the risk computation {test_risk} = {risk}")
 
-# Test the Sharpe weigths by estimating an optimal portfolio with 
+# Test the Sharpe weights by estimating an optimal portfolio with 
 # the same rate of returns.
 test_ww1 = cr1.getWeights(mu=RR, rtype='Risk')
 ww_comp = pd.DataFrame({"Original": ww1, "Test": test_ww1})
@@ -75,9 +75,9 @@ print(f"Test for weights computation {ww_comp}")
 # print("\nFrontiers evaluations\n")
 # opt ={'title': "New Port", 'tangent': True}
 # file = 'fig1w.svg'
-# print("\n rate of return vs CVaR represetnation")
+# print("\n rate of return vs CVaR representation")
 # rft = cr1.viewFrontiers(musharpe=0, randomport=1, options=opt)
-# print("\n sharpe vs rate of return represetantion")
+# print("\n Sharpe vs rate of return representation")
 # rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR')
 
 #=============================================================================
@@ -107,7 +107,7 @@ print(f"coef {ww_comp}")
 seco_comp = pd.DataFrame({"seco2": seco2, "seco1": seco1})
 print(f"Secondary risk {seco_comp}")
 prim_comp = pd.DataFrame({"prim2": prim2, "prim1": prim1})
-print(f"Primery risk {prim_comp}")
+print(f"Primary risk {prim_comp}")
 print(f"RR {RR2} = {RR1}")
 print(f"risk {risk2} = {risk1}")
 print(f"Sharpe {sharpe2} = {sharpe1}")
@@ -128,7 +128,7 @@ ww1 = cr1.getWeights(mu=0., rtype="InvNrisk")
 RR1 = cr1.RR
 # compute the optimal portfolio for RR1 targeted rate of return 
 ww2 = cr1.getWeights(mu=RR1, rtype="Risk")
-# print comparation results
+# print comparison results
 print(f"risk: 1/N port {risk} = InvNrisk {cr1.risk}")
 ww_comp = pd.DataFrame({"InvNrisk": ww1, "Optimal": ww2})
 print(f"weights: InvNrisk = Optimal {ww_comp}")
@@ -145,7 +145,7 @@ ww_comp = pd.DataFrame({"MinRisk": ww1, "Test": ww2})
 print(f"weights: MinRisk = Optimal {ww_comp}")
 
 #=============================================================================
-# # speed comparision for different LP methods
+# # speed comparison for different LP methods
 # # may take some time to complete 
 # # you have to uncomment the lines below
 # crx1 = az.GINIAnalyzer(rrate, method='highs-ds')
@@ -165,72 +165,3 @@ print(f"weights: MinRisk = Optimal {ww_comp}")
 # %timeit crx2.getWeights(mu=0.)
 # %timeit crx3.getWeights(mu=0.)
 # %timeit crx4.getWeights(mu=0.)
-
-
-
-
-# print("\nRisk")
-# mu = 0.075
-# # xrrate = rrate.iloc[:100]
-# print("\ncr1")
-# cr1 = az.GINIAnalyzer(rrate, method="highs")
-# ww1 = cr1.getWeights(mu=mu, rtype='Risk')
-# RR = cr1.RR
-# print(f"status {cr1.status}")
-# print(f"coef {cr1.ww}")
-# print(f"VaR {cr1.secondary_risk_comp}")
-# print(f"CVaR {cr1.primery_risk_comp}")
-# print(f"RR {cr1.RR}")
-# print(f"GINI {cr1.risk}")
-
-# print("\nSharpe")
-# mu = 0.
-# ww1 = cr1.getWeights(mu=mu, rtype='Sharpe')
-# RR = cr1.RR
-# print(f"status {cr1.status}")
-# print(f"coef {cr1.ww}")
-# print(f"VaR {cr1.secondary_risk_comp}")
-# print(f"CVaR {cr1.primery_risk_comp}")
-# print(f"RR {cr1.RR}")
-# print(f"GINI {cr1.risk}")
-# print(f"csharpe {cr1.sharpe} test {(cr1.RR - mu)/ cr1.risk}")
-
-# print("\nSharpe2")
-# ww1 = cr1.getWeights(mu=mu, rtype='Sharpe2')
-# RR = cr1.RR
-# print(f"status {cr1.status}")
-# print(f"coef {cr1.ww}")
-# print(f"VaR {cr1.secondary_risk_comp}")
-# print(f"CVaR {cr1.primery_risk_comp}")
-# print(f"RR {cr1.RR}")
-# print(f"GINI {cr1.risk}")
-# print(f"csharpe {cr1.sharpe} test {(cr1.RR - mu)/ cr1.risk}")
-
-# opt ={'title': "Gini Port", 'tangent': True}
-# file = 'fig1w.svg'
-# rft = cr1.viewFrontiers(musharpe=0, randomport=1)#, options=opt)
-# rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR')   
-
-# ww = np.array([1.] * len(symb))
-# ww = ww / np.sum(ww)
-
-# risk = cr1.getRisk(ww)
-
-# ww1 = cr1.getWeights(mu=0., rtype='InvNrisk')
-# cr1.status
-
-# ww1 = cr1.getWeights(mu=0.02, rtype='MinRisk')
-# cr1.status
-
-# ww1 = cr1.getWeights(mu=1., rtype='Risk')
-# cr1.status
-# cr1.RR
-
-# ww1 = cr1.getWeights(mu=-10, rtype='Sharpe2', d=-1)
-# cr1.status
-# cr1.RR
-
-
-# cr2 = GINIAnalyzer(xrrate, method='highs-ipm')
-# ww2 = cr2.getWeights(mu=0.02, rtype='MinRisk')
-# cr2.status

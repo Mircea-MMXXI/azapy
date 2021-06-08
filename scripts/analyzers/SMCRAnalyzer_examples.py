@@ -12,7 +12,7 @@ import pandas as pd
 import azapy as az
 
 #=============================================================================
-# Colenct some market data
+# Collect some market data
 sdate = pd.Timestamp("2012-01-01").normalize()
 edate = pd.Timestamp.today().normalize()
 symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
@@ -25,8 +25,8 @@ mktdir = "./scripts/analyzers/MkTdata"
 rprice = az.readMkT(symb, dstart = sdate, dend = edate, 
                     dir=mktdir, force=False) 
 
-# prepare mkt data: compute the 3-month roling rate of return for adjusted 
-# prices (column) and rearange in format "date", "symbol1", "symbol2", etc.
+# prepare mkt data: compute the 3-month rolling rate of return for adjusted 
+# prices (column) and rearrange in format "date", "symbol1", "symbol2", etc.
 hsdate =  pd.Timestamp("2017-01-01").normalize()
 
 rrate = rprice.loc[rprice.index >= hsdate] \
@@ -44,8 +44,8 @@ coef = coef / coef.sum()
 cr1 = az.SMCRAnalyzer(alpha, coef, rrate)
 # computes Sharpe weights for 0 risk-free rate
 ww1 = cr1.getWeights(mu=0.)
-# print portfolio characterisitcs
-# primery risk = set of SMCR's
+# print portfolio characteristics
+# primary risk = set of SMCR's
 # secondary risk = set of SMVaR's
 # risk = weighted sum of SMCR's 
 RR = cr1.RR
@@ -57,7 +57,7 @@ print("\nSharpe optimal portfolio\n")
 print(f"status {cr1.status}")
 print(f"coef {ww1}")
 print(f"Secondary risk {seco}")
-print(f"Primery risk {prim}")
+print(f"Primary risk {prim}")
 print(f"Sharpe {sharpe}")
 print(f"RR {RR}")
 print(f"risk {risk} evaluation test {np.dot(prim, coef)}")
@@ -66,7 +66,7 @@ print(f"risk {risk} evaluation test {np.dot(prim, coef)}")
 test_risk = cr1.getRisk(ww1)
 print(f"Test for the risk computation {test_risk} = {risk}")
 
-# Test the Sharpe weigths by estimating an optimal portfolio with 
+# Test the Sharpe weights by estimating an optimal portfolio with 
 # the same rate of returns.
 test_ww1 = cr1.getWeights(mu=RR, rtype='Risk')
 ww_comp = pd.DataFrame({"Original": ww1, "Test": test_ww1})
@@ -76,9 +76,9 @@ print(f"Test for weights computation {ww_comp}")
 # Frontier evaluations - may take time
 # print("\nFrontiers evaluations\n")
 # opt ={'title': "New Port", 'tangent': True}
-# print("\n rate of return vs SMCR represetnation")
+# print("\n rate of return vs SMCR representation")
 # rft = cr1.viewFrontiers(musharpe=0, randomport=1, options=opt)
-# print("\n sharpe vs rate of return represetantion")
+# print("\n Sharpe vs rate of return representation")
 # rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR')
 
 #=============================================================================
@@ -108,7 +108,7 @@ print(f"coef {ww_comp}")
 seco_comp = pd.DataFrame({"seco2": seco2, "seco1": seco1})
 print(f"Secondary risk {seco_comp}")
 prim_comp = pd.DataFrame({"prim2": prim2, "prim1": prim1})
-print(f"Primery risk {prim_comp}")
+print(f"Primary risk {prim_comp}")
 print(f"RR {RR2} = {RR1}")
 print(f"risk {risk2} = {risk1}")
 print(f"Sharpe {sharpe2} = {sharpe1}")
@@ -129,7 +129,7 @@ ww1 = cr1.getWeights(mu=0., rtype="InvNrisk")
 RR1 = cr1.RR
 # compute the optimal portfolio for RR1 targeted rate of return 
 ww2 = cr1.getWeights(mu=RR1, rtype="Risk")
-# print comparation results
+# print comparison results
 print(f"risk: 1/N port {risk} = InvNrisk {cr1.risk}")
 ww_comp = pd.DataFrame({"InvNrisk": ww1, "Optimal": ww2})
 print(f"weights: InvNrisk = Optimal {ww_comp}")

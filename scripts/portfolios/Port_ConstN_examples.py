@@ -13,12 +13,12 @@ import pandas.tseries.offsets as pt
 import azapy as az
 
 #=============================================================================
-# Collenct some market data
+# Collect some market data
 sdate = pd.Timestamp("2012-01-01").normalize()
 edate = pd.Timestamp.today().normalize()
 symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
 
-mktdir = "./scripts/portfolios/MkTdata"
+mktdir = "./MkTdata"
 
 # force=True read from alphavantage server
 # force=False read from local directory if data exists
@@ -55,11 +55,11 @@ p3.get_account(fancy=True)
 #=============================================================================
 # Test compare to equivalent Port_Weightes evaluations
 # Setup Port_Weightes
-# Build weigths schedule
+# Build weights schedule
 
 nyse = az.NYSEgen()
 
-# Buid manualy the weigths schedule
+# Build manually the weights schedule
 def schedule_roll(sdate, edate, doffset=-3, freq='Q', calendar=nyse):
     if freq == 'Q': edate = edate + pt.QuarterEnd(1)
     elif freq == 'M': edate = edate + pt.MonthEnd(1)

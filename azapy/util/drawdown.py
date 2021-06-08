@@ -4,7 +4,7 @@ from collections import defaultdict
 
 def prep_uw_(rdata):
     """
-    To be used internaly
+    To be used internally
     Computes the underwater vector
     
     Parameters
@@ -14,7 +14,7 @@ def prep_uw_(rdata):
 
     Returns
     -------
-    TYPE: pd.Sereis
+    TYPE: pd.Series
         The underwater vector
     """
     return rdata / rdata.cummax() - 1
@@ -28,7 +28,7 @@ def max_drawdown_(uw):
     Parameters
     ----------
     uw : TYPE dp.Series
-        under-water vector procuded by prep_uw_ function
+        under-water vector produced by prep_uw_ function
 
     Returns
     -------
@@ -59,7 +59,7 @@ def max_drawdown(rprice, col=np.nan):
     Parameters
     ----------
     rprice : TYPE pd.Series or pd.DataFram
-        time-sereis of prices as a pd.Series or as column in a dp.DataFrame
+        time-series of prices as a pd.Series or as column in a dp.DataFrame
     col : TYPE, string
         column name if rprice is a DataFrame. If is set to np.nan then rprice
         is assumed to be a Series. The default is np.nan.
@@ -73,8 +73,8 @@ def max_drawdown(rprice, col=np.nan):
     i_start : TYPE pd.Timestamp
         Date when the drawdown had started.
     i_end : TYPE pd.Timestamp
-        Date of the drawrown recovery. A value of np.nan indicates that the
-        drawdwon is in progress.
+        Date of the drawdown recovery. A value of np.nan indicates that the
+        drawdown is in progress.
     """
     rdata = rprice if pd.isna(col) else rprice[col]
 
@@ -94,7 +94,7 @@ def drawdown(rprice, col=np.nan, top=10):
     Parameters
     ----------
     rprice : TYPE pd.Series or pd.DataFrame
-        time-sereis of prices as a pd.Series or as column in a dp.DataFrame
+        time-series of prices as a pd.Series or as column in a dp.DataFrame
     col : TYPE, string
         Name of the column of price if rprice is a pd.DataFrame. If its value 
         is set to np.nan then rprice is assumed to be a pd.Series.
@@ -106,14 +106,13 @@ def drawdown(rprice, col=np.nan, top=10):
     Returns
     -------
     TYPE pd.DataFrama
-        Tabel containing the drawdowns ordered from the largest to smallest.
-        Tabel columns are:
-                'DD': (folat) drawdown max value
+        Table containing the drawdowns ordered from the largest to smallest.
+        Table columns are:
+                'DD': (float) drawdown max value
                 'Date': (pd.Timestamp) drawdown max value date
                 'Start': (pd.Timestamp) drawdown start date
-                'End': (pd.Timestampo) drawdown recovery date
-        The number of rows is <= top (smaller then top if max number of 
-                                      drawdons is smaller than top)
+                'End': (pd.Timestamp) drawdown recovery date
+        The number of rows is <= top 
     """
     rdata = rprice if pd.isna(col) else rprice[col]
  
@@ -137,37 +136,4 @@ def drawdown(rprice, col=np.nan, top=10):
 
     return pd.DataFrame(dd, 
                         index=pd.Index(range(1, len(dd['DD']) + 1), name='No'))
-
-# Examples
-# from readMkTData import readMkT
-
-# symb = ['AAPL']
-# rprice = readMkT(symb, force=False, adj_split=False, out_dict=False)
-
-# max_drawdown(rprice, col='adjusted')
-# max_drawdown(rprice['adjusted'])
-# %timeit max_drawdown(rprice['adjusted'])
-# drawdown(rprice, col='adjusted', top=5)
-# drawdown(rprice['adjusted'], top=15)
-
-# rprice['adjusted'].plot()
-# rprice.loc[rprice.index >= pd.to_datetime("2021-01-01"), 'adjusted'].plot()
-# (rprice.loc[pd.to_datetime("2020-03-23"),'adjusted'] / 
-#   rprice.loc[pd.to_datetime("2020-02-12"),'adjusted'] - 1)
-
-# rprice['cash'] = 1
-# max_drawdown(rprice['cash'])
-# drawdown(rprice['cash'])
-
-# rprice['rinfl'] = 0.03 / 254
-# rprice['infl'] = (rprice['rinfl'] + 1).cumprod()
-# max_drawdown(rprice['infl'])
-# drawdown(rprice['infl'])
-
-# rprice['rdinfl'] = -0.03 / 254
-# rprice['dinfl'] = (rprice['rdinfl'] + 1).cumprod()
-# rprice.dinfl[-1] / rprice.dinfl[0] - 1
-# max_drawdown(rprice['dinfl'])
-# drawdown(rprice['dinfl'])
-
 

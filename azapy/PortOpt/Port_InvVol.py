@@ -12,8 +12,8 @@ from .Port_ConstN import Port_ConstN
 class Port_InvVol(Port_ConstN):
     """
     Portfolio with weights proportional to inverse of volatility, 
-    periodicaly rebalanced.
-    Iherited from azapy.Port_ConstN \n
+    periodically rebalanced.
+    Inherits from azapy.Port_ConstN \n
     Functions: \n
         get_port \n
         get_nshares \n
@@ -49,11 +49,11 @@ class Port_InvVol(Port_ConstN):
             be set to the earliest date in rprice. The default is None.
         edate : datetime, optional
             End date for historical dates and so the simulation. Must be 
-            larget than  sdate. If it iset to None then edate will be sat
+            greater than  sdate. If it is None then edate will be set
             to the latest date in rprice. The default is None.
         col : string, optional
             Name of column in the rprice DataFrame that will be considered 
-            for portfolio agregation.The default is 'close'.
+            for portfolio aggregation.The default is 'close'.
         pname : string, optional
             The name of the portfolio. The default is 'Simple'.
         pcolname : string, optional
@@ -67,19 +67,19 @@ class Port_InvVol(Port_ConstN):
                 "Q" : quarterly rebalancing \n
                 The default is 'Q'. 
         noffset : int, optional
-            Number of offset business day form the calander end of invetment 
+            Number of offset business day form the calendar end of investment 
             period (rebalancing period). A positive value will add business 
             days beyond the calendar end of the period while a negative value
             will subtract business days. The default is -3.
         hlenght : float, optional
             Defines the calibration period in years for basket component 
             volatilities. The calibration period is prior and ends on the 
-            fixing date. It could be a fractionar number but the actual 
+            fixing date. It could be a fractional number but the actual 
             calibration period will rounded to the nearest multiple of 
-            rebalancing periods. The defualt is 1.
+            rebalancing periods. The default is 1.
         calendar : numpy.busdaycalendar, optional
             Business calendar compatible with the MkT data from rprice. If it
-            None then it will be set to NYSE bunsiness calendar.
+            None then it will be set to NYSE business calendar.
             The default is None.
 
         Returns
@@ -94,12 +94,12 @@ class Port_InvVol(Port_ConstN):
         
     def get_port(self):
         """
-        Evaluates the portfolio timeseries.
+        Evaluates the portfolio time-series.
 
         Returns
         -------
         pd.DataFrame
-            The portfolio timeseries in the format "date", "pcolname".
+            The portfolio time-series in the format "date", "pcolname".
         """
         self._make_schedule()
         self._make_ww()

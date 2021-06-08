@@ -12,7 +12,7 @@ import pandas as pd
 import azapy as az
 
 #=============================================================================
-# Colenct some market data
+# Collect some market data
 sdate = pd.Timestamp("2012-01-01").normalize()
 edate = pd.Timestamp.today().normalize()
 symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
@@ -25,8 +25,8 @@ mktdir = "./scripts/analyzers/MkTdata"
 rprice = az.readMkT(symb, dstart = sdate, dend = edate, 
                     dir=mktdir, force=False) 
 
-# prepare mkt data: compute the 3-month roling rate of return for adjusted 
-# prices (column) and rearange in format "date", "symbol1", "symbol2", etc.
+# prepare mkt data: compute the 3-month rolling rate of return for adjusted 
+# prices (column) and rearrange in format "date", "symbol1", "symbol2", etc.
 hsdate =  pd.Timestamp("2017-01-01").normalize()
 
 rrate = rprice.loc[rprice.index >= hsdate] \
@@ -39,8 +39,8 @@ rrate = rprice.loc[rprice.index >= hsdate] \
 cr1 = az.OmegaAnalyzer(mu0=0., rrate=rrate)
 # computes Sharpe weights for 0 risk-free rate
 ww1 = cr1.getWeights(mu=0.)
-# print portfolio characterisitcs
-# primery risk = set of Omega
+# print portfolio characteristics
+# primary risk = set of Omega
 # secondary risk = set of Omega
 # risk = weighted sum of omega
 RR = cr1.RR
@@ -61,7 +61,7 @@ print(f"risk {risk}")
 test_risk = cr1.getRisk(ww1)
 print(f"Test for the risk computation {test_risk} = {risk}")
 
-# Test the Sharpe weigths by estimating an optimal portfolio with 
+# Test the Sharpe weights by estimating an optimal portfolio with 
 # the same rate of returns.
 test_ww1 = cr1.getWeights(mu=RR, rtype='Risk')
 ww_comp = pd.DataFrame({"Original": ww1, "Test": test_ww1})
@@ -72,9 +72,9 @@ print(f"Test for weights computation {ww_comp}")
 print("\nFrontiers evaluations\n")
 opt ={'title': "New Port", 'tangent': True}
 file = 'fig1w.svg'
-print("\n rate of return vs CVaR represetnation")
+print("\n rate of return vs CVaR representation")
 rft = cr1.viewFrontiers(musharpe=0, randomport=1, options=opt)
-print("\n sharpe vs rate of return represetantion")
+print("\n Sharpe vs rate of return representation")
 rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR')
 
 #=============================================================================
@@ -116,7 +116,7 @@ print(f"Sharpe {sharpe2} = {sharpe1}")
 #=============================================================================
 # Test for InvNrisk
 cr1 = az.OmegaAnalyzer(mu0=0., rrate=rrate)
-# compute the risk of a equaly weighted portfolio
+# compute the risk of a equally weighted portfolio
 ww = np.ones(len(symb))
 ww = ww / np.sum(ww)
 risk = cr1.getRisk(ww)
@@ -125,7 +125,7 @@ ww1 = cr1.getWeights(mu=0., rtype="InvNrisk")
 RR1 = cr1.RR
 # compute the optimal portfolio for RR1 targeted rate of return 
 ww2 = cr1.getWeights(mu=RR1, rtype="Risk")
-# print comparation results
+# print comparison results
 print(f"risk: 1/N port {risk} = InvNrisk {cr1.risk}")
 ww_comp = pd.DataFrame({"InvNrisk": ww1, "Optimal": ww2})
 print(f"weights: InvNrisk = Optimal {ww_comp}")
@@ -142,7 +142,7 @@ ww_comp = pd.DataFrame({"MinRisk": ww1, "Test": ww2})
 print(f"weights: MinRisk = Optimal {ww_comp}")
 
 #=============================================================================
-# # speed comparision for different LP methods
+# # speed comparison for different LP methods
 # # may take some time to complete 
 # # you have to uncomment the lines below
 # crx1 = az.OmegaAnalyzer(mu0=0., rrate=rrate, method='highs-ds')

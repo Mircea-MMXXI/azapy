@@ -12,7 +12,7 @@ from .Port_Simple import Port_Simple
 class Port_Weighted(Port_Simple):
     """
     Portfolio with custom scheduled weights.
-    Iherited from azapy.Port_simple \n
+    Inherits from azapy.Port_simple \n
     Functions: \n
         get_port \n
         get_nshares \n
@@ -48,11 +48,11 @@ class Port_Weighted(Port_Simple):
             be set to the earliest date in rprice. The default is None.
         edate : datetime, optional
             End date for historical dates and so the simulation. Must be 
-            larget than  sdate. If it iset to None then edate will be sat
+            greater than  sdate. If it is None then edate will be set
             to the latest date in rprice. The default is None.
         col : string, optional
             Name of column in the rprice DataFrame that will be considered 
-            for portfolio agregation.The default is 'adjusted'.
+            for portfolio aggregation.The default is 'adjusted'.
         pname : string, optional
             The name of the portfolio. The default is 'Simple'.
         pcolname : string, optional
@@ -78,12 +78,12 @@ class Port_Weighted(Port_Simple):
         
     def get_port(self, ww):
         """
-        Evaluate portfolio timeseries.
+        Evaluate portfolio time-series.
 
         Parameters
         ----------
         ww : pd.DataFrame
-            Rebalace schedule. The following columns must be present: \n
+            Rebalance schedule. The following columns must be present: \n
                 "Droll" : rolling date (rebalancing day) \n
                 "Dfix" : fixing date (day when the close price are recorded) \n
                 name of symbol 1 : weights for symbol 1 \n
@@ -94,7 +94,7 @@ class Port_Weighted(Port_Simple):
         Returns
         -------
         pd.DataFrame
-            The portfolio timeseries in the format "date", "pcolname".
+            The portfolio time-series in the format "date", "pcolname".
 
         """
         self.ww = ww.copy()
@@ -188,12 +188,12 @@ class Port_Weighted(Port_Simple):
             For each rolling period identified by "Droll" (rolling date) index,
             reports: \n
                 for each symbol : the number of shares hold \n
-                "cash_invst" : cash invested at the begining of 
+                "cash_invst" : cash invested at the beginning of 
                 period \n
                 "cash_roll" : cash rolled to the next period \n
                 "cash_divd" : cash dividend accumulated in the 
-                previouse period \n
-            Note: The capital at the begining of the period is 
+                previous period \n
+            Note: The capital at the beginning of the period is 
             cash_invst + cash_roll. It is also equal to the previous period: 
             value of the shares on the fixing date + cash_roll + cash_divd.
             There are 2 sources for the cash_roll. The roundup to integer 
