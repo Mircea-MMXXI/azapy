@@ -12,8 +12,8 @@ from .MADAnalyzer import MADAnalyzer
 class Port_MAD(Port_CVaR):
     """
     Portfolio with MAD optimal weights, periodically rebalanced.
-    Inherits from azapy.Port_CVaR \n
     Functions: \n
+        set_model \n
         get_port \n
         get_nshares \n
         get_weights \n
@@ -25,73 +25,10 @@ class Port_MAD(Port_CVaR):
         port_perf \n
         port_annual_returns \n
         port_monthly_returns
-    """
-    def __init__(self, rprice, symb=None, sdate=None, edate=None, col='close', 
-                 pname='MAD_Port', pcolname=None, capital=100000, 
-                 freq='Q', noffset=-3, hlenght=1, calendar=None):
+    """    
+    def set_model(self, mu, coef=[1.], rtype='Sharpe', hlength=3.25):
         """
-        Constructor
-
-        Parameters
-        ----------
-        rprice : pd.DataFrame
-            MkT data in the format "symbol", "date", "open", "high", "low",
-            "close", "volume", "adjusted", "divd", "split" (e.g. as returned
-            by azapy.readMkT).
-        symb : list, optional
-            List of symbols for the basket components. All symbols MkT data
-            should be included in rprice. If set to None the symb will be 
-            set to the full set of symbols included in rprice. The default 
-            is None.
-        sdate : datetime, optional
-            Start date for historical data. If set to None the sdate will 
-            be set to the earliest date in rprice. The default is None.
-        edate : datetime, optional
-            End date for historical dates and so the simulation. Must be 
-            greater than  sdate. If it is None then edate will be set
-            to the latest date in rprice. The default is None.
-        col : string, optional
-            Name of column in the rprice DataFrame that will be considered 
-            for portfolio aggregation.The default is 'close'.
-        pname : string, optional
-            The name of the portfolio. The default is 'Simple'.
-        pcolname : string, optional
-            Name of the portfolio price column. If it set to None that 
-            pcolname=pname. The default is None.
-        capital : float, optional
-            Initial portfolio Capital in dollars. The default is 100000.
-        freq : string, optional
-            Defines the rebalancing period. Can take the following values:
-                "M" : monthly rebalancing \n
-                "Q" : quarterly rebalancing \n
-                The default is 'Q'. 
-        noffset : int, optional
-            Number of offset business day form the calendar end of investment 
-            period (rebalancing period). A positive value will add business 
-            days beyond the calendar end of the period while a negative value
-            will subtract business days. The default is -3.
-        hlenght : float, optional
-            Defines the calibration period in years for basket component 
-            volatilities. The calibration period is prior and ends on the 
-            fixing date. It could be a fractional number but the actual 
-            calibration period will rounded to the nearest multiple of 
-            rebalancing periods. The default is 1.
-        calendar : numpy.busdaycalendar, optional
-            Business calendar compatible with the MkT data from rprice. If it
-            None then it will be set to NYSE business calendar.
-            The default is None.
-
-        Returns
-        -------
-        The object.
-        """
-        super().__init__(rprice, symb, sdate, edate, col, 
-                         pname, pcolname, capital, freq, noffset, hlenght,
-                         calendar)
-        
-    def get_port(self, mu, coef=[1.], rtype='Sharpe'):
-        """
-        Evaluates the portfolio time-series.
+        Set model parameteres and evaluates portfolio time-series.
 
         Parameters
         ----------
@@ -111,14 +48,18 @@ class Port_MAD(Port_CVaR):
                 "InvNrisk" - optimal portfolio with same CVaR as the equally 
                 weighted portfolio. \n
                 The default is 'Sharpe'.
+        hlength : float, optional
+            The length in year of the historical calibration period relative 
+            to 'Dfix'. A fractinar number will be rounded to an integer number 
+            of months. The default is 3.25.
 
         Returns
         -------
         pd.DataFrame
             The portfolio time-series in the format "date", "pcolname".
-
         """
-        return super().get_port(mu=mu, coef=coef, rtype=rtype)
+        return super().set_model(mu=mu, coef=coef, rtype=rtype, 
+                                 hlength=hlength)
     
     def _set_alpha(self, alpha, coef):
         # ignore alpha

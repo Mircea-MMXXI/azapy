@@ -6,16 +6,17 @@ Created on Fri Mar 26 12:23:59 2021
 """
 import pandas as pd
 import numpy as np
-import pandas.tseries.offsets as pt
 
-from .Port_Weighted import Port_Weighted
+from .Port_Rebalanced import Port_Rebalanced
 from azapy.MkT.readMkTData import NYSEgen
+from azapy.util.schedule import simple_schedule
 
-class Port_ConstN(Port_Weighted):
+class Port_ConstN(Port_Rebalanced):
     """
     Portfolio with constant weights periodically rebalanced.
     Inherits from azapy.Port_Weighted \n
     Functions: \n
+        set_model \n
         get_port \n
         get_nshares \n
         get_weights \n
@@ -28,9 +29,11 @@ class Port_ConstN(Port_Weighted):
         port_annual_returns \n
         port_monthly_returns
     """
-    def __init__(self, rprice, symb=None, sdate=None, edate=None, col='close', 
-                 pname='ConstN', pcolname=None, capital=100000, 
-                 freq='Q', noffset=-3, calendar=None):
+    def __init__(self, rprice, symb=None, sdate=None, edate=None, 
+                 col_price='close', col_divd='divd', col_ref='adjusted',
+                 pname='Port', pcolname=None, capital=100000, 
+                 schedule=None,
+                 freq='Q', noffset=-3, fixoffset=-1, calendar=None):
         """
         Constructor
 
@@ -52,9 +55,15 @@ class Port_ConstN(Port_Weighted):
             End date for historical dates and so the simulation. Must be 
             greater than  sdate. If it is None then edate will be set
             to the latest date in rprice. The default is None.
-        col : string, optional
-            Name of column in the rprice DataFrame that will be considered 
+        col_price : string, optional
+            Column name in the rprice DataFrame that will be considered 
             for portfolio aggregation.The default is 'close'.
+        col_divd :  string, optional
+            Column name in the rprice DataFrame that holds the dividend 
+            information. The default is 'dvid'
+        col_ref : string, optional
+            Column name in the rprice DataFrame that will be used as a price 
+            reference for portfolio components. The default is 'adjusted'.
         pname : string, optional
             The name of the portfolio. The default is 'Simple'.
         pcolname : string, optional
@@ -62,20 +71,29 @@ class Port_ConstN(Port_Weighted):
             pcolname=pname. The default is None.
         capital : float, optional
             Initial portfolio Capital in dollars. The default is 100000.
-        freq : string, optional
-            Defines the rebalancing period. Can take the following values:
-                "M" : monthly rebalancing \n
-                "Q" : quarterly rebalancing \n
-                The default is 'Q'. 
-        noffset : intE, optional
-            Number of offset business day form the calendar end of investment 
-            period (rebalancing period). A positive value will add business 
-            days beyond the calendar end of the period while a negative value
-            will subtract business days. The default is -3.
-        calendar : numpy.busdaycalendar, optional
-            Business calendar compatible with the MkT data from rprice. If it
-            None then it will be set to NYSE business calendar.
+        schedule : pandas.DataFrame, optional
+            Rebalancing schedule, with columns for 'Droll' rolling date and
+            'Dfix' fixing date. If it is None than the schedule will be set 
+            using the freq, nsoffset, fixoffset and calendar information.
             The default is None.
+        freq : string, optional
+            rebalancing frequency. It can be 'Q' for quarterly or 'M' for 
+            monthly rebalancing, respectively. It is relevant only is schedule 
+            is None. The default is 'Q'.
+        noffset : int, optional
+            Number of business days offset for rebalancing date 'Droll' 
+            relative to the end of the period (quart or month). A positive
+            value add business days beyond the calendar end of the period while
+            a negative value subtract business days. It is relevant only is 
+            schedule is None. The default is -3.
+        fixoffset : int, optional
+            Number of business day offset of fixing date 'Dfix' relative to 
+            the rebalancing date 'Droll'. It cane be 0 or negative. It is 
+            relevant only is schedule is None. The default is -1.
+        calendar : numpy.busdaycalendar, optional
+            Business calendar. If it is None then it will be set to NYSE 
+            business calendar via azapy.NYSEgen() function. The default 
+            vale is None.
 
         Returns
         -------
@@ -83,15 +101,19 @@ class Port_ConstN(Port_Weighted):
         """
         super().__init__(rprice=rprice, symb=symb, 
                          sdate=sdate, edate=edate, 
-                         col=col, pname=pname,
+                         col_price=col_price, col_divd=col_divd,
+                         col_ref=col_ref,
+                         pname=pname,
                          pcolname=pcolname, capital=capital)
+        self.schedule=schedule
         self.freq = freq
         self.noffset = noffset
+        self.fixoffset=fixoffset
         self.calendar =  calendar 
         if self.calendar is None: self._default_calendar()
 
         
-    def get_port(self, ww=None):
+    def set_model(self, ww=None):
         """
         Evaluates the portfolio time-series.
 
@@ -108,6 +130,7 @@ class Port_ConstN(Port_Weighted):
         pd.DataFrame
             The portfolio time-series in the format "date", "pcolname".
         """
+        # Validate the weights
         if ww is None:
             _ww = pd.Series(1., index=self.symb)
         elif isinstance(ww, pd.core.series.Series):
@@ -122,26 +145,18 @@ class Port_ConstN(Port_Weighted):
         wws = _ww.sum()
         assert wws > 0, "at least one ww element must be > 0"
         
-        self.ww = self._make_simple_schedule()
-
+        # Build rebalancing schedule
+        if self.schedule is None:
+            self.ww = simple_schedule(self.sdate, self.edate. self.freq,
+                                      self.noffset, self.fixoffset, 
+                                      self.calenda)
+        # Set weights
         for sy in self.symb:
             self.ww[sy] = _ww[sy] / wws
- 
+        
+        # Calcualte
         self._port_calc()
         return self.port
-    
-    def _make_simple_schedule(self):
-        if self.freq == 'Q': edate = self.edate + pt.QuarterEnd(1)
-        elif self.freq == 'M': edate = self.edate + pt.MonthEnd(1)
-        else: raise ValueError("Wrong freq, Must be 'Q' or 'M'")
-        
-        tedx = pd.date_range(start=self.sdate, end=edate, freq=self.freq)\
-            .to_numpy(dtype='<M8[D]')
-        troll = np.busday_offset(tedx, self.noffset, roll='backward', 
-                                 busdaycal=self.calendar)
-        tfix = np.busday_offset(troll, -1, roll='backward', 
-                                busdaycal=self.calendar)
-        return pd.DataFrame({'Droll': troll, 'Dfix': tfix})
     
     def _default_calendar(self):
         self.calendar = NYSEgen()

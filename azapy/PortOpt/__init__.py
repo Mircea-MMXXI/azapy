@@ -9,7 +9,9 @@ from .MVAnalyzer import *
 from .OmegaAnalyzer import *
 
 from .Port_Simple import *
+from .Port_Rebalanced import *
 from .Port_Weighted import *
+from .Port_ConstW import *
 from .Port_ConstN import *
 from .Port_CVaR import *
 from .Port_InvVol import *

@@ -15,38 +15,47 @@ from azapy.util.drawdown import drawdown, max_drawdown
 class Port_Simple:
     """
     Portfolio with constant initial weights (no rebalance or dividend 
-    accumulation).
-    It is also a base class for all Port_XXX classes
+    accumulation). \n
+    Functions: \n
+        set_model \n
+        get_port \n
+        get_mktdata \n
+        port_view \n
+        port_view_all \n
+        port_drawdown \n
+        port_perf \n
+        port_annual_returns \n
+        port_monthly_returns
     """
-    def __init__(self, rprice, symb=None, sdate=None, edate=None, 
-                 col='adjusted', pname='Simple', pcolname=None, 
+    def __init__(self, mktdata, symb=None, sdate=None, edate=None, 
+                 col='adjusted', pname='Port', pcolname=None, 
                  capital=100000):
         """
         Constructor
 
         Parameters
         ----------
-        rprice : pd.DataFrame
+        mktdata : pd.DataFrame
             MkT data in the format "symbol", "date", "open", "high", "low",
             "close", "volume", "adjusted", "divd", "split" (e.g. as returned
             by azapy.readMkT).
         symb : list, optional
             List of symbols for the basket components. All symbols MkT data
-            should be included in rprice. If set to None the symb will be 
-            set to the full set of symbols included in rprice. The default 
+            should be included in mktdata. If set to None the symb will be 
+            set to the full set of symbols included in mktdata. The default 
             is None.
         sdate : datetime, optional
             Start date for historical data. If set to None the sdate will 
-            be set to the earliest date in rprice. The default is None.
+            be set to the earliest date in mktdata. The default is None.
         edate : datetime, optional
             End date for historical dates and so the simulation. Must be 
             greater than  sdate. If it is None then edate will be set
-            to the latest date in rprice. The default is None.
+            to the latest date in mktdata. The default is None.
         col : string, optional
-            Name of column in the rprice DataFrame that will be considered 
+            Name of column in the mktdata DataFrame that will be considered 
             for portfolio aggregation.The default is 'adjusted'.
         pname : string, optional
-            The name of the portfolio. The default is 'Simple'.
+            The name of the portfolio. The default is 'Port'.
         pcolname : string, optional
             Name of the portfolio price column. If it set to None that 
             pcolname=pname. The default is None.
@@ -56,17 +65,18 @@ class Port_Simple:
         Returns
         -------
         The object.
-
         """
         if sdate is None:
-            sdate = rprice.groupby('symbol').apply(lambda x: x.index[0]).max()
+            sdate = mktdata.groupby('symbol') \
+                           .apply(lambda x: x.index[0]).max()
         if edate is None:
-            edate = rprice.groupby('symbol').apply(lambda x: x.index[-1]).min()
-        if symb is None: symb = rprice.symbol.unique()
+            edate = mktdata.groupby('symbol') \
+                           .apply(lambda x: x.index[-1]).min()
+        if symb is None: symb = mktdata.symbol.unique()
             
-        self.mktdata = rprice[(rprice.index >= sdate) & 
-                              (rprice.index <= edate) &
-                              rprice.symbol.isin(symb)].copy()
+        self.mktdata = mktdata[(mktdata.index >= sdate) & 
+                               (mktdata.index <= edate) &
+                               mktdata.symbol.isin(symb)].copy()
         self.symb = pd.Series(symb)
         self.sdate = pd.to_datetime(sdate)
         self.edate = pd.to_datetime(edate)
@@ -78,9 +88,9 @@ class Port_Simple:
         self.ww = None
         self.port = None
         
-    def get_port(self, ww=None):
+    def set_model(self, ww=None):
         """
-        Evaluate the portfolio time-series.
+        Set model parameters and evaluate the portfolio time-series.
 
         Parameters
         ----------
@@ -96,6 +106,7 @@ class Port_Simple:
             The portfolio time-series in the format "date", "pcolname".
 
         """
+        # Validate the weights
         if ww is None:
             self.ww = pd.Series(1., index=self.symb.size)
         elif isinstance(ww, pd.core.series.Series):
@@ -111,6 +122,7 @@ class Port_Simple:
         assert wws > 0, "at least one ww element must be > 0"
         self.ww = self.ww / wws
         
+        # Calculate
         self._port_calc()
         return self.port
     
@@ -119,6 +131,17 @@ class Port_Simple:
         divid = self.ww / mktdata.iloc[0] * self.capital
 
         self.port = pd.DataFrame(mktdata @ divid, columns = [self.pcolname])
+        
+    def get_port(self):
+        """
+        Returns the portfolio time-series
+        
+        Returns
+        -------
+        pd.DataFrame
+
+        """
+        return self.port
         
     def get_mktdata(self):
         """
@@ -183,9 +206,9 @@ class Port_Simple:
         return df
     
     def port_view_all(self, sdate=None, edate=None, view=True, 
-                      fancy=False):
+                      fancy=False, componly=False):
         """
-        Plot the portfolio and its component time-series.
+        Plot the portfolio and its component time-series in a relative bases.
 
         Parameters
         ----------
@@ -206,6 +229,12 @@ class Port_Simple:
             True : it uses plotly library for interactive time-series view.
             
             The default is False.
+        componly : boolean, optional
+            True : only the portfolio components time-serie are plotted.
+            
+            False: the portfolio and its components times-sereis are plotted.
+            
+            The default is True.
 
         Returns
         -------
@@ -219,9 +248,10 @@ class Port_Simple:
             edate = self.edate
         
         df = self.mktdata.pivot(columns='symbol', values=self.col) 
-        df = df.iloc[(df.index >= sdate) & (df.index <= edate)] \
-                .merge(self.port, on='date') \
-                .apply(lambda x: x / x[0])
+        df = df.iloc[(df.index >= sdate) & (df.index <= edate)] 
+        if not componly:
+            df = df.merge(self.port, on='date') 
+        df = df.apply(lambda x: x / x[0])
  
         if view: 
             if fancy: 
