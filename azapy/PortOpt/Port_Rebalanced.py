@@ -2,7 +2,7 @@
 """
 Created on Sat Jun 19 15:11:05 2021
 
-@author: mirce
+@author: mircea
 """
 
 import pandas as pd
@@ -102,7 +102,6 @@ class Port_Rebalanced(Port_Simple):
         -------
         pd.DataFrame
             The portfolio time-series in the format "date", "pcolname".
-
         """
         # Make sure that the weights are normalized
         self.ww = ww.copy()
@@ -131,7 +130,6 @@ class Port_Rebalanced(Port_Simple):
         Returns
         -------
         pandas.DataFrame
-
         """
         
         return self.ww
@@ -179,7 +177,7 @@ class Port_Rebalanced(Port_Simple):
     def get_account(self, fancy=False):
         """
         Returns additional bookkeeping information regarding rebalancing 
-        (e.g. residual cash due rounding number of shares, previouse period 
+        (e.g. residual cash due rounding number of shares, previous period 
          dividend cash accumulation, etc.)
 
         Parameters

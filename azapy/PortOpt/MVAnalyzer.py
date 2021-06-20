@@ -261,7 +261,7 @@ class MVAnalyzer(RiskAnalyzer):
         # build b_eq
         b = matrix([1.])
         
-        #calc
+        # calc
         res = solvers.conelp(c, G, h, dims, A, b, \
                              options={'show_progress': False})
             

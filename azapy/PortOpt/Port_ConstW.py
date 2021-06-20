@@ -73,7 +73,7 @@ class Port_ConstW(Port_Rebalanced):
         schedule : pandas.DataFrame, optional
             Rebalancing schedule, with columns for 'Droll' rolling date and
             'Dfix' fixing date. If it is None than the schedule will be set 
-            using the freq, nsoffset, fixoffset, hlength and calendar 
+            using the freq, nsoffset, fixoffset and calendar 
             information. The default is None.
         freq : string, optional
             rebalancing frequency. It can be 'Q' for quarterly or 'M' for 

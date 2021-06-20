@@ -55,7 +55,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
 
 
     def _risk_calc(self, prate, alpha):
-        # Order of varaibles:
+        # Order of variables:
         # u <- 0, 
         # eta <- 1
         # s <- [2 : nn + 2] 

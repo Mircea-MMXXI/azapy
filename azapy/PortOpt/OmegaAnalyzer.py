@@ -194,9 +194,9 @@ class OmegaAnalyzer(RiskAnalyzer):
         self.ww = np.array(res.x[:mm])
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
-        # primery risk components - default to risk
+        # primary risk components - default to risk
         self.primery_risk_comp = np.array([self.risk])
-        # secondary raisk components - default to risk
+        # secondary risk components - default to risk
         self.secondary_risk_comp = np.array([self.risk])
         
         return self.ww

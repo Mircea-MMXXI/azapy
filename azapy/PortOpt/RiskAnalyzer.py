@@ -156,7 +156,7 @@ class RiskAnalyzer:
             Portfolio weights. Must have a size equal to the number of symbols 
             in rrate (MkT data). All weights must by >= 0 with at least one 
             > 0.
-        rrate : pandas.sereis, optional
+        rrate : pandas.series, optional
             MkT Data. If is not None it will overwrite the rrate set by the 
             constructor. The default is None.
 
@@ -241,10 +241,10 @@ class RiskAnalyzer:
         Parameters
         ----------
         efficient : int, optional
-            Number of points along the optimal frontier (equaly spaced along 
+            Number of points along the optimal frontier (equally spaced along 
             the rate of returns). The default is 20.
         inefficient : int, optional
-            Number of points along the inefficient frontier (equaly spaced 
+            Number of points along the inefficient frontier (equally spaced 
             along the rate of returns). The default is 20.
         musharpe : float, optional
             Value for the risk-free rate of return used in the evaluation of

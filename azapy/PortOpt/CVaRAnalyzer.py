@@ -421,8 +421,6 @@ class CVaRAnalyzer(RiskAnalyzer):
         # VaR (u)
         self.secondary_risk_comp = np.array([res.x[mm + l * (nn + 1)] \
                                     for l in range(ll)])
-        # average CVaR
-        # self.risk = trisk
         # CVaR (recomputed)
         self.primery_risk_comp = \
             np.array([res.x[mm + l * (nn + 1)] \

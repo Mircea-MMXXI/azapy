@@ -11,48 +11,48 @@ from collections import defaultdict
 
 from .readMkTData import NYSEgen
 
-def summary_MkTData(rprice, calendar=None, sdate=None, edate=None):
+def summary_MkTData(mktdata, calendar=None, sdate=None, edate=None):
     """
-    Summary of MkT Dats time-series lentgh and quality
+    Summary of MkT data time-series length and quality
 
     Parameters
     ----------
-    rprice : dict or pd.DataFrame 
+    mktdata : dict or pd.DataFrame 
         MkT Data in the format returned by azapy.readMkT function.
     calendar : np.busdaycalendar, optional
         Business days calendar. If is set to None it will 
         default to NYSE business calendar.
     sdate : pd.Timestamp, optional
         Time-series start date. If is None then sdate will be set to the 
-        earliest date in rprice.
+        earliest date in mktdata.
         Default value is None.
     edate : pd.Timestamp, optional
-        Time-earies end date. If it None then edate will be set to the most 
-        recent date in rprice.
+        Time-series end date. If it None then edate will be set to the most 
+        recent date in mktdata.
         Default value is None.
 
     Returns
     -------
     TYPE pd.DataFrame
-        Tabel with columns:
+        Table with columns:
             symbol - time-series symbol
             begin - start date
             end - end date
             length - number of records
             na - total number of NA
-            na_b - number of missing records at the begining
+            na_b - number of missing records at the beginning
             na_e = number of missing records at the end
             cont - total number of missing records
             
     
-    Comment: the main aplication is to asses the missing data in the 
+    Comment: the main application is to asses the missing data in the 
     time-series extracted with azapy.readMkT function.
     """
     
-    if isinstance(rprice, dict):
-        gite = rprice.items()
+    if isinstance(mktdata, dict):
+        gite = mktdata.items()
     else:
-        gite = rprice.groupby('symbol')
+        gite = mktdata.groupby('symbol')
     
     sds = []
     eds = []

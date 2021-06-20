@@ -26,7 +26,7 @@ class Port_MV(Port_CVaR):
     """
     def set_port(self, mu, rtype='Sharpe', hlength=3.25):
         """
-        Sets model parameteres and evaluates portfolio time-series.
+        Sets model parameters and evaluates portfolio time-series.
 
         Parameters
         ----------
@@ -46,7 +46,7 @@ class Port_MV(Port_CVaR):
                 The default is 'Sharpe'.
         hlength : float, optional
             The length in year of the historical calibration period relative 
-            to 'Dfix'. A fractinar number will be rounded to an integer number 
+            to 'Dfix'. A fractional number will be rounded to an integer number 
             of months. The default is 3.25. 
 
         Returns

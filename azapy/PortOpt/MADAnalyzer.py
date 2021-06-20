@@ -77,7 +77,7 @@ class MADAnalyzer(RiskAnalyzer):
         ----------
         ww : list (numpy.array or pandas.Series)
             Portfolio weights.
-        rrate : pandas.sereis, optional 
+        rrate : pandas.series, optional 
             MkT Data. If is not None it will overwrite the rrate set by the 
             constructor. The default is None.
 
@@ -115,10 +115,6 @@ class MADAnalyzer(RiskAnalyzer):
             dd = np.mean(xrate)
             delta.append(dd)
             mu -= dd
-        # for _ in range(self.ll):
-        #     dd = mux - np.sum(prate[prate <= mux]) / nn
-        #     delta.append(dd)
-        #     mux -= dd
             
         self.primery_risk_comp = np.array(delta)
         self.secondary_risk_comp = np.cumsum(self.primery_risk_comp) \

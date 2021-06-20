@@ -104,11 +104,10 @@ class Port_Simple:
         -------
         pd.DataFrame
             The portfolio time-series in the format "date", "pcolname".
-
         """
         # Validate the weights
         if ww is None:
-            self.ww = pd.Series(1., index=self.symb.size)
+            self.ww = pd.Series(1., index=self.symb)
         elif isinstance(ww, pd.core.series.Series):
             self.ww = ww
         else:
@@ -139,7 +138,6 @@ class Port_Simple:
         Returns
         -------
         pd.DataFrame
-
         """
         return self.port
         
@@ -180,7 +178,6 @@ class Port_Simple:
         -------
         df : panda.DataFrame
             The DataFrame with the time-series included in plot.
-
         """
         df = self.port.copy()
 
@@ -240,7 +237,6 @@ class Port_Simple:
         -------
         df : pandas.DataFrame
             A Data Frame containing the time-series.
-
         """
         if sdate is None: 
             sdate = self.sdate
@@ -287,7 +283,6 @@ class Port_Simple:
                 "Date" : recorded date of the drawdown \n
                 "Star" : start date of the drawdown \n
                 "End" : end date of the drawdown
-
         """
         res = drawdown(self.port, col=self.pcolname, top=top)
         if not fancy: return res
@@ -321,7 +316,6 @@ class Port_Simple:
                 "DD_date" : recorder date of maximum drawdown \n
                 "DD_start" : start date of maximum drawdown \n
                 "DD_end" : end date of maximum drawdown
-    
         """
         # local function
         def rinfo(df, col):
@@ -364,7 +358,6 @@ class Port_Simple:
         Returns
         -------
         pandas.DataFrame
-
         """
         # local function
         def rrate(df):
@@ -401,7 +394,6 @@ class Port_Simple:
         Returns
         -------
         pandas.DataFrame
-
         """
         def rrate(df):
             return df[self.pcolname][-1] / df[self.pcolname][0] - 1

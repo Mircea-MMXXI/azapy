@@ -49,7 +49,6 @@ class GINIAnalyzer(RiskAnalyzer):
         Returns
         -------
         The object.
-
         """
         self.method = method
         self.drate = None
@@ -76,7 +75,6 @@ class GINIAnalyzer(RiskAnalyzer):
         Returns
         -------
         None.
-
         """
         self.nn, self.mm = rrate.shape
         self.muk = rrate.mean()
@@ -302,7 +300,7 @@ class GINIAnalyzer(RiskAnalyzer):
         # build c
         c = list(-self.muk) + [0.] * nn2
         
-        # bild A_up
+        # build A_up
         icol = [m for m in range(mm) for _ in range(nn2)] * 2
         irow = list(range(nn2)) * mm + list(range(nn2, 2 * nn2)) * mm
         data = list(self.drate) + list(-self.drate)
