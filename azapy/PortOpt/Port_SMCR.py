@@ -24,5 +24,5 @@ class Port_SMCR(Port_CVaR):
         port_annual_returns \n
         port_monthly_returns
     """
-    def _set_wwgen(self):
-        self.wwgen = SMCRAnalyzer(self.alpha, self.coef, rtype=self.rtype)
+    def wwgen(self):
+        return SMCRAnalyzer(self.alpha, self.coef, rtype=self.rtype)

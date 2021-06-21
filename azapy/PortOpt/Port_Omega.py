@@ -70,5 +70,5 @@ class Port_Omega(Port_CVaR):
         self._port_calc()
         return self.port
 
-    def _set_wwgen(self):
-            self.wwgen = OmegaAnalyzer(self.alpha[0], rtype=self.rtype)
+    def _wwgen(self):
+        return OmegaAnalyzer(self.alpha[0], rtype=self.rtype)

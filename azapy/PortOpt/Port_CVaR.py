@@ -102,22 +102,8 @@ class Port_CVaR(Port_InvVol):
             
         self.rtype = rtype
         
-    def _set_wwgen(self):
-        self.wwgen = CVaRAnalyzer(self.alpha, self.coef, rtype=self.rtype)
-        
-    def _set_weights(self):
-        mktdata = self.mktdata.pivot(columns='symbol', values='adjusted')
-        periods = 62 if self.freq == 'Q' else 21
-        self._set_wwgen()
-        
-        # local function
-        def _fww(rr, md=mktdata):
-            if rr.Dfix > self.edate:
-                return pd.Series(np.nan, index=md.columns)
-            
-            mm = md[rr.Dhist : rr.Dfix].pct_change(periods=periods).dropna()
-            return self.wwgen.getWeights(mu=self.mu, rrate=mm)
-            
-        w = self.schedule.apply(_fww, axis=1)
- 
-        self.ww = pd.concat([self.schedule, w], axis=1)
+    def _wwgen(self):
+        return CVaRAnalyzer(self.alpha, self.coef, rtype=self.rtype)
+
+    def _ww_calc(self, data):
+        return self._wwgen().getWeights(mu=self.mu, rrate=data)

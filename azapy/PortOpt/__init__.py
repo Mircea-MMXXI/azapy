@@ -13,6 +13,8 @@ from .Port_Rebalanced import *
 from .Port_ConstW import *
 from .Port_CVaR import *
 from .Port_InvVol import *
+from .Port_InvVar import *
+from .Port_InvDD import *
 from .Port_GINI import *
 from .Port_MAD import *
 from .Port_MV import *

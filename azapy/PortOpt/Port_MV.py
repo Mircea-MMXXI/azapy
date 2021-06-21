@@ -56,5 +56,5 @@ class Port_MV(Port_CVaR):
         """
         return super().set_model(mu=mu, rtype=rtype, hlength=hlength)
         
-    def _set_wwgen(self):
-        self.wwgen = MVAnalyzer(rtype=self.rtype)
+    def _wwgen(self):
+        return MVAnalyzer(rtype=self.rtype)

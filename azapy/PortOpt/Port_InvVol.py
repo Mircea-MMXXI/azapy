@@ -4,6 +4,7 @@ Created on Fri Mar 26 16:11:18 2021
 
 @author: mircea
 """
+import numpy as np
 import pandas as pd
 
 from .Port_ConstW import Port_ConstW
@@ -138,12 +139,17 @@ class Port_InvVol(Port_ConstW):
         periods = 62 if self.freq == 'Q' else 21
         
         # local function
-        def _fvol(rr, md=mktdata):
-            mm = md[rr.Dhist : rr.Dfix]
-            vv = 1. / mm.pct_change(periods=periods).std()
-            return vv / vv.sum()
+        def _fww(rr):
+            if rr.Dfix > self.edate:
+                return pd.Series(np.nan, index=mktdata.columns)
+            
+            mm = mktdata[rr.Dhist:rr.Dfix].pct_change(periods=periods).dropna()
+            return self._ww_calc(mm)
         
-        w = self.schedule.apply(_fvol, axis=1)
+        w = self.schedule.apply(_fww, axis=1)
  
         self.ww = pd.concat([self.schedule, w], axis=1)
-        print(self.ww)
+        
+    def _ww_calc(self, data):
+        vv = 1. / data.std()
+        return vv / vv.sum()

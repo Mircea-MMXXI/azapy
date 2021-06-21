@@ -69,5 +69,5 @@ class Port_MAD(Port_CVaR):
         assert ssc > 0., "at least one coef must be > 0"
         self.coef = coef / ssc
         
-    def _set_wwgen(self):
-        self.wwgen = MADAnalyzer(coef=self.coef, rtype=self.rtype)
+    def _wwgen(self):
+        return MADAnalyzer(coef=self.coef, rtype=self.rtype)
