@@ -6,6 +6,7 @@ Created on Mon Apr 12 14:22:45 2021
 """
 import numpy as np
 from cvxopt import matrix, spmatrix, solvers
+import warnings
 
 from .CVaRAnalyzer import CVaRAnalyzer
 
@@ -161,6 +162,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
                              options={'show_progress': False})
                              
         if 'optimal' not in res['status']:
+            warnings.warn(f"warning {res['status']}")
             self.status = 2
             return np.nan
         
@@ -257,6 +259,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
                              options={'show_progress': False})
                              
         if 'optimal' not in res['status']:
+            warnings.warn(f"warning {res['status']}")
             self.status = 2
             return np.nan
         
@@ -360,6 +363,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
                              options={'show_progress': False})
                              
         if 'optimal' not in res['status']:
+            warnings.warn(f"warning {res['status']}")
             self.status = 2
             return np.nan
         
@@ -454,6 +458,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
                              options={'show_progress': False})
                              
         if 'optimal' not in res['status']:
+            warnings.warn(f"warning {res['status']}")
             self.status = 2
             return np.nan
         
