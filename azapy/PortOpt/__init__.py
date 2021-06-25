@@ -7,6 +7,7 @@ from .GINIAnalyzer import *
 from .MADAnalyzer import *
 from .MVAnalyzer import *
 from .OmegaAnalyzer import *
+from .KellyEngine import *
 
 from .Port_Simple import *
 from .Port_Rebalanced import *
@@ -20,3 +21,4 @@ from .Port_MAD import *
 from .Port_MV import *
 from .Port_Omega import *
 from .Port_SMCR import *
+from .Port_Kelly import *
