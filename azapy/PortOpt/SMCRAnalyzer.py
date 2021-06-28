@@ -479,3 +479,94 @@ class SMCRAnalyzer(CVaRAnalyzer):
         self.ww.shape = mm
 
         return self.ww
+
+    def _risk_averse(self):
+        # Order of variables:
+        # w <- [0:mm] 
+        # then for l <- [0:ll]
+        #   u_l <- mm + l(nn + 2), 
+        #   eta_l <- mm +l(nn + 2) + 1
+        #   s_l <- [mm + l(nn + 2) + 2: mm + (l + 1)(nn + 2)]
+        # in total dim = mm + ll(nn + 2)
+        ll = self.ll
+        nn = self.nn
+        mm = self.mm
+        
+        # build c
+        c = list(-self.muk)
+        for l in range(ll):
+            c += [self.Lambda * self.coef[l]] \
+               + [self.Lambda * self.coef[l] \
+               / (1 - self.alpha[l]) / np.sqrt(nn)] \
+               + [0.] * nn
+        c = matrix(c)
+        
+        # build G
+        # linear
+        icol = list(range(mm)) * (nn * ll)
+        irow = [k  for k in range(nn * ll) for _ in range(mm)]
+        data = list(np.ravel(-self.rrate)) * ll
+        for l in range(ll):
+            icol += [mm + l * (nn + 2)] * nn \
+                + list(range(mm + l * (nn + 2) + 2, mm + (l + 1) * (nn + 2)))
+            irow += list(range(l * nn, (l + 1) * nn)) \
+                + list(range(l * nn, (l + 1) * nn))
+            data += [-1] * nn + [-1] * nn
+        icol += list(range(mm))
+        irow += list(range(nn * ll, mm + nn * ll))
+        data += [-1.] * mm
+        for l in range(ll):
+            icol += list(range(mm + l * (nn + 2) + 2, mm + (l + 1) * (nn + 2)))
+            irow += list(range(mm + ll * nn + l * nn, \
+                               mm + ll * nn + (l + 1) * nn))
+            data += [-1.] * nn
+        # cone
+        for l in range(ll):
+            icol += list(range((nn + 2) * l + mm + 1, 
+                               (nn + 2) * l + mm + 1 + nn + 1))
+            irow += list(range(mm + 2 * nn * ll + l * (nn + 1), 
+                               mm + 2 * nn * ll + (l + 1) * (nn + 1)))
+            data += [-1] * (nn + 1)
+            
+        G = spmatrix(data, irow, icol, size=(3 * nn * ll + mm + ll,
+                                             mm + ll * (nn + 2)))
+        
+        h = matrix([0.] * (nn * ll) + [0.] * mm \
+                 + [0.] * (ll * nn) \
+                 + [0.] * (ll * (nn + 1)))
+        
+        dims = {'l': (2 * ll * nn + mm), 'q': [nn + 1] * ll, 's': []}
+        
+        A = spmatrix([1.] * mm, [0] * mm, list(range(mm)), 
+                     size=(1, mm + ll * (nn + 2)))
+        b = matrix([1.])
+        
+        res = solvers.conelp(c, G, h, dims, A, b, \
+                             options={'show_progress': False})
+                             
+        if 'optimal' not in res['status']:
+            warnings.warn(f"warning {res['status']}")
+            self.status = 2
+            return np.nan
+        
+        self.status = 0
+        # optimal weights
+        self.ww = np.array(res['x'][:mm])
+        self.ww.shape = mm
+        # rate of return
+        self.RR = np.dot(self.ww, self.muk)
+        # average SMCR
+        self.risk = (res['primal objective'] + self.RR) / self.Lambda
+        # SMVaR
+        self.secondary_risk_comp = [res['x'][mm + l * (nn + 2)] \
+                                    for l in range(ll)]
+        # component SMCR
+        self.primery_risk_comp = \
+            [res['x'][mm + l * (nn + 2)] \
+             + 1 / (1 - self.alpha[l])  / np.sqrt(nn) \
+             * res['x'][mm + l * (nn + 2) + 1] \
+            for l in range(ll)]
+        
+        return self.ww
+    
+        

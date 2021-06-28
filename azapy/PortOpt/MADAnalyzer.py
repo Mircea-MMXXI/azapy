@@ -461,3 +461,83 @@ class MADAnalyzer(RiskAnalyzer):
         
         return self.ww
     
+    def _risk_averse(self):
+        # Order of variables:
+        # w <- [0:mm] 
+        # then for l <- [0:ll]
+        #   u_l <- mm + l(nn+1), 
+        #   s_l <- [mm + l(nn + 1) + 1: mm + (l + 1)(nn + 1)]
+        # in total dim = mm + ll(nn + 1)
+        nn = self.nn
+        mm = self.mm
+        ll = self.ll 
+   
+        # build c
+        c = list(-self.muk)
+        for l in range(ll):
+            c += [self.Lambda * self.coef[l]] + [0.] * nn
+            
+        # build A_ub
+        icol = list(range(mm)) * (nn * ll)
+        irow = [k  for k in range(nn * ll) for _ in range(mm)]
+        data = list(np.ravel(-self.rrate)) * ll
+        for l in range(ll):
+            icol += [mm + k * (nn + 1) for k in range(l)] * nn \
+                  + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
+            #irow += list(range(l * nn, (l + 1) * nn)) * (l + 1)
+            irow += [k for k in range(l * nn, (l + 1) * nn) for _ in range(l)]\
+                + list(range(l * nn, (l + 1) * nn))
+            data += [-1.] * ((l + 1) * nn)
+        
+        A = sps.coo_matrix((data, (irow, icol)), 
+                            shape=(nn * ll, mm + (nn + 1) * ll))
+        
+        # build b_ub
+        b = [0.] * (nn * ll)
+        
+        # build A_eq
+        icol = []
+        irow = []
+        data = []
+        for l in range(ll):
+            icol += list(range(mm + l * (nn + 1), mm + (l + 1) * (nn + 1)))
+            irow += [l] * (nn + 1)
+            data += [-1.] + [1. / nn] * nn
+        icol += list(range(mm))
+        irow += [ll] * mm
+        data += [1.] * mm
+        Ae = sps.coo_matrix((data, (irow, icol)), 
+                             shape=(ll + 1, mm + (nn + 1) * ll)) 
+        
+        # build b_eq
+        be = [0.] * ll + [1.]
+        
+        # options
+        opt = {'sparse': True}
+        
+        # compute - suppress warning
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            res = linprog(c, A, b, Ae, be, method=self.method, options=opt)
+            
+        # gather the results
+        self.status = res.status
+        if self.status != 0: 
+            warnings.warn(res.message)
+            return np.nan
+        
+        # optimal weights
+        self.ww = np.array(res.x[:mm])
+        # rate of return
+        self.RR = np.dot(self.ww, self.muk)
+        # mMAD
+        self.risk = (res.fun + self.RR) / self.Lambda
+        # MAD 
+        self.primery_risk_comp = np.array([res.x[mm + l * (nn + 1)] \
+                                           for l in range(ll)])
+        # tMAD
+        self.secondary_risk_comp = np.cumsum(self.primery_risk_comp) \
+            - self.primery_risk_comp[0]
+        
+        return self.ww
+    

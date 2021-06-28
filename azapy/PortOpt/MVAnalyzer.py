@@ -283,3 +283,50 @@ class MVAnalyzer(RiskAnalyzer):
         
         return self.ww   
     
+    def _risk_averse(self):
+        # Order of variables
+        # w <- [0:nn]
+        # in total dim=nn
+        rho = self.rrate.cov() * (2. * self.Lambda)
+        nn = rho.shape[0]
+        
+        # build P
+        P = matrix(rho.to_numpy())
+        
+        # build q
+        q = matrix(-self.muk)
+        
+        # build G
+        G = spdiag([-1.] * nn)
+        
+        # build h
+        h = matrix([0.] * nn)
+        
+        # build A
+        A = matrix([1.] * nn, size=(1, nn))
+        
+        # build
+        b = matrix([1.])
+        
+        res = solvers.qp(P, q, G, h, A, b, 
+                         solver=self.method, options={'show_progress': False})
+        
+        if 'optimal' not in res['status']:
+            warnings.warn(f"warning {res['status']}")
+            self.status = 2
+            return np.nan
+        
+        self.status = 0
+        # Optimal weights
+        self.ww = np.array(res['x'])
+        self.ww.shape = nn
+        # rate of return
+        self.RR = np.dot(self.ww, self.muk)
+        # min volatility
+        self.risk = np.sqrt((res['primal objective'] + self.RR) / self.Lambda)
+        # min volatility
+        self.primery_risk_comp = np.array([self.risk])
+        # min variance
+        self.secondary_risk_comp = np.array([self.risk**2])
+        
+        return self.ww

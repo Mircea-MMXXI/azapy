@@ -38,7 +38,9 @@ class RiskAnalyzer:
                 "MinRisk" : optimal portfolio with minimum dispersion (risk) 
                 value.\n
                 "InvNRisk" : optimal portfolio with the same dispersion (risk)
-                value as equally weighted portfolio. 
+                value as equally weighted portfolio. \n
+                "RiskAverse" : optimal portfolio for a fixed risk aversion 
+                coefficient.
             The default is "Sharpe".
         
         Returns
@@ -81,7 +83,8 @@ class RiskAnalyzer:
             criterion. For rtype set to\n
                 "Risk" : mu is the targeted portfolio rate of returns.\n
                 "Sharpe" and "Sharpe2" : mu is the risk-free rate.\n
-                "MinRisk" and "InvNRisk": mu is ignored.
+                "MinRisk" and "InvNRisk": mu is ignored. \n
+                "RiskAverse" : mu is the Lambda aversion coefficient.
         rrate : pandas.DataFrame, optional
             MkT Data. If is not None it will overwrite the rrate set by the 
             constructor. The default is None.
@@ -139,6 +142,9 @@ class RiskAnalyzer:
             ww = ww / np.sum(ww)
             self.getRisk(ww)
             self._rr_max()
+        elif self.rtype == "RiskAverse":
+            self.Lambda = mu
+            self._risk_averse()
         else:
             print(f"should not be here!! Unknown rtype {rtype}")
             return np.nan
@@ -227,7 +233,8 @@ class RiskAnalyzer:
         None.
 
         """
-        rtypes = ["Sharpe", "Risk", "MinRisk", "Sharpe2", "InvNrisk"]
+        rtypes = ["Sharpe", "Risk", "MinRisk", "Sharpe2", "InvNrisk", 
+                  "RiskAverse"]
         assert rtype in rtypes, f"type must be one of {rtypes}"
         self.rtype = rtype
         
@@ -581,5 +588,7 @@ class RiskAnalyzer:
     def _sharpe_min(self):
         pass
     def _rr_max(self):
+        pass
+    def _risk_averse(self):
         pass
         

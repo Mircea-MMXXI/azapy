@@ -348,3 +348,63 @@ class GINIAnalyzer(RiskAnalyzer):
         self.secondary_risk_comp = np.array([self.risk])
         
         return self.ww
+
+    def _risk_averse(self):
+        # Order of variables (mm - no of symb, nn - no of observations)
+        # w <- [0 : mm]
+        # s <- [mm : mm + nn2]
+        # in total dim = mm + nn2 
+        # where nn2 = nn * (nn - 1) / 2
+        mm = self.mm
+        nn2 = self.nn2
+        
+        # build c
+        c = list(-self.muk) + [0.5 * self.Lambda / nn2] * nn2
+        
+        # bild A_up
+        icol = [m for m in range(mm) for _ in range(nn2)] * 2
+        irow = list(range(nn2)) * mm + list(range(nn2, 2 * nn2)) * mm
+        data = list(self.drate) + list(-self.drate)
+        
+        icol += list(range(mm, mm + nn2)) * 2
+        irow += list(range(nn2 * 2))
+        data += [-1.] * (nn2 * 2)
+        
+        A = sps.coo_matrix((data, (irow, icol)), 
+                            shape=(nn2 * 2, mm + nn2))
+        
+        # build b_ub
+        b = [0.] * (nn2 * 2)
+        
+        # build A_eq
+        Ae = sps.coo_matrix(([1.] * mm, ([0] * mm, list(range(mm)))), 
+                            shape=(1, mm + nn2)) 
+        
+        # build b_eq
+        be = [1.]
+        
+        # options
+        opt = {'sparse': True}
+        
+        # compute - suppress warning
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            res = linprog(c, A, b, Ae, be, method=self.method, options=opt)
+            
+        # gather the results
+        self.status = res.status
+        if self.status != 0: 
+            warnings.warn(res.message)
+            return np.nan
+        
+         # optimal weights
+        self.ww = np.array(res.x[:mm])
+        # rate of return
+        self.RR = np.dot(self.ww, self.muk)
+        # GINI
+        self.risk = (res.fun + self.RR) / self.Lambda
+ 
+        self.primery_risk_comp = np.array([self.risk])
+        self.secondary_risk_comp = np.array([self.risk])
+        
+        return self.ww

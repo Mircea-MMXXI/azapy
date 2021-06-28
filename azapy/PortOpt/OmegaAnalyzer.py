@@ -188,7 +188,7 @@ class OmegaAnalyzer(RiskAnalyzer):
             warnings.warn(res.message)
             return np.nan
         
-        # average CVaR
+        # delta-risk
         self.risk = res.fun
         # optimal weights
         self.ww = np.array(res.x[:mm])
@@ -285,7 +285,7 @@ class OmegaAnalyzer(RiskAnalyzer):
         adata = list(np.ravel(-self.rrate)) + [-1.] * nn \
             + [self.mu] * nn 
         
-        A = sps.coo_matrix((adata, (irow, icol)),  shape=(nn, mm + nn + 1))
+        A = sps.coo_matrix((adata, (irow, icol)), shape=(nn, mm + nn + 1))
         
         # build b_ub
         b = [0.] * nn 
@@ -380,6 +380,61 @@ class OmegaAnalyzer(RiskAnalyzer):
         # optimal weights
         self.ww = np.array(res.x[:mm])
         
+        # primary risk components - default to risk
+        self.primery_risk_comp = np.array([self.risk])
+        # secondary risk components - default to risk
+        self.secondary_risk_comp = np.array([self.risk])
+        
+        return self.ww
+
+    def _risk_averse(self):
+        # Order of variables
+        # w <- [0 : mm]
+        # s <- [mm : mm + nn]
+        # in total dim = mm + nn
+        nn = self.nn
+        mm = self.mm
+        
+        # build c
+        c = list(-self.muk) + [self.Lambda / nn] * nn
+        
+        # build A_ub
+        icol = list(range(mm)) * nn + list(range(mm, mm + nn)) 
+        irow = [k  for k in range(nn) for _ in range(mm)] + list(range(nn)) 
+        adata = list(np.ravel(-self.rrate)) + [-1.] * nn 
+        
+        A = sps.coo_matrix((adata, (irow, icol)),  shape=(nn, mm + nn))
+        
+        # build b_ub
+        b = [-self.alpha[0]] * nn 
+        
+        # build A_eq
+        Ae = sps.coo_matrix(([1.] * mm, ([0] * mm, list(range(mm)))), 
+                            shape=(1, mm + nn)) 
+        
+        # build b_eq
+        be = [1.]
+        
+        # options
+        opt = {'sparse': True}
+        
+        # compute - suppress warning
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            res = linprog(c, A, b, Ae, be, method=self.method, options=opt)
+            
+        # gather the results
+        self.status = res.status
+        if self.status != 0: 
+            warnings.warn(res.message)
+            return np.nan
+        
+        # optimal weights
+        self.ww = np.array(res.x[:mm])
+        # rate of return
+        self.RR = np.dot(self.ww, self.muk)
+        # delta-risk
+        self.risk = (res.fun + self.RR) / self.Lambda
         # primary risk components - default to risk
         self.primery_risk_comp = np.array([self.risk])
         # secondary risk components - default to risk

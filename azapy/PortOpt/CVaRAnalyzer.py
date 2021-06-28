@@ -434,3 +434,75 @@ class CVaRAnalyzer(RiskAnalyzer):
         
         return self.ww 
  
+    def _risk_averse(self):
+        # Order of variables:
+        # w <- [0:mm] 
+        # then for l <- [0:ll]
+        #   u_l <- mm + l(nn+1), 
+        #   s_l <- [mm + l(nn + 1) + 1: mm + (l + 1)(nn + 1)]
+        # in total dim = mm + ll(nn + 1)
+        ll = self.ll
+        nn = self.nn
+        mm = self.mm
+    
+        # build c
+        c = list(-self.muk)
+        for l in range(ll):
+            c += [self.Lambda * self.coef[l]] \
+               + [self.Lambda * self.coef[l] / (1 - self.alpha[l] ) / nn] * nn
+            
+        # build A_ub
+        icol = list(range(mm)) * (nn * ll)
+        irow = [k  for k in range(nn * ll) for _ in range(mm)]
+        adata = list(np.ravel(-self.rrate)) * ll
+        for l in range(ll):
+            icol += [mm + l * (nn + 1)] * nn \
+                + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
+            irow += list(range(l * nn, (l + 1) * nn)) \
+                + list(range(l * nn, (l + 1) * nn))
+            adata += [-1] * nn + [-1] * nn
+     
+        A = sps.coo_matrix((adata, (irow, icol)), 
+                           shape=(nn * ll, mm + (nn + 1) * ll))
+        
+        # build b_ub
+        b = [0] * (nn * ll)
+        
+        # build A_eq
+        Ae = sps.coo_matrix(([1.] * mm, ([0] * mm, list(range(mm)))), 
+                            shape=(1, mm + (nn + 1) * ll)) 
+        
+        # build b_eq
+        be = [1.]
+        
+        # options
+        opt = {'sparse': True}
+        
+        # compute - suppress warning
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            res = linprog(c, A, b, Ae, be, method=self.method, options=opt)
+            
+        # gather the results
+        self.status = res.status
+        if self.status != 0: 
+            warnings.warn(res.message)
+            return np.nan
+        
+        # optimal weights
+        self.ww = np.array(res.x[:mm])
+        # VaR (u)
+        self.secondary_risk_comp = np.array([res.x[mm + l * (nn + 1)] \
+                                    for l in range(ll)])
+        # rate of returns
+        self.RR = np.dot(self.ww, self.muk)
+        # average CVaR
+        self.risk = (res.fun + self.RR) / self.Lambda
+        # CVaR (recomputed)
+        self.primery_risk_comp = \
+            np.array([res.x[mm + l * (nn + 1)] \
+             + 1 / (1 - self.alpha[l]) * np.mean(
+                 res.x[(mm + l * (nn + 1) + 1) : (mm + (l + 1) * (nn + 1))])
+             for l in range(ll)])
+        
+        return self.ww
