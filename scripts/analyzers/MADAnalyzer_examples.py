@@ -13,8 +13,8 @@ import azapy as az
 
 #=============================================================================
 # Collect some market data
-sdate = pd.Timestamp("2012-01-01").normalize()
-edate = pd.Timestamp.today().normalize()
+sdate = pd.to_datetime("2012-01-01")
+edate = pd.to_datetime('today')
 symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
 #symb = ["IHI", "SPY", "VGT", "PSJ", "PGF"]
 
@@ -27,7 +27,7 @@ rprice = az.readMkT(symb, dstart = sdate, dend = edate,
 
 # prepare mkt data: compute the 3-month rolling rate of return for adjusted 
 # prices (column) and rearrange in format "date", "symbol1", "symbol2", etc.
-hsdate =  pd.Timestamp("2017-01-01").normalize()
+hsdate =  pd.to_datetime("2017-01-01")
 
 rrate = rprice.loc[rprice.index >= hsdate] \
     .pivot(columns='symbol', values='adjusted') \
@@ -57,7 +57,7 @@ print("\nSharpe optimal portfolio\n")
 print(f"status {cr1.status}")
 print(f"coef {ww1}")
 print(f"Secondary risk {seco}")
-print(f"Primery risk {prim}")
+print(f"Primary risk {prim}")
 print(f"Sharpe {sharpe}")
 print(f"RR {RR}")
 print(f"risk {risk} evaluation test {np.dot(prim, coef)}")
@@ -77,9 +77,9 @@ print(f"Test for weights computation {ww_comp}")
 print("\nFrontiers evaluations\n")
 opt = {'title': "New Port", 'tangent': True}
 file = 'fig1w.svg'
-print("\n rate of return vs CVaR represetnation")
+print("\n rate of returns vs risk representation")
 rft = cr1.viewFrontiers(musharpe=0, randomport=1, options=opt)
-print("\n sharpe vs rate of return represetantion")
+print("\n sharpe vs rate of returns representation")
 rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR')
 
 #=============================================================================
@@ -141,6 +141,23 @@ ww2 = cr1.getWeights(mu=0., rtype="Risk")
 # print comparison 
 ww_comp = pd.DataFrame({"MinRisk": ww1, "Test": ww2})
 print(f"weights: MinRisk = Optimal {ww_comp}")
+
+#=============================================================================
+# Test for RiskAverse
+# first compute the Sharpe portfolio
+cr1 = az.MADAnalyzer(coef, rrate)
+ww1 = cr1.getWeights(mu=0.)
+sharpe = cr1.sharpe
+risk = cr1.risk
+
+# compute RiskAverse portfolio for Lambda=sharpe 
+Lambda = sharpe
+cr2 = az.MADAnalyzer(coef, rrate)
+ww2 = cr2.getWeights(mu=Lambda, rtype='RiskAverse')
+
+# comparison - practically they should be identical 
+print(f"risk: {cr2.risk} test {cr2.RR / Lambda}, Sharpe risk: {risk}")
+print(f"weights:\n {pd.DataFrame({'ww1': ww1, 'ww2': ww2, 'diff': ww1-ww2})}")
 
 #=============================================================================
 # speed comparison for different LP methods

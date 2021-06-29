@@ -14,12 +14,6 @@ from .RiskAnalyzer import RiskAnalyzer
 class GINIAnalyzer(RiskAnalyzer):
     """
     GINI dispersion measure based portfolio optimization.
-        Note: inherits from azapy.RiskAnalyzer \n
-        Function inherited\n
-            getWeights \n
-            getRisk \n
-            set_rtype \n
-            viewFrontiers
     """
     def __init__(self, rrate=None, rtype='Sharpe', method='highs-ipm'):
         """
@@ -28,8 +22,8 @@ class GINIAnalyzer(RiskAnalyzer):
         Parameters
         ----------
         rrate : pandas.DataFrame, optional
-            MkT data for portfolio components in the format 
-            "date", "symbol1", "symbol2", etc. The default is None.
+            Portfolio components historical rates of returns in the format 
+           "date", "symbol1", "symbol2", etc. The default is None.
         rtype : string, optional
             Optimization type. Possible values \n
                 "Risk" - minimization of dispersion (risk) measure.\n
@@ -40,6 +34,8 @@ class GINIAnalyzer(RiskAnalyzer):
                 value.\n
                 "InvNRisk" - optimal portfolio with the same dispersion (risk)
                 value as equally weighted portfolio.\n
+                "RiskAverse" : optimal portfolio for a fixed risk aversion 
+                coefficient.
             The default is "Sharpe".
         method : string, optional
             Linear programming numerical method. Could be 
@@ -66,7 +62,7 @@ class GINIAnalyzer(RiskAnalyzer):
             
     def set_rrate(self, rrate):
         """
-        Set the MkT Data.
+        Sets the MkT Data.
 
         Parameters
         ----------
@@ -408,3 +404,4 @@ class GINIAnalyzer(RiskAnalyzer):
         self.secondary_risk_comp = np.array([self.risk])
         
         return self.ww
+        

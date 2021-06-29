@@ -10,8 +10,34 @@ import cvxopt as cx
 import warnings
 
 class KellyEngine():
-    
+    """
+    Computes the Kelly optimal portfolio.
+    """
     def getWeights(self, rrate, rtype='Full', method='glpk'):
+        """
+        Computes the Kelly optimal weights.
+
+        Parameters
+        ----------
+        rrate : pd.DataFrame
+            Portfolio components historical rates of returns in the format 
+           "date", "symbol1", "symbol2", etc. 
+        rtype : string, optional
+            Optimization type. it can be:\n
+            'Full' - non-linear original Kelly problem. \n
+            'Order2' - second order Taylor approximation of original Kelly 
+            problem. It is a QP problem. \n
+            The default is 'Full'.
+        method : string, optional
+            The QP solver class. It is relevant only if rtype='Order2'.
+            It takes 2 values: 'glpk' or None for default cvxopt.solvers.qp algorithm.
+            The default is 'glpk'.
+
+        Returns
+        -------
+        pd.Series
+            Portfolio weights.
+        """
         self.rrate = rrate
         self.method = method
         
@@ -96,3 +122,4 @@ class KellyEngine():
             return pd.Series(np.nan, index=self.rrate.columns)      
 
         return pd.Series(res['x'], index=rrd.columns)
+        

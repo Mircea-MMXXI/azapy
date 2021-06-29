@@ -13,13 +13,7 @@ from .RiskAnalyzer import RiskAnalyzer
 
 class MADAnalyzer(RiskAnalyzer):
     """
-    MAD risk measure based portfolio optimization
-        Note: inherits from azapy.RiskAnalyzer \n
-        Function inherited\n
-            getWeights \n
-            set_rrate \n
-            set_rtype \n
-            viewFrontiers
+    MAD risk measure based portfolio optimization.
     """
     def __init__(self, coef=[1.], rrate=None, rtype='Sharpe', 
                  method='highs-ipm'):
@@ -32,8 +26,8 @@ class MADAnalyzer(RiskAnalyzer):
             List of coefficients (the list size defines the MAD 
             order).The default is [1.].
         rrate : pandas.DataFrame, optional
-           MkT data for portfolio components in the format "date",
-            "symbol1", "symbol2", etc. The default is None.
+           Portfolio components historical rates of returns in the format 
+           "date", "symbol1", "symbol2", etc. The default is None.
         rtype : TYPE, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure.\n
@@ -43,7 +37,9 @@ class MADAnalyzer(RiskAnalyzer):
                 "MinRisk" : optimal portfolio with minimum dispersion (risk) 
                 value.\n
                 "InvNRisk" : optimal portfolio with the same dispersion (risk)
-                value as equally weighted portfolio. 
+                value as equally weighted portfolio. \n
+                "RiskAverse" : optimal portfolio for a fixed risk aversion 
+                coefficient.
             The default is "Sharpe".
         method : string, optional
             Linear programming numerical method. 
@@ -71,7 +67,7 @@ class MADAnalyzer(RiskAnalyzer):
         
     def getRisk(self, ww, rrate=None):
         """
-        Return the value of MAD for a give portfolio.
+        Returns the value of MAD for a give portfolio.
 
         Parameters
         ----------
@@ -85,7 +81,6 @@ class MADAnalyzer(RiskAnalyzer):
         -------
         float
         The value of MAD
-
         """
         if rrate is not None: 
             self.set_rrate(rrate)

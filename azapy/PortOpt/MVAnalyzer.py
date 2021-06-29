@@ -14,13 +14,6 @@ from .RiskAnalyzer import RiskAnalyzer
 class MVAnalyzer(RiskAnalyzer):
     """
     MV - Mean Variance based portfolio optimization.
-        Note: inherits from azapy.RiskAnalyzer \n
-        Function inherited\n
-            getWeights \n
-            getRisk \n
-            set_rrate \n
-            set_rtype \n
-            viewFrontiers
     """
     def __init__(self, rrate=None, rtype='Sharpe', method = 'glpk'):
         """
@@ -29,7 +22,7 @@ class MVAnalyzer(RiskAnalyzer):
         Parameters
         ----------
         rrate : pandas.DataFrame, optional
-           MkT data for portfolio components in the format 
+           Portfolio components historical rates of returns in the format 
            "date", "symbol1", "symbol2", etc. The default is None.
         rtype : TYPE, optional
             Optimization type. Possible values \n
@@ -40,7 +33,9 @@ class MVAnalyzer(RiskAnalyzer):
                 "MinRisk" : optimal portfolio with minimum dispersion (risk) 
                 value.\n
                 "InvNRisk" : optimal portfolio with the same dispersion (risk)
-                value as equally weighted portfolio. 
+                value as equally weighted portfolio. \n
+                "RiskAverse" : optimal portfolio for a fixed risk aversion 
+                coefficient.
             The default is "Sharpe".
         method : string, optional
             Quadratic programming numerical method. Could be 'glpk' or
@@ -330,3 +325,4 @@ class MVAnalyzer(RiskAnalyzer):
         self.secondary_risk_comp = np.array([self.risk**2])
         
         return self.ww
+        

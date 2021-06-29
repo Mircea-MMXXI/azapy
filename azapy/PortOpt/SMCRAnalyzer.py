@@ -13,13 +13,6 @@ from .CVaRAnalyzer import CVaRAnalyzer
 class SMCRAnalyzer(CVaRAnalyzer):
     """
     SMCR - Second Momentum Coherent Risk based portfolio optimizations.
-        Note inherits from azapy.CVaRAnalyzer \n
-        Function inherited\n
-            getWeights \n
-            getRisk \n
-            ser_rtype \n
-            set_rtype \n
-            viewFrontiers
     """
     def __init__(self, alpha=[0.9], coef=[1.], rrate=None, rtype='Sharpe'):
         """
@@ -33,8 +26,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
             List of coefficients. Must be the same size with 
             alpha. The default is [1.].
         rrate : pandas.DataFrame, optional
-            MkT data for portfolio components in the format 
-            "date", "symbol1", "symbol2", etc. The default is None.
+            Portfolio components historical rates of returns in the format 
+           "date", "symbol1", "symbol2", etc. The default is None.
         rtype : string, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure. \n
@@ -44,7 +37,9 @@ class SMCRAnalyzer(CVaRAnalyzer):
                 "MinRisk" : optimal portfolio with minimum dispersion (risk) 
                 value.\n
                 "InvNRisk" : optimal portfolio with the same dispersion (risk)
-                value as equally weighted portfolio. 
+                value as equally weighted portfolio. \n
+                "RiskAverse" : optimal portfolio for a fixed risk aversion 
+                coefficient.
             The default is "Sharpe".
             
         Returns

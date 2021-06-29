@@ -18,6 +18,7 @@ class RiskAnalyzer:
         _sharpe_max(self)
         _sharpe_min(self)
         _rr_max(self)
+        _risk_averse(self)
     """
     
     def __init__(self, rrate, rtype):
@@ -27,8 +28,8 @@ class RiskAnalyzer:
         Parameters
         ----------
         rrate : pandas.DataFrame, optional
-            MkT data for portfolio components in the format 
-            "date", "symbol1", "symbol2", etc. The default is None.
+            Portfolio components historical rates of returns in the format 
+           "date", "symbol1", "symbol2", etc. The default is None.
         rtype : string, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure.\n
@@ -74,7 +75,7 @@ class RiskAnalyzer:
         
     def getWeights(self, mu, rrate=None, rtype=None, d=1):
         """
-        Compute the optimal portfolio weights.
+        Computes the optimal portfolio weights.
 
         Parameters
         ----------
@@ -154,7 +155,7 @@ class RiskAnalyzer:
     
     def getRisk(self, ww, rrate=None):
         """
-        Return the value of the dispersion (risk) measure for a give portfolio.
+        Returns the value of the dispersion (risk) measure for a give portfolio.
 
         Parameters
         ----------
@@ -177,7 +178,7 @@ class RiskAnalyzer:
             self.set_rrate(rrate)
             
         w = np.array(ww)
-        assert all(w >= 0.), "All weights must be non negative"
+        assert all(w >= 0.), "All weights must be non-negative"
         w = w / w.sum()
         
         prate = np.dot(self.rrate, w)
@@ -204,7 +205,8 @@ class RiskAnalyzer:
     
     def set_rrate(self, rrate):
         """
-        Set the MkT Data.
+        Sets portfolio components historical rates of returns in the format 
+        "date", "symbol1", "symbol2", etc. 
 
         Parameters
         ----------
@@ -221,7 +223,7 @@ class RiskAnalyzer:
         
     def set_rtype(self, rtype):
         """
-        Set the optimization type.
+        Sets the optimization type.
 
         Parameters
         ----------
@@ -243,7 +245,7 @@ class RiskAnalyzer:
                       fig_type='RR_risk',
                       options=None, save=None, data=None):
         """
-        Compute the elements of the portfolio frontiers.
+        Computes the elements of the portfolio frontiers.
 
         Parameters
         ----------

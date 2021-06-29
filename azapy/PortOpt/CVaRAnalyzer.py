@@ -14,13 +14,6 @@ from .RiskAnalyzer import RiskAnalyzer
 class CVaRAnalyzer(RiskAnalyzer):
     """
     CVaR risk measure based portfolio optimizations.
-        Note: inherits from azapy.RiskAnalyzer \n
-        Function inherited\n
-            getWeights \n
-            getRisk \n
-            set_rrate \n
-            set_rtype \n
-            viewFrontiers
     """
     def __init__(self, alpha=[0.975], coef=[1.], rrate=None, rtype='Sharpe',
                  method='highs'):
@@ -35,8 +28,8 @@ class CVaRAnalyzer(RiskAnalyzer):
             List of coefficients. Must be the same size with 
             alpha. The default is [1.].
         rrate : pandas.DataFrame, optional
-            MkT data for portfolio components in the format 
-            "date", "symbol1", "symbol2", etc. The default is None.
+            Portfolio components historical rates of returns in the format 
+           "date", "symbol1", "symbol2", etc. The default is None.
         rtype : string, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure. \n
@@ -47,6 +40,8 @@ class CVaRAnalyzer(RiskAnalyzer):
                 value.\n
                 "InvNRisk" : optimal portfolio with the same dispersion (risk)
                 value as equally weighted portfolio. 
+                "RiskAverse" : optimal portfolio for a fixed risk aversion 
+                coefficient.
             The default is "Sharpe".
         method : string, optional
             Linear programming numerical method. 
@@ -56,7 +51,6 @@ class CVaRAnalyzer(RiskAnalyzer):
         Returns
         -------
         The object.
-
         """
         super().__init__(rrate, rtype)
         
@@ -506,3 +500,4 @@ class CVaRAnalyzer(RiskAnalyzer):
              for l in range(ll)])
         
         return self.ww
+        

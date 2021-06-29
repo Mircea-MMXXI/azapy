@@ -13,12 +13,7 @@ from .RiskAnalyzer import RiskAnalyzer
 
 class OmegaAnalyzer(RiskAnalyzer):
     """
-    Omega measure based portfolio optimization.
-        Note inherits from azapy.RiskAnalyzer \n
-        Function inherited\n
-            getWeights \n
-            getRisk \n
-            set_rtype \n
+    Omega measure/ratio based portfolio optimization.
     """
     def __init__(self, mu0 = 0., rrate=None, rtype='Sharpe', 
                  method='highs-ipm'):
@@ -30,8 +25,8 @@ class OmegaAnalyzer(RiskAnalyzer):
         mu0 : float, optional
             Risk-free rate (Omega threshold). The default is 0.
         rrate : pandas.DataFrame, optional
-            MkT data for portfolio components in the format 
-            "date", "symbol1", "symbol2", etc. The default is None.
+            Portfolio components historical rates of returns in the format 
+           "date", "symbol1", "symbol2", etc. The default is None.
         rtype : string, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure.\n
@@ -41,7 +36,9 @@ class OmegaAnalyzer(RiskAnalyzer):
                 "MinRisk" : optimal portfolio with minimum dispersion (risk) 
                 value.\n
                 "InvNRisk" : optimal portfolio with the same dispersion (risk)
-                value as equally weighted portfolio. 
+                value as equally weighted portfolio. \n
+                "RiskAverse" : optimal portfolio for a fixed risk aversion 
+                coefficient.
             The default is "Sharpe".
         method : string, optional
             Linear programming numerical method. 
@@ -51,7 +48,6 @@ class OmegaAnalyzer(RiskAnalyzer):
         Returns
         -------
         The object.
-
         """
         super().__init__(rrate, rtype)
         self.method = method
@@ -61,7 +57,7 @@ class OmegaAnalyzer(RiskAnalyzer):
                       component=True, randomport=20, fig_type='RR_risk',
                       options=None, save=None, data=None):
         """
-        Compute the elements of the portfolio frontiers.
+        Computes the elements of the portfolio frontiers.
 
         Parameters
         ----------
@@ -108,7 +104,6 @@ class OmegaAnalyzer(RiskAnalyzer):
         -------
         dictionary
             Numerical data used to make the plots. 
-
         """
         if musharpe is not None:
             self.alpha[0] = musharpe
@@ -122,16 +117,18 @@ class OmegaAnalyzer(RiskAnalyzer):
         
     def set_rrate(self, rrate):
         """
-        Set the Mkt Data.
+        Sets ortfolio components historical rates of returns in the format 
+        "date", "symbol1", "symbol2", etc. 
 
         Parameters
         ----------
         rrate : pandas.DataFrame
-            MkT Data. It will overwrite the value set by the constructor.
+            Portfolio components historical rates of returns in the format 
+           "date", "symbol1", "symbol2", etc.
+            It will overwrite the values set by the constructor.
         Returns
         -------
         None.
-
         """
         self.nn, self.mm = rrate.shape
         self.muk = rrate.mean()
@@ -441,3 +438,4 @@ class OmegaAnalyzer(RiskAnalyzer):
         self.secondary_risk_comp = np.array([self.risk])
         
         return self.ww
+        
