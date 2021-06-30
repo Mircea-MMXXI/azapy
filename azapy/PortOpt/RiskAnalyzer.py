@@ -72,6 +72,9 @@ class RiskAnalyzer:
         
         if rrate is not None:
             self.set_rrate(rrate)
+            
+        self.rng = None
+        self.set_random_seed()
         
     def getWeights(self, mu, rrate=None, rtype=None, d=1):
         """
@@ -571,14 +574,24 @@ class RiskAnalyzer:
             plt.savefig(res['save'])
         plt.show()
         
+    def set_random_seed(self, seed = 42):
+        """
+        Sets the seed for Dirichlet random generator used in viewFrontiers.
+
+        Parameters
+        ----------
+        seed : int, optional
+            The random generator seed in case you want to set it to a weird 
+            value other than 42 :). The default is 42.
+
+        Returns
+        -------
+        None.
+        """
+        self.rng = np.random.RandomState(seed)
+        
     def _ww_gen(self):
-        w = []
-        up = 1.
-        for _ in range(self.mm - 1):
-            w.append(np.random.uniform(0., up))
-            up = 1. - sum(w)
-        w.append(up)
-        return w
+        return self.rng.dirichlet([0.5] * self.mm)
         
     # to be implemented in the deriv class
     def _risk_calc(self, prate, alpha):

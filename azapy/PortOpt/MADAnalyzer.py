@@ -185,7 +185,7 @@ class MADAnalyzer(RiskAnalyzer):
         self.status = res.status
         if self.status != 0: 
             warnings.warn(res.message)
-            return np.nan
+            return np.array([np.nan] * mm)
         
         # mMAD
         self.risk = res.fun
@@ -268,7 +268,7 @@ class MADAnalyzer(RiskAnalyzer):
         self.status = res.status
         if self.status != 0: 
             warnings.warn(res.message)
-            return np.nan
+            return np.array([np.nan] * mm)
         
         t = res.x[-1]
         # sharpe
@@ -357,7 +357,7 @@ class MADAnalyzer(RiskAnalyzer):
         self.status = res.status
         if self.status != 0: 
             warnings.warn(res.message)
-            return np.nan
+            return np.array([np.nan] * mm)
         
         t = res.x[-1]
         # sharpe
@@ -441,7 +441,7 @@ class MADAnalyzer(RiskAnalyzer):
         self.status = res.status
         if self.status != 0: 
             warnings.warn(res.message)
-            return np.nan
+            return np.array([np.nan] * mm)
         
         # MAD 
         self.primery_risk_comp = np.array([res.x[mm + l * (nn + 1)] \
@@ -519,7 +519,7 @@ class MADAnalyzer(RiskAnalyzer):
         self.status = res.status
         if self.status != 0: 
             warnings.warn(res.message)
-            return np.nan
+            return np.array([np.nan] * mm)
         
         # optimal weights
         self.ww = np.array(res.x[:mm])

@@ -135,7 +135,7 @@ class GINIAnalyzer(RiskAnalyzer):
         self.status = res.status
         if self.status != 0: 
             warnings.warn(res.message)
-            return np.nan
+            return np.array([np.nan] * mm)
         
         # GINI
         self.risk = res.fun
@@ -200,7 +200,7 @@ class GINIAnalyzer(RiskAnalyzer):
         self.status = res.status
         if self.status != 0: 
             warnings.warn(res.message)
-            return np.nan
+            return np.array([np.nan] * mm)
         
         t = res.x[-1]
         # Sharpe
@@ -267,7 +267,7 @@ class GINIAnalyzer(RiskAnalyzer):
         self.status = res.status
         if self.status != 0: 
             warnings.warn(res.message)
-            return np.nan
+            return np.array([np.nan] * mm)
         
         t = res.x[-1]
         # Sharpe
@@ -333,7 +333,7 @@ class GINIAnalyzer(RiskAnalyzer):
         self.status = res.status
         if self.status != 0: 
             warnings.warn(res.message)
-            return np.nan
+            return np.array([np.nan] * mm)
         
         # optimal weights
         self.ww = np.array(res.x[:mm])
@@ -391,7 +391,7 @@ class GINIAnalyzer(RiskAnalyzer):
         self.status = res.status
         if self.status != 0: 
             warnings.warn(res.message)
-            return np.nan
+            return np.array([np.nan] * mm)
         
          # optimal weights
         self.ww = np.array(res.x[:mm])

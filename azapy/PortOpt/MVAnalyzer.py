@@ -90,7 +90,7 @@ class MVAnalyzer(RiskAnalyzer):
         if 'optimal' not in res['status']:
             warnings.warn(f"warning {res['status']}")
             self.status = 2
-            return np.nan
+            return np.array([np.nan] * mm)
         
         self.status = 0
         # Optimal weights
@@ -143,7 +143,7 @@ class MVAnalyzer(RiskAnalyzer):
         if 'optimal' not in res['status']:
             warnings.warn(f"warning {res['status']}")
             self.status = 2
-            return np.nan
+            return np.array([np.nan] * nn)
         
         self.status = 0
         t = res['x'][-1]
@@ -204,7 +204,7 @@ class MVAnalyzer(RiskAnalyzer):
         if 'optimal' not in res['status']:
             warnings.warn(f"warning {res['status']}")
             self.status = 2
-            return np.nan
+            return np.array([np.nan] * nn)
         
         self.status = 0
         t = res['x'][-1]
@@ -263,7 +263,7 @@ class MVAnalyzer(RiskAnalyzer):
         if 'optimal' not in res['status']:
             warnings.warn(f"warning {res['status']}")
             self.status = 2
-            return np.nan
+            return np.array([np.nan] * nn)
         
         self.status = 0
         # optimal weights
@@ -309,7 +309,7 @@ class MVAnalyzer(RiskAnalyzer):
         if 'optimal' not in res['status']:
             warnings.warn(f"warning {res['status']}")
             self.status = 2
-            return np.nan
+            return np.array([np.nan] * nn)
         
         self.status = 0
         # Optimal weights

@@ -159,7 +159,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         if 'optimal' not in res['status']:
             warnings.warn(f"warning {res['status']}")
             self.status = 2
-            return np.nan
+            return np.array([np.nan] * mm)
         
         self.status = 0
         # SMVaR
@@ -256,7 +256,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         if 'optimal' not in res['status']:
             warnings.warn(f"warning {res['status']}")
             self.status = 2
-            return np.nan
+            return np.array([np.nan] * mm)
         
         self.status = 0
         # average SMCR (=1/t)
@@ -360,7 +360,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         if 'optimal' not in res['status']:
             warnings.warn(f"warning {res['status']}")
             self.status = 2
-            return np.nan
+            return np.array([np.nan] * mm)
         
         self.status = 0
         t = res['x'][-1]
@@ -455,7 +455,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         if 'optimal' not in res['status']:
             warnings.warn(f"warning {res['status']}")
             self.status = 2
-            return np.nan
+            return np.array([np.nan] * mm)
         
         self.status = 0
         # SMVaR
@@ -542,7 +542,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         if 'optimal' not in res['status']:
             warnings.warn(f"warning {res['status']}")
             self.status = 2
-            return np.nan
+            return np.array([np.nan] * mm)
         
         self.status = 0
         # optimal weights

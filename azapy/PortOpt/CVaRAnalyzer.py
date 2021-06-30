@@ -101,7 +101,7 @@ class CVaRAnalyzer(RiskAnalyzer):
         status = res.status
         if status != 0:
             warnings.warn(res.message)
-            return np.nan
+            return np.nan, np.nan, np.nan
         
         VaR = res.x[0]
         CVaR = res.fun
@@ -164,7 +164,7 @@ class CVaRAnalyzer(RiskAnalyzer):
         self.status = res.status
         if self.status != 0: 
             warnings.warn(res.message)
-            return np.nan
+            return np.array([np.nan] * mm)
         
         # VaR (u)
         self.secondary_risk_comp = np.array([res.x[mm + l * (nn + 1)] \
@@ -245,7 +245,7 @@ class CVaRAnalyzer(RiskAnalyzer):
         self.status = res.status
         if self.status != 0:
             warnings.warn(res.message)
-            return np.nan
+            return np.array([np.nan] * mm)
         
         # average CVaR (1/t)
         self.risk = 1 / res.x[-1]
@@ -330,7 +330,7 @@ class CVaRAnalyzer(RiskAnalyzer):
         self.status = res.status
         if self.status != 0:
             warnings.warn(res.message)
-            return np.nan
+            return np.array([np.nan] * mm)
         
         # average CVaR (1/t)
         self.risk = res.fun / res.x[-1]
@@ -410,7 +410,7 @@ class CVaRAnalyzer(RiskAnalyzer):
         self.status = res.status
         if self.status != 0: 
             warnings.warn(res.message)
-            return np.nan
+            return np.array([np.nan] * mm)
         
         # VaR (u)
         self.secondary_risk_comp = np.array([res.x[mm + l * (nn + 1)] \
@@ -481,7 +481,7 @@ class CVaRAnalyzer(RiskAnalyzer):
         self.status = res.status
         if self.status != 0: 
             warnings.warn(res.message)
-            return np.nan
+            return np.array([np.nan] * mm)
         
         # optimal weights
         self.ww = np.array(res.x[:mm])

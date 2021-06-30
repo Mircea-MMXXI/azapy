@@ -183,7 +183,7 @@ class OmegaAnalyzer(RiskAnalyzer):
         self.status = res.status
         if self.status != 0: 
             warnings.warn(res.message)
-            return np.nan
+            return np.array([np.nan] * mm)
         
         # delta-risk
         self.risk = res.fun
@@ -245,7 +245,7 @@ class OmegaAnalyzer(RiskAnalyzer):
         self.status = res.status
         if self.status != 0:
             warnings.warn(res.message)
-            return np.nan
+            return np.array([np.nan] * mm)
         
         # Omega
         self.sharpe = -res.fun 
@@ -309,7 +309,7 @@ class OmegaAnalyzer(RiskAnalyzer):
         self.status = res.status
         if self.status != 0:
             warnings.warn(res.message)
-            return np.nan
+            return np.array([np.nan] * mm)
         
         t = res.x[-1]
         # Omega
@@ -370,7 +370,7 @@ class OmegaAnalyzer(RiskAnalyzer):
         self.status = res.status
         if self.status != 0:
             warnings.warn(res.message)
-            return np.nan
+            return np.array([np.nan] * mm)
         
         # rate of return
         self.RR = -res.fun
@@ -424,7 +424,7 @@ class OmegaAnalyzer(RiskAnalyzer):
         self.status = res.status
         if self.status != 0: 
             warnings.warn(res.message)
-            return np.nan
+            return np.array([np.nan] * mm)
         
         # optimal weights
         self.ww = np.array(res.x[:mm])
