@@ -203,14 +203,14 @@ class Port_Simple:
         return df
     
     def port_view_all(self, sdate=None, edate=None, view=True, 
-                      fancy=False, componly=False):
+                      componly=False, fancy=False):
         """
         Plot the portfolio and its component time-series in a relative bases.
 
         Parameters
         ----------
         sdate : datetime, optional
-            Start date of ploted time-series. If it is set to None
+            Start date of plotted time-series. If it is set to None
             then the sdate is set to the earliest date in the time-series. 
             The default is None.
         edate : TYPE, optional
@@ -220,18 +220,18 @@ class Port_Simple:
         view : boolean, optional
             If set to True then the plot is printed to the terminal.
             The default is True.
+        componly : boolean, optional
+            True : only the portfolio components time-series are plotted.
+            
+            False: the portfolio and its components times-series are plotted.
+            
+            The default is True.
         fancy : boolean, optional
             False : it uses the pandas plot (matplotlib) capabilities.
             
             True : it uses plotly library for interactive time-series view.
             
             The default is False.
-        componly : boolean, optional
-            True : only the portfolio components time-serie are plotted.
-            
-            False: the portfolio and its components times-sereis are plotted.
-            
-            The default is True.
 
         Returns
         -------
@@ -290,13 +290,16 @@ class Port_Simple:
         res.DD = res.DD.round(4) * 100
         return res
     
-    def port_perf(self, fancy=False):
+    def port_perf(self, componly=False, fancy=False):
         """
         Brief description of portfolio and its components performances
         in terms of average historical rate of returns and maximum drawdowns.
 
         Parameters
         ----------
+        componly : boolean, optional
+            If True, only the portfolio components maximum drawdowns 
+            are reported. The default is False.
         fancy : boolean, optional
             False : The rate of returns and drawdown values are reported 
             in unaltered algebraic format.
@@ -325,13 +328,13 @@ class Port_Simple:
             return pd.DataFrame([[rr, dv, dd, ds, de]],
                         columns=['RR', 'DD', 'DD_date', 'DD_start', 'DD_end' ])
         
-        res = rinfo(self.port, self.pcolname)
-        res.index = pd.Index([self.pname], name='symbol')
-
-        res2 = self.mktdata.groupby('symbol').apply(rinfo, 
+        res = self.mktdata.groupby('symbol').apply(rinfo, 
                                                     col=self.col).droplevel(1)
- 
-        res = pd.concat([res, res2])
+     
+        if not componly:
+            res2 = rinfo(self.port, self.pcolname)
+            res2.index = pd.Index([self.pname], name='symbol')
+            res = pd.concat([res2, res])
         
         if not fancy: 
             return res
@@ -340,12 +343,18 @@ class Port_Simple:
         res.DD = res.DD.round(4) * 100
         return res
         
-    def port_annual_returns(self, fancy=False):
+    def port_annual_returns(self, withcomp=False, componly=False, fancy=False):
         """
         Portfolio annual (calendar) rates of returns.
 
         Parameters
         ----------
+        withcomp : boolean, optional
+            If True, adds the portfolio components annual returns to the 
+            report. The default is False.
+        componly : boolean, optional
+            If True, only the portfolio components annual returns are reported.
+            The flag is active only if withcomp=True. The default is False.
         fancy : boolean, optional
             False : The rates are reported in unaltered 
             algebraic format.
@@ -360,13 +369,19 @@ class Port_Simple:
         pandas.DataFrame
         """
         # local function
-        def rrate(df):
-            return df[self.pcolname][-1] / df[self.pcolname][0] - 1
+        def frrate(df):
+            return df[-1] / df[0] - 1
         
-        res = self.port.resample('A', convention='end').apply(rrate)
+        if withcomp:
+            zz = self.mktdata.pivot(columns='symbol', values=self.col) \
+                .loc[self.port.index]
+            if not componly:
+                zz = self.port.merge(zz, on='date')
+            res = zz.resample('A', convention='end').apply(frrate)
+        else:
+            res = self.port.resample('A', convention='end').apply(frrate)
         res.index = res.index.year
         res.index.name = 'year'
-        res.rename('RR', inplace=True)
         
         if not fancy: 
             return res
@@ -376,12 +391,20 @@ class Port_Simple:
                  .applymap(self._color_negative_red)
         
     
-    def port_monthly_returns(self, fancy=False):
+    def port_monthly_returns(self, withcomp=False, componly=False, 
+                             fancy=False):
         """
         Portfolio monthly (calendar) rate of returns.
 
         Parameters
         ----------
+        withcomp : boolean, optional
+            If True, adds the portfolio components monthly returns to the 
+            report. The default is False.
+        componly : boolean, optional
+            If True, only the portfolio components monthly returns are 
+            reported. The flag is active only if withcomp=True. 
+            The default is False.
         fancy : boolean, optional
             False : The rates are reported in unaltered 
             algebraic format.
@@ -395,10 +418,18 @@ class Port_Simple:
         -------
         pandas.DataFrame
         """
-        def rrate(df):
-            return df[self.pcolname][-1] / df[self.pcolname][0] - 1
+        def frrate(df):
+            return df[-1] / df[0] - 1
         
-        res = self.port.resample('M', convention='end').apply(rrate)
+        # res = self.port.resample('M', convention='end').apply(frrate)
+        if withcomp:
+            zz = self.mktdata.pivot(columns='symbol', values=self.col) \
+                .loc[self.port.index]
+            if not componly:
+                zz = self.port.merge(zz, on='date')
+            res = zz.resample('M', convention='end').apply(frrate)
+        else:
+            res = self.port.resample('M', convention='end').apply(frrate)
         
         if not fancy: 
             return res
@@ -407,11 +438,12 @@ class Port_Simple:
                                                res.index.month.to_list()],
                                               names= ['year', 'month'])
     
-        res = res.reset_index(level=0).pivot(columns='year', 
-                                             values=0).round(4) 
+        if not withcomp:
+            res = res.reset_index(level=0).pivot(columns='year', 
+                                                 values=self.pcolname).round(4) 
  
         return res.style.format("{:.2%}").applymap(self._color_negative_red)
- 
+    
     
     def _color_negative_red(self, val):
         if isinstance(val, numbers.Number) and (val < 0):

@@ -36,7 +36,6 @@ rrate = rprice.loc[rprice.index >= hsdate] \
 #=============================================================================
 coef = np.ones(3)
 coef = coef / coef.sum()
-mu = 0.07
 
 #=============================================================================
 # Compute Sharpe optimal portfolio

@@ -13,8 +13,8 @@ import azapy as az
 
 #=============================================================================
 # Collect some market data
-sdate = pd.Timestamp("2012-01-01").normalize()
-edate = pd.Timestamp.today().normalize()
+sdate = pd.to_datetime("2012-01-01")
+edate = pd.to_datetime('today')
 symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
 
 mktdir = "./MkTdata"

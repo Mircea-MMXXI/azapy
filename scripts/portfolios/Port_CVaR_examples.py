@@ -12,8 +12,8 @@ import azapy as az
 
 #=============================================================================
 # Collect some market data
-sdate = pd.Timestamp("2012-01-01").normalize()
-edate = pd.Timestamp.today().normalize()
+sdate = pd.to_datetime("2012-01-01")
+edate = pd.to_datetime('today')
 symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
 
 mktdir = "./MkTdata"
@@ -25,7 +25,7 @@ mktdata = az.readMkT(symb, dstart = sdate, dend = edate,
 
 #=============================================================================
 # Setup CVaR parameters
-alpha = [0.99, 0.975, 0.95]
+alpha = [0.98, 0.97, 0.96, 0.95]
 
 #=============================================================================
 # Compute C-Sharpe optimal portfolio
@@ -88,6 +88,20 @@ p4.get_account(fancy=True)
 #=============================================================================
 # Compute optimal portfolio with CVaR of equally weighted portfolio
 port4 = p4.set_model(mu=0.1, alpha=alpha, rtype="InvNrisk")   
+ww = p4.get_weights()
+p4.port_view()
+p4.port_view_all()
+p4.port_perf()
+p4.port_drawdown(fancy=True)
+p4.port_perf(fancy=True)
+p4.port_annual_returns()
+p4.port_monthly_returns()
+p4.get_nshares()
+p4.get_account(fancy=True)  
+
+#=============================================================================
+# Compute optimal portfolio for fixed risk aversion
+port4 = p4.set_model(mu=0.5, alpha=alpha, rtype="RiskAverse")   
 ww = p4.get_weights()
 p4.port_view()
 p4.port_view_all()

@@ -38,20 +38,22 @@ class Port_CVaR(Port_InvVol):
         mu : float
             Reference rate. Its meaning depends of the value of rtype. For
             rtype equal to: \n
-                "Sharpe" : mu is the risk-free rate \n
-                "Risk" : mu is the targeted expected rate of returns \n
-                "MinRisk" and "InvNrisk" : mu is ignored
+                "Sharpe" : mu is the risk-free rate. \n
+                "Risk" : mu is the targeted expected rate of returns. \n
+                "MinRisk" and "InvNrisk" : mu is ignored. \n
+                "RiskAverse" : mu is the Lambda risk aversion coefficient.
         alpha : list, optional
             The value of alpha CVaR confidence levels. The default is [0.975].
         coef : list, optional
             The coefficients values. The default is [1.].
         rtype : string, optional
             Type of optimization. It could take the values:\n
-                "Sharpe" - C-Sharpe optimal portfolio \n
-                "Risk" - CVaR optimal portfolio \n
-                "MinRisk" - Minimum CVaR optimal portfolio \n
-                "InvNrisk" - optimal portfolio with same CVaR as the equally 
+                "Sharpe" - Sharpe optimal portfolio. \n
+                "Risk" - risk optimal portfolio. \n
+                "MinRisk" - Minimum CVaR optimal portfolio. \n
+                "InvNrisk" - optimal portfolio with same risk as the equally 
                 weighted portfolio. \n
+                "RiskAverse" - optimal portfolio for fixed risk aversion . \n
                 The default is 'Sharpe'.
         hlength : float, optional
             The length in year of the historical calibration period relative 
@@ -96,7 +98,7 @@ class Port_CVaR(Port_InvVol):
         self.coef = self.coef / scoef
         
     def _set_rtype(self, rtype):
-        rtype_values = ['Sharpe', 'Risk', 'MinRisk', 'InvNrisk']
+        rtype_values = ['Sharpe', 'Risk', 'MinRisk', 'InvNrisk', 'RiskAverse']
         assert rtype in rtype_values, \
             f"rtype must be one of {rtype_values}"
             

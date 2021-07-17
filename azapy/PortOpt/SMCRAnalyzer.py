@@ -138,7 +138,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
                                (nn + 2) * l + mm + 1 + nn + 1))
             irow += list(range(mm + 2 * nn * ll + 1 + l * (nn + 1), 
                                mm + 2 * nn * ll + 1 + (l + 1) * (nn + 1)))
-            data += [-1] * (nn + 1)
+            data += [-1.] * (nn + 1)
             
         G = spmatrix(data, irow, icol, size=(3 * nn * ll + 1 + mm + ll,
                                              mm + ll * (nn + 2)))
@@ -236,7 +236,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         # build A
         icol = list(range(mm)) + [mm + ll * (nn + 2)]
         irow = [0] * (mm + 1)
-        data = [1.] * mm + [-1]
+        data = [1.] * mm + [-1.]
         for l in range(ll):
             icol += [mm + l * (nn + 2), mm + l * (nn + 2) + 1]
             irow += [1, 1]

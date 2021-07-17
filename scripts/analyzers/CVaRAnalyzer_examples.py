@@ -35,7 +35,7 @@ rrate = rprice.loc[rprice.index >= hsdate] \
 
 #=============================================================================
 # define CVaR measure parameters alpha and coef
-alpha = np.array([0.98, 0.97, 0.96, 0.95])
+alpha = np.array([0.99, 0.98, 0.97, 0.96, 0.95])
 coef = np.ones(len(alpha))
 coef = coef / coef.sum()
 

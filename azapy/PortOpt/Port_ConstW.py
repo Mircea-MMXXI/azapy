@@ -104,10 +104,10 @@ class Port_ConstW(Port_Rebalanced):
                          col_ref=col_ref,
                          pname=pname,
                          pcolname=pcolname, capital=capital)
-        self.schedule=schedule
+        self.schedule = schedule
         self.freq = freq
         self.noffset = noffset
-        self.fixoffset=fixoffset
+        self.fixoffset = fixoffset
         self.calendar =  calendar 
         if self.calendar is None: self._default_calendar()
 
