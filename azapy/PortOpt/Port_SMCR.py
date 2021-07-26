@@ -24,5 +24,13 @@ class Port_SMCR(Port_CVaR):
         port_annual_returns \n
         port_monthly_returns
     """
+    def _set_method(self, method):
+        method_values = ['ecos', 'cvxopt']
+        assert method in method_values, \
+            f"mehtod must be one of {method_values}"
+            
+        self.method = method
+        
     def wwgen(self):
-        return SMCRAnalyzer(self.alpha, self.coef, rtype=self.rtype)
+        return SMCRAnalyzer(self.alpha, self.coef, rtype=self.rtype,
+                            method=self.method)

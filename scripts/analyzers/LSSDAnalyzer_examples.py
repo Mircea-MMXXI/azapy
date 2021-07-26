@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Jul 13 18:48:22 2021
+Created on Tue Jul 20 14:28:38 2021
 
 @author: mircea
 """
@@ -62,13 +62,16 @@ print(f"risk {risk} evaluation test {np.dot(prim, coef)}")
 
 # Test risk by computing the risk of a portfolio with weights ww1
 test_risk = cr1.getRisk(ww1)
-print(f"Test for the risk computation {test_risk} = {risk}")
+test_risk_res = pd.DataFrame({'risk': [risk], 'test_risk': [test_risk],
+                              'diff': [risk-test_risk]})
+print(f"Test for the risk computation\n {test_risk_res}")
 
 # Test the Sharpe weights by estimating an optimal portfolio with 
 # the same rate of returns.
 test_ww1 = cr1.getWeights(mu=RR, rtype='Risk')
-ww_comp = pd.DataFrame({"Original": ww1, "Test": test_ww1})
-print(f"Test for weights computation {ww_comp}")
+ww_comp = pd.DataFrame({"ww1": ww1, "test_ww1": test_ww1,
+                        'diff': ww1-test_ww1})
+print(f"Test for weights computation\n {ww_comp}")
 
 #=============================================================================
 #Frontier evaluations
@@ -101,16 +104,27 @@ prim2 = cr2.primery_risk_comp.copy()
 seco2 = cr2.secondary_risk_comp.copy()
 sharpe2 = cr2.sharpe
 # print comparison
+print("\nSharpe vs. Sharpe2\n")
 print(f"status {cr2.status} = {cr1.status}")
-ww_comp = pd.DataFrame({"ww2": ww2, "ww1": ww1})
-print(f"coef {ww_comp}")
-seco_comp = pd.DataFrame({"seco2": seco2, "seco1": seco1})
-print(f"Secondary risk {seco_comp}")
-prim_comp = pd.DataFrame({"prim2": prim2, "prim1": prim1})
-print(f"Primary risk {prim_comp}")
-print(f"RR {RR2} = {RR1}")
-print(f"risk {risk2} = {risk1}")
-print(f"Sharpe {sharpe2} = {sharpe1}")
+ww_comp = pd.DataFrame({"ww2": ww2, "ww1": ww1, "diff": ww2-ww1})
+print(f"coef\n {ww_comp}")
+seco_comp = pd.DataFrame({"seco2": seco2, "seco1": seco1, "diff": seco2-seco1})
+print(f"Secondary risk\n {seco_comp}")
+prim_comp = pd.DataFrame({"prim2": prim2, "prim1": prim1, 
+                          "diff": prim2-prim1})
+print(f"Primary risk\n {prim_comp}")
+RR_comp = pd.DataFrame({'RR2': [RR2], 'RR1': [RR1], 'diff': [RR2 - RR1]})
+print(f"RR comp\n {RR_comp}")
+risk_comp = pd.DataFrame({'risk2': [risk2], 'risk1': [risk1], 
+                          'diff': [risk2-risk1]})
+print(f"risk comp\n {risk_comp}")
+sharpe_comp = pd.DataFrame({'sharpe2': [sharpe2], 'sharpe1': [sharpe1],
+                            'diff': [sharpe2-sharpe1]})
+print(f"Sharpe comp\n {sharpe_comp}")
+
+# Speed of Sharpe vs Sharpe2 - may take some time
+# %timeit cr2.getWeights(mu=0., rtype='Sharpe')
+# %timeit cr2.getWeights(mu=0., rtype='Sharpe2')
 
 #=============================================================================
 # Test for InvNrisk
@@ -125,9 +139,12 @@ RR1 = cr1.RR
 # compute the optimal portfolio for RR1 targeted rate of return 
 ww2 = cr1.getWeights(mu=RR1, rtype="Risk")
 # print comparison results
-print(f"risk: 1/N port {risk} = InvNrisk {cr1.risk}")
-ww_comp = pd.DataFrame({"InvNrisk": ww1, "Optimal": ww2})
-print(f"weights: InvNrisk = Optimal {ww_comp}")
+print("\nInvNrisk\n")
+risk_comp = pd.DataFrame({'1/N': [risk], 'InvNrisk': [cr1.risk], 
+                          'diff': [risk - cr1.risk]})
+print(f"risk comp\n {risk_comp}")
+ww_comp = pd.DataFrame({"InvNrisk": ww1, "Optimal": ww2, 'diff': ww1-ww2})
+print(f"weights comp\n {ww_comp}")
 
 #=============================================================================
 # Test for MinRisk
@@ -137,8 +154,9 @@ ww1 = cr1.getWeights(mu=0., rtype="MinRisk")
 # test
 ww2 = cr1.getWeights(mu=0., rtype="Risk")
 # print comparison 
-ww_comp = pd.DataFrame({"MinRisk": ww1, "Test": ww2})
-print(f"weights: MinRisk = Optimal {ww_comp}")
+print("\nMinRisk\n")
+ww_comp = pd.DataFrame({"MinRisk": ww1, "Test": ww2, 'diff': ww1-ww2})
+print(f"weights comp\n {ww_comp}")
 
 #=============================================================================
 # Test for RiskAverse
@@ -154,5 +172,23 @@ cr2 = az.LSSDAnalyzer(coef, rrate)
 ww2 = cr2.getWeights(mu=Lambda, rtype='RiskAverse')
 
 # comparison - practically they should be identical 
-print(f"risk: {cr2.risk} test {cr2.RR / Lambda}, Sharpe risk: {risk}")
-print(f"weights:\n {pd.DataFrame({'ww1': ww1, 'ww2': ww2, 'diff': ww1-ww2})}")
+print("\nRiskAverse\n")
+risk_comp = pd.DataFrame({'risk': [cr2.risk], 'test': [cr2.RR / Lambda],
+                          'Sharpe risk': [risk]})
+print(f"risk comp\n {risk_comp}")
+ww_comp = pd.DataFrame({'ww1': ww1, 'ww2': ww2, 'diff': ww1-ww2})
+print(f"weigths:\n {ww_comp}")
+
+#=============================================================================
+# # speed comparisons for different LP methods
+# # may take some time to complete 
+# # you have to uncomment the lines below
+# crx1 = az.LSSDAnalyzer(coef, rrate, method='ecos')
+# wwx1 = crx1.getWeights(mu=0.)
+# print(f"ecos : {wwx1}")
+# crx2 = az.LSSDAnalyzer(coef, rrate, method='cvxopt')
+# wwx2 = crx2.getWeights(mu=0.)
+# print(f"cvxopt : {wwx2}")
+
+# %timeit crx1.getWeights(mu=0.)
+# %timeit crx2.getWeights(mu=0.)

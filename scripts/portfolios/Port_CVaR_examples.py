@@ -4,7 +4,6 @@ Created on Thu Jun  3 21:57:35 2021
 
 @author: mircea
 """
-
 # Examples
 import pandas as pd
 
@@ -21,11 +20,11 @@ mktdir = "./MkTdata"
 # force=True read from alphavantage server
 # force=False read from local directory if data exists
 mktdata = az.readMkT(symb, dstart = sdate, dend = edate, 
-                    dir=mktdir, force=False) 
+                     dir=mktdir, force=False) 
 
 #=============================================================================
 # Setup CVaR parameters
-alpha = [0.98, 0.97, 0.96, 0.95]
+alpha = [0.99, 0.975, 0.95]
 
 #=============================================================================
 # Compute C-Sharpe optimal portfolio
@@ -34,7 +33,7 @@ p4 = az.Port_CVaR(mktdata)
 import time
 tic = time.perf_counter()
 
-port4 = p4.set_model(mu=0., alpha=alpha)   
+port4 = p4.set_model(mu=0., alpha=alpha, method='ecos')   
 
 toc = time.perf_counter()
 print(f"time get_port: {toc-tic}")
@@ -112,3 +111,22 @@ p4.port_annual_returns()
 p4.port_monthly_returns()
 p4.get_nshares()
 p4.get_account(fancy=True)  
+
+#=============================================================================
+# # execution time comps 
+# # may take some time 
+# # please uncoment the following lines if you want to run
+# tic = time.perf_counter()
+# p4.set_model(mu=0., alpha=alpha)   
+# toc = time.perf_counter()
+# print(f"ecos: time get_port: {toc-tic}")  
+
+# tic = time.perf_counter()
+# p4.set_model(mu=0., alpha=alpha, method='highs')
+# toc = time.perf_counter()
+# print(f"highs: time get_port: {toc-tic}")    
+   
+# tic = time.perf_counter()
+# p4.set_model(mu=0., alpha=alpha, method='glpk')
+# toc = time.perf_counter()
+# print(f"glpk: time get_port: {toc-tic}")   

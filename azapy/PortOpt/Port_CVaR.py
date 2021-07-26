@@ -4,7 +4,6 @@ Created on Fri Apr  9 13:03:38 2021
 
 @author: mircea
 """
-import pandas as pd
 import numpy as np
 
 from .CVaRAnalyzer import CVaRAnalyzer
@@ -29,7 +28,7 @@ class Port_CVaR(Port_InvVol):
         port_monthly_returns
     """ 
     def set_model(self, mu, alpha=[0.975], coef=None, rtype='Sharpe', 
-                  hlength=3.25):
+                  hlength=3.25, method='ecos'):
         """
         Sets model parameters and evaluates portfolio time-series.
 
@@ -59,6 +58,11 @@ class Port_CVaR(Port_InvVol):
             The length in year of the historical calibration period relative 
             to 'Dfix'. A fractional number will be rounded to an integer number 
             of months. The default is 3.25. 
+        method : string, optional
+            Linear programming numerical method. 
+            Could be one of 'ecos', 'highs-ds', 'highs-ipm', 'highs', 
+            'interior-point', 'glpk' and 'cvxopt'.
+            The defualt is 'ecos'.
 
         Returns
         -------
@@ -70,6 +74,7 @@ class Port_CVaR(Port_InvVol):
         self._set_rtype(rtype)
         self.mu = mu
         self.hlength = hlength
+        self._set_method(method)
         
         self._set_schedule()
         self._set_weights()
@@ -98,14 +103,24 @@ class Port_CVaR(Port_InvVol):
         self.coef = self.coef / scoef
         
     def _set_rtype(self, rtype):
-        rtype_values = ['Sharpe', 'Risk', 'MinRisk', 'InvNrisk', 'RiskAverse']
+        rtype_values = ['Sharpe', 'Risk', 'MinRisk', 'InvNrisk', 'RiskAverse',
+                        'Sharpe2']
         assert rtype in rtype_values, \
             f"rtype must be one of {rtype_values}"
             
         self.rtype = rtype
         
+    def _set_method(self, method):
+        method_values = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 
+                       'interior-point', 'glpk', 'cvxopt']
+        assert method in method_values, \
+            f"mehtod must be one of {method_values}"
+            
+        self.method = method
+        
     def _wwgen(self):
-        return CVaRAnalyzer(self.alpha, self.coef, rtype=self.rtype)
+        return CVaRAnalyzer(self.alpha, self.coef, rtype=self.rtype, 
+                            method=self.method)
 
     def _ww_calc(self, data):
         return self._wwgen().getWeights(mu=self.mu, rrate=data)

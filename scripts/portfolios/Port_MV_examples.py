@@ -4,7 +4,6 @@ Created on Thu Jun  3 22:30:34 2021
 
 @author: mircea
 """
-
 # Examples
 import pandas as pd
 
@@ -30,7 +29,7 @@ p4 = az.Port_MV(mktdata)
 import time
 tic = time.perf_counter()
 
-port4 = p4.set_model(mu=0.)   
+port4 = p4.set_model(mu=0., rtype='Sharpe')   
 
 toc = time.perf_counter()
 print(f"time get_port: {toc-tic}")
@@ -94,3 +93,15 @@ p4.port_annual_returns()
 p4.port_monthly_returns()
 p4.get_nshares()
 p4.get_account(fancy=True)
+
+#=============================================================================
+# execution time comps
+tic = time.perf_counter()
+p4.set_model(mu=0., rtype='Sharpe')   
+toc = time.perf_counter()
+print(f"ecos: time get_port: {toc-tic}")  
+
+tic = time.perf_counter()
+p4.set_model(mu=0., rtype='Sharpe2', method='cvxopt')
+toc = time.perf_counter()
+print(f"cvxopt: time get_port: {toc-tic}")   

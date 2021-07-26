@@ -66,20 +66,41 @@ class Port_Simple:
         -------
         The object.
         """
-        if sdate is None:
-            sdate = mktdata.groupby('symbol') \
+        # set sdate
+        mkt_sdate = mktdata.groupby('symbol') \
                            .apply(lambda x: x.index[0]).max()
-        if edate is None:
-            edate = mktdata.groupby('symbol') \
+        if sdate is None:
+            self.sdate = mkt_sdate
+        else:
+            v_date = pd.to_datetime(sdate)
+            if v_date < mkt_sdate:
+                self.sdate = mkt_sdate
+            else:
+                self.sdate = v_date
+        # set edate        
+        mkt_edate = mktdata.groupby('symbol') \
                            .apply(lambda x: x.index[-1]).min()
-        if symb is None: symb = mktdata.symbol.unique()
-            
-        self.mktdata = mktdata[(mktdata.index >= sdate) & 
-                               (mktdata.index <= edate) &
-                               mktdata.symbol.isin(symb)].copy()
-        self.symb = pd.Series(symb)
-        self.sdate = pd.to_datetime(sdate)
-        self.edate = pd.to_datetime(edate)
+        if edate is None:
+            self.edate = mkt_edate
+        else:
+            v_date = pd.to_datetime(edate)
+            if v_date > mkt_edate:
+                self.edate = mkt_edate
+            else:
+                self.edate = v_date
+        # set symb 
+        mkt_symb = mktdata.symbol.unique()
+        if symb is None: 
+            self.symb = mkt_symb
+        else:
+            assert all(sy in mkt_symb for sy in symb),\
+                f"symb list {symb} incompatible with mktdata {mkt_symb}"
+            self.symb = pd.Series(symb)
+        # set mktdata
+        self.mktdata = mktdata[(mktdata.index >= self.sdate) & 
+                               (mktdata.index <= self.edate) &
+                               mktdata.symbol.isin(self.symb)].copy()
+  
         self.col = col
         self.pname = pname
         self.pcolname = self.pname if pcolname is None else pcolname
@@ -316,20 +337,23 @@ class Port_Simple:
             following columns: \n
                 "RR " : rate of returns \n
                 "DD" : maximum rate of drawdown \n
+                "Beta" : abs(RR/DD) \n
                 "DD_date" : recorder date of maximum drawdown \n
                 "DD_start" : start date of maximum drawdown \n
                 "DD_end" : end date of maximum drawdown
         """
         # local function
         def rinfo(df, col):
-            rr = (df[col][-1] / df[col][0]) ** (254. / len(df)) - 1
+            rr = (df[col][-1] / df[col][0]) ** (248. / len(df)) - 1
             dv, dd, ds, de = max_drawdown(df, col=col)
             
-            return pd.DataFrame([[rr, dv, dd, ds, de]],
-                        columns=['RR', 'DD', 'DD_date', 'DD_start', 'DD_end' ])
+            return pd.DataFrame([[rr, dv, np.abs(rr / dv), dd, ds, de]],
+                columns=['RR', 'DD', 'Beta', 'DD_date', 'DD_start', 'DD_end' ])
         
-        res = self.mktdata.groupby('symbol').apply(rinfo, 
-                                                    col=self.col).droplevel(1)
+        res = self.mktdata.groupby('symbol') \
+            .apply(rinfo, col=self.col) \
+            .droplevel(1) \
+            .sort_values(by='Beta', ascending=False)
      
         if not componly:
             res2 = rinfo(self.port, self.pcolname)

@@ -24,5 +24,13 @@ class Port_LSSD(Port_MAD):
         port_annual_returns \n
         port_monthly_returns
     """    
+    def _set_method(self, method):
+        method_values = ['ecos', 'cvxopt']
+        assert method in method_values, \
+            f"mehtod must be one of {method_values}"
+            
+        self.method = method
+        
     def _wwgen(self):
-        return LSSDAnalyzer(coef=self.coef, rtype=self.rtype)
+        return LSSDAnalyzer(coef=self.coef, rtype=self.rtype, 
+                            method=self.method)

@@ -106,7 +106,7 @@ class Port_Rebalanced(Port_Simple):
         # Make sure that the weights are normalized
         self.ww = ww.copy()
         self.ww[self.symb] = self.ww[self.symb] \
-                                 .apply(lambda x: x/x.sum(), axis=1)
+                                 .apply(lambda x: x / x.sum(), axis=1)
         
         # Calculate
         self._port_calc()
@@ -121,18 +121,32 @@ class Port_Rebalanced(Port_Simple):
         pandas.DataFrame
 
         """
-        return self.nshares.astype('int')
+        return self.nshares.astype('int').copy()
     
-    def get_weights(self):
+    def get_weights(self, fancy=False):
         """
         Returns the portfolio weights at each rebalancing period
+        
+        Parameters
+        ----------
+        fancy : boolean, optional
+            False: reports the weights in algebraic format
+            
+            True: reports the weights in percent rounded to 2 decimals
+            
+            The default is False.
 
         Returns
         -------
         pandas.DataFrame
         """
+        res = self.ww.copy()
+        if not fancy:
+            return res
         
-        return self.ww
+        res[self.symb] = res[self.symb].round(4).abs() * 100
+        
+        return res
     
     def _port_calc(self):
         def _rank(x, ww=self.ww):
@@ -171,8 +185,9 @@ class Port_Rebalanced(Port_Simple):
  
         self.port = pd.concat(self.port) \
             .pipe(pd.DataFrame, columns=[self.pcolname])
+
         self.nshares = pd.DataFrame(self.nshares,
-                                    index=self.ww.Droll[:-1])
+                                    index=self.ww.Droll[:len(self.nshares)])
  
     def get_account(self, fancy=False):
         """

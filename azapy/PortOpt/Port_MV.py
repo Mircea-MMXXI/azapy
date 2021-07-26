@@ -24,7 +24,7 @@ class Port_MV(Port_CVaR):
         port_annual_returns \n
         port_monthly_returns
     """
-    def set_port(self, mu, rtype='Sharpe', hlength=3.25):
+    def set_model(self, mu, rtype='Sharpe', hlength=3.25, method='ecos'):
         """
         Sets model parameters and evaluates portfolio time-series.
 
@@ -48,13 +48,24 @@ class Port_MV(Port_CVaR):
             The length in year of the historical calibration period relative 
             to 'Dfix'. A fractional number will be rounded to an integer number 
             of months. The default is 3.25. 
+        method : string, optional
+            Numerical method to solve the SOCP and QP. Can take one of the 
+            values 'ecos' and 'cvxopt'. The default is 'ecos'.
 
         Returns
         -------
         pd.DataFrame
             The portfolio time-series in the format "date", "pcolname".
         """
-        return super().set_model(mu=mu, rtype=rtype, hlength=hlength)
+        return super().set_model(mu=mu, rtype=rtype, hlength=hlength, 
+                                 method=method)
+    
+    def _set_method(self, method):
+        method_values = ['ecos', 'cvxopt']
+        assert method in method_values, \
+            f"mehtod must be one of {method_values}"
+            
+        self.method = method
         
     def _wwgen(self):
-        return MVAnalyzer(rtype=self.rtype)
+        return MVAnalyzer(rtype=self.rtype, method=self.method)

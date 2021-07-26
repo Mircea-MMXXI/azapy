@@ -24,7 +24,7 @@ class Port_GINI(Port_CVaR):
         port_annual_returns \n
         port_monthly_returns
     """ 
-    def set_model(self, mu, rtype='Sharpe', hlength=1):
+    def set_model(self, mu, rtype='Sharpe', hlength=1, method='ecos'):
         """
         Sets model parameters and evaluates portfolio time-series.
 
@@ -48,6 +48,11 @@ class Port_GINI(Port_CVaR):
             The length in year of the historical calibration period relative 
             to 'Dfix'. A fractional number will be rounded to an integer number 
             of months. The default is 1. 
+        method : string, optional
+            Linear programming numerical method. 
+            Could be one of 'ecos', 'highs-ds', 'highs-ipm', 'highs', 
+            'interior-point', 'glpk' and 'cvxopt'.
+            The defualt is 'ecos'.
 
         Returns
         -------
@@ -58,4 +63,4 @@ class Port_GINI(Port_CVaR):
         return super().set_model(mu=mu, rtype=rtype, hlength=hlength)
         
     def _wwgen(self):
-        return GINIAnalyzer(rtype=self.rtype)
+        return GINIAnalyzer(rtype=self.rtype, method=self.method)

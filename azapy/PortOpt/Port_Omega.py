@@ -24,7 +24,8 @@ class Port_Omega(Port_CVaR):
         port_annual_returns \n
         port_monthly_returns
     """
-    def set_model(self, mu=0., mu0=0., rtype='Sharpe', hlength=3.25):
+    def set_model(self, mu=0., mu0=0., rtype='Sharpe', hlength=3.25,
+                  method='ecos'):
         """
         Sets model parameters and evaluates portfolio time-series.
 
@@ -50,6 +51,11 @@ class Port_Omega(Port_CVaR):
             The length in year of the historical calibration period relative 
             to 'Dfix'. A fractional number will be rounded to an integer number 
             of months. The default is 3.25. 
+        method : string, optional
+            Linear programming numerical method. 
+            Could be one of 'ecos', 'highs-ds', 'highs-ipm', 'highs', 
+            'interior-point', 'glpk' and 'cvxopt'.
+            The defualt is 'ecos'.
 
         Returns
         -------
@@ -64,6 +70,7 @@ class Port_Omega(Port_CVaR):
         else:
             self.mu = mu
         self.hlength = hlength
+        self._set_method(method)
    
         self._set_schedule()
         self._set_weights()
@@ -71,4 +78,5 @@ class Port_Omega(Port_CVaR):
         return self.port
 
     def _wwgen(self):
-        return OmegaAnalyzer(self.alpha[0], rtype=self.rtype)
+        return OmegaAnalyzer(self.alpha[0], rtype=self.rtype, 
+                             method=self.method)

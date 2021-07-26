@@ -2,7 +2,7 @@
 """
 Created on Sat Jun 19 16:31:58 2021
 
-@author: mirce
+@author: mircea
 """
 # Examples
 import pandas as pd

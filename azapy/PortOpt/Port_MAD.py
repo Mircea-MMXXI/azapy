@@ -26,7 +26,8 @@ class Port_MAD(Port_CVaR):
         port_annual_returns \n
         port_monthly_returns
     """    
-    def set_model(self, mu, coef=[1.], rtype='Sharpe', hlength=3.25):
+    def set_model(self, mu, coef=[1.], rtype='Sharpe', hlength=3.25, 
+                  method='ecos'):
         """
         Set model parameters and evaluates portfolio time-series.
 
@@ -52,6 +53,11 @@ class Port_MAD(Port_CVaR):
             The length in year of the historical calibration period relative 
             to 'Dfix'. A fractional number will be rounded to an integer number 
             of months. The default is 3.25.
+        method : string, optional
+            Linear programming numerical method. 
+            Could be one of 'ecos', 'highs-ds', 'highs-ipm', 'highs', 
+            'interior-point', 'glpk' and 'cvxopt'.
+            The defualt is 'ecos'.
 
         Returns
         -------
@@ -70,4 +76,5 @@ class Port_MAD(Port_CVaR):
         self.coef = coef / ssc
         
     def _wwgen(self):
-        return MADAnalyzer(coef=self.coef, rtype=self.rtype)
+        return MADAnalyzer(coef=self.coef, rtype=self.rtype, 
+                           method=self.method)

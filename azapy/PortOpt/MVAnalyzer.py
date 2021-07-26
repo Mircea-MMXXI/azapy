@@ -1,21 +1,22 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Apr 12 22:49:57 2021
+Created on Fri Jul 23 23:22:22 2021
 
 @author: mircea
 """
 import numpy as np
-from cvxopt import matrix, spmatrix, solvers, spdiag
 import scipy.linalg as la
+import scipy.sparse as sps
 import warnings
 
-from .RiskAnalyzer import RiskAnalyzer
+from ._RiskAnalyzer import _RiskAnalyzer
+from ._solvers import _socp_solver, _qp_solver
 
-class MVAnalyzer(RiskAnalyzer):
+class MVAnalyzer(_RiskAnalyzer):
     """
-    MV - Mean Variance based portfolio optimization.
+    MV - Mean Variance dispersion measure based portfolio optimization.
     """
-    def __init__(self, rrate=None, rtype='Sharpe', method = 'glpk'):
+    def __init__(self, rrate=None, rtype='Sharpe', method = 'ecos'):
         """
         Constructor
 
@@ -38,8 +39,8 @@ class MVAnalyzer(RiskAnalyzer):
                 coefficient.
             The default is "Sharpe".
         method : string, optional
-            Quadratic programming numerical method. Could be 'glpk' or
-            None for native cvxopt.solvers.qp method. The default is 'glpk'.
+            Quadratic programming numerical method. Could be 'ecos' or
+            'cvxopt'. The default is 'ecos'.
             
         Returns
         -------
@@ -47,234 +48,231 @@ class MVAnalyzer(RiskAnalyzer):
 
         """
         super().__init__(rrate, rtype)
-        # method = np.nan -> default cvxopt method
+        
+        qp_methods = ['ecos', 'cvxopt']
+        assert method in qp_methods, f"method must one of {qp_methods}"
         self.method = method
         
     def _risk_calc(self, prate, alpha):
         var = np.var(prate)
         
-        # status, variance, volatility
-        return 0, var, np.sqrt(var)
+        # status, volatility, variance,
+        return 0, np.sqrt(var), var
     
     def _risk_min(self, d=1):
         # Order of variables
         # w <- [0:nn]
         # in total dim=nn
-        rho = self.rrate.cov()
-        nn = rho.shape[0]
         
         # build P
-        P = matrix(rho.to_numpy())
+        P = self.rrate.cov().to_numpy()
+        nn = P.shape[0]
         
         # build q
-        q = matrix([0.] * nn)
+        q_data = [0.] * nn
         
         # build G
         icol = list(range(nn)) + list(range(nn))
         irow = [0] * nn + list(range(1, nn + 1))
         data = list(-self.muk * d) + [-1.] * nn
-        G = spmatrix(data, irow, icol, size=(nn + 1, nn))
+        
+        G = sps.coo_matrix((data, (irow, icol)), shape=(nn + 1, nn))
         
         # build h
-        h = matrix([-self.mu * d] + [0.] * nn)
+        h_data = [-self.mu * d] + [0.] * nn
         
         # build A
-        A = matrix([1.] * nn, size=(1, nn))
+        A = sps.coo_matrix([1.] * nn)
         
         # build
-        b = matrix([1.])
+        b_data = [1.]
         
-        res = solvers.qp(P, q, G, h, A, b, 
-                         solver=self.method, options={'show_progress': False})
+        # calc
+        res = _qp_solver(self.method, P, q_data, G, h_data, A, b_data)
         
-        if 'optimal' not in res['status']:
-            warnings.warn(f"warning {res['status']}")
-            self.status = 2
-            return np.array([np.nan] * mm)
-        
-        self.status = 0
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            return np.array([np.nan] * nn)
+ 
         # Optimal weights
         self.ww = np.array(res['x'])
         self.ww.shape = nn
         # min volatility
-        self.risk = np.sqrt(2 * res['primal objective'])
-        # min volatility
-        self.primery_risk_comp = np.array([self.risk])
+        self.risk = 2 * res['pcost']
         # min variance
-        self.secondary_risk_comp = np.array([self.risk**2])
+        self.primery_risk_comp = np.array([self.risk])
+        # min volatility
+        self.secondary_risk_comp = np.array([np.sqrt(self.risk)])
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
         
         return self.ww
     
     def _sharpe_max(self):
-        # Computes the minimization of the inverse square of Sharpe
+        # Computes the mazimization of Sharpe
         # Order of variables
         # w <- [0:nn]
         # t <- nn
         # in total dim = nn + 1
-        rho = self.rrate.cov()
-        nn = rho.shape[0]
+        P = self.rrate.cov().to_numpy()
+        nn = P.shape[0]
         
-        # build P
-        P = spdiag([matrix(rho.to_numpy()), 0.])
+        # build c
+        c_data = list(-self.muk) + [self.mu]
+       
+        # biuld G
+        dd = np.diag([-1.] * (nn + 1))
+        #dd = sps.block_diag((np.diag([-1.] * nn), [0.,-1.]))
+        # pp = np.concatenate((-la.cholesky(P, overwrite_a=True), 
+        #                      np.zeros((nn,2))), axis=1)
+        pp = sps.block_diag((-la.cholesky(P, overwrite_a=True), [-1.]))
+        G = sps.vstack([dd, pp])
         
-        # build q
-        q = matrix([0.] * (nn + 1))
-        
-        # build G
-        icol = list(range(nn + 1)) + list(range(nn))
-        irow = [0] * (nn + 1) + list(range(1, nn + 1))
-        data = list(-self.muk) + [self.mu] + [-1.] * nn
-        G = spmatrix(data, irow, icol, size=(nn + 1, nn + 1))
+        # biuld dims
+        dims = {'l': nn, 'q': [nn + 2]}
         
         # build h
-        h = matrix([-1.] + [0] * nn)
+        h_data = [0.] * nn + [0.25] + [0.] * nn + [-0.25]
         
         # build A
-        A = matrix([1.] * nn + [-1.], size=(1, nn + 1))
-        
+        A = sps.coo_matrix([1.] * nn + [-1.])
+            
         # build b
-        b = matrix([0.])
+        b_data = [0.]
         
-        res = solvers.qp(P, q, G, h, A, b,
-                         solver=self.method, options={'show_progress': False})
+         # calc
+        res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
         
-        if 'optimal' not in res['status']:
-            warnings.warn(f"warning {res['status']}")
-            self.status = 2
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * nn)
-        
-        self.status = 0
+ 
         t = res['x'][-1]
-        # rate of return
-        self.RR = self.mu + 1 / t
-        # optimal weights
-        self.ww = np.array(res['x'][:-1]) / t
-        self.ww.shape = nn
         # sharpe
-        self.sharpe = np.sign(t) / np.sqrt(2 * res['primal objective'])
+        self.sharpe = -res['pcost']
+        # optimal weights
+        self.ww = np.array(res['x'][:nn]) / t
+        self.ww.shape = nn
+        # rate of return
+        self.RR = self.mu -  res['pcost'] / t
+        #self.RR = np.dot(self.ww, self.muk)
         # min volatility
-        self.risk = 1. / self.sharpe / t
-        # min volatility
+        self.risk = 1. / t
+        # min variance
         self.primery_risk_comp = np.array([self.risk])
-         # min variance
-        self.secondary_risk_comp = np.array([self.risk**2])
+        # min volatility
+        self.secondary_risk_comp = np.array([np.sqrt(self.risk)])
         
         return self.ww
     
-    def _sharpe_min(self):
-        # Computes the minimization of the inverse square of Sharpe
+    def _sharpe_inv_min(self):
+        # Computes the minimum of inverse Sharpe
         # Order of variables
         # w <- [0:nn]
-        # t <- nn
-        # in total dim = nn + 1
-        rho = self.rrate.cov()
-        nn = rho.shape[0]
+        # u <- nn
+        # t <- nn + 1
+        # in total dim = nn + 2
+        P = self.rrate.cov().to_numpy()
+        nn = P.shape[0]
         
         # build c
-        c = matrix(list(-self.muk) + [self.mu])
-        
+        c_data = [0.] * nn + [1., 0.]
+        sq2 = -np.sqrt(0.5)
+
         # build G
-        # ww >= 0
-        dd = spdiag([-1.] * nn)
-        # cone
-        sqc = matrix(la.sqrtm(rho))
-        zz = matrix(0., size=(1, nn))
-        
-        zc = matrix(0., size=(2 * nn + 1, 1))
-        G = matrix([[dd, zz, -sqc], [zc]])
+        dd = sps.block_diag((np.diag([-1.] * nn), [sq2, sq2]))
+        pp = sps.block_diag((-la.cholesky(P, overwrite_a=True), 
+                             np.diag([sq2, sq2])))
+        G = sps.vstack([dd, pp])
         
         # build h
-        h = matrix([0.] * nn + [1.] + [0.] * nn )
+        h_data = [0.] * (2 * nn + 3)
         
         # def dims
-        dims = {'l': nn, 'q': [nn + 1], 's': [0]}
+        dims = {'l': nn, 'q': [nn + 3]}
         
-        # build A_eq
-        A = matrix([1.] * nn + [-1], size=(1, nn + 1))
-        
-        # build b_eq
-        b = matrix([0.])
+        # build A
+        A = sps.coo_matrix(
+            [[1.] * nn + [0., -1.], list(self.muk) + [0., -self.mu]])
+ 
+        # build b
+        b_data = [0., 1.]
         
         # calc
-        res = solvers.conelp(c, G, h, dims, A, b, \
-                             options={'show_progress': False})
-            
-        if 'optimal' not in res['status']:
-            warnings.warn(f"warning {res['status']}")
-            self.status = 2
+        res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+ 
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * nn)
-        
-        self.status = 0
+  
         t = res['x'][-1]
         # optimal weights
-        self.ww = np.array(res['x'][:-1]) / t
+        self.ww = np.array(res['x'][:nn]) / t
         self.ww.shape = nn
         # sharpe
-        self.sharpe = -res['primal objective']
+        self.sharpe = 1. / res['pcost']
         # min volatility
-        self.risk = 1. / t
-        # min volatility
+        self.risk = res['pcost'] / t
+        # min variance
         self.primery_risk_comp = np.array([self.risk])
-         # min variance
-        self.secondary_risk_comp = np.array([self.risk**2])
+         # min volatility
+        self.secondary_risk_comp = np.array([np.sqrt(self.risk)])
         # rate of return
-        self.RR = self.sharpe / t + self.mu
+        self.RR = 1. / t + self.mu
+        #self.RR = np.dot(self.ww, self.muk)
         
         return self.ww   
     
     def _rr_max(self):
-        # Computes the minimization of the inverse square of Sharpe
+        # Computes the maximization of returns (for fixed volatility)
         # Order of variables
         # w <- [0:nn]
         # in total dim = nn 
-        rho = self.rrate.cov()
-        nn = rho.shape[0]
+        P = self.rrate.cov().to_numpy()
+        nn = P.shape[0]
         
         # build c
-        c = matrix(list(-self.muk))
+        c_data = list(-self.muk)
         
         # build G
         # ww >= 0
-        dd = spdiag([-1.] * nn)
+        dd = np.diag([-1.] * nn)
         # cone
-        zz = matrix(0., size=(1, nn))
-        sqc = matrix(la.sqrtm(rho))
-
-        G = matrix([dd, zz, -sqc])
+        dd.resize((nn + 1, nn))
+        G = sps.vstack([dd, -la.cholesky(P, overwrite_a=True)])
         
         # build h
-        h = matrix([0.] * nn + [self.risk] + [0.] * nn )
+        h_data = [0.] * nn + [np.sqrt(self.risk)] + [0.] * nn
         
         # def dims
-        dims = {'l': nn, 'q': [nn + 1], 's': [0]}
+        dims = {'l': nn, 'q': [nn + 1]}
         
         # build A_eq
-        A = matrix(1., size=(1, nn))
+        A = sps.coo_matrix([1.] * nn) 
         
         # build b_eq
-        b = matrix([1.])
+        b_data = [1.]
         
         # calc
-        res = solvers.conelp(c, G, h, dims, A, b, \
-                             options={'show_progress': False})
-            
-        if 'optimal' not in res['status']:
-            warnings.warn(f"warning {res['status']}")
-            self.status = 2
+        res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+ 
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * nn)
         
-        self.status = 0
         # optimal weights
         self.ww = np.array(res['x'][:])
         self.ww.shape = nn
         # rate of return
-        self.RR = -res['primal objective']
-        # min volatility
+        self.RR = -res['pcost']
+        # min variance
         self.primery_risk_comp = np.array([self.risk])
-         # min variance
-        self.secondary_risk_comp = np.array([self.risk**2])
+         # min vol
+        self.secondary_risk_comp = np.array([np.sqrt(self.risk)])
         
         return self.ww   
     
@@ -282,47 +280,44 @@ class MVAnalyzer(RiskAnalyzer):
         # Order of variables
         # w <- [0:nn]
         # in total dim=nn
-        rho = self.rrate.cov() * (2. * self.Lambda)
-        nn = rho.shape[0]
         
         # build P
-        P = matrix(rho.to_numpy())
-        
+        P = self.rrate.cov().to_numpy() * (2. * self.Lambda)
+        nn = P.shape[0]
+ 
         # build q
-        q = matrix(-self.muk)
+        q_data = list(-self.muk)
         
         # build G
-        G = spdiag([-1.] * nn)
+        G = sps.diags([-1.] * nn, format='coo')
         
         # build h
-        h = matrix([0.] * nn)
+        h_data = [0.] * nn
         
         # build A
-        A = matrix([1.] * nn, size=(1, nn))
+        A = sps.coo_matrix([1.] * nn)
         
         # build
-        b = matrix([1.])
+        b_data = [1.]
         
-        res = solvers.qp(P, q, G, h, A, b, 
-                         solver=self.method, options={'show_progress': False})
+        # calc
+        res = _qp_solver(self.method, P, q_data, G, h_data, A, b_data)
         
-        if 'optimal' not in res['status']:
-            warnings.warn(f"warning {res['status']}")
-            self.status = 2
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * nn)
         
-        self.status = 0
         # Optimal weights
         self.ww = np.array(res['x'])
         self.ww.shape = nn
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
         # min volatility
-        self.risk = np.sqrt((res['primal objective'] + self.RR) / self.Lambda)
-        # min volatility
-        self.primery_risk_comp = np.array([self.risk])
+        self.risk = (res['pcost'] + self.RR) / self.Lambda
         # min variance
-        self.secondary_risk_comp = np.array([self.risk**2])
+        self.primery_risk_comp = np.array([self.risk])
+        # min volatility
+        self.secondary_risk_comp = np.array([np.sqrt(self.risk)])
         
         return self.ww
-        

@@ -30,7 +30,8 @@ class KellyEngine():
             The default is 'Full'.
         method : string, optional
             The QP solver class. It is relevant only if rtype='Order2'.
-            It takes 2 values: 'glpk' or None for default cvxopt.solvers.qp algorithm.
+            It takes 2 values: 'glpk' or None for default cvxopt.solvers.qp 
+            algorithm.
             The default is 'glpk'.
 
         Returns
@@ -77,7 +78,7 @@ class KellyEngine():
         
         icol = list(range(nn)) * 2
         irow = list(range(nn)) + [nn] * nn
-        data = [-1.] * nn + [1] * nn
+        data = [-1.] * nn + [1.] * nn
         G = cx.spmatrix(data, irow, icol, (nn + 1, nn))
         h = cx.matrix([0.] * nn + [1.])
         dims = {'l': nn + 1, 'q': [], 's': []}
@@ -111,7 +112,6 @@ class KellyEngine():
         data = [-1.] * nn + [1.] * nn
         G = cx.spmatrix(data, irow, icol, (nn + 1, nn))
         h = cx.matrix([0.] * nn + [1.])
-        #dims = {'l': nn + 1, 'q': [], 's': []}
 
         # solve
         res = cx.solvers.qp(P=P, q=q, G=G, h=h, solver=self.method, 
