@@ -21,7 +21,7 @@ mktdir = "./MkTdata"
 # force=True read from alphavantage server
 # force=False read from local directory if data exists
 mktdata = az.readMkT(symb, dstart = sdate, dend = edate, 
-                    dir=mktdir, force=False) 
+                     dir=mktdir, force=False) 
 
 #=============================================================================
 # Build some weights
@@ -46,6 +46,7 @@ p3.port_drawdown(fancy=True)
 p3.port_perf(fancy=True)
 p3.port_annual_returns()
 p3.port_monthly_returns()
+p3.port_period_returns()
 p3.get_nshares()
 p3.get_account(fancy=True)
 

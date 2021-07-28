@@ -14,23 +14,14 @@ import azapy as az
 # Collect some market data
 sdate = pd.to_datetime("2012-01-01")
 edate = pd.to_datetime('today')
-symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
-#symb = ["IHI", "SPY", "VGT", "PSJ", "PGF"]
+symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 
 mktdir = "./MkTdata"
 
 # force=True read from alphavantage server
 # force=False read from local directory if data exists
-rprice = az.readMkT(symb, dstart = sdate, dend = edate, 
-                    dir=mktdir, force=False) 
-
-# prepare mkt data: compute the 3-month rolling rate of return for adjusted 
-# prices (column) and rearrange in format "date", "symbol1", "symbol2", etc.
-hsdate =  pd.to_datetime("2017-01-01")
-
-rrate = rprice.loc[rprice.index >= hsdate] \
-    .pivot(columns='symbol', values='adjusted') \
-    .pct_change(periods=62).dropna()
+mktdata = az.readMkT(symb, dstart = sdate, dend = edate, 
+                     dir=mktdir, force=False) 
 
 #=============================================================================
 # define CVaR measure parameters alpha and coef
@@ -41,7 +32,7 @@ coef = coef / coef.sum()
 #=============================================================================
 # Compute Sharpe optimal portfolio
 # build the analyzer object
-cr1 = az.CVaRAnalyzer(alpha, coef, rrate)
+cr1 = az.CVaRAnalyzer(alpha, coef, mktdata)
 # computes Sharpe weights for 0 risk-free rate
 ww1 = cr1.getWeights(mu=0.)
 # print portfolio characteristics
@@ -78,28 +69,25 @@ print(f"Test for weights computation\n {ww_comp}")
 #=============================================================================
 #Frontier evaluations
 print("\nFrontiers evaluations\n")
-opt ={'title': "New Port", 'tangent': True}
-file = 'fig1w.svg'
+opt ={'title': "CVaR Port", 'tangent': True}
 print("\n rate of returns vs risk representation")
-rft = cr1.viewFrontiers(musharpe=0, randomport=1000, options=opt)
+rft = cr1.viewFrontiers(musharpe=0, randomport=100, options=opt)
 print("\n Sharpe vs rate of returns representation")
 rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR')
 
 #=============================================================================
 # Test Sharpe vs. Sharpe2
 # first Sharpe (default rtype)
-cr1 = az.CVaRAnalyzer(alpha, coef, rrate)
+cr1 = az.CVaRAnalyzer(alpha, coef, mktdata)
 ww1 = cr1.getWeights(mu=0.)
-pd.Series(ww1, index=rrate.columns)
 RR1 = cr1.RR
 risk1 = cr1.risk
 prim1 = cr1.primery_risk_comp.copy()
 seco1 = cr1.secondary_risk_comp.copy()
 sharpe1 = cr1.sharpe
 # second Sharpe2
-cr2 = az.CVaRAnalyzer(alpha, coef, rrate)
+cr2 = az.CVaRAnalyzer(alpha, coef, mktdata)
 ww2 = cr2.getWeights(mu=0., rtype="Sharpe2")
-pd.Series(ww2, index=rrate.columns)
 RR2 = cr2.RR
 risk2 = cr2.risk
 prim2 = cr2.primery_risk_comp.copy()
@@ -130,7 +118,7 @@ print(f"Sharpe comp\n {sharpe_comp}")
 
 #=============================================================================
 # Test for InvNrisk
-cr1 = az.CVaRAnalyzer(alpha, coef, rrate)
+cr1 = az.CVaRAnalyzer(alpha, coef, mktdata)
 # compute the risk of a equally weighted portfolio
 ww = np.ones(len(symb))
 ww = ww / np.sum(ww)
@@ -150,7 +138,7 @@ print(f"weights comp\n {ww_comp}")
 
 #=============================================================================
 # Test for MinRisk
-cr1 = az.CVaRAnalyzer(alpha, coef, rrate)
+cr1 = az.CVaRAnalyzer(alpha, coef, mktdata)
 # compute the MinRisk portfolio
 ww1 = cr1.getWeights(mu=0., rtype="MinRisk")
 # test
@@ -163,14 +151,14 @@ print(f"weights comp\n {ww_comp}")
 #=============================================================================
 # Test for RiskAverse
 # first compute the Sharpe portfolio
-cr1 = az.CVaRAnalyzer(alpha, coef, rrate)
+cr1 = az.CVaRAnalyzer(alpha, coef, mktdata)
 ww1 = cr1.getWeights(mu=0.)
 sharpe = cr1.sharpe
 risk = cr1.risk
 
 # compute RiskAverse portfolio for Lambda=sharpe 
 Lambda = sharpe
-cr2 = az.CVaRAnalyzer(alpha, coef, rrate)
+cr2 = az.CVaRAnalyzer(alpha, coef, mktdata)
 ww2 = cr2.getWeights(mu=Lambda, rtype='RiskAverse')
 
 # comparison - practically they should be identical 
@@ -214,3 +202,15 @@ print(f"weigths:\n {ww_comp}")
 # %timeit crx5.getWeights(mu=0.)
 # %timeit crx6.getWeights(mu=0.)
 # %timeit crx7.getWeights(mu=0.)
+
+#=============================================================================
+# Example of rebalancing positions
+cr1 = az.CVaRAnalyzer(alpha, coef, mktdata)
+
+# existing positions and cash
+ns = pd.Series(100, index=symb)
+cash = 0.
+
+# new positions and rolling info
+pos = cr1.getPositions(mu=0., rtype='Sharpe', nshares=ns, cash=0.)
+print(f" New position report\n {pos}")

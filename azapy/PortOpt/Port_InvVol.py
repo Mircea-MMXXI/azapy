@@ -136,7 +136,7 @@ class Port_InvVol(Port_ConstW):
     
     def _set_weights(self):
         mktdata = self.mktdata.pivot(columns='symbol', values=self.col_calib)
-        periods = 62 if self.freq == 'Q' else 21
+        periods = 63 if self.freq == 'Q' else 21
         
         # local function
         def _fww(rr):

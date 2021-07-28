@@ -344,7 +344,7 @@ class Port_Simple:
         """
         # local function
         def rinfo(df, col):
-            rr = (df[col][-1] / df[col][0]) ** (248. / len(df)) - 1
+            rr = (df[col][-1] / df[col][0]) ** (252. / len(df)) - 1
             dv, dd, ds, de = max_drawdown(df, col=col)
             
             return pd.DataFrame([[rr, dv, np.abs(rr / dv), dd, ds, de]],

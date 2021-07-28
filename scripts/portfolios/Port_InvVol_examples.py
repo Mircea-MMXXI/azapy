@@ -4,7 +4,6 @@ Created on Thu Jun  3 21:34:26 2021
 
 @author: mircea
 """
-
 # Examples
 import pandas as pd
 
@@ -43,6 +42,7 @@ p4.port_drawdown(fancy=True)
 p4.port_perf(fancy=True)
 p4.port_annual_returns()
 p4.port_monthly_returns()
+p4.port_period_returns()
 p4.get_nshares()
 p4.get_account(fancy=True)
 

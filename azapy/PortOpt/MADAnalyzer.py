@@ -15,8 +15,10 @@ class MADAnalyzer(_RiskAnalyzer):
     """
     MAD risk measure based portfolio optimization.
     """
-    def __init__(self, coef=[1.], rrate=None, rtype='Sharpe', 
-                 method='ecos'):
+    def __init__(self, coef=[1.], 
+                 mktdata=None, colname='adjusted', freq='Q', 
+                 hlenght=3.25, calendar=None, 
+                 rtype='Sharpe', method='ecos'):
         """
         Constructor
 
@@ -25,9 +27,23 @@ class MADAnalyzer(_RiskAnalyzer):
         coef : list, optional
             List of coefficients (the list size defines the MAD 
             order).The default is [1.].
-        rrate : pandas.DataFrame, optional
-           Portfolio components historical rates of returns in the format 
-           "date", "symbol1", "symbol2", etc. The default is None.
+        mktdata : pandas.DataFrame, optional
+            Historic daily market data for portfolio components in the format
+            returned by azapy.mktData function. The default is None.
+        colname : string, optional
+            Name of the price column from mktdata used in the weights 
+            calibration. The default is 'adjusted'.
+        freq : string, optional
+            Rate of returns horizon in number of business day. it could be 
+            'Q' for quarter or 'M' for month. The default is 'Q'.
+        hlength : float, optional
+            History length in number of years used for calibration. A 
+            fractional number will be rounded to an integer number of months.
+            The default is 3.25
+        calendar : np.busdaycalendar, optional
+            Business days calendar. If is it None then the calendar will be set
+            to NYSE business calendar via a call to azapy.NYSEgen(). 
+            The default is None.
         rtype : TYPE, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure.\n
@@ -53,7 +69,7 @@ class MADAnalyzer(_RiskAnalyzer):
         The object.
 
         """
-        super().__init__(rrate, rtype)
+        super().__init__(mktdata, colname, freq, hlenght, calendar, rtype)
         
         lp_methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 
                        'interior-point', 'glpk', 'cvxopt']

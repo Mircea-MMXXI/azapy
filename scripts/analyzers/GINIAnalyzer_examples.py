@@ -14,30 +14,19 @@ import azapy as az
 # Collect some market data
 sdate = pd.to_datetime("2012-01-01")
 edate = pd.to_datetime('today')
-symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
-#symb = ["IHI", "SPY", "VGT", "PSJ", "PGF"]
+symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 
 mktdir = "./scripts/analyzers/MkTdata"
 
 # force=True read from alphavantage server
 # force=False read from local directory if data exists
-rprice = az.readMkT(symb, dstart = sdate, dend = edate, 
+mktdata = az.readMkT(symb, dstart = sdate, dend = edate, 
                     dir=mktdir, force=False) 
-
-# prepare mkt data: compute the 3-month rolling rate of return for adjusted 
-# prices (column) and rearrange in format "date", "symbol1", "symbol2", etc.
-# set a shorter hist for these examples (computational time is proportional
-# to the square of number of historical observation)
-hsdate =  pd.to_datetime("2020-06-01")
-
-rrate = rprice.loc[rprice.index >= hsdate] \
-    .pivot(columns='symbol', values='adjusted') \
-    .pct_change(periods=62).dropna()
 
 #=============================================================================
 # Compute Sharpe optimal portfolio
 # build the analyzer object
-cr1 = az.GINIAnalyzer(rrate)
+cr1 = az.GINIAnalyzer(mktdata)
 # computes Sharpe weights for 0 risk-free rate
 ww1 = cr1.getWeights(mu=0.)
 # print portfolio characteristics
@@ -74,28 +63,25 @@ print(f"Test for weights computation\n {ww_comp}")
 #=============================================================================
 # Frontier evaluations - may take some time
 print("\nFrontiers evaluations\n")
-opt ={'title': "New Port", 'tangent': True}
-file = 'fig1w.svg'
+opt ={'title': "GINI Port", 'tangent': True}
 print("\n rate of returns vs risk representation")
-rft = cr1.viewFrontiers(musharpe=0, randomport=1, options=opt)
+rft = cr1.viewFrontiers(musharpe=0, randomport=100, options=opt)
 print("\n Sharpe vs rate of returns representation")
 rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR')
 
 #=============================================================================
 # Test Sharpe vs. Sharpe2
 # first Sharpe (default rtype)
-cr1 = az.GINIAnalyzer(rrate)
+cr1 = az.GINIAnalyzer(mktdata)
 ww1 = cr1.getWeights(mu=0.)
-pd.Series(ww1, index=rrate.columns)
 RR1 = cr1.RR
 risk1 = cr1.risk
 prim1 = cr1.primery_risk_comp.copy()
 seco1 = cr1.secondary_risk_comp.copy()
 sharpe1 = cr1.sharpe
 # second Sharpe2
-cr2 = az.GINIAnalyzer(rrate)
+cr2 = az.GINIAnalyzer(mktdata)
 ww2 = cr2.getWeights(mu=0., rtype="Sharpe2")
-pd.Series(ww2, index=rrate.columns)
 RR2 = cr2.RR
 risk2 = cr2.risk
 prim2 = cr2.primery_risk_comp.copy()
@@ -126,7 +112,7 @@ print(f"Sharpe comp\n {sharpe_comp}")
 
 #=============================================================================
 # Test for InvNrisk
-cr1 = az.GINIAnalyzer(rrate)
+cr1 = az.GINIAnalyzer(mktdata)
 # compute the risk of a equally weighted portfolio
 ww = np.ones(len(symb))
 ww = ww / np.sum(ww)
@@ -146,7 +132,7 @@ print(f"weights comp\n {ww_comp}")
 
 #=============================================================================
 # Test for MinRisk
-cr1 = az.GINIAnalyzer(rrate)
+cr1 = az.GINIAnalyzer(mktdata)
 # compute the MinRisk portfolio
 ww1 = cr1.getWeights(mu=0., rtype="MinRisk")
 # test
@@ -159,14 +145,14 @@ print(f"weights comp\n {ww_comp}")
 #=============================================================================
 # Test for RiskAverse
 # first compute the Sharpe portfolio
-cr1 = az.GINIAnalyzer(rrate)
+cr1 = az.GINIAnalyzer(mktdata)
 ww1 = cr1.getWeights(mu=0.)
 sharpe = cr1.sharpe
 risk = cr1.risk
 
 # compute RiskAverse portfolio for Lambda=sharpe 
 Lambda = sharpe
-cr2 = az.GINIAnalyzer(rrate)
+cr2 = az.GINIAnalyzer(mktdata)
 ww2 = cr2.getWeights(mu=Lambda, rtype='RiskAverse')
 
 # comparison - practically they should be identical 
@@ -181,25 +167,25 @@ print(f"weigths:\n {ww_comp}")
 # # speed comparisons for different LP methods
 # # may take some time to complete 
 # # you have to uncomment the lines below
-# crx1 = az.GINIAnalyzer(rrate, method='highs-ds')
+# crx1 = az.GINIAnalyzer(mktdata, method='highs-ds')
 # wwx1 = crx1.getWeights(mu=0.)
 # print(f"high-ds : {wwx1}")
-# crx2 = az.GINIAnalyzer(rrate, method='highs-ipm')
+# crx2 = az.GINIAnalyzer(mktdata, method='highs-ipm')
 # wwx2 = crx2.getWeights(mu=0.)
 # print(f"highs-ipm : {wwx2}")
-# crx3 = az.GINIAnalyzer(rrate, method='highs')
+# crx3 = az.GINIAnalyzer(mktdata, method='highs')
 # wwx3 = crx3.getWeights(mu=0.)
 # print(f"highs : {wwx3}")
-# crx4 = az.GINIAnalyzer(rrate, method='interior-point')
+# crx4 = az.GINIAnalyzer(mktdata, method='interior-point')
 # wwx4 = crx4.getWeights(mu=0.)
 # print(f"interior-point : {wwx4}")
-# crx5 = az.GINIAnalyzer(rrate, method='glpk')
+# crx5 = az.GINIAnalyzer(mktdata, method='glpk')
 # wwx5 = crx5.getWeights(mu=0.)
 # print(f"glpk : {wwx5}")
-# crx6 = az.GINIAnalyzer(rrate, method='cvxopt')
+# crx6 = az.GINIAnalyzer(mktdata, method='cvxopt')
 # wwx6 = crx6.getWeights(mu=0.)
 # print(f"cvxopt : {wwx6}")
-# crx7 = az.GINIAnalyzer(rrate, method='ecos')
+# crx7 = az.GINIAnalyzer(mktdata, method='ecos')
 # wwx7 = crx7.getWeights(mu=0.)
 # print(f"ecos : {wwx7}")
 
@@ -210,3 +196,15 @@ print(f"weigths:\n {ww_comp}")
 # %timeit crx5.getWeights(mu=0.)
 # %timeit crx6.getWeights(mu=0.)
 # %timeit crx7.getWeights(mu=0.)
+
+#=============================================================================
+# Example of rebalancing positions
+cr1 = az.GINIAnalyzer(mktdata)
+
+# existing positions and cash
+ns = pd.Series(100, index=symb)
+cash = 0.
+
+# new positions and rolling info
+pos = cr1.getPositions(mu=0., rtype='Sharpe', nshares=ns, cash=0.)
+print(f" New position report\n {pos}")

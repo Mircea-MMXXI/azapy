@@ -68,7 +68,6 @@ class Port_CVaR(Port_InvVol):
         -------
         pd.DataFrame
             The portfolio time-series in the format "date", "pcolname".
-
         """
         self._set_alpha(alpha, coef)
         self._set_rtype(rtype)

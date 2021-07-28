@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from collections import defaultdict
+from azapy.MkT.readMkTData import NYSEgen
 
 class _RiskAnalyzer:
     """
@@ -21,15 +22,30 @@ class _RiskAnalyzer:
         _risk_averse(self)
     """
     
-    def __init__(self, rrate, rtype):
+    def __init__(self, mktdata=None, colname='adjusted', 
+                 freq='Q', hlength=3.25, calendar=None, rtype='Sharpe'):
         """
         Constructor
 
         Parameters
         ----------
-        rrate : pandas.DataFrame, optional
-            Portfolio components historical rates of returns in the format 
-           "date", "symbol1", "symbol2", etc. The default is None.
+        mktdata : pandas.DataFrame, optional
+            Historic daily market data for portfolio components in the format
+            returned by azapy.mktData function. The default is None.
+        colname : string, optional
+            Name of the price column from mktdata used in the weights 
+            calibration. The default is 'adjusted'.
+        freq : string, optional
+            Rate of returns horizon in number of business day. it could be 
+            'Q' for quarter or 'M' for month. The default is 'Q'.
+        hlength : float, optional
+            History length in number of years used for calibration. A 
+            fractional number will be rounded to an integer number of months.
+            The default is 3.25
+        calendar : np.busdaycalendar, optional
+            Business days calendar. If is it None then the calendar will be set
+            to NYSE business calendar via a call to azapy.NYSEgen(). 
+            The default is None.
         rtype : string, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure.\n
@@ -51,6 +67,7 @@ class _RiskAnalyzer:
         self.ww = None
         self.status = None
         
+        self.last_data = None
         self.rrate = None
         self.nn = None
         self.mm = None
@@ -69,8 +86,8 @@ class _RiskAnalyzer:
         
         self.set_rtype(rtype)
         
-        if rrate is not None:
-            self.set_rrate(rrate)
+        if mktdata is not None:
+            self.set_mktdata(mktdata, colname, freq, hlength)
             
         self.rng = None
         self.set_random_seed()
@@ -203,6 +220,95 @@ class _RiskAnalyzer:
         
         return self.risk
     
+    def getPositions(self, mu, rtype='Sharpe', nshares=None, cash=0, ww=None):
+        """
+        Computes the number of shares according to the weights
+
+        Parameters
+        ----------
+        mu : float
+            Rate of reference. Its meaning depends on the optimization 
+            criterion. For rtype set to\n
+                "Risk" : mu is the targeted portfolio rate of returns.\n
+                "Sharpe" and "Sharpe2" : mu is the risk-free rate.\n
+                "MinRisk" and "InvNRisk": mu is ignored. \n
+                "RiskAverse" : mu is the Lambda aversion coefficient.
+        rtype : string, optional
+            Optimization type. If is not None it will overwrite the value 
+            set by the constructor. The default is None.
+        nshares : pd.Series, optional
+            Number of shares per portfolio component. A missing component 
+            entry will be considered 0. A None value assumes that all
+            components entries are 0. The name of the components must be
+            present in the mrkdata. The default is None.
+        cash : float, optional
+            Additional cash to be considered in the overall capital. A
+            negative entry assumes a reduction in the total capital 
+            available for rebalance. The default is 0.
+        ww : pd.Series, optional
+            External portfolio weights. If it not set to None these 
+            weights will overwrite the calibrated weights. 
+            The default is None.
+
+        Returns
+        -------
+        res : pd.DataFrame
+            The rolling information. Meaning of the columns:
+                - 'old_nsh' : the initial number of shares per portfolio 
+                component as well as additional cash position. These are 
+                present in the input.
+                - 'new_nsh' : the new number of shares per component plus the 
+                residual cash (due to the rounding to an integer number of
+                shares). A negative entry means that the investor needs to 
+                add more cash in order to cover for the number of share 
+                roundups. It has a small value.
+                - 'diff_nsh' : the number of shares that needs to be 
+                both/sold in order to rebalance the portfolio positions.
+                - 'weights' : portfolio weights used for rebalance. The 'cash'
+                entry is the new portfolio value.
+                - 'prices' : the share prices used for rebalance evaluations.
+                
+            Note: Since the prices are closing prices, the rebalance can be 
+            executed next business. Additional cash slippage may occur due 
+            to share price differential between the previous day closing and 
+            execution time.
+
+        """
+        ns = pd.Series(0, index=self.rrate.columns)
+        if nshares is not None:
+            ns = ns.add(nshares, fill_value=0)
+            
+        assert len(self.rrate.columns) == len(ns),\
+            f"wrong nshares - they must by a subset of {self.rrate.columns}"
+            
+        pp = self.last_data[self.rrate.columns.to_list()]
+        
+        cap = ns.dot(pp) + cash
+        if ww is None:
+            ww = self.getWeights(mu, rtype=rtype)
+        else:
+            ww0 = pd.Series(0, index=self.rrate.columns)
+            ww = ww0.add(ww, fill_value=0)
+            assert len(self.rrate.columns) == len(ns),\
+              f"ww: wrong component names - must be among {self.rrate.columns}"
+        
+        newns = (ww / pp * cap).round(0)
+        newcash = cap - newns.dot(pp)
+        
+        ns['cash'] = cash
+        newns['cash'] = newcash
+        ww['cash'] = cap - newcash
+        pp['cash'] = 1.
+        
+        res = pd.DataFrame({'old_nsh': ns, 
+                            'new_nsh': newns,
+                            'diff_nsh': newns - ns,
+                            'weights' : ww.round(6), 
+                            'prices': pp})
+        
+        return res
+        
+    
     def set_rrate(self, rrate):
         """
         Sets portfolio components historical rates of returns in the format 
@@ -219,6 +325,56 @@ class _RiskAnalyzer:
         self.nn, self.mm = rrate.shape
         self.muk = rrate.mean()
         self.rrate = rrate - self.muk
+        
+    def set_mktdata(self, mktdata, colname='adjusted', 
+                    freq='Q', hlength=3.25, calendar=None):
+        """
+        Sets historical market data. It will overwrite the choises made in the
+        constructor.
+
+        Parameters
+        ----------
+        mktdata : pandas.DataFrame
+            Historic daily market data for portfolio components in the format
+            returned by azapy.mktData function.
+        colname : string, optional
+            Name of the price column from mktdata used in the weights 
+            calibration. The default is 'adjusted'.
+        freq : string, optional
+            Rate of returns horizon in number of business day. it could be 
+            'Q' for quarter or 'M' for month. The default is 'Q'.
+        hlength : float, optional
+            History length in number of years used for calibration. A 
+            fractional number will be rounded to an integer number of months.
+            The default is 3.25
+        calendar : np.busdaycalendar, optional
+            Business days calendar. If is it None then the calendar will be set
+            to NYSE business calendar via a call to azapy.NYSEgen(). 
+            The default is None.
+
+        Returns
+        -------
+        None.
+        """
+        if mktdata is None: 
+            return
+        
+        self.mktdata = mktdata
+        
+        periods = 63 if freq == 'Q' else 21
+        
+        if calendar is None:
+            calendar = NYSEgen()
+           
+        edate = mktdata.index[-1]
+        sdate = edate - pd.offsets.DateOffset(months=round(hlength * 12, 0))
+        sdate = np.busday_offset(sdate.date(),
+                                 0, roll='backward',  busdaycal=calendar)
+        rrate = mktdata.pivot(columns='symbol', values=colname)[sdate:]
+        self.last_data = rrate.iloc[-1]
+        rrate = rrate.pct_change(periods=periods).dropna()
+            
+        self.set_rrate(rrate)
         
     def set_rtype(self, rtype):
         """
@@ -238,10 +394,11 @@ class _RiskAnalyzer:
         assert rtype in rtypes, f"type must be one of {rtypes}"
         self.rtype = rtype
         
+
     def viewFrontiers(self, efficient=20, inefficient=20, musharpe=0., 
                       component=True, randomport=20, inverseN=True,
                       fig_type='RR_risk',
-                      options=None, save=None, data=None):
+                      options=None, saveto=None, data=None):
         """
         Computes the elements of the portfolio frontiers.
 
@@ -278,7 +435,7 @@ class _RiskAnalyzer:
             values. \n
             "tangent" is a boolean. If set to True it will print
             the Sharpe tangent. The default is True.
-        save : string, optional
+        saveto : string, optional
             File name to save the plot. The default is None.
         data : dictionary, optional
             Numerical data to construct the plot. If it is not None it 
@@ -293,7 +450,7 @@ class _RiskAnalyzer:
             reconstruct the plots without reevaluations.
         """
         if data is not None:
-            data['save'] = save
+            data['save'] = saveto
             if fig_type == 'RR_risk':
                 self._plot_f1(data)
             else:
@@ -302,7 +459,7 @@ class _RiskAnalyzer:
             
         res = defaultdict(lambda: None)
         res['options'] = options
-        res['save'] = save
+        res['saveto'] = saveto
         # min risk
         res['risk_min'] = defaultdict(lambda x=0: None)
         rr = self.muk.min()
@@ -501,8 +658,8 @@ class _RiskAnalyzer:
                             (res['inverseN']['risk'][k] * lf, 
                              res['inverseN']['rr'][k] * lf))
             
-        if res['save'] is not None:
-            plt.savefig(res['save'])
+        if res['saveto'] is not None:
+            plt.savefig(res['saveto'])
         plt.show()
         
     def _plot_f2(self, res):
@@ -574,8 +731,8 @@ class _RiskAnalyzer:
                 ax.annotate(res['inverseN']['label'][k],
                             (res['inverseN']['rr'][k] * lf, shp[k] * lf))
             
-        if res['save'] is not None:
-            plt.savefig(res['save'])
+        if res['saveto'] is not None:
+            plt.savefig(res['saveto'])
         plt.show()
         
     def set_random_seed(self, seed = 42):

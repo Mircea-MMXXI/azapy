@@ -15,7 +15,10 @@ class LSSDAnalyzer(MADAnalyzer):
     """
     LSSD dispersion measure based portfolio optimization.
     """
-    def __init__(self, coef=[1.], rrate=None, rtype='Sharpe', method='ecos'):
+    def __init__(self, coef=[1.], 
+                 mktdata=None, colname='adjusted', freq='Q', 
+                 hlenght=3.25, calendar=None,
+                 rtype='Sharpe', method='ecos'):
         """
         Constructor
 
@@ -24,9 +27,19 @@ class LSSDAnalyzer(MADAnalyzer):
         coef : list, optional
             List of coefficients (the list size defines the MAD 
             order).The default is [1.].
-        rrate : pandas.DataFrame, optional
-           Portfolio components historical rates of returns in the format 
-           "date", "symbol1", "symbol2", etc. The default is None.
+        mktdata : pandas.DataFrame, optional
+            Historic daily market data for portfolio components in the format
+            returned by azapy.mktData function. The default is None.
+        colname : string, optional
+            Name of the price column from mktdata used in the weights 
+            calibration. The default is 'adjusted'.
+        freq : string, optional
+            Rate of returns horizon in number of business day. it could be 
+            'Q' for quarter or 'M' for month. The default is 'Q'.
+        hlength : float, optional
+            History length in number of years used for calibration. A 
+            fractional number will be rounded to an integer number of months.
+            The default is 3.25
         rtype : TYPE, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure.\n
@@ -49,7 +62,8 @@ class LSSDAnalyzer(MADAnalyzer):
         -------
         The object.
         """
-        super().__init__(coef, rrate, rtype)
+        super().__init__(coef, mktdata, colname, freq, hlenght, calendar,
+                         rtype)
         
         socp_methods = ['ecos', 'cvxopt']
         assert method in socp_methods, f"method must be one of {socp_methods}"

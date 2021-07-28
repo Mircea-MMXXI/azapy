@@ -15,8 +15,10 @@ class CVaRAnalyzer(_RiskAnalyzer):
     """
     CVaR risk measure based portfolio optimizations.
     """
-    def __init__(self, alpha=[0.975], coef=[1.], rrate=None, rtype='Sharpe',
-                 method='ecos'):
+    def __init__(self, alpha=[0.975], coef=[1.], 
+                 mktdata=None, colname='adjusted', freq='Q', 
+                 hlenght=3.25, calendar=None,
+                 rtype='Sharpe', method='ecos'):
         """
         Constructor
 
@@ -27,9 +29,23 @@ class CVaRAnalyzer(_RiskAnalyzer):
         coef : list, optional
             List of coefficients. Must be the same size with 
             alpha. The default is [1.].
-        rrate : pandas.DataFrame, optional
-            Portfolio components historical rates of returns in the format 
-           "date", "symbol1", "symbol2", etc. The default is None.
+        mktdata : pandas.DataFrame, optional
+            Historic daily market data for portfolio components in the format
+            returned by azapy.mktData function. The default is None.
+        colname : string, optional
+            Name of the price column from mktdata used in the weights 
+            calibration. The default is 'adjusted'.
+        freq : string, optional
+            Rate of returns horizon in number of business day. it could be 
+            'Q' for quarter or 'M' for month. The default is 'Q'.
+        hlength : float, optional
+            History length in number of years used for calibration. A 
+            fractional number will be rounded to an integer number of months.
+            The default is 3.25
+        calendar : np.busdaycalendar, optional
+            Business days calendar. If is it None then the calendar will be set
+            to NYSE business calendar via a call to azapy.NYSEgen(). 
+            The default is None.
         rtype : string, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure. \n
@@ -47,21 +63,21 @@ class CVaRAnalyzer(_RiskAnalyzer):
             Linear programming numerical method. 
             Could be one of 'ecos', 'highs-ds', 'highs-ipm', 'highs', 
             'interior-point', 'glpk' and 'cvxopt'.
-            The defualt is 'ecos'.
+            The default is 'ecos'.
             
         Returns
         -------
         The object.
         """
-        super().__init__(rrate, rtype)
+        super().__init__(mktdata, colname, freq, hlenght, calendar, rtype)
         
         lp_methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 
-                       'interior-point', 'glpk', 'cvxopt']
+                      'interior-point', 'glpk', 'cvxopt']
         assert method in lp_methods, f"method must be one of {lp_methods}"
         self.method = method
 
         assert len(alpha) == len(coef), \
-            "lenght of alpha and coef must be the same"
+            "alpha and coef must have the same length"
         self.alpha = np.array(alpha)
         self.coef = np.array(coef)
         assert all(0. < self.coef), \

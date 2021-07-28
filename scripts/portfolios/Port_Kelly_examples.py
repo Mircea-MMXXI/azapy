@@ -7,6 +7,7 @@ Created on Fri Jun 25 11:24:18 2021
 
 # Examples
 import pandas as pd
+import time
 
 import azapy as az
 
@@ -27,11 +28,8 @@ mktdata = az.readMkT(symb, dstart = sdate, dend = edate,
 # Compute optimal portfolio with full Kelly selection 
 p4 = az.Port_Kelly(mktdata, pname='Kelly')    
 
-import time
 tic = time.perf_counter()
-
 port4 = p4.set_model()   
-
 toc = time.perf_counter()
 print(f"time get_port: {toc-tic}")
 
@@ -43,6 +41,7 @@ p4.port_drawdown(fancy=True)
 p4.port_perf(fancy=True)
 p4.port_annual_returns()
 p4.port_monthly_returns()
+p4.port_period_returns()
 p4.get_nshares()
 p4.get_account(fancy=True)
 
@@ -55,14 +54,18 @@ port4.merge(port2, how='left', on='date').plot()
 
 #=============================================================================
 # Compare with Order2 approximation of Kelly selection algorithm
-p5 = az.Port_Kelly(mktdata, pname='KellyApx')    
-
+p5 = az.Port_Kelly(mktdata, pname='KellyApx')   
+ 
 tic = time.perf_counter()
-
 port5 = p5.set_model(rtype='Order2')   
-
 toc = time.perf_counter()
 print(f"time get_port: {toc-tic}")
                  
 # The comparison is very close
-port5.merge(port4, how='left', on='date').plot()
+
+port_all = port5.merge(port4, how='left', on='date')\
+           .melt(var_name='symbol', value_name='price', ignore_index=False)
+pp = az.Port_Simple(port_all, col='price')
+_ = pp.set_model()
+_ = pp.port_view_all(componly=True)
+

@@ -151,7 +151,7 @@ class Port_Rebalanced(Port_Simple):
     def _port_calc(self):
         def _rank(x, ww=self.ww):
             for k in range(len(ww)):
-                if x <= ww.Droll[k]: return k
+                if x < ww.Droll[k]: return k
             return len(ww)
         
         mktdata = self.mktdata.pivot(columns='symbol', values=self.col_price)
@@ -236,3 +236,41 @@ class Port_Rebalanced(Port_Simple):
         acc_tab[self.symb] = acc_tab[self.symb].astype('int')
         
         return acc_tab
+
+    def port_period_returns(self, fancy=False):
+        """
+        Returns the rolling period rate of returns 
+
+        Parameters
+        ----------
+        fancy : boolean, optional
+            False: return in algebraic form.
+            
+            True: returns in percent rounded to 2 decimals.
+            
+            The default is False.
+
+        Returns
+        -------
+        pd.DataFrame
+            Each rolling period is indicated by its start date, Droll. 
+            Besides the rate of retuns, RR, the fixing data, Dfix and the 
+            portfolio weights are present.
+        """
+        # local function
+        def frr(x):
+            p2 = x.p1.shift(-1)
+            p2.iloc[-1] = self.port.iloc[-1,-1]
+            return p2 / x.p1 - 1
+        
+        rww = self.ww.merge(self.port, left_on='Droll', right_index=True)\
+                  .rename(columns={self.port.columns[0]: 'p1'})\
+                  .assign(RR=frr)[['Droll', 'Dfix', 'RR'] + list(self.symb)]
+ 
+        if not fancy:
+            return rww
+        
+        rww['RR'] = rww['RR'].round(4) * 100
+        rww[self.symb] = rww[self.symb].round(4).abs() * 100
+        
+        return rww

@@ -44,17 +44,9 @@ def NYSEgen(sdate = np.datetime64('1980-01-01'),
     hdates = hdates[(hdates >= sdate) & ( hdates <= edate)]
     return np.busdaycalendar(holidays=hdates)
 
-def readMkT(symbols, 
-            dstart = datetime(2012, 1, 1), 
-            dend = date.today(), 
-            force = False,
-            verbose = True,
-            dir = 'outData',
-            save = True,
-            api_key='91TEYWAGJWO7QE1Z',
-            maxsymbs = 5,
-            adj_split = True,
-            out_dict = False):
+def readMkT(symbols, dstart=datetime(2012, 1, 1), dend=date.today(), 
+            force=False, verbose=True, dir='outData', save=True,
+            api_key=None, maxsymbs=5, adj_split=True, out_dict=False):
     """
     Read Hist MkT data from alphavantage servers or from the local disk.
     Hist MkT data is collected between dstart and dend dates.
@@ -84,8 +76,9 @@ def readMkT(symbols,
         False: suppress any saving of data. \n
         The default is True.
     api_key : string, optional
-        Valid alphavantage key.
-        The default is '91TEYWAGJWO7QE1Z'.
+        Valid alphavantage key. If is set to None then the key will be read
+        from environment variable 'ALPHAVANTAGE_API_KEY'.
+        The default is None.
     maxsymbs : int, optional
         Maximum number of symbol that can be read per minute. Should match 
         alphavantage account limits. After the maxsymbs is reach the program 
@@ -110,7 +103,6 @@ def readMkT(symbols,
     pandas.DataFrame of a dict of pandas.DataFrame
         Hist Mkt data in the same format as out_dict value.
     """
-    
     if save: pathlib.Path(dir).mkdir(parents=True, exist_ok=True) 
     rkod = 1
     rprice = {}
@@ -133,7 +125,12 @@ def readMkT(symbols,
             time.sleep(60)
         
         # Read from web
-        if verbose: print("Read " + symbol + " from web")
+        if verbose: 
+            print("Read " + symbol + " from web")
+        
+        if api_key is None:
+            api_key = os.getenv('ALPHAVANTAGE_API_KEY')
+            
         rkod += 1
         try:
             sprice = web.DataReader(symbol, 
@@ -172,7 +169,8 @@ def readMkT(symbols,
     for k in rprice.keys():
         rprice[k].index = pd.to_datetime(rprice[k].index)
         
-    if out_dict: return rprice
+    if out_dict: 
+        return rprice
     
     return pd.concat(rprice.values())
         
