@@ -66,7 +66,8 @@ class LSSDAnalyzer(MADAnalyzer):
                          rtype)
         
         socp_methods = ['ecos', 'cvxopt']
-        assert method in socp_methods, f"method must be one of {socp_methods}"
+        if not method in socp_methods:
+            raise ValueError(f"method must be one of {socp_methods}")
         self.method = method
         
         

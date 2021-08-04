@@ -11,7 +11,7 @@ from .MADAnalyzer import MADAnalyzer
 
 class Port_MAD(Port_CVaR):
     """
-    Portfolio with MAD optimal weights, periodically rebalanced.
+    Backtesting the MAD optimal portfolio periodically rebalanced.
     Functions: \n
         set_model \n
         get_port \n
@@ -24,7 +24,8 @@ class Port_MAD(Port_CVaR):
         port_drawdown \n
         port_perf \n
         port_annual_returns \n
-        port_monthly_returns
+        port_monthly_returns \n
+        port_period_returns
     """    
     def set_model(self, mu, coef=[1.], rtype='Sharpe', hlength=3.25, 
                   method='ecos'):
@@ -70,9 +71,11 @@ class Port_MAD(Port_CVaR):
     def _set_alpha(self, alpha, coef):
         # ignore alpha
         coef = np.trim_zeros(np.array(coef), trim='b')
-        assert np.all(coef >= 0.), "all coef must be non-negative"
+        if np.any(coef < 0.):
+            raise ValueError("all coef must be non-negative")
         ssc = np.sum(coef)
-        assert ssc > 0., "at least one coef must be > 0"
+        if ssc <= 0.:
+            raise ValueError("at least one coef must be > 0")
         self.coef = coef / ssc
         
     def _wwgen(self):

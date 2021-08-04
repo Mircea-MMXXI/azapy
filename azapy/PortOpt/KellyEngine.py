@@ -199,7 +199,8 @@ class KellyEngine(_RiskEngine):
         None.
         """
         rtypes = ["Full", "Order2"]
-        assert rtype in rtypes, f"type must be one of {rtypes}"
+        if not rtype in rtypes:
+            raise ValueError(f"rtype must be one of {rtypes}")
         self.rtype = rtype
         
         
@@ -217,5 +218,6 @@ class KellyEngine(_RiskEngine):
         None.
         """
         methods = ['ecos', 'cvxopt']
-        assert method in methods, f"method must be one of {methods}"
+        if not method in methods:
+            raise ValueError(f"method must be one of {methods}")
         self.method = method

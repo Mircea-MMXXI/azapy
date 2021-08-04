@@ -16,7 +16,7 @@ sdate = pd.to_datetime("2012-01-01")
 edate = pd.to_datetime('today')
 symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 
-mktdir = "./scripts/analyzers/MkTdata"
+mktdir = "./MkTdata"
 
 # force=True read from alphavantage server
 # force=False read from local directory if data exists

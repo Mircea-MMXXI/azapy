@@ -69,7 +69,8 @@ class GINIAnalyzer(_RiskAnalyzer):
         
         lp_methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 
                        'interior-point', 'glpk', 'cvxopt']
-        assert method in lp_methods, f"method must be one of {lp_methods}"
+        if not method in lp_methods:
+            raise ValueError(f"method must be one of {lp_methods}")
         self.method = method
         
         
@@ -81,6 +82,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         # status, gini, gini
         return 0, gini, gini
             
+    
     def set_rrate(self, rrate):
         """
         Sets the MkT Data.
@@ -105,6 +107,7 @@ class GINIAnalyzer(_RiskAnalyzer):
                        for i in range(self.nn - 1) \
                        for j in range(i + 1, self.nn)])
         self.drate = np.concatenate(yy)
+        
         
     def _risk_min(self, d=1):
         # Order of variables (mm - no of symb, nn - no of observations)
@@ -172,6 +175,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         
         return self.ww
     
+    
     def _sharpe_max(self):
         # Order of variables (mm - no of symb, nn - no of observations)
         # w <- [0 : mm]
@@ -237,6 +241,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         self.secondary_risk_comp = np.array([self.risk])
         
         return self.ww
+    
     
     def _sharpe_inv_min(self):
         # Order of variables (mm - no of symb, nn - no of observations)
@@ -304,6 +309,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         
         return self.ww
     
+    
     def _rr_max(self):
         # Order of variables (mm - no of symb, nn - no of observations)
         # w <- [0 : mm]
@@ -363,6 +369,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         self.secondary_risk_comp = np.array([self.risk])
         
         return self.ww
+
 
     def _risk_averse(self):
         # Order of variables (mm - no of symb, nn - no of observations)

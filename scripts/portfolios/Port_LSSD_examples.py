@@ -30,7 +30,7 @@ coef = coef / coef.sum()
 
 #=============================================================================
 # Compute LSSD-Sharpe optimal portfolio
-p4 = az.Port_LSSD(mktdata) 
+p4 = az.Port_LSSD(mktdata, pname='LSSDPort') 
  
 import time
 tic = time.perf_counter()
@@ -53,7 +53,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
         
 # Test using the Port_Rebalanced weights schedule ww (from above)
-p2 = az.Port_Rebalanced(mktdata)
+p2 = az.Port_Rebalanced(mktdata, pname='TestPort')
 port2 = p2.set_model(ww)     
 
 # Compare - must be identical

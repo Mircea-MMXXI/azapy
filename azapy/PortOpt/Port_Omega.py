@@ -24,7 +24,7 @@ class Port_Omega(Port_CVaR):
         port_annual_returns \n
         port_monthly_returns
     """
-    def set_model(self, mu=0., mu0=0., rtype='Sharpe', hlength=3.25,
+    def set_model(self, mu, mu0=0., rtype='Sharpe', hlength=3.25,
                   method='ecos'):
         """
         Sets model parameters and evaluates portfolio time-series.

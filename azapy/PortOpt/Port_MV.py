@@ -9,8 +9,8 @@ from .MVAnalyzer import MVAnalyzer
 
 class Port_MV(Port_CVaR):
     """
-    Portfolio with MV (mean variance) optimal weights, periodically rebalanced.
-    Functions: \n
+    Backtesting the MV optimal portfolio periodically rebalanced.
+    Methods: \n
         set_model \n
         get_port \n
         get_nshares \n
@@ -22,7 +22,8 @@ class Port_MV(Port_CVaR):
         port_drawdown \n
         port_perf \n
         port_annual_returns \n
-        port_monthly_returns
+        port_monthly_returns \n
+        port_period_returns
     """
     def set_model(self, mu, rtype='Sharpe', hlength=3.25, method='ecos'):
         """
@@ -61,10 +62,9 @@ class Port_MV(Port_CVaR):
                                  method=method)
     
     def _set_method(self, method):
-        method_values = ['ecos', 'cvxopt']
-        assert method in method_values, \
-            f"mehtod must be one of {method_values}"
-            
+        methods = ['ecos', 'cvxopt']
+        if not method in methods:
+            raise ValueError(f"mehtod must be one of {methods}")          
         self.method = method
         
     def _wwgen(self):

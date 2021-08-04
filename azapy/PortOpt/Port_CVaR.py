@@ -12,8 +12,8 @@ from .Port_InvVol import Port_InvVol
 
 class Port_CVaR(Port_InvVol):
     """
-    Portfolio with CVaR optimal weights, periodically rebalanced.
-    Functions: \n
+    Backtesting the CVaR optimal portfolio periodically rebalanced.
+    Methods: \n
         set_model \n
         get_port \n
         get_nshares \n
@@ -25,7 +25,8 @@ class Port_CVaR(Port_InvVol):
         port_drawdown \n
         port_perf \n
         port_annual_returns \n
-        port_monthly_returns
+        port_monthly_returns \n
+        port_period_returns
     """ 
     def set_model(self, mu, alpha=[0.975], coef=None, rtype='Sharpe', 
                   hlength=3.25, method='ecos'):
@@ -37,22 +38,22 @@ class Port_CVaR(Port_InvVol):
         mu : float
             Reference rate. Its meaning depends of the value of rtype. For
             rtype equal to: \n
-                "Sharpe" : mu is the risk-free rate. \n
-                "Risk" : mu is the targeted expected rate of returns. \n
-                "MinRisk" and "InvNrisk" : mu is ignored. \n
-                "RiskAverse" : mu is the Lambda risk aversion coefficient.
+                'Sharpe' : mu is the risk-free rate. \n
+                'Ris' : mu is the targeted expected rate of returns. \n
+                'MinRisk' and 'InvNrisk' : mu is ignored. \n
+                'RiskAverse' : mu is the Lambda risk aversion coefficient.
         alpha : list, optional
-            The value of alpha CVaR confidence levels. The default is [0.975].
+            List of alpha CVaR confidence levels. The default is [0.975].
         coef : list, optional
-            The coefficients values. The default is [1.].
+            List of mixture coefficients values. The default is [1.].
         rtype : string, optional
             Type of optimization. It could take the values:\n
-                "Sharpe" - Sharpe optimal portfolio. \n
-                "Risk" - risk optimal portfolio. \n
-                "MinRisk" - Minimum CVaR optimal portfolio. \n
-                "InvNrisk" - optimal portfolio with same risk as the equally 
+                'Sharpe' - Sharpe optimal portfolio. \n
+                'Risk' - risk optimal portfolio. \n
+                'MinRisk' - Minimum CVaR optimal portfolio. \n
+                'InvNrisk' - optimal portfolio with same risk as the equally 
                 weighted portfolio. \n
-                "RiskAverse" - optimal portfolio for fixed risk aversion . \n
+                'RiskAverse' - optimal portfolio for fixed risk aversion . \n
                 The default is 'Sharpe'.
         hlength : float, optional
             The length in year of the historical calibration period relative 
@@ -62,12 +63,12 @@ class Port_CVaR(Port_InvVol):
             Linear programming numerical method. 
             Could be one of 'ecos', 'highs-ds', 'highs-ipm', 'highs', 
             'interior-point', 'glpk' and 'cvxopt'.
-            The defualt is 'ecos'.
+            The default is 'ecos'.
 
         Returns
         -------
         pd.DataFrame
-            The portfolio time-series in the format "date", "pcolname".
+            The portfolio time-series in the format 'date', 'pcolname'.
         """
         self._set_alpha(alpha, coef)
         self._set_rtype(rtype)
@@ -83,38 +84,39 @@ class Port_CVaR(Port_InvVol):
     def _set_alpha(self, alpha, coef):
         # alpha
         self.alpha = np.array(alpha)
-        assert np.all((0. < self.alpha) & (self.alpha < 1.)), \
-            "alpha must be in (0, 1)"
+        if np.any((self.alpha <= 0.) | (1. <= self.alpha)):
+            raise ValueError("alpha must be in (0, 1)")
         
         # coef
         if coef is None:
             self.coef = np.ones(len(self.alpha))
         else:
-            assert len(coef) == len(self.alpha), \
-                "coef must have same length as alpha"
+            if len(coef) != len(self.alpha):
+                raise ValueError("coef must have same length as alpha")
             self.coef = np.array(coef)
-            
-        assert np.all(0. <= self.coef),  "coef must be >= 0"
+        
+        if np.any(self.alpha < 0.):
+            raise ValueError("coef must be >= 0")
         
         scoef = self.coef.sum()
-        assert scoef > 0., "at leas one coef must be > 0"
+        if scoef <= 0.:
+            raise ValueError("at leas one coef must be > 0")
         
         self.coef = self.coef / scoef
         
     def _set_rtype(self, rtype):
         rtype_values = ['Sharpe', 'Risk', 'MinRisk', 'InvNrisk', 'RiskAverse',
                         'Sharpe2']
-        assert rtype in rtype_values, \
-            f"rtype must be one of {rtype_values}"
+        if not rtype in rtype_values:
+            raise ValueError(f"rtype must be one of {rtype_values}")
             
         self.rtype = rtype
         
     def _set_method(self, method):
         method_values = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 
                        'interior-point', 'glpk', 'cvxopt']
-        assert method in method_values, \
-            f"mehtod must be one of {method_values}"
-            
+        if not method in method_values:
+            raise ValueError(f"mehtod must be one of {method_values}") 
         self.method = method
         
     def _wwgen(self):

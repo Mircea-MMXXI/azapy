@@ -9,7 +9,7 @@ from .GINIAnalyzer import GINIAnalyzer
 
 class Port_GINI(Port_CVaR):
     """
-    Portfolio with GINI optimal weights, periodically rebalanced.
+    Backtesting the GINI optimal portfolio periodically rebalanced.
     Functions: \n
         set_model \n
         get_port \n
@@ -22,9 +22,10 @@ class Port_GINI(Port_CVaR):
         port_drawdown \n
         port_perf \n
         port_annual_returns \n
-        port_monthly_returns
+        port_monthly_returns \n
+        port_period_returns 
     """ 
-    def set_model(self, mu, rtype='Sharpe', hlength=1, method='ecos'):
+    def set_model(self, mu, rtype='Sharpe', hlength=1.25, method='ecos'):
         """
         Sets model parameters and evaluates portfolio time-series.
 

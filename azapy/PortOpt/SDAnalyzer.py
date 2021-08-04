@@ -67,7 +67,8 @@ class SDAnalyzer(_RiskAnalyzer):
         super().__init__(mktdata, colname, freq, hlenght, calendar, rtype)
         
         qp_methods = ['ecos', 'cvxopt']
-        assert method in qp_methods, f"method must one of {qp_methods}"
+        if not method in qp_methods:
+            raise ValueError(f"method must one of {qp_methods}")
         self.method = method
         
     def _risk_calc(self, prate, alpha):

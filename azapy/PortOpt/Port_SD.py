@@ -9,8 +9,8 @@ from .SDAnalyzer import SDAnalyzer
 
 class Port_SD(Port_MV):
     """
-    Portfolio with MV (mean variance) optimal weights, periodically rebalanced.
-    Functions: \n
+    Backtesting the SD optimal portfolio periodically rebalanced.
+    Methods: \n
         set_model \n
         get_port \n
         get_nshares \n
@@ -22,7 +22,8 @@ class Port_SD(Port_MV):
         port_drawdown \n
         port_perf \n
         port_annual_returns \n
-        port_monthly_returns
+        port_monthly_returns \n
+        port_period_returns
     """
     def _wwgen(self):
         return SDAnalyzer(rtype=self.rtype, method=self.method)

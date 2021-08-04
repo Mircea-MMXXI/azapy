@@ -20,18 +20,18 @@ mktdir = "./MkTdata"
 # force=True read from alphavantage server
 # force=False read from local directory if data exists
 mktdata = az.readMkT(symb, dstart = sdate, dend = edate, 
-                    dir=mktdir, force=False) 
+                     dir=mktdir, force=False) 
 
 #=============================================================================
 # Build equal weights rebalancing schedule
-ww = az.simple_schedule(sdate=sdate, edate=edate, freq='Q')
+ww = az.schedule_simple(sdate=sdate, edate=edate, freq='Q')
 
 for sy in symb:
     ww[sy] = [1./len(symb)] * len(ww)
 
 #=============================================================================
 # Compute portfolio
-p2 = az.Port_Rebalanced(mktdata)
+p2 = az.Port_Rebalanced(mktdata, pname='RBPort')
 
 import time
 tic = time.perf_counter()

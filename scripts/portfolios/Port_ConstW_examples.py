@@ -30,7 +30,7 @@ ww = pd.Series(1./len(symb), index=symb)
 #=============================================================================
 # Compute portfolio
 
-p3 = az.Port_ConstW(mktdata)
+p3 = az.Port_ConstW(mktdata, pname='ConstW')
 
 import time
 tic = time.perf_counter()
@@ -54,13 +54,13 @@ p3.get_account(fancy=True)
 # Test: compare to an equivalent Port_Rebalanced
 # Setup Port_Rebalanced
 # Build weights schedule
-wwr = az.simple_schedule(sdate=sdate, edate=edate, freq='Q')
+wwr = az.schedule_simple(sdate=sdate, edate=edate, freq='Q')
 
 for sy in symb:
     wwr[sy] = [1./len(symb)] * len(wwr)
 
 # Compute Port_Rebalanced
-p2 = az.Port_Rebalanced(mktdata)
+p2 = az.Port_Rebalanced(mktdata, pname='TestPort')
 port2  = p2.set_model(wwr)    
 
 # Compare - must be identical

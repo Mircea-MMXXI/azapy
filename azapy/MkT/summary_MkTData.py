@@ -4,7 +4,6 @@ Created on Fri Mar 19 17:35:22 2021
 
 @author: mircea
 """
-
 import pandas as pd
 import numpy as np
 from collections import defaultdict 
@@ -39,16 +38,14 @@ def summary_MkTData(mktdata, calendar=None, sdate=None, edate=None):
             begin - start date
             end - end date
             length - number of records
-            na - total number of NA
+            na_total - total number of NA
             na_b - number of missing records at the beginning
             na_e = number of missing records at the end
             cont - total number of missing records
             
-    
     Comment: the main application is to asses the missing data in the 
     time-series extracted with azapy.readMkT function.
     """
-    
     if isinstance(mktdata, dict):
         gite = mktdata.items()
     else:
@@ -64,7 +61,8 @@ def summary_MkTData(mktdata, calendar=None, sdate=None, edate=None):
     if (sdate is None) or (sdate > msds): sdate = msds
     if (edate is None) or (edate < meds): edate = meds
     
-    if calendar is None: calendar = NYSEgen()
+    if calendar is None: 
+        calendar = NYSEgen()
 
     hd = pd.DatetimeIndex([dd  for dd in pd.date_range(sdate, edate) \
                            if np.is_busday(dd.date(), busdaycal=calendar)])
@@ -77,7 +75,7 @@ def summary_MkTData(mktdata, calendar=None, sdate=None, edate=None):
         res['begin'].append(sd)
         res['end'].append(ed)
         res['length'].append(len(v))
-        res['na'].append(v.isnull().sum().sum())
+        res['na_total'].append(v.isnull().sum().sum())
         res['na_b'].append(0 if sd == hd[0] else hd.get_loc(sd) )
         res['na_e'].append(0 if ed == hd[-1] else len(hd) - hd.get_loc(ed) - 1)
         res['cont'].append(len(hd) - len(v.index))

@@ -24,7 +24,7 @@ mktdata = az.readMkT(symb, dstart = sdate, dend = edate,
 
 #=============================================================================
 # Compute Omega-Sharpe optimal portfolio
-p4 = az.Port_Omega(mktdata) 
+p4 = az.Port_Omega(mktdata, pname='OmegaPort') 
 
 import time
 tic = time.perf_counter()
@@ -47,7 +47,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
         
 # Test using the Port_Rebalanced weights schedule ww (from above)
-p2 = az.Port_Rebalanced(mktdata)
+p2 = az.Port_Rebalanced(mktdata, panme='TestPort')
 port2  = p2.set_model(ww)     
 
 # Compare - must be identical

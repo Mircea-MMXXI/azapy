@@ -73,13 +73,16 @@ class MADAnalyzer(_RiskAnalyzer):
         
         lp_methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 
                        'interior-point', 'glpk', 'cvxopt']
-        assert method in lp_methods, f"method must be one of {lp_methods}"
+        if not method in lp_methods:
+            raise ValueError(f"method must be one of {lp_methods}")
         self.method = method
         
         self.coef = np.array(coef)
-        assert all(0. <= self.coef), "All coefficients must be positive"
+        if any(self.coef <= 0.):
+            raise ValueError("All coef must be positive")
         self.ll = self.coef.size
-        assert self.ll > 0, "coef must contain at least one element"
+        if self.ll <= 0:
+            raise ValueError("coef must contain at least one element")
         self.coef = self.coef / np.sum(self.coef)
         
         self.alpha = np.full(self.ll, self.ll)
@@ -105,7 +108,8 @@ class MADAnalyzer(_RiskAnalyzer):
             self.set_rrate(rrate)
             
         w = np.array(ww)
-        assert all(w >= 0.), "All weights must be non negative"
+        if any(w < 0.):
+            raise ValueError("All ww must be non negative")
         w = w / w.sum()
         
         prate = np.dot(self.rrate, w)

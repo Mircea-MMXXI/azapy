@@ -25,8 +25,8 @@ class OmegaAnalyzer(_RiskAnalyzer):
         Parameters
         ----------
         mu0 : float, optional
-            Risk-free rate (Omega threshold). The default is 0.
-        mktdata : pandas.DataFrame, optional
+            Omega threshold. The default is 0.
+        mktdata : pd.DataFrame, optional
             Historic daily market data for portfolio components in the format
             returned by azapy.mktData function. The default is None.
         colname : string, optional
@@ -70,14 +70,15 @@ class OmegaAnalyzer(_RiskAnalyzer):
         
         lp_methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 
                        'interior-point', 'glpk', 'cvxopt']
-        assert method in lp_methods, f"method must be one of {lp_methods}"
+        if not method in lp_methods:
+            raise ValueError(f"method must be one of {lp_methods}")
         self.method = method
         
         self.alpha = [mu0]
         
     def viewFrontiers(self, efficient=20, inefficient=20, musharpe=None,
                       component=True, randomport=20, fig_type='RR_risk',
-                      options=None, save=None, data=None):
+                      options=None, saveto=None, data=None):
         """
         Computes the elements of the portfolio frontiers.
 
@@ -134,8 +135,8 @@ class OmegaAnalyzer(_RiskAnalyzer):
         super().viewFrontiers(efficient=efficient, inefficient=inefficient,
                               musharpe=self.alpha[0],
                               component=component, randomport=randomport,
-                              fig_type=fig_type, options=options, save=save, 
-                              data=data)
+                              fig_type=fig_type, options=options, 
+                              saveto=saveto, data=data)
         
     def set_rrate(self, rrate):
         """

@@ -142,8 +142,8 @@ class Port_ConstW(Port_Rebalanced):
     def _set_schedule(self):
         if self.schedule is None:
             self.schedule = schedule_roll(self.sdate, self.edate, self.freq,
-                                      self.noffset, self.fixoffset, 
-                                      self.calendar, self.hlength)
+                                          self.noffset, self.fixoffset, 
+                                          self.calendar, self.hlength)
             
     def _set_weights(self, ww):
         if ww is None:
@@ -153,12 +153,15 @@ class Port_ConstW(Port_Rebalanced):
         else:
             _ww = pd.Series(ww, index=self.symb)
             
-        assert _ww.size == self.symb.size, \
-            f"ww size must have = number of symbols {self.symb.size}"
-        assert np.all(_ww >= 0.), \
-            "ww elements must be >= 0"
+        if _ww.size != self.symb.size:
+            raise ValueError(f"ww wrong size, it must be {self.symb.size}")
+
+        if np.any(_ww < 0.):
+            raise ValueError("All ww elements must be >= 0")
+
         wws = _ww.sum()
-        assert wws > 0, "at least one ww element must be > 0"
+        if wws <= 0.:
+            raise ValueError("At least one ww element must be > 0")
         
         self.ww = self.schedule
         for sy in self.symb:

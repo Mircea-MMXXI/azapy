@@ -157,9 +157,10 @@ class _RiskEngine():
         ns = pd.Series(0, index=self.rrate.columns)
         if nshares is not None:
             ns = ns.add(nshares, fill_value=0)
-            
-        assert len(self.rrate.columns) == len(ns),\
-            f"wrong nshares - they must by a subset of {self.rrate.columns}"
+        
+        if len(self.rrate.columns) != len(ns):
+            raise ValueError("nshares must by a subset "
+                             f"of {self.rrate.columns}")
             
         pp = self.last_data[self.rrate.columns.to_list()]
         
@@ -169,8 +170,9 @@ class _RiskEngine():
         else:
             ww0 = pd.Series(0, index=self.rrate.columns)
             ww = ww0.add(ww, fill_value=0)
-            assert len(self.rrate.columns) == len(ns),\
-              f"ww: wrong component names - must be among {self.rrate.columns}"
+            if len(self.rrate.columns) != len(ns):
+                raise ValueError("ww: wrong component names - "
+                                 f"must be among {self.rrate.columns}")
         
         newns = (ww / pp * cap).round(0)
         newcash = cap - newns.dot(pp)

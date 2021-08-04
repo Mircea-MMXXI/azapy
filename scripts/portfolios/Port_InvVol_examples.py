@@ -20,11 +20,11 @@ mktdir = "./MkTdata"
 # force=True read from alphavantage server
 # force=False read from local directory if data exists
 mktdata = az.readMkT(symb, dstart = sdate, dend = edate, 
-                    dir=mktdir, force=False) 
+                     dir=mktdir, force=False) 
 
 #=============================================================================
 # Compute portfolio
-p4 = az.Port_InvVol(mktdata)    
+p4 = az.Port_InvVol(mktdata, pname='InvVolPort')    
 
 import time
 tic = time.perf_counter()
@@ -47,7 +47,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 # Test using the Port_Rebalanced weights schedule ww (from above)
-p2 = az.Port_Rebalanced(mktdata)
+p2 = az.Port_Rebalanced(mktdata, pname='TestPort')
 port2  = p2.set_model(ww)     
 
 # Compare - must be identical

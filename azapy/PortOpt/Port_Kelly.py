@@ -56,7 +56,7 @@ class Port_Kelly(Port_InvVol):
         if rtype in valid_rtypes:
             self.rtype = rtype
         else:
-            ValueError(f"Wrong rtype must be one of {valid_rtypes}")
+            ValueError(f"Wrong rtype - must be one of {valid_rtypes}")
             
     def _ww_calc(self, data):
         return KellyEngine().getWeights(rrate=data, rtype=self.rtype)

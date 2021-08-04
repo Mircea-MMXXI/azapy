@@ -45,8 +45,8 @@ class Port_InvVol(Port_ConstW):
             by azapy.readMkT).
         symb : list, optional
             List of symbols for the basket components. All symbols MkT data
-            should be included in mktdata. If set to None the symb will be 
-            set to the full set of symbols included in mktdata. The default 
+            should be present in mktdata. If set to None the symb will be 
+            set to the full set of symbols present in mktdata. The default 
             is None.
         sdate : datetime, optional
             Start date for historical data. If set to None the sdate will 
@@ -60,17 +60,17 @@ class Port_InvVol(Port_ConstW):
             for portfolio aggregation.The default is 'close'.
         col_divd :  string, optional
             Column name in the mktdata DataFrame that holds the dividend 
-            information. The default is 'dvid'
+            information. The default is 'dvid'.
         col_ref : string, optional
             Column name in the mktdata DataFrame that will be used as a price 
             reference for portfolio components. The default is 'adjusted'.
         col_calib : string, optional
-            Column name used for historical weights calibrations. The default is
-            'adjusted'.
+            Column name used for historical weights calibrations. 
+            The default is 'adjusted'.
         pname : string, optional
-            The name of the portfolio. The default is 'Simple'.
+            The name of the portfolio. The default is 'Port'.
         pcolname : string, optional
-            Name of the portfolio price column. If it set to None that 
+            Name of the portfolio price column. If it set to None than 
             pcolname=pname. The default is None.
         capital : float, optional
             Initial portfolio Capital in dollars. The default is 100000.
@@ -95,8 +95,8 @@ class Port_InvVol(Port_ConstW):
             relevant only is schedule is None. The default is -1.
         calendar : numpy.busdaycalendar, optional
             Business calendar. If it is None then it will be set to NYSE 
-            business calendar via azapy.NYSEgen() function. The default 
-            vale is None.
+            business calendar via azapy.NYSEgen function. The default 
+            is None.
     
         Returns
         -------

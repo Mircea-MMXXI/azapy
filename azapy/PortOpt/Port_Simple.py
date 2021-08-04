@@ -93,8 +93,10 @@ class Port_Simple:
         if symb is None: 
             self.symb = mkt_symb
         else:
-            assert all(sy in mkt_symb for sy in symb),\
-                f"symb list {symb} incompatible with mktdata {mkt_symb}"
+            if not all(sy in mkt_symb for sy in symb):
+                raise ValueError(f"symb list {symb} incompatible"
+                                 f" with mktdata {mkt_symb}")
+
             self.symb = pd.Series(symb)
         # set mktdata
         self.mktdata = mktdata[(mktdata.index >= self.sdate) & 
@@ -133,13 +135,14 @@ class Port_Simple:
             self.ww = ww
         else:
             self.ww = pd.Series(ww, index=self.symb)
- 
-        assert self.ww.size == self.symb.size, \
-            f"ww size must have = number of symbols {self.symb.size}"
-        assert np.all(self.ww >= 0.), \
-            "ww elements must be >= 0"
+        
+        if self.ww.size != self.symb.size:
+            raise ValueError(f"wrong ww size - must be {self.symb.size}")
+        if np.any(self.ww < 0.):
+            raise ValueError("ww elements must be >= 0")
         wws = self.ww.sum()
-        assert wws > 0, "at least one ww element must be > 0"
+        if wws <= 0.:
+            raise ValueError("At least one ww element must be > 0")
         self.ww = self.ww / wws
         
         # Calculate
@@ -160,18 +163,18 @@ class Port_Simple:
         -------
         pd.DataFrame
         """
-        return self.port
+        return self.port.copy()
         
     def get_mktdata(self):
         """
-        Returns the actual MkT data relevant for the portfolio evaluation.
+        Returns the actual MkT data used for portfolio evaluations.
         
         Returns
         -------
         pd.DataFrame
 
         """
-        return self.mktdata
+        return self.mktdata.copy()
         
     def port_view(self, emas=[30, 200], bollinger=False, 
                   view=True, fancy=False):
@@ -182,14 +185,14 @@ class Port_Simple:
         Parameters
         ----------
         emas : list of int, optional
-            Values for EMA duration.The default is [30, 200].
+            List of EMA durations. The default is [30, 200].
         bollinger : boolean, optional
-            if set True it adds the Bollinger bands. The default is False.
+            If set True it adds the Bollinger bands. The default is False.
         view : boolean, optional
             False suppresses the plotting to terminal. The default 
             is True.
         fancy : boolean, optional
-            False : it uses the pandas plot (matplotlib) capabilities.
+            False : it uses the matplotlib capabilities.
             
             True : it uses plotly library for interactive time-series view.
             
@@ -197,8 +200,8 @@ class Port_Simple:
 
         Returns
         -------
-        df : panda.DataFrame
-            The DataFrame with the time-series included in plot.
+        df : pd.DataFrame
+            Contains the time-series included in plot.
         """
         df = self.port.copy()
 
@@ -234,7 +237,7 @@ class Port_Simple:
             Start date of plotted time-series. If it is set to None
             then the sdate is set to the earliest date in the time-series. 
             The default is None.
-        edate : TYPE, optional
+        edate : datetime, optional
             End date of plotted time-series. If it set to None then the edate
             is set to the most recent date of the time-series. 
             The default is None.
@@ -256,7 +259,7 @@ class Port_Simple:
 
         Returns
         -------
-        df : pandas.DataFrame
+        df : pd.DataFrame
             A Data Frame containing the time-series.
         """
         if sdate is None: 
@@ -280,7 +283,7 @@ class Port_Simple:
         
     def port_drawdown(self, top=5, fancy=False):
         """
-        Compute the portfolio drawdowns.
+        Computes the portfolio drawdowns.
 
         Parameters
         ----------
@@ -291,7 +294,7 @@ class Port_Simple:
             False : The drawdowns values are reported in unaltered 
             algebraic format.
             
-            True : The drawdowns values are reported in percents 
+            True : The drawdowns values are reported in percent 
             rounded to 2 decimals.
             
             The default is False.
@@ -299,11 +302,11 @@ class Port_Simple:
         Returns
         -------
         res : panda.DataFrame
-            Table with drawdown events with columns: \n
-                "DD" : drawdown rate \n
-                "Date" : recorded date of the drawdown \n
-                "Star" : start date of the drawdown \n
-                "End" : end date of the drawdown
+            Table of drawdown events. Columns: \n
+                'DD' : drawdown rate \n
+                'Date' : recorded date of the drawdown \n
+                'Star' : start date of the drawdown \n
+                'End' : end date of the drawdown
         """
         res = drawdown(self.port, col=self.pcolname, top=top)
         if not fancy: return res
@@ -319,28 +322,29 @@ class Port_Simple:
         Parameters
         ----------
         componly : boolean, optional
-            If True, only the portfolio components maximum drawdowns 
-            are reported. The default is False.
+            If ``True``, only the portfolio components maximum drawdowns 
+            are reported. The default is ``False``.
         fancy : boolean, optional
-            False : The rate of returns and drawdown values are reported 
+        
+            * ``False`` : The rate of returns and drawdown values are reported 
             in unaltered algebraic format.
             
-            True : The rate of returns and drawdown values are reported in 
-            percents rounded to 2 decimals.
+            * ``True`` : The rate of returns and drawdown values are reported 
+            in  percents rounded to 2 decimals.
             
             The default is False.
 
         Returns
         -------
         pandas.DataFrame
-            Table of portfolio and its components performance with the 
-            following columns: \n
-                "RR " : rate of returns \n
-                "DD" : maximum rate of drawdown \n
-                "Beta" : abs(RR/DD) \n
-                "DD_date" : recorder date of maximum drawdown \n
-                "DD_start" : start date of maximum drawdown \n
-                "DD_end" : end date of maximum drawdown
+            Performance information. Columns:
+                
+                * ``'RR'`` : rate of returns 
+                * ``'DD'`` : maximum rate of drawdown 
+                * ``'Beta'`` : abs(``RR/DD``) 
+                * ``'DD_date'`` : recorder date of maximum drawdown 
+                * ``'DD_start'`` : start date of maximum drawdown 
+                * ``'DD_end'`` : end date of maximum drawdown
         """
         # local function
         def rinfo(df, col):
@@ -440,7 +444,7 @@ class Port_Simple:
 
         Returns
         -------
-        pandas.DataFrame
+        pd.DataFrame
         """
         def frrate(df):
             return df[-1] / df[0] - 1

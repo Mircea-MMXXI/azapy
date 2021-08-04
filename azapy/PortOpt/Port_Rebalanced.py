@@ -114,31 +114,30 @@ class Port_Rebalanced(Port_Simple):
     
     def get_nshares(self):
         """
-        Number of shares hold after each rebalance.
+        Returns the number of shares hold after each rolling date.
 
         Returns
         -------
-        pandas.DataFrame
+        pd.DataFrame
 
         """
         return self.nshares.astype('int').copy()
     
     def get_weights(self, fancy=False):
         """
-        Returns the portfolio weights at each rebalancing period
+        Returns the portfolio weights at each rebalancing period.
         
         Parameters
         ----------
-        fancy : boolean, optional
-            False: reports the weights in algebraic format
+        ``fancy`` : boolean, optional
+            * ``False``: reports the weights in algebraic format.
+            * ``True``: reports the weights in percent rounded to 2 decimals.
             
-            True: reports the weights in percent rounded to 2 decimals
-            
-            The default is False.
+        The default is ``False``.
 
         Returns
         -------
-        pandas.DataFrame
+        pd.DataFrame
         """
         res = self.ww.copy()
         if not fancy:
@@ -197,24 +196,24 @@ class Port_Rebalanced(Port_Simple):
 
         Parameters
         ----------
-        fancy : boolean, optional
-            False: returns a simple pandas.DataFrame
+        ``fancy`` : boolean, optional
+            * ``False``: the values are reported in unaltered algebraic format. 
+            * ``True`` : the values are reported rounded.
             
-            True : returns a pandas.DataFrame with rounded values.
-            
-           The default is False.
+        The default is ``False``.
 
         Returns
         -------
-        pandas.DataFrame
-            For each rolling period identified by "Droll" (rolling date) index,
-            reports: \n
-                for each symbol : the number of shares hold \n
-                "cash_invst" : cash invested at the beginning of 
-                period \n
-                "cash_roll" : cash rolled to the next period \n
-                "cash_divd" : cash dividend accumulated in the 
-                previous period \n
+        pd.DataFrame
+            Reports, for each rolling period identified by ``'Droll'``: 
+
+                * for each symbol : the number of shares hold,
+                * ``'cash_invst'`` : cash invested at the beginning of 
+                period,
+                * ``'cash_roll'`` : cash rolled to the next period,
+                * ``'cash_divd'`` : cash dividend accumulated in the 
+                previous period.
+                
             Note: The capital at the beginning of the period is 
             cash_invst + cash_roll. It is also equal to the previous period: 
             value of the shares on the fixing date + cash_roll + cash_divd.
@@ -239,23 +238,24 @@ class Port_Rebalanced(Port_Simple):
 
     def port_period_returns(self, fancy=False):
         """
-        Returns the rolling period rate of returns 
+        Computes the rolling periods rate of returns. 
 
         Parameters
         ----------
         fancy : boolean, optional
-            False: return in algebraic form.
+        
+           * False: return in algebraic form.
             
-            True: returns in percent rounded to 2 decimals.
+           * True: returns in percent rounded to 2 decimals.
             
-            The default is False.
+        The default is False.
 
         Returns
         -------
         pd.DataFrame
             Each rolling period is indicated by its start date, Droll. 
-            Besides the rate of retuns, RR, the fixing data, Dfix and the 
-            portfolio weights are present.
+            Included are the fixing data, Dfix, and the 
+            portfolio weights.
         """
         # local function
         def frr(x):

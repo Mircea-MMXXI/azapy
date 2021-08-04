@@ -10,7 +10,7 @@ import pandas.tseries.offsets as pt
 
 from azapy.MkT.readMkTData import NYSEgen
 
-def simple_schedule(sdate=pd.to_datetime("2010-01-01"),
+def schedule_simple(sdate=pd.to_datetime("2010-01-01"),
                     edate=pd.to_datetime("today"),
                     freq='Q',
                     noffset=-3,
@@ -112,7 +112,7 @@ def schedule_roll(sdate=pd.to_datetime("2010-01-01"),
     """
     if calendar is None:
         calendar = NYSEgen()
-    sch = simple_schedule(sdate, edate, freq, noffset, fixoffset, calendar)
+    sch = schedule_simple(sdate, edate, freq, noffset, fixoffset, calendar)
     sch['Dhist'] = sch['Dfix'] - pd.offsets \
         .DateOffset(months=round(hlength * 12, 0))
     sch['Dhist'] = np.busday_offset(sch['Dhist'].to_numpy(dtype='<M8[D]'), 

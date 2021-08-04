@@ -9,6 +9,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from collections import defaultdict
 from azapy.MkT.readMkTData import NYSEgen
+import warnings
 
 class _RiskAnalyzer:
     """
@@ -106,8 +107,9 @@ class _RiskAnalyzer:
                 "MinRisk" and "InvNRisk": mu is ignored. \n
                 "RiskAverse" : mu is the Lambda aversion coefficient.
         rrate : pandas.DataFrame, optional
-            MkT Data. If is not None it will overwrite the rrate set by the 
-            constructor. The default is None.
+            It containing the portfolio components historical rates of returns.
+            If it is not None, it will overwrite the rrate computed in the 
+            constructor from mktdata. The default is None.
         rtype : string, optional
             Optimization type. If is not None it will overwrite the value 
             set by the constructor. The default is None.
@@ -178,12 +180,17 @@ class _RiskAnalyzer:
         Parameters
         ----------
         ww : list (np.array or pandas.Series)
-            Portfolio weights. Must have a size equal to the number of symbols 
-            in rrate (MkT data). All weights must by >= 0 with at least one 
-            > 0.
-        rrate : pandas.series, optional
-            MkT Data. If is not None it will overwrite the rrate set by the 
-            constructor. The default is None.
+            Portfolio weights. Its length must be equal to the number of 
+            symbols in `rrate` (`mktdata`). All weights must by $>0$. 
+            If it is a `list` or a `np.array` then the weights are assumed to 
+            by in order of `rrate.columns`. If it is a `pd.Series` the index 
+            should be compatible with the `rrate.columns` or `mktdata` symbols
+            (not necessary in the same order).
+        rrate : pd.DataFrame, optional
+            Contains the portfolio components historical 
+            rates of returns. If it is not `None`, it will overwrite the 
+            `rrate` computed in the constructor from `mktdata`. 
+            The default is `None`.
 
         Returns
         -------
@@ -194,8 +201,11 @@ class _RiskAnalyzer:
         if rrate is not None: 
             self.set_rrate(rrate)
             
+        if isinstance(ww, pd.core.series.Series):
+            ww = ww[self.rrate.columns]
         w = np.array(ww)
-        assert all(w >= 0.), "All weights must be non-negative"
+        if any(w < 0.):
+            raise ValueError("All ww must be non-negative")
         w = w / w.sum()
         
         prate = np.dot(self.rrate, w)
@@ -205,9 +215,8 @@ class _RiskAnalyzer:
         for alpha in self.alpha:
             self.status, secondary, primery = self._risk_calc(prate, alpha)
             if self.status != 0:
-                print(
-                    f"status: {self.status}, wrong risk calc for alpha {alpha}"
-                    )
+                warnings.warn(f"status: {self.status}, \
+                              wrong risk calc for alpha {alpha}")
                 return np.nan
             
             self.primery_risk_comp.append(primery)
@@ -220,7 +229,7 @@ class _RiskAnalyzer:
         
         return self.risk
     
-    def getPositions(self, mu, rtype='Sharpe', nshares=None, cash=0, ww=None):
+    def getPositions(self, mu, rtype=None, nshares=None, cash=0, ww=None):
         """
         Computes the number of shares according to the weights
 
@@ -237,12 +246,13 @@ class _RiskAnalyzer:
             Optimization type. If is not None it will overwrite the value 
             set by the constructor. The default is None.
         nshares : pd.Series, optional
-            Number of shares per portfolio component. A missing component 
+            Initial number of shares per portfolio component. 
+            A missing component 
             entry will be considered 0. A None value assumes that all
             components entries are 0. The name of the components must be
             present in the mrkdata. The default is None.
         cash : float, optional
-            Additional cash to be considered in the overall capital. A
+            Additional cash to be added to the capital. A
             negative entry assumes a reduction in the total capital 
             available for rebalance. The default is 0.
         ww : pd.Series, optional
@@ -254,7 +264,7 @@ class _RiskAnalyzer:
         -------
         res : pd.DataFrame
             The rolling information. Meaning of the columns:
-                - 'old_nsh' : the initial number of shares per portfolio 
+                - 'old_nsh' : initial number of shares per portfolio 
                 component as well as additional cash position. These are 
                 present in the input.
                 - 'new_nsh' : the new number of shares per component plus the 
@@ -265,7 +275,7 @@ class _RiskAnalyzer:
                 - 'diff_nsh' : the number of shares that needs to be 
                 both/sold in order to rebalance the portfolio positions.
                 - 'weights' : portfolio weights used for rebalance. The 'cash'
-                entry is the new portfolio value.
+                entry is the new portfolio value (invested capital).
                 - 'prices' : the share prices used for rebalance evaluations.
                 
             Note: Since the prices are closing prices, the rebalance can be 
@@ -274,12 +284,16 @@ class _RiskAnalyzer:
             execution time.
 
         """
+        if rtype is not None:
+            self.set_rtype(rtype)
+            
         ns = pd.Series(0, index=self.rrate.columns)
         if nshares is not None:
             ns = ns.add(nshares, fill_value=0)
-            
-        assert len(self.rrate.columns) == len(ns),\
-            f"wrong nshares - they must by a subset of {self.rrate.columns}"
+        
+        if len(self.rrate.columns) != len(ns):
+            raise ValueError("nshares must by a subset "
+                             f"of {self.rrate.columns}")
             
         pp = self.last_data[self.rrate.columns.to_list()]
         
@@ -289,8 +303,8 @@ class _RiskAnalyzer:
         else:
             ww0 = pd.Series(0, index=self.rrate.columns)
             ww = ww0.add(ww, fill_value=0)
-            assert len(self.rrate.columns) == len(ns),\
-              f"ww: wrong component names - must be among {self.rrate.columns}"
+            if len(self.rrate.columns) == len(ns):
+                raise ValueError(f"ww must be among {self.rrate.columns}")
         
         newns = (ww / pp * cap).round(0)
         newcash = cap - newns.dot(pp)
@@ -311,13 +325,14 @@ class _RiskAnalyzer:
     
     def set_rrate(self, rrate):
         """
-        Sets portfolio components historical rates of returns in the format 
-        "date", "symbol1", "symbol2", etc. 
-
+        Sets portfolio components historical rates of returns.
+        It will overwrite the value computed by the constructor from mktdata.
+        
         Parameters
         ----------
-        rrate : pandas.DataFrame
-            MkT Data. It will overwrite the value set by the constructor.
+        rrate : pd.DataFrame
+            Portfolio components historical rates of returns, where the 
+            columns are "date", "symbol1", "symbol2", etc. 
         Returns
         -------
         None.
@@ -329,7 +344,7 @@ class _RiskAnalyzer:
     def set_mktdata(self, mktdata, colname='adjusted', 
                     freq='Q', hlength=3.25, calendar=None):
         """
-        Sets historical market data. It will overwrite the choises made in the
+        Sets historical market data. It will overwrite the choice made in the
         constructor.
 
         Parameters
@@ -378,20 +393,21 @@ class _RiskAnalyzer:
         
     def set_rtype(self, rtype):
         """
-        Sets the optimization type.
+        Sets the optimization type. It will overwrite the value set in the 
+        constructor.
 
         Parameters
         ----------
         rtype : string
-            Optimization type. It will overwrite the value set by the 
-            constructor.
+            Optimization type. 
         Returns
         -------
         None.
         """
         rtypes = ["Sharpe", "Risk", "MinRisk", "Sharpe2", "InvNrisk", 
                   "RiskAverse"]
-        assert rtype in rtypes, f"type must be one of {rtypes}"
+        if not rtype in rtypes:
+            raise ValueError(f"rtype must be one of {rtypes}")
         self.rtype = rtype
         
 
@@ -411,13 +427,13 @@ class _RiskAnalyzer:
             Number of points along the inefficient frontier (equally spaced 
             along the rate of returns). The default is 20.
         musharpe : float, optional
-            Value for the risk-free rate of return used in the evaluation of
+            Risk-free rate value used in the evaluation of
             generalized Sharpe ratio. The default is 0.
         component : boolean, optional
             If True the portfolios containing a single component are evaluated 
             and added to the plot for references. The default is True.
         randomport : int, optional
-            The number of portfolios with random weights (inefficient) to be 
+            Number of portfolios with random weights (inefficient) to be 
             evaluate and added to the plot for reference. The default is 20.
         inverseN : boolean, optional
             If True the equally weighted portfolio and the optimal portfolio 
@@ -425,23 +441,28 @@ class _RiskAnalyzer:
             the plot. The default is True.
         fig_type : string, optional
             Graphical representation format.
-            If it is set to "RR_risk" the data is plotted in the rate of return 
+            If it is set to 'RR_risk' the data is plotted in the rate of return 
             vs dispersion representation, otherwise the Sharpe vs rate of 
             return will be used. The default is 'RR_risk'.
         options : dictionary, optional
-            Additional graphical setups (keys): "title", "xlabel", "ylabel", 
-            "tangent".\n
-            "title", "xlabel" and "ylabel" are strings overwriting the default 
-            values. \n
-            "tangent" is a boolean. If set to True it will print
-            the Sharpe tangent. The default is True.
+            Additional graphical parameters. Relevant keys are:\n 
+                `'title'` : The default is `'Portfolio frontiers'`.\n
+                `'xlabel'` : The default is `'risk'` if `fig_type='RR_risk'` 
+                and `'rate of returns'` otherwise.\n
+                `'ylabel'` : The default is `'rate of returns'` if 
+                `fig_type='RR_risk'` and `'sharpe'` otherwise.\n
+                `'tangent'` : Boolean flag. If set to `True` the tangent 
+                (to sharpe point) is add. It has effect only  if  
+                `fig_type='RR_risk'`. The default is `True`.
         saveto : string, optional
-            File name to save the plot. The default is None.
+            File name to save the figure. The extension dictates the format: 
+            `png`, `pdf`, `svg`, etc. For more details see the `mathplotlib` 
+            documentation for `savefig`. The default is `None`.
         data : dictionary, optional
             Numerical data to construct the plot. If it is not None it 
-            will take precedence and no other numerical evaluation will be 
+            will take precedence and no other numerical evaluations will be 
             performed. It is meant to produce different plot representations
-            without recomputation. The default is None.
+            without reevaluations. The default is None.
 
         Returns
         -------

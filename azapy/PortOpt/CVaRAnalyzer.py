@@ -17,7 +17,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
     """
     def __init__(self, alpha=[0.975], coef=[1.], 
                  mktdata=None, colname='adjusted', freq='Q', 
-                 hlenght=3.25, calendar=None,
+                 hlength=3.25, calendar=None,
                  rtype='Sharpe', method='ecos'):
         """
         Constructor
@@ -36,7 +36,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
             Name of the price column from mktdata used in the weights 
             calibration. The default is 'adjusted'.
         freq : string, optional
-            Rate of returns horizon in number of business day. it could be 
+            Rate of returns horizon. It could be 
             'Q' for quarter or 'M' for month. The default is 'Q'.
         hlength : float, optional
             History length in number of years used for calibration. A 
@@ -69,21 +69,23 @@ class CVaRAnalyzer(_RiskAnalyzer):
         -------
         The object.
         """
-        super().__init__(mktdata, colname, freq, hlenght, calendar, rtype)
+        super().__init__(mktdata, colname, freq, hlength, calendar, rtype)
         
         lp_methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 
                       'interior-point', 'glpk', 'cvxopt']
-        assert method in lp_methods, f"method must be one of {lp_methods}"
+        if not method in lp_methods:
+            raise ValueError(f"method must be one of {lp_methods}")
         self.method = method
 
-        assert len(alpha) == len(coef), \
-            "alpha and coef must have the same length"
+        if len(alpha) != len(coef):
+            raise ValueError("alpha and coef must have the same length")
         self.alpha = np.array(alpha)
         self.coef = np.array(coef)
-        assert all(0. < self.coef), \
-            "All coefficients must be positive"
-        assert all((0. < self.alpha) & (self.alpha < 1.)), \
-            "alpha components must be in (0,1)"
+        if any(self.coef <= 0.):
+            raise ValueError("All coef must be positive")
+        if any((self.alpha <= 0.) | (1. <= self.alpha)):
+            raise ValueError("All alpha coefficients must be in (0,1)")
+        
         
         self.coef = self.coef / self.coef.sum()
         self.ll = len(alpha)
