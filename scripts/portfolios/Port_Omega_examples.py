@@ -47,7 +47,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
         
 # Test using the Port_Rebalanced weights schedule ww (from above)
-p2 = az.Port_Rebalanced(mktdata, panme='TestPort')
+p2 = az.Port_Rebalanced(mktdata, pname='TestPort')
 port2  = p2.set_model(ww)     
 
 # Compare - must be identical

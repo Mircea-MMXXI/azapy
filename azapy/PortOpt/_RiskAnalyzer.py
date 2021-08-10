@@ -13,14 +13,24 @@ import warnings
 
 class _RiskAnalyzer:
     """
-    Base class for all XXXAnalyzer classes.
-    All derive classes need to implement:
-        _risk_calc(self, prate, alpha)
-        _risk_min(self, d=1)
-        _sharpe_max(self)
-        _sharpe_inv_min(self)
-        _rr_max(self)
-        _risk_averse(self)
+    Base class for all XXXAnalyzer classes. \n
+    All derive classes need to implement: \n
+        _risk_calc(self, prate, alpha) \n
+        _risk_min(self, d=1) \n
+        _sharpe_max(self) \n
+        _sharpe_inv_min(self) \n
+        _rr_max(self) \n
+        _risk_averse(self) \n
+        
+    Methods:
+        * getWeights
+        * getRisk
+        * getPositions
+        * viewForntiers
+        * set_rrate
+        * set_mktdata
+        * set_rtype
+        * set_random_seed
     """
     
     def __init__(self, mktdata=None, colname='adjusted', 
@@ -181,21 +191,21 @@ class _RiskAnalyzer:
         ----------
         ww : list (np.array or pandas.Series)
             Portfolio weights. Its length must be equal to the number of 
-            symbols in `rrate` (`mktdata`). All weights must by $>0$. 
-            If it is a `list` or a `np.array` then the weights are assumed to 
-            by in order of `rrate.columns`. If it is a `pd.Series` the index 
-            should be compatible with the `rrate.columns` or `mktdata` symbols
+            symbols in rrate (mktdata). All weights must by $>0$. 
+            If it is a list or a np.array then the weights are assumed to 
+            by in order of rrate.columns. If it is a pd.Series the index 
+            should be compatible with the rrate.columns or mktdata symbols
             (not necessary in the same order).
         rrate : pd.DataFrame, optional
             Contains the portfolio components historical 
-            rates of returns. If it is not `None`, it will overwrite the 
-            `rrate` computed in the constructor from `mktdata`. 
-            The default is `None`.
+            rates of returns. If it is not Nonn, it will overwrite the 
+            rrate computed in the constructor from mktdata. 
+            The default is None.
 
         Returns
         -------
         float
-        The dispersion (risk) measure value.
+            The dispersion (risk) measure value.
 
         """
         if rrate is not None: 
@@ -263,20 +273,23 @@ class _RiskAnalyzer:
         Returns
         -------
         res : pd.DataFrame
-            The rolling information. Meaning of the columns:
-                - 'old_nsh' : initial number of shares per portfolio 
-                component as well as additional cash position. These are 
-                present in the input.
-                - 'new_nsh' : the new number of shares per component plus the 
-                residual cash (due to the rounding to an integer number of
-                shares). A negative entry means that the investor needs to 
-                add more cash in order to cover for the number of share 
-                roundups. It has a small value.
-                - 'diff_nsh' : the number of shares that needs to be 
-                both/sold in order to rebalance the portfolio positions.
-                - 'weights' : portfolio weights used for rebalance. The 'cash'
-                entry is the new portfolio value (invested capital).
-                - 'prices' : the share prices used for rebalance evaluations.
+            The rolling information. 
+            
+            Columns:
+                
+                * old_nsh : initial number of shares per portfolio
+                    component as well as additional cash position. These are
+                    present in the input.
+                * new_nsh : the new number of shares per component plus the
+                    residual cash (due to the rounding to an integer number of
+                    shares). A negative entry means that the investor needs to
+                    add more cash in order to cover for the number of share
+                    roundups. It has a small value.  
+                * diff_nsh : the number of shares that needs to be
+                    both/sold in order to rebalance the portfolio positions.  
+                * weights : portfolio weights used for rebalance. The cash
+                    entry is the new portfolio value (invested capital).  
+                * prices : the share prices used for rebalance evaluations.  
                 
             Note: Since the prices are closing prices, the rebalance can be 
             executed next business. Additional cash slippage may occur due 
@@ -446,18 +459,18 @@ class _RiskAnalyzer:
             return will be used. The default is 'RR_risk'.
         options : dictionary, optional
             Additional graphical parameters. Relevant keys are:\n 
-                `'title'` : The default is `'Portfolio frontiers'`.\n
-                `'xlabel'` : The default is `'risk'` if `fig_type='RR_risk'` 
-                and `'rate of returns'` otherwise.\n
-                `'ylabel'` : The default is `'rate of returns'` if 
-                `fig_type='RR_risk'` and `'sharpe'` otherwise.\n
-                `'tangent'` : Boolean flag. If set to `True` the tangent 
+                'title' : The default is 'Portfolio frontiers'.\n
+                'xlabel' : The default is 'risk' if fig_type='RR_risk' 
+                and 'rate of returns' otherwise.\n
+                'ylabel' : The default is 'rate of returns' if 
+                fig_type='RR_risk' and 'sharpe' otherwise.\n
+                'tangent' : Boolean flag. If set to True the tangent 
                 (to sharpe point) is add. It has effect only  if  
-                `fig_type='RR_risk'`. The default is `True`.
+                fig_type='RR_risk'. The default is True.
         saveto : string, optional
             File name to save the figure. The extension dictates the format: 
-            `png`, `pdf`, `svg`, etc. For more details see the `mathplotlib` 
-            documentation for `savefig`. The default is `None`.
+            png, pdf, svg, etc. For more details see the mathplotlib 
+            documentation for savefig. The default is None.
         data : dictionary, optional
             Numerical data to construct the plot. If it is not None it 
             will take precedence and no other numerical evaluations will be 

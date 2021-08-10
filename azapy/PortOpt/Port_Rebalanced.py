@@ -12,19 +12,21 @@ from .Port_Simple import Port_Simple
 class Port_Rebalanced(Port_Simple):
     """
     Portfolio with custom scheduled weights.
-    Functions: \n
-        set_model \n
-        get_port \n
-        get_nshares \n
-        get_weights \n
-        get_account \n
-        get_mktdata \n
-        port_view \n
-        port_view_all \n
-        port_drawdown \n
-        port_perf \n
-        port_annual_returns \n
-        port_monthly_returns
+    
+    Methods:
+        * set_model
+        * get_port
+        * get_nshares
+        * get_weights
+        * get_account
+        * get_mktdata
+        * port_view
+        * port_view_all
+        * port_drawdown
+        * port_perf
+        * port_annual_returns
+        * port_monthly_returns
+        * port_period_returns
     """
     def __init__(self, mktdata, symb=None, sdate=None, edate=None, 
                  col_price='close', col_divd='divd', col_ref='adjusted',
@@ -129,11 +131,11 @@ class Port_Rebalanced(Port_Simple):
         
         Parameters
         ----------
-        ``fancy`` : boolean, optional
-            * ``False``: reports the weights in algebraic format.
-            * ``True``: reports the weights in percent rounded to 2 decimals.
+        fancy : boolean, optional
+            * False: reports the weights in algebraic format.
+            * True: reports the weights in percent rounded to 2 decimals.
             
-        The default is ``False``.
+        The default is False.
 
         Returns
         -------
@@ -196,23 +198,21 @@ class Port_Rebalanced(Port_Simple):
 
         Parameters
         ----------
-        ``fancy`` : boolean, optional
-            * ``False``: the values are reported in unaltered algebraic format. 
-            * ``True`` : the values are reported rounded.
+        fancy : boolean, optional
+            * False: the values are reported in unaltered algebraic format. 
+            * True : the values are reported rounded.
             
-        The default is ``False``.
+        The default is False.
 
         Returns
         -------
         pd.DataFrame
-            Reports, for each rolling period identified by ``'Droll'``: 
+            Reports, for each rolling period identified by 'Droll': 
 
-                * for each symbol : the number of shares hold,
-                * ``'cash_invst'`` : cash invested at the beginning of 
-                period,
-                * ``'cash_roll'`` : cash rolled to the next period,
-                * ``'cash_divd'`` : cash dividend accumulated in the 
-                previous period.
+            * for each symbol : the number of shares hold,
+            * 'cash_invst' : cash invested at the beginning of period,
+            * 'cash_roll' : cash rolled to the next period,
+            * 'cash_divd' : cash dividend accumulated in the previous period.
                 
             Note: The capital at the beginning of the period is 
             cash_invst + cash_roll. It is also equal to the previous period: 
@@ -243,18 +243,15 @@ class Port_Rebalanced(Port_Simple):
         Parameters
         ----------
         fancy : boolean, optional
-        
            * False: return in algebraic form.
-            
            * True: returns in percent rounded to 2 decimals.
-            
         The default is False.
 
         Returns
         -------
         pd.DataFrame
             Each rolling period is indicated by its start date, Droll. 
-            Included are the fixing data, Dfix, and the 
+            Included are: the fixing data, Dfix, and the 
             portfolio weights.
         """
         # local function

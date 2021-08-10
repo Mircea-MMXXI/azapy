@@ -14,10 +14,20 @@ from ._solvers import _lp_solver
 class OmegaAnalyzer(_RiskAnalyzer):
     """
     Omega measure/ratio based portfolio optimization.
+    
+    Methods:
+        * getWeights
+        * getRisk
+        * getPositions
+        * viewForntiers
+        * set_rrate
+        * set_mktdata
+        * set_rtype
+        * set_random_seed
     """
     def __init__(self, mu0 = 0., 
                  mktdata=None, colname='adjusted', freq='Q', 
-                 hlenght=3.25, calendar=None, 
+                 hlength=3.25, calendar=None, 
                  rtype='Sharpe', method='ecos'):
         """
         Constructor
@@ -66,7 +76,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
         -------
         The object.
         """
-        super().__init__(mktdata, colname, freq, hlenght, calendar, rtype)
+        super().__init__(mktdata, colname, freq, hlength, calendar, rtype)
         
         lp_methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 
                        'interior-point', 'glpk', 'cvxopt']

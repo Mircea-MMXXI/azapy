@@ -2,9 +2,7 @@
 $\def\SMCR{{\rm SMCR}}$
 $\def\cK{{\cal K}}$
 
-<a name="TOP">
-
-# SMCR optimal portfolio
+# SMCR optimal portfolio <a name="TOP">
 
 SMCR stands for *Second Momentum Coherent Risk*.
 In our implementation we use the

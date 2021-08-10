@@ -30,7 +30,7 @@ mu0 = 0
 #=============================================================================
 # Compute Sharpe optimal portfolio
 # build the analyzer object
-cr1 = az.OmegaAnalyzer(mu0, mktdata, hlenght=4.5)
+cr1 = az.OmegaAnalyzer(mu0, mktdata, hlength=4.5)
 # computes Sharpe weights for 0 risk-free rate
 ww1 = cr1.getWeights(mu=0.)
 # print portfolio characteristics

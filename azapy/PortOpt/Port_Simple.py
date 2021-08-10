@@ -14,19 +14,20 @@ from azapy.util.drawdown import drawdown, max_drawdown
 
 class Port_Simple:
     """
-    Portfolio with constant initial weights (no rebalance or dividend 
-    accumulation). \n
-    Functions: \n
-        set_model \n
-        get_port \n
-        get_mktdata \n
-        port_view \n
-        port_view_all \n
-        port_drawdown \n
-        port_perf \n
-        port_annual_returns \n
-        port_monthly_returns
+    Buy and Hold portfolio.
+    
+    Methods:
+        * set_model
+        * get_port
+        * get_mktdata
+        * port_view
+        * port_view_all
+        * port_drawdown
+        * port_perf
+        * port_annual_returns
+        * port_monthly_returns
     """
+    
     def __init__(self, mktdata, symb=None, sdate=None, edate=None, 
                  col='adjusted', pname='Port', pcolname=None, 
                  capital=100000):
@@ -53,7 +54,7 @@ class Port_Simple:
             to the latest date in mktdata. The default is None.
         col : string, optional
             Name of column in the mktdata DataFrame that will be considered 
-            for portfolio aggregation.The default is 'adjusted'.
+            for portfolio aggregation. The default is 'adjusted'.
         pname : string, optional
             The name of the portfolio. The default is 'Port'.
         pcolname : string, optional
@@ -66,6 +67,10 @@ class Port_Simple:
         -------
         The object.
         """
+        if isinstance(mktdata, list):
+            mktdata = pd.concat(mktdata, axis=1, join='inner') \
+                .melt(var_name='symbol', value_name=col, ignore_index=False)
+      
         # set sdate
         mkt_sdate = mktdata.groupby('symbol') \
                            .apply(lambda x: x.index[0]).max()
@@ -117,8 +122,8 @@ class Port_Simple:
 
         Parameters
         ----------
-        ww : list (numpy.array to pandas.Series), optional
-            List of weights. If it is panda.Series the index should match 
+        ww : list (alos np.array to pd.Series), optional
+            List of weights. If it is pd.Series the index should match 
             the basket symb. Otherwise the weights are considered in the symb 
             order. If it is set to None than ww will be set to equal weights.
             The default is None.
@@ -157,7 +162,7 @@ class Port_Simple:
         
     def get_port(self):
         """
-        Returns the portfolio time-series
+        Returns the portfolio time-series.
         
         Returns
         -------
@@ -172,7 +177,6 @@ class Port_Simple:
         Returns
         -------
         pd.DataFrame
-
         """
         return self.mktdata.copy()
         
@@ -200,7 +204,7 @@ class Port_Simple:
 
         Returns
         -------
-        df : pd.DataFrame
+        pd.DataFrame
             Contains the time-series included in plot.
         """
         df = self.port.copy()
@@ -259,7 +263,7 @@ class Port_Simple:
 
         Returns
         -------
-        df : pd.DataFrame
+        pd.DataFrame
             A Data Frame containing the time-series.
         """
         if sdate is None: 
@@ -288,7 +292,7 @@ class Port_Simple:
         Parameters
         ----------
         top : int, optional
-            The number of largest drawdown that will be reported. 
+            The number of largest drawdown that will be reported.
             The default is 5.
         fancy : boolean, optional
             False : The drawdowns values are reported in unaltered 
@@ -322,29 +326,29 @@ class Port_Simple:
         Parameters
         ----------
         componly : boolean, optional
-            If ``True``, only the portfolio components maximum drawdowns 
-            are reported. The default is ``False``.
+            If True, only the portfolio components maximum drawdowns 
+            are reported. The default is False.
         fancy : boolean, optional
-        
-            * ``False`` : The rate of returns and drawdown values are reported 
+            * False : The rate of returns and drawdown values are reported 
             in unaltered algebraic format.
             
-            * ``True`` : The rate of returns and drawdown values are reported 
+            * True : The rate of returns and drawdown values are reported 
             in  percents rounded to 2 decimals.
             
             The default is False.
 
         Returns
         -------
-        pandas.DataFrame
-            Performance information. Columns:
+        pd.DataFrame
+            Performance information. 
+            Columns:
                 
-                * ``'RR'`` : rate of returns 
-                * ``'DD'`` : maximum rate of drawdown 
-                * ``'Beta'`` : abs(``RR/DD``) 
-                * ``'DD_date'`` : recorder date of maximum drawdown 
-                * ``'DD_start'`` : start date of maximum drawdown 
-                * ``'DD_end'`` : end date of maximum drawdown
+            * 'RR' : rate of returns 
+            * 'DD' : maximum rate of drawdown 
+            * 'Beta' : abs(RR/DD) 
+            * 'DD_date' : recorder date of maximum drawdown 
+            * 'DD_start' : start date of maximum drawdown 
+            * 'DD_end' : end date of maximum drawdown
         """
         # local function
         def rinfo(df, col):
@@ -394,7 +398,7 @@ class Port_Simple:
 
         Returns
         -------
-        pandas.DataFrame
+        pd.DataFrame
         """
         # local function
         def frrate(df):

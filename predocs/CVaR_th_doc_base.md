@@ -2,9 +2,8 @@
 $\def\CVaR{{\rm CVaR}}$
 $\def\cK{{\cal K}}$
 
-<a name="TOP">
 
-# CVaR optimal portfolio
+# CVaR optimal portfolio <a name="TOP">
 
 CVaR stands for *Conditional Value at Risk*. It is one of the most popular risk
 measures in finance.

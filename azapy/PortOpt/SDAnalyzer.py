@@ -15,10 +15,20 @@ from ._solvers import _socp_solver
 class SDAnalyzer(_RiskAnalyzer):
     """
     SD - Standard deviation as dispersion measure based portfolio optimization.
+    
+    Methods:
+        * getWeights
+        * getRisk
+        * getPositions
+        * viewForntiers
+        * set_rrate
+        * set_mktdata
+        * set_rtype
+        * set_random_seed
     """
     def __init__(self, 
                  mktdata=None, colname='adjusted', freq='Q', 
-                 hlenght=3.25, calendar=None, 
+                 hlength=3.25, calendar=None, 
                  rtype='Sharpe', method = 'ecos'):
         """
         Constructor
@@ -64,7 +74,7 @@ class SDAnalyzer(_RiskAnalyzer):
         The object.
 
         """
-        super().__init__(mktdata, colname, freq, hlenght, calendar, rtype)
+        super().__init__(mktdata, colname, freq, hlength, calendar, rtype)
         
         qp_methods = ['ecos', 'cvxopt']
         if not method in qp_methods:

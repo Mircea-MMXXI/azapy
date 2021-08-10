@@ -1,7 +1,5 @@
 
-<a name="TOP">
-
-# MV optimal portfolio
+# MV optimal portfolio <a name="TOP">
 
 MV stands for *Mean Variance*. These type of optimal portfolio was
 introduced by the economist Harry Max Markowitz in 1952. It was the main

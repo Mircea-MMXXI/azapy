@@ -10,10 +10,13 @@ Python library to analyze and maintain portfolios of financial assets.
 It provides support for a large spectrum of portfolio optimization techniques.
 Performs *in* and *out* sample portfolio analysis.
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Risk based portfolio optimizations:
+Risk based portfolio optimizations
+==================================
 
+.. toctree::
+   :maxdepth: 1
+
+   RiskBased_intro
    CVaR_th_doc
    SMCR_th_doc
    MAD_th_doc
@@ -23,6 +26,18 @@ Performs *in* and *out* sample portfolio analysis.
    SD_th_doc
    Omega_th_doc
 
+
+Naïve portfolios
+================
+
+.. toctree::
+   :maxdepth: 1
+
+   Simple_th_doc
+   ConstW_th_doc
+   InvVol_th_doc
+   InvVar_th_doc
+   InvDD_th_doc
 
 
 Indices and tables

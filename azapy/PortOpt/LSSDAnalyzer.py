@@ -14,10 +14,20 @@ from ._solvers import _socp_solver
 class LSSDAnalyzer(MADAnalyzer):
     """
     LSSD dispersion measure based portfolio optimization.
+    
+    Methods:
+        * getWeights
+        * getRisk
+        * getPositions
+        * viewForntiers
+        * set_rrate
+        * set_mktdata
+        * set_rtype
+        * set_random_seed
     """
     def __init__(self, coef=[1.], 
                  mktdata=None, colname='adjusted', freq='Q', 
-                 hlenght=3.25, calendar=None,
+                 hlength=3.25, calendar=None,
                  rtype='Sharpe', method='ecos'):
         """
         Constructor
@@ -62,7 +72,7 @@ class LSSDAnalyzer(MADAnalyzer):
         -------
         The object.
         """
-        super().__init__(coef, mktdata, colname, freq, hlenght, calendar,
+        super().__init__(coef, mktdata, colname, freq, hlength, calendar,
                          rtype)
         
         socp_methods = ['ecos', 'cvxopt']
@@ -184,6 +194,7 @@ class LSSDAnalyzer(MADAnalyzer):
         
         return self.ww
         
+    
     def _sharpe_max(self):
         # Order of variables:
         # w <- [0:mm] 

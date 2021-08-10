@@ -14,6 +14,16 @@ from ._solvers import _lp_solver
 class CVaRAnalyzer(_RiskAnalyzer):
     """
     CVaR risk measure based portfolio optimizations.
+        
+    Methods:
+        * getWeights
+        * getRisk
+        * getPositions
+        * viewForntiers
+        * set_rrate
+        * set_mktdata
+        * set_rtype
+        * set_random_seed
     """
     def __init__(self, alpha=[0.975], coef=[1.], 
                  mktdata=None, colname='adjusted', freq='Q', 

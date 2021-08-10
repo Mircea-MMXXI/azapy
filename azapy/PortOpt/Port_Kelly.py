@@ -10,20 +10,22 @@ from .KellyEngine import KellyEngine
 
 class Port_Kelly(Port_InvVol):
     """
-    Portfolio with Kelly optimal weights, periodically rebalanced.
-    Functions: \n
-        set_model \n
-        get_port \n
-        get_nshares \n
-        get_weights \n
-        get_account \n
-        get_mktdata \n
-        port_view \n
-        port_view_all \n
-        port_drawdown \n
-        port_perf \n
-        port_annual_returns \n
-        port_monthly_returns
+    Baktesting portfolio with Kelly optimal weights, periodically rebalanced.
+    
+    Methods:
+        * set_model
+        * get_port
+        * get_nshares
+        * get_weights
+        * get_account
+        * get_mktdata
+        * port_view
+        * port_view_all
+        * port_drawdown
+        * port_perf
+        * port_annual_returns
+        * port_monthly_returns
+        * port_period_returns
     """
     def set_model(self, rtype='Full', hlength=1.25):
         """

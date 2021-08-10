@@ -14,10 +14,20 @@ from ._solvers import _lp_solver
 class MADAnalyzer(_RiskAnalyzer):
     """
     MAD risk measure based portfolio optimization.
+    
+    Methods:
+        * getWeights
+        * getRisk
+        * getPositions
+        * viewForntiers
+        * set_rrate
+        * set_mktdata
+        * set_rtype
+        * set_random_seed
     """
     def __init__(self, coef=[1.], 
                  mktdata=None, colname='adjusted', freq='Q', 
-                 hlenght=3.25, calendar=None, 
+                 hlength=3.25, calendar=None, 
                  rtype='Sharpe', method='ecos'):
         """
         Constructor
@@ -69,7 +79,7 @@ class MADAnalyzer(_RiskAnalyzer):
         The object.
 
         """
-        super().__init__(mktdata, colname, freq, hlenght, calendar, rtype)
+        super().__init__(mktdata, colname, freq, hlength, calendar, rtype)
         
         lp_methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 
                        'interior-point', 'glpk', 'cvxopt']

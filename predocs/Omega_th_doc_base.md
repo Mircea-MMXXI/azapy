@@ -1,7 +1,5 @@
 
-<a name="TOP">
-
-# Omega optimal portfolio
+# Omega optimal portfolio <a name="TOP">
 
 Omega ratio was introduced as an alternative to Sharpe ratio. It can be
 defined as generalized Sharpe ratio for risk free rate $\mu_0$

@@ -10,7 +10,7 @@ Sets model parameters and evaluates portfolio time-series.
 
 ```
 set_model(mu, alpha=[0.975], coef=None, rtype='Sharpe',
-          hlength=3.25, method='ecos'):
+          hlength=3.25, method='ecos')
 ```
 
 *Input:*

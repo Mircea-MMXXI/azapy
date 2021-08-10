@@ -1,7 +1,5 @@
 
-<a name="TOP">
-
-# SD optimal portfolio
+# SD optimal portfolio <a name="TOP">
 
 SD stands for *Standard Deviation* (volatility). In many respects SD and MV
 optimal portfolios are equivalent. However, the SD leads to the original

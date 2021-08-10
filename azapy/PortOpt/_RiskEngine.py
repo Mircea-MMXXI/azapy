@@ -11,6 +11,16 @@ import pandas as pd
 from azapy.MkT.readMkTData import NYSEgen
 
 class _RiskEngine():
+    """
+    Base class. Derive class needs to implement\n
+        getWeights \n
+        
+    Methods:
+        * getPositions
+        * set_rrate
+        * set_mktdata
+    """
+    
     def __init__(self, mktdata=None, colname='adjusted', 
                  freq='Q', hlength=3.25, calendar=None):
         """
@@ -33,7 +43,7 @@ class _RiskEngine():
             The default is 3.25
         calendar : np.busdaycalendar, optional
             Business days calendar. If is it None then the calendar will be set
-            to NYSE business calendar via a call to azapy.NYSEgen(). 
+            to NYSE business calendar via a call to azapy.NYSEgen. 
             The default is None.
         
         Returns

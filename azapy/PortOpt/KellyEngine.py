@@ -16,6 +16,14 @@ from ._solvers import _qp_solver
 class KellyEngine(_RiskEngine):
     """
     Computes the Kelly optimal portfolio.
+    
+    Methods:
+        * getWeights
+        * getPositions
+        * set_rtype
+        * set_method
+        * set_rrate
+        * set_mktdata   
     """
     def __init__(self, mktdata=None, colname='adjusted', 
                  freq='Q', hlength=3.25, calendar=None,

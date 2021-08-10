@@ -13,11 +13,21 @@ from ._solvers import _socp_solver
 
 class SMCRAnalyzer(CVaRAnalyzer):
     """
-    SMCR - Second Momentum Coherent Risk based portfolio optimizations. 
+    SMCR - Second Momentum Coherent Risk based portfolio optimizations.
+    
+    Methods:
+        * getWeights
+        * getRisk
+        * getPositions
+        * viewForntiers
+        * set_rrate
+        * set_mktdata
+        * set_rtype
+        * set_random_seed
     """
     def __init__(self, alpha=[0.9], coef=[1.], 
                  mktdata=None, colname='adjusted', freq='Q', 
-                 hlenght=3.25, calendar=None,
+                 hlength=3.25, calendar=None,
                  rtype='Sharpe', method='ecos'):
         """
         Constructor
@@ -66,7 +76,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
 
         """
         super().__init__(alpha, coef, 
-                         mktdata, colname, freq, hlenght, calendar, rtype)
+                         mktdata, colname, freq, hlength, calendar, rtype)
         
         socp_methods = ['ecos', 'cvxopt']
         if not method in socp_methods:

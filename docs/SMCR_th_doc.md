@@ -2,9 +2,7 @@
 $\def\SMCR{{\rm SMCR}}$
 $\def\cK{{\cal K}}$
 
-<a name="TOP">
-
-# SMCR optimal portfolio
+# SMCR optimal portfolio <a name="TOP">
 
 SMCR stands for *Second Momentum Coherent Risk*.
 In our implementation we use the
@@ -44,6 +42,7 @@ Computes the portfolio weights and performs in-sample portfolio analysis.
 * [<span style="color:green">set_mktdata</span>](#set_mktdata)
 * [<span style="color:green">set_rrdata</span>](#set_rrdate)
 * [<span style="color:green">set_rtype</span>](#set_rtype)
+* [<span style="color:green">set_random_seed</span>](#set_random_seed)
 
 The most important method is **getPositions**.
 
@@ -315,7 +314,7 @@ The default is `None`.
 
 <a name="set_rrate">
 
-#### <a name="set_rrate"><span style="color:green">set_rrate</span>
+#### <span style="color:green">set_rrate</span>
 
 Sets portfolio components historical rates of returns.
 It will overwrite the value computed by the constructor from `mktdata`.
@@ -355,6 +354,29 @@ set_rtype(rtype)
 *Input:*
 
 * `rtype` : Optimization type.
+
+*Returns:* `None`
+
+[TOP](#TOP)
+
+---
+
+<a name="set_random_seed">
+
+#### <span style="color:green">set_random_seed</span>
+
+Sets the seed for Dirichlet random generator used in `viewFrontiers`.
+
+*Call:*
+
+```
+set_random_seed(seed = 42)
+```
+
+*Input:*
+
+* `seed` : The random generator seed in case you want to set it to a weird
+value other than 42 :). The default is `42`.
 
 *Returns:* `None`
 
@@ -826,6 +848,3 @@ get_mktdata()
 *Returns:* `pd.DataFrame`
 
 [TOP](#TOP)
-
----
-

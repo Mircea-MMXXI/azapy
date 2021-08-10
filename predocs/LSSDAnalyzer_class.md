@@ -12,6 +12,7 @@ Computes the portfolio weights and performs in-sample portfolio analysis.
 * [<span style="color:green">set_mktdata</span>](#set_mktdata)
 * [<span style="color:green">set_rrdata</span>](#set_rrdate)
 * [<span style="color:green">set_rtype</span>](#set_rtype)
+* [<span style="color:green">set_random_seed</span>](#set_random_seed)
 
 The most important method is **getPositions**.
 

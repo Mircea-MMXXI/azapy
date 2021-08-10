@@ -2,9 +2,7 @@
 $\def\LSSD{{\rm LSSD}}$
 $\def\cK{{\cal K}}$
 
-<a name="TOP">
-
-# LSSD optimal portfolio
+# LSSD optimal portfolio <a name="TOP">
 
 MAD stands for *Lower Semi-Standard Deviation*. In our implementation we use the
 mixture LSSD generalization. It is a superposition of recursive multi LSSD measures. It

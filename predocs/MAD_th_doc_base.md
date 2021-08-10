@@ -2,9 +2,7 @@
 $\def\MAD{{\rm MAD}}$
 $\def\cK{{\cal K}}$
 
-<a name="TOP">
-
-# MAD optimal portfolio
+# MAD optimal portfolio <a name="TOP">
 
 MAD stands for _Mean Absolute Deviation_. In our implementation we use the
 mixture MAD generalization. It is a superposition of recursive multi MAD measures. It

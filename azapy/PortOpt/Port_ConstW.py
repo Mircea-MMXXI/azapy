@@ -13,20 +13,22 @@ from azapy.util.schedule import schedule_roll
 
 class Port_ConstW(Port_Rebalanced):
     """
-    Portfolio with constant weights periodically rebalanced.
-    Functions: \n
-        set_model \n
-        get_port \n
-        get_nshares \n
-        get_weights \n
-        get_account \n
-        get_mktdata \n
-        port_view \n
-        port_view_all \n
-        port_drawdown \n
-        port_perf \n
-        port_annual_returns \n
-        port_monthly_returns
+    Backtesting portfolio with constant weights periodically rebalanced.
+    
+    Methods:
+        * set_model
+        * get_port
+        * get_nshares
+        * get_weights
+        * get_account
+        * get_mktdata
+        * port_view
+        * port_view_all
+        * port_drawdown
+        * port_perf
+        * port_annual_returns
+        * port_monthly_returns
+        * port_period_returns
     """
     def __init__(self, mktdata, symb=None, sdate=None, edate=None, 
                  col_price='close', col_divd='divd', col_ref='adjusted',
@@ -114,12 +116,12 @@ class Port_ConstW(Port_Rebalanced):
         
     def set_model(self, ww=None):
         """
-         Set model parameters and evaluate the portfolio time-series.
+        Set model parameters and evaluate the portfolio time-series.
 
         Parameters
         ----------
-        ww : list (numpy.array to pandas.Series), optional
-            List of weights. If it is panda.Series the index should match 
+        ww : list (alos np.array or pd.Series), optional
+            List of weights. If it is pd.Series the index should match 
             the basket symb. Otherwise the weights are considered in the symb 
             order. If it is set to None than ww will be set to equal weights.
             The default is None.

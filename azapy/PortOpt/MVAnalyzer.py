@@ -15,6 +15,16 @@ from ._solvers import _socp_solver, _qp_solver
 class MVAnalyzer(_RiskAnalyzer):
     """
     MV - Mean Variance dispersion measure based portfolio optimization.
+    
+    Methods:
+        * getWeights
+        * getRisk
+        * getPositions
+        * viewForntiers
+        * set_rrate
+        * set_mktdata
+        * set_rtype
+        * set_random_seed
     """
     def __init__(self, 
                  mktdata=None, colname='adjusted', freq='Q', 
