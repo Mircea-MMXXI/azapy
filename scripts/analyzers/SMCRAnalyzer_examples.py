@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Jul 20 15:10:01 2021
-
-@author: mircea
-"""
 # Examples
 import numpy as np
 import pandas as pd
@@ -40,7 +34,7 @@ ww1 = cr1.getWeights(mu=0.)
 # risk = weighted sum of SMCR's 
 RR = cr1.RR
 risk = cr1.risk
-prim = cr1.primery_risk_comp.copy()
+prim = cr1.primary_risk_comp.copy()
 seco = cr1.secondary_risk_comp.copy()
 sharpe = cr1.sharpe
 print("\nSharpe optimal portfolio\n")
@@ -81,7 +75,7 @@ cr1 = az.SMCRAnalyzer(alpha, coef, mktdata)
 ww1 = cr1.getWeights(mu=0.)
 RR1 = cr1.RR
 risk1 = cr1.risk
-prim1 = cr1.primery_risk_comp.copy()
+prim1 = cr1.primary_risk_comp.copy()
 seco1 = cr1.secondary_risk_comp.copy()
 sharpe1 = cr1.sharpe
 # second Sharpe2
@@ -89,7 +83,7 @@ cr2 = az.SMCRAnalyzer(alpha, coef, mktdata)
 ww2 = cr2.getWeights(mu=0., rtype="Sharpe2")
 RR2 = cr2.RR
 risk2 = cr2.risk
-prim2 = cr2.primery_risk_comp.copy()
+prim2 = cr2.primary_risk_comp.copy()
 seco2 = cr2.secondary_risk_comp.copy()
 sharpe2 = cr2.sharpe
 # print comparison

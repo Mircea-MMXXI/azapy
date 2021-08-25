@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Apr 28 20:59:46 2021
-
-@author: mircea
-"""
 from .Port_CVaR import Port_CVaR
 from .OmegaAnalyzer import OmegaAnalyzer
 
@@ -82,3 +76,4 @@ class Port_Omega(Port_CVaR):
     def _wwgen(self):
         return OmegaAnalyzer(self.alpha[0], rtype=self.rtype, 
                              method=self.method)
+    

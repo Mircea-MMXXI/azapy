@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Mar 26 12:23:59 2021
-
-@author: mircea
-"""
 import pandas as pd
 import numpy as np
 
@@ -121,6 +115,7 @@ class Port_ConstW(Port_Rebalanced):
         Parameters
         ----------
         ww : list (alos np.array or pd.Series), optional
+        
             List of weights. If it is pd.Series the index should match 
             the basket symb. Otherwise the weights are considered in the symb 
             order. If it is set to None than ww will be set to equal weights.

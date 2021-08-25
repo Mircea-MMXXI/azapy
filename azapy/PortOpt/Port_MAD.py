@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon May 17 11:12:37 2021
-
-@author: mircea
-"""
 import numpy as np
 
 from .Port_CVaR import Port_CVaR

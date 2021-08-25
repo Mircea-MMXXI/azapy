@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jun 21 12:54:27 2021
-
-@author: mircea
-"""
-
 from .Port_InvVol import Port_InvVol
 
 class Port_InvVar(Port_InvVol):
@@ -30,3 +23,4 @@ class Port_InvVar(Port_InvVol):
     def _ww_calc(self, data):
         vv = 1. / data.var()
         return vv / vv.sum()
+    

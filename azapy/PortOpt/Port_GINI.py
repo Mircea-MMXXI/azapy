@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue May 11 01:52:45 2021
-
-@author: mircea
-"""
 from .Port_CVaR import Port_CVaR
 from .GINIAnalyzer import GINIAnalyzer
 

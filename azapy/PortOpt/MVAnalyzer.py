@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Jul 23 23:22:22 2021
-
-@author: mircea
-"""
 import numpy as np
 import scipy.linalg as la
 import scipy.sparse as sps
@@ -129,7 +123,7 @@ class MVAnalyzer(_RiskAnalyzer):
         # min volatility
         self.risk = 2 * res['pcost']
         # min variance
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
         # min volatility
         self.secondary_risk_comp = np.array([np.sqrt(self.risk)])
         # rate of return
@@ -151,9 +145,6 @@ class MVAnalyzer(_RiskAnalyzer):
        
         # biuld G
         dd = np.diag([-1.] * (nn + 1))
-        #dd = sps.block_diag((np.diag([-1.] * nn), [0.,-1.]))
-        # pp = np.concatenate((-la.cholesky(P, overwrite_a=True), 
-        #                      np.zeros((nn,2))), axis=1)
         pp = sps.block_diag((-la.cholesky(P, overwrite_a=True), [-1.]))
         G = sps.vstack([dd, pp])
         
@@ -189,7 +180,7 @@ class MVAnalyzer(_RiskAnalyzer):
         # min volatility
         self.risk = 1. / t
         # min variance
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
         # min volatility
         self.secondary_risk_comp = np.array([np.sqrt(self.risk)])
         
@@ -245,7 +236,7 @@ class MVAnalyzer(_RiskAnalyzer):
         # min volatility
         self.risk = res['pcost'] / t
         # min variance
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
          # min volatility
         self.secondary_risk_comp = np.array([np.sqrt(self.risk)])
         # rate of return
@@ -298,7 +289,7 @@ class MVAnalyzer(_RiskAnalyzer):
         # rate of return
         self.RR = -res['pcost']
         # min variance
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
          # min vol
         self.secondary_risk_comp = np.array([np.sqrt(self.risk)])
         
@@ -344,8 +335,9 @@ class MVAnalyzer(_RiskAnalyzer):
         # min volatility
         self.risk = (res['pcost'] + self.RR) / self.Lambda
         # min variance
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
         # min volatility
         self.secondary_risk_comp = np.array([np.sqrt(self.risk)])
         
         return self.ww
+    

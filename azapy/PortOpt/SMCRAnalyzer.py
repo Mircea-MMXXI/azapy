@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Jul 20 14:38:04 2021
-
-@author: mircea
-"""
 import numpy as np
 import scipy.sparse as sps
 import warnings
@@ -212,7 +206,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         # average SMCR
         self.risk = res['pcost']
         # component SMCR
-        self.primery_risk_comp = np.array(
+        self.primary_risk_comp = np.array(
             [res['x'][mm + l * (nn + 2)] \
              + 1 / (1 - self.alpha[l])  / np.sqrt(nn) \
              * res['x'][mm + l * (nn + 2) + 1] \
@@ -315,7 +309,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         # rate of returns
         self.RR = np.dot(self.ww, self.muk)
         # component SMCR (recomputed)
-        self.primery_risk_comp = \
+        self.primary_risk_comp = \
             [(res['x'][mm + l * (nn + 2)] \
               + 1. / (1. - self.alpha[l]) / np.sqrt(nn) \
               * res['x'][mm + l * (nn + 2) + 1]) * self.risk \
@@ -417,7 +411,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         # rate of returns
         self.RR = 1. / t + self.mu
         # component SMCR (recomputed)
-        self.primery_risk_comp = np.array(
+        self.primary_risk_comp = np.array(
             [(res['x'][mm + l * (nn + 2)] \
               + 1. / (1. - self.alpha[l]) / np.sqrt(nn) \
               * res['x'][mm + l * (nn + 2) + 1]) / t \
@@ -507,7 +501,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         # rate of returns
         self.RR = -res['pcost']
         # component SMCR
-        self.primery_risk_comp = np.array(
+        self.primary_risk_comp = np.array(
             [res['x'][mm + l * (nn + 2)] \
              + 1 / (1 - self.alpha[l])  / np.sqrt(nn) \
              * res['x'][mm + l * (nn + 2) + 1] 
@@ -605,7 +599,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         self.secondary_risk_comp = np.array([res['x'][mm + l * (nn + 2)] \
                                              for l in range(ll)])
         # component SMCR
-        self.primery_risk_comp = np.array(
+        self.primary_risk_comp = np.array(
             [res['x'][mm + l * (nn + 2)] \
              + 1. / (1. - self.alpha[l])  / np.sqrt(nn) \
              * res['x'][mm + l * (nn + 2) + 1] \

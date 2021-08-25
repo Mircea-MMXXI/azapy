@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Mar 20 14:04:34 2021
-
-@author: mircea
-"""
 import pandas as pd
 import numpy as np
 import ta 
@@ -180,8 +174,8 @@ class Port_Simple:
         """
         return self.mktdata.copy()
         
-    def port_view(self, emas=[30, 200], bollinger=False, 
-                  view=True, fancy=False):
+    def port_view(self, emas=[30, 200], bollinger=False, fancy=False, 
+                  saveto=None):
         """
         Plot the portfolio time series together with optional technical 
         indicators.
@@ -192,15 +186,14 @@ class Port_Simple:
             List of EMA durations. The default is [30, 200].
         bollinger : boolean, optional
             If set True it adds the Bollinger bands. The default is False.
-        view : boolean, optional
-            False suppresses the plotting to terminal. The default 
-            is True.
         fancy : boolean, optional
             False : it uses the matplotlib capabilities.
             
             True : it uses plotly library for interactive time-series view.
             
             The default is False.
+        saveto : string, optional
+            The name of the file where to save the plot. The default is None.
 
         Returns
         -------
@@ -222,16 +215,20 @@ class Port_Simple:
             df['B_mvag'] = idx.bollinger_mavg()
             df['B_lower'] = idx.bollinger_lband()
         
-        if view: 
-            if fancy: 
-                self._view_plotly(df)
-            else:
+        if fancy: 
+            fig = self._view_plotly(df)
+            if saveto is not None:
+                fig.write_image(saveto)
+        else:
+            if saveto is None:
                 df.plot()
+            else:
+                df.plot().get_figure().savefig(saveto)
                 
         return df
     
-    def port_view_all(self, sdate=None, edate=None, view=True, 
-                      componly=False, fancy=False):
+    def port_view_all(self, sdate=None, edate=None, componly=False, 
+                      fancy=False, saveto=None):
         """
         Plot the portfolio and its component time-series in a relative bases.
 
@@ -245,9 +242,6 @@ class Port_Simple:
             End date of plotted time-series. If it set to None then the edate
             is set to the most recent date of the time-series. 
             The default is None.
-        view : boolean, optional
-            If set to True then the plot is printed to the terminal.
-            The default is True.
         componly : boolean, optional
             True : only the portfolio components time-series are plotted.
             
@@ -260,6 +254,8 @@ class Port_Simple:
             True : it uses plotly library for interactive time-series view.
             
             The default is False.
+        saveto : string, optional
+            The name of the file where to save the plot. The default is None.
 
         Returns
         -------
@@ -277,11 +273,15 @@ class Port_Simple:
             df = df.merge(self.port, on='date') 
         df = df.apply(lambda x: x / x[0])
  
-        if view: 
-            if fancy: 
-                self._view_plotly(df)
-            else:
+        if fancy: 
+            fig = self._view_plotly(df)
+            if saveto is not None:
+                fig.write_image(saveto)
+        else:
+            if saveto is None:
                 df.plot()
+            else:
+                df.plot().get_figure().savefig(saveto)
                 
         return df
         
@@ -540,3 +540,5 @@ class Port_Simple:
         )
 
         fig.show()
+        
+        return fig

@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 """
-Created on Mon Jul 19 17:04:27 2021
+Wrappers for various solvers.
+"""
 
-@author: mircea
-"""
 import numpy as np
 import scipy.sparse as sps
 import scipy.optimize as sopt
@@ -13,7 +11,7 @@ import cvxopt as cx
 import ecos
 
 def _lp_scipy(c, G, h, A, b, method):
-    # compute - suppress w{'sparse': True}arning
+    # compute - suppress warning {'sparse': True}
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         res = sopt.linprog(c=c, A_ub=G, b_ub=h, 

@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Jul 20 00:20:37 2021
-
-@author: mircea
-"""
 import numpy as np
 import scipy.sparse as sps
 import warnings
@@ -119,11 +113,10 @@ class OmegaAnalyzer(_RiskAnalyzer):
             vs dispersion representation, otherwise the Sharpe vs rate of 
             return will be used. The default is 'RR_risk'.
         options : dictionary, optional
-            Additional graphical setups (keys): "title", "xlabel", "ylabel", 
-            "tangent".\n
-            "title", "xlabel" and "ylabel" are strings overwriting the default 
+            Additional graphical setups (keys): \n
+            "title", "xlabel", "ylabel" : strings overwriting the default 
             values. \n
-            "tangent" is a boolean. If set to True it will print
+            "tangent" : boolean. If set to True it will print
             the Sharpe tangent. The default is True.
         save : string, optional
             File name to save the plot. The default is None.
@@ -227,7 +220,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
         # primary risk components - default to risk
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
         # secondary risk components - default to risk
         self.secondary_risk_comp = np.array([self.risk])
         
@@ -290,7 +283,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
         # rate of return
         self.RR = -res['pcost'] * self.risk + self.mu
         # primary risk components - default to risk
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
         # secondary risk components - default to risk
         self.secondary_risk_comp = np.array([self.risk])
         
@@ -354,7 +347,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
         # rate of return
         self.RR = 1. / t + self.mu
         # primary risk components - default to risk
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
         # secondary risk components - default to risk
         self.secondary_risk_comp = np.array([self.risk])
         
@@ -409,7 +402,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
         self.ww = np.array(res['x'][:mm])
         self.ww.shape = mm
         # primary risk components - default to risk
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
         # secondary risk components - default to risk
         self.secondary_risk_comp = np.array([self.risk])
         
@@ -466,7 +459,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
         # delta-risk
         self.risk = (res['pcost'] + self.RR) / self.Lambda
         # primary risk components - default to risk
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
         # secondary risk components - default to risk
         self.secondary_risk_comp = np.array([self.risk])
         

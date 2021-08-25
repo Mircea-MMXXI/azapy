@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .CVaRAnalyzer import *
 from .SMCRAnalyzer import *
 from .GINIAnalyzer import *

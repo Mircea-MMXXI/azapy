@@ -142,26 +142,34 @@ class _RiskEngine():
 
         Returns
         -------
-        res : pd.DataFrame
-            The rolling information. Meaning of the columns:
-                - 'old_nsh' : the initial number of shares per portfolio 
+        pd.DataFrame:
+        the rolling information. 
+        
+        Columns:
+            
+            - 'old_nsh' : 
+                the initial number of shares per portfolio 
                 component as well as additional cash position. These are 
                 present in the input.
-                - 'new_nsh' : the new number of shares per component plus the 
+            - 'new_nsh' : 
+                the new number of shares per component plus the 
                 residual cash (due to the rounding to an integer number of
                 shares). A negative entry means that the investor needs to 
                 add more cash in order to cover for the number of share 
                 roundups. It has a small value.
-                - 'diff_nsh' : the number of shares that needs to be 
+            - 'diff_nsh' : 
+                the number of shares that needs to be 
                 both/sold in order to rebalance the portfolio positions.
-                - 'weights' : portfolio weights used for rebalance. The 'cash'
+            - 'weights' : 
+                portfolio weights used for rebalance. The 'cash'
                 entry is the new portfolio value.
-                - 'prices' : the share prices used for rebalance evaluations.
-                
-            Note: Since the prices are closing prices, the rebalance can be 
-            executed next business. Additional cash slippage may occur due 
-            to share price differential between the previous day closing and 
-            execution time.
+            - 'prices' : 
+                the share prices used for rebalance evaluations.
+            
+        Note: Since the prices are closing prices, the rebalance can be 
+        executed next business. Additional cash slippage may occur due 
+        to share price differential between the previous day closing and 
+        execution time.
 
         """
         ns = pd.Series(0, index=self.rrate.columns)

@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jul 14 14:09:16 2021
-
-@author: mircea
-"""
 from .Port_MAD import Port_MAD
 from .LSSDAnalyzer import LSSDAnalyzer
 
@@ -36,3 +30,4 @@ class Port_LSSD(Port_MAD):
     def _wwgen(self):
         return LSSDAnalyzer(coef=self.coef, rtype=self.rtype, 
                             method=self.method)
+    

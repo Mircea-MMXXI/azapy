@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Apr  9 13:03:38 2021
-
-@author: mircea
-"""
 import numpy as np
 
 from .CVaRAnalyzer import CVaRAnalyzer

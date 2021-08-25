@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Jul 20 01:05:18 2021
-
-@author: mircea
-"""
 import numpy as np
 import scipy.sparse as sps
 import warnings
@@ -100,7 +94,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         Parameters
         ----------
         rrate : pandas.DataFrame
-            MkT Data. It will overwrite the value set by the constructor.
+            Market data. It will overwrite the value set by the constructor.
         Returns
         -------
         None.
@@ -180,7 +174,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
         
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
         self.secondary_risk_comp = np.array([self.risk])
         
         return self.ww
@@ -247,7 +241,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         # rate of return
         self.RR = -res['pcost'] / t + self.mu
         
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
         self.secondary_risk_comp = np.array([self.risk])
         
         return self.ww
@@ -314,7 +308,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         # rate of return
         self.RR = 1. / t + self.mu
         
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
         self.secondary_risk_comp = np.array([self.risk])
         
         return self.ww
@@ -375,7 +369,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         # rate of return
         self.RR = -res['pcost']
         
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
         self.secondary_risk_comp = np.array([self.risk])
         
         return self.ww
@@ -438,7 +432,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         # GINI
         self.risk = (res['pcost'] + self.RR) / self.Lambda
  
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
         self.secondary_risk_comp = np.array([self.risk])
         
         return self.ww

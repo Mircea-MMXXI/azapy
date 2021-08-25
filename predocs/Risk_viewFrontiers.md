@@ -40,8 +40,8 @@ are:
     - `'tangent'` : Boolean flag. If set to `True` the tangent (to sharpe
 		 point) is add. It has effect only  if  `fig_type='RR_risk'`.
 		 The default is `True`.
-* `saveto` : File name to save the figure. The extension dictates the format:
-`png`, `pdf`, `svg`, etc. For more details see the `mathplotlib`
+* `saveto` : File name where to save the figure. The extension dictates the
+format: `png`, `pdf`, `svg`, etc. For more details see the `mathplotlib`
 documentation for `savefig`. The default is `None`.
 * `data` : Numerical data to construct the plot. If it is not `None` it
 will take precedence and no other numerical evaluations will be

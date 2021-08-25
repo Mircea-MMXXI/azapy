@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Jun 24 11:34:08 2021
-
-@author: mircea
-"""
 import numpy as np
 import pandas as pd
 import cvxopt as cx
@@ -21,7 +15,7 @@ def gamblingKelly(pp=[0.6]):
     Returns
     -------
     pd.Series
-        Bet sizes as percentage of capital.
+        Bet sizes as percentage of the capital.
     """
     pp = np.array(pp)
     assert all((pp > 0) & (pp < 1)), "all pp must by in (0,1)"
@@ -90,4 +84,3 @@ def gamblingKelly(pp=[0.6]):
         warnings.warn(f"cannot find a good solution msg: {sol['status']}")
         
     return pd.Series(sol['x']).round(4) * 100
-

@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Jun 25 10:46:40 2021
-
-@author: mircea
-"""
 import numpy as np
 import pandas as pd
 import cvxopt as cx

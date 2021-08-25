@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Apr 15 23:29:40 2021
-
-@author: mircea
-"""
 from .Port_CVaR import Port_CVaR
 from .MVAnalyzer import MVAnalyzer
 

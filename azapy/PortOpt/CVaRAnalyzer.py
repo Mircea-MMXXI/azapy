@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jul 19 21:10:35 2021
-
-@author: mircea
-"""
 import numpy as np
 import scipy.sparse as sps
 import warnings
@@ -13,7 +7,7 @@ from ._solvers import _lp_solver
 
 class CVaRAnalyzer(_RiskAnalyzer):
     """
-    CVaR risk measure based portfolio optimizations.
+    CVaR risk measure based portfolio optimizer.
         
     Methods:
         * getWeights
@@ -206,7 +200,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         # average CVaR
         self.risk = res['pcost']
         # CVaR (recomputed)
-        self.primery_risk_comp = \
+        self.primary_risk_comp = \
             np.array([res['x'][mm + l * (nn + 1)] \
              + 1 / (1 - self.alpha[l]) * np.mean(
                  res['x'][(mm + l * (nn + 1) + 1) : (mm + (l + 1) * (nn + 1))])
@@ -293,7 +287,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
         # component CVaR (recomputed)
-        self.primery_risk_comp = \
+        self.primary_risk_comp = \
             np.array([(res['x'][mm + l * (nn + 1)] + 1 / (1 - self.alpha[l]) \
             * np.mean(res['x'][(mm + l * (nn + 1) + 1) :\
                                (mm + (l + 1) * (nn + 1))])) \
@@ -376,7 +370,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         # rate of return
         self.RR = 1. / t + self.mu
         # component CVaR (recomputed)
-        self.primery_risk_comp = \
+        self.primary_risk_comp = \
             np.array([(res['x'][mm + l * (nn + 1)] + 1 / (1 - self.alpha[l]) \
             * np.mean(res['x'][(mm + l * (nn + 1) + 1) :\
                             (mm + (l + 1) * (nn + 1))])) /t \
@@ -444,7 +438,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         self.secondary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
                                     for l in range(ll)])
         # CVaR (recomputed)
-        self.primery_risk_comp = \
+        self.primary_risk_comp = \
             np.array([res['x'][mm + l * (nn + 1)] \
              + 1 / (1 - self.alpha[l]) * np.mean(
                  res['x'][(mm + l * (nn + 1) + 1) : (mm + (l + 1) * (nn + 1))])
@@ -523,7 +517,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         # average CVaR
         self.risk = (res['pcost'] + self.RR) / self.Lambda
         # CVaR (recomputed)
-        self.primery_risk_comp = \
+        self.primary_risk_comp = \
             np.array([res['x'][mm + l * (nn + 1)] \
              + 1 / (1 - self.alpha[l]) * np.mean(
                  res['x'][(mm + l * (nn + 1) + 1) : (mm + (l + 1) * (nn + 1))])

@@ -1,9 +1,5 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Jun 24 14:42:27 2021
+# Example of how to call gambilngKelly function
 
-@author: mircea
-"""
 import azapy as az
 
 # 3 simultaneous independent games 

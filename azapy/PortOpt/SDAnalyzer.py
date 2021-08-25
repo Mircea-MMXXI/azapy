@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Jul 25 03:18:27 2021
-
-@author: mircea
-"""
 import numpy as np
 import scipy.linalg as la
 import scipy.sparse as sps
@@ -137,7 +131,7 @@ class SDAnalyzer(_RiskAnalyzer):
         # min volatility
         self.risk = res['pcost']
         # min volatility
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
         # min variance
         self.secondary_risk_comp = np.array([self.risk**2])
         # rate of return
@@ -196,7 +190,7 @@ class SDAnalyzer(_RiskAnalyzer):
         # min volatility
         self.risk = res['pcost'] / t
         # min volatility
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
         # min variance
         self.secondary_risk_comp = np.array([self.risk**2])
         
@@ -249,7 +243,7 @@ class SDAnalyzer(_RiskAnalyzer):
         # min volatility
         self.risk = 1. / t
         # min volatility
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
          # min variance
         self.secondary_risk_comp = np.array([self.risk**2])
         # rate of return
@@ -301,7 +295,7 @@ class SDAnalyzer(_RiskAnalyzer):
         # rate of return
         self.RR = -res['pcost']
         # min volatility
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
          # min variance
         self.secondary_risk_comp = np.array([self.risk**2])
         
@@ -354,7 +348,7 @@ class SDAnalyzer(_RiskAnalyzer):
         # min volatility
         self.risk = (res['pcost'] + self.RR) / self.Lambda
         # min volatility
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
         # min variance
         self.secondary_risk_comp = np.array([self.risk**2])
         

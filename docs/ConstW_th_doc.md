@@ -153,7 +153,7 @@ Plot the portfolio time series together with optional technical indicators.
 *Call:*
 
 ```
-port_view(emas=[30, 200], bollinger=False, view=True, fancy=False)
+port_view(emas=[30, 200], bollinger=False, fancy=False, saveto=None)
 ```
 
 *Input:*
@@ -167,6 +167,7 @@ If set `True` it adds the Bollinger bands. The default is `False`.
 * `fancy` : Boolean flag with default value 'False'.
     - `False` : it uses the `matplotlib` capabilities.
     - `True` : it uses `plotly` library for interactive time-series view.
+* `saveto` : File name where to save the plot. The default is `None`.
 
 *Returns:* pd.DataFrame containing the time-series included in the plot.
 
@@ -183,7 +184,7 @@ Plot the portfolio and its component time-series in a relative bases.
 *Call:*
 
 ```
-port_view_all(sdate=None, edate=None, view=True, componly=False, fancy=False)
+port_view_all(sdate=None, edate=None, componly=False, fancy=False, saveto=None)
 ```
 
 *Input:*
@@ -196,14 +197,13 @@ The default is `None`.
 End date of plotted time-series. If it set to `None` then the `edate`
 is set to the most recent date of the time-series.
 The default is `None`.
-* `view` : Boolean flag.
-`False` suppresses the plotting to tne terminal. The default is `True`.
 * `componly` : Boolean flag with default value `True`.
     - `True` : only the portfolio components time-series are plotted.
     - `False` : the portfolio and its components times-series are plotted.
 * `fancy` : Boolean flag with default value `False`.
     - `False` : it uses the `matplotlib` capabilities.
     - `True` : it uses `plotly` library for interactive time-series view.
+* `saveto` : File name where to save the plot. The default is `None`.
 
 *Returns:* pd.DataFrame containing the time-series included in the plot.
 

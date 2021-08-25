@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Jun 19 15:11:05 2021
-
-@author: mircea
-"""
-
 import pandas as pd
 
 from .Port_Simple import Port_Simple
@@ -121,7 +114,6 @@ class Port_Rebalanced(Port_Simple):
         Returns
         -------
         pd.DataFrame
-
         """
         return self.nshares.astype('int').copy()
     
@@ -214,15 +206,14 @@ class Port_Rebalanced(Port_Simple):
             * 'cash_roll' : cash rolled to the next period,
             * 'cash_divd' : cash dividend accumulated in the previous period.
                 
-            Note: The capital at the beginning of the period is 
-            cash_invst + cash_roll. It is also equal to the previous period: 
-            value of the shares on the fixing date + cash_roll + cash_divd.
-            There are 2 sources for the cash_roll. The roundup to integer 
-            number of shares and the shares close price differences between 
-            the fixing (computation) and rolling (execution) dates. It could
-            be positive or negative. The finance of the cash_roll during 
-            each rolling period is assumed  to be done separately by the 
-            investor.
+        Note: The capital at the beginning of the period is 
+        cash_invst + cash_roll. It is also equal to the previous period: 
+        value of the shares on the fixing date + cash_roll + cash_divd.
+        There are 2 sources for the cash_roll. The roundup to integer 
+        number of shares and the shares close price differences between 
+        the fixing (computation) and rolling (execution) dates. It could
+        be positive or negative. The finance of the cash_roll during 
+        each rolling period is assumed  to be done separately by the investor.
         """
         acc_tab = self.nshares.copy()
         acc_tab['cash_invst'] = self.cash_invst
@@ -271,3 +262,4 @@ class Port_Rebalanced(Port_Simple):
         rww[self.symb] = rww[self.symb].round(4).abs() * 100
         
         return rww
+    

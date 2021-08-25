@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Jul 25 04:33:28 2021
-
-@author: mircea
-"""
 # Examples
 import numpy as np
 import pandas as pd
@@ -35,7 +29,7 @@ ww1 = cr1.getWeights(mu=0.)
 # risk = volatility
 RR = cr1.RR
 risk = cr1.risk
-prim = cr1.primery_risk_comp.copy()
+prim = cr1.primary_risk_comp.copy()
 seco = cr1.secondary_risk_comp.copy()
 sharpe = cr1.sharpe
 print("\nSharpe optimal portfolio\n")
@@ -76,7 +70,7 @@ cr1 = az.SDAnalyzer(mktdata)
 ww1 = cr1.getWeights(mu=0.)
 RR1 = cr1.RR
 risk1 = cr1.risk
-prim1 = cr1.primery_risk_comp.copy()
+prim1 = cr1.primary_risk_comp.copy()
 seco1 = cr1.secondary_risk_comp.copy()
 sharpe1 = cr1.sharpe
 # second Sharpe2
@@ -84,7 +78,7 @@ cr2 = az.SDAnalyzer(mktdata, method='ecos')
 ww2 = cr2.getWeights(mu=0., rtype="Sharpe2")
 RR2 = cr2.RR
 risk2 = cr2.risk
-prim2 = cr2.primery_risk_comp
+prim2 = cr2.primary_risk_comp
 seco2 = cr2.secondary_risk_comp
 sharpe2 = cr2.sharpe
 # print comparison

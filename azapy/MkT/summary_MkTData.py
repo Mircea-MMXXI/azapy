@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Mar 19 17:35:22 2021
-
-@author: mircea
-"""
 import pandas as pd
 import numpy as np
 from collections import defaultdict 
@@ -16,8 +10,8 @@ def summary_MkTData(mktdata, calendar=None, sdate=None, edate=None):
 
     Parameters
     ----------
-    mktdata : dict or pd.DataFrame 
-        MkT Data in the format returned by azapy.readMkT function.
+    mktdata :a pd.DataFrame or a dictonary of pd.DataFrame's
+        Market Data in the format returned by azapy.readMkT function.
     calendar : np.busdaycalendar, optional
         Business days calendar. If is set to None it will 
         default to NYSE business calendar.
@@ -32,16 +26,15 @@ def summary_MkTData(mktdata, calendar=None, sdate=None, edate=None):
 
     Returns
     -------
-    TYPE pd.DataFrame
-        Table with columns:
-            symbol - time-series symbol
-            begin - start date
-            end - end date
-            length - number of records
-            na_total - total number of NA
-            na_b - number of missing records at the beginning
-            na_e = number of missing records at the end
-            cont - total number of missing records
+    pd.DataFrame: a table with columns:
+        - symbol : time-series symbol
+        - begin : start date
+        - end : end date
+        - length : number of records
+        - na_total : total number of ``nan``'s
+        - na_b : number of missing records at the beginning
+        - na_e : number of missing records at the end
+        - cont : total number of missing records
             
     Comment: the main application is to asses the missing data in the 
     time-series extracted with azapy.readMkT function.
@@ -81,4 +74,3 @@ def summary_MkTData(mktdata, calendar=None, sdate=None, edate=None):
         res['cont'].append(len(hd) - len(v.index))
 
     return pd.DataFrame(res)
-

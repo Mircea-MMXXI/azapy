@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Jun 25 11:09:21 2021
-
-@author: mircea
-"""
-
 from .Port_InvVol import Port_InvVol
 from .KellyEngine import KellyEngine
 

@@ -1,9 +1,10 @@
-# -*- coding: utf-8 -*-
 """
-Created on Sat Feb 27 13:07:37 2021
+Contains two functions
 
-@author: mircea
+- NYSEgen : NYSE business calendar
+- readMkT : read historic market data from alphavantge
 """
+
 import pandas as pd
 import pandas_datareader as web
 from datetime import datetime, date
@@ -16,7 +17,8 @@ import pandas_market_calendars as mcal
 def NYSEgen(sdate = np.datetime64('1980-01-01'),
             edate = np.datetime64('2050-12-31')):
     """
-    Generate the numpy business calendar from NYSE between sdate and edate.
+    Generate the numpy business calendar from NYSE between ``sdate`` and 
+    ``edate``.
 
     Parameters
     ----------
@@ -48,8 +50,8 @@ def readMkT(symbols, dstart=datetime(2012, 1, 1), dend=date.today(),
             force=False, verbose=True, dir='outData', save=True,
             api_key=None, maxsymbs=5, adj_split=True, out_dict=False):
     """
-    Read Hist MkT data from alphavantage servers or from the local disk.
-    Hist MkT data is collected between dstart and dend dates.
+    Read historic market data from alphavantage servers or from the local disk.
+    Historic market data is collected between ``dstart`` and ``dend`` dates.
 
     Parameters
     ----------
@@ -60,48 +62,54 @@ def readMkT(symbols, dstart=datetime(2012, 1, 1), dend=date.today(),
     dend : datetime, optional
         End date. The default is date.today().
     force : boolean, optional
-        True: MkT data will be read from alphavantage.
-        False: there will be an attempt to read Mkt Data from the disk. If is
-        it doesn't exist then read from alphavantage. The default is False.
+        - True: market data will be read from alphavantage.
+        - False: it attempts to read the market data from the disk. If it
+        fails then it will read from alphavantage. 
+        
+        The default is False.
     verbose : boolean, optional
-        True: print progress information. \n
-        False: suppress printing of progress information. \n
+        - True: print the progress information.
+        - False: suppress the printing of progress information.
+        
         The default is True.
     dir : string, optional
-        Local director where MkT data can be read/save. 
+        Local directory where market data can be read/save. 
         The default is 'outData'.
     save : boolean, optional
-        DESCRIPTION. 
-        True: MkT data will be saved to dir. \n
-        False: suppress any saving of data. \n
+        - True: market data will be saved to dir. 
+        - False: suppress any saving of data. 
+        
         The default is True.
     api_key : string, optional
-        Valid alphavantage key. If is set to None then the key will be read
+        Valid alphavantage key. If is set to ``None`` then the key will be read
         from environment variable 'ALPHAVANTAGE_API_KEY'.
-        The default is None.
+        The default is ``None``.
     maxsymbs : int, optional
         Maximum number of symbol that can be read per minute. Should match 
-        alphavantage account limits. After the maxsymbs is reach the program 
-        will sleep for 1min before resuming reading more data. 
+        alphavantage account limits. After the maxsymbs is reached the program 
+        will sleep for 1 min before resuming reading more data. 
         The default is 5.
     adj_split : boolean, optional
-        True: adjust all fields for split events. \n
-        False: no adjustment is made. \n
+        - True: adjust all fields for split events. 
+        - False: no adjustment is made. 
+        
         The default is True.
     out_dict : boolean, optional
-        Choose the output format.
-        True: pandas.DataFrame with columns: "symbol", "date", "open", "high", 
-        "low", "close", "volume", "adjusted", "divd", "split". \n
-        False: dict where the keys are the symbols and items are 
-        pandas.DataFrame
-        with columns: "date", "open", "high", 
-        "low", "close", "volume", "adjusted", "divd", "split".  \n
+        Choose the output format:
+            
+        - True: a pandas.DataFrame with columns: "symbol", "date", "open",
+        "high", "low", "close", "volume", "adjusted", "divd", "split".
+        
+        - False: a dictoanry where the keys are the symbols and the items are
+        the pandas.DataFrame with columns: "date", "open", "high",
+        "low", "close", "volume", "adjusted", "divd", "split".
+        
         The default is False.
 
     Returns
     -------
-    pandas.DataFrame of a dict of pandas.DataFrame
-        Hist Mkt data in the same format as out_dict value.
+    pandas.DataFrame or a dictionary of pandas.DataFrame, according with the 
+    value of ``out_dict``.
     """
     if save: pathlib.Path(dir).mkdir(parents=True, exist_ok=True) 
     rkod = 1
@@ -118,7 +126,7 @@ def readMkT(symbols, dstart=datetime(2012, 1, 1), dend=date.today(),
         
         # Get the symbol from the web
         
-        # If this is the (maxsymbs + 1) symbol take 1min sleep
+        # If this is maxsymbs take 1min sleep
         if rkod > maxsymbs:
             rkod = 1
             print("Sleep 1 min.")

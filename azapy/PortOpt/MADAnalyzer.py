@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jul 19 23:17:43 2021
-
-@author: mircea
-"""
 import numpy as np
 import scipy.sparse as sps
 import warnings
@@ -144,10 +138,10 @@ class MADAnalyzer(_RiskAnalyzer):
             delta.append(dd)
             mu -= dd
             
-        self.primery_risk_comp = np.array(delta)
-        self.secondary_risk_comp = np.cumsum(self.primery_risk_comp) \
-            -self.primery_risk_comp[0]
-        self.risk = np.dot(self.primery_risk_comp, self.coef)
+        self.primary_risk_comp = np.array(delta)
+        self.secondary_risk_comp = np.cumsum(self.primary_risk_comp) \
+            -self.primary_risk_comp[0]
+        self.risk = np.dot(self.primary_risk_comp, self.coef)
         
         return self.risk
     
@@ -223,11 +217,11 @@ class MADAnalyzer(_RiskAnalyzer):
         # mMAD
         self.risk = res['pcost']
         # MAD 
-        self.primery_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
+        self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
                                            for l in range(ll)])
         # tMAD
-        self.secondary_risk_comp = np.cumsum(self.primery_risk_comp) \
-            - self.primery_risk_comp[0]
+        self.secondary_risk_comp = np.cumsum(self.primary_risk_comp) \
+            - self.primary_risk_comp[0]
         # optimal weights
         self.ww = np.array(res['x'][:mm])
         self.ww.shape = mm
@@ -307,11 +301,11 @@ class MADAnalyzer(_RiskAnalyzer):
         # mMAD
         self.risk = 1 / t
         # MAD 
-        self.primery_risk_comp = np.array([res['x'][mm + l * (nn + 1)] / t \
+        self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] / t \
                                            for l in range(ll)])
         # tMAD
-        self.secondary_risk_comp = np.cumsum(self.primery_risk_comp) \
-            - self.primery_risk_comp[0]
+        self.secondary_risk_comp = np.cumsum(self.primary_risk_comp) \
+            - self.primary_risk_comp[0]
         # optimal weights
         self.ww = np.array(res['x'][:mm] / t)
         self.ww.shape = mm
@@ -394,11 +388,11 @@ class MADAnalyzer(_RiskAnalyzer):
         # mMAD
         self.risk = res['pcost'] / t
         # MAD 
-        self.primery_risk_comp = np.array([res['x'][mm + l * (nn + 1)] / t \
+        self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] / t \
                                            for l in range(ll)])
         # tMAD
-        self.secondary_risk_comp = np.cumsum(self.primery_risk_comp) \
-            - self.primery_risk_comp[0]
+        self.secondary_risk_comp = np.cumsum(self.primary_risk_comp) \
+            - self.primary_risk_comp[0]
         # optimal weights
         self.ww = np.array(res['x'][:mm] / t)
         self.ww.shape = mm
@@ -472,11 +466,11 @@ class MADAnalyzer(_RiskAnalyzer):
             return np.array([np.nan] * mm)
             
         # MAD 
-        self.primery_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
+        self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
                                            for l in range(ll)])
         # tMAD
-        self.secondary_risk_comp = np.cumsum(self.primery_risk_comp) \
-            - self.primery_risk_comp[0]
+        self.secondary_risk_comp = np.cumsum(self.primary_risk_comp) \
+            - self.primary_risk_comp[0]
         # optimal weights
         self.ww = np.array(res['x'][:mm])
         self.ww.shape = mm
@@ -509,8 +503,8 @@ class MADAnalyzer(_RiskAnalyzer):
             G_icol += [mm + k * (nn + 1) for k in range(l)] * nn \
                   + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
             #irow += list(range(l * nn, (l + 1) * nn)) * (l + 1)
-            G_irow += [k for k in range(l * nn, (l + 1) * nn) for _ in range(l)]\
-                + list(range(l * nn, (l + 1) * nn))
+            G_irow += [k for k in range(l * nn, (l + 1) * nn) \
+                       for _ in range(l)] + list(range(l * nn, (l + 1) * nn))
             G_data += [-1.] * ((l + 1) * nn)
         G_icol += list(range(mm + ll * (nn + 1)))
         G_irow += list(range(ll * nn, ll * nn + mm + ll * (nn + 1)))
@@ -556,11 +550,11 @@ class MADAnalyzer(_RiskAnalyzer):
         # mMAD
         self.risk = (res['pcost'] + self.RR) / self.Lambda
         # MAD 
-        self.primery_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
+        self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
                                            for l in range(ll)])
         # tMAD
-        self.secondary_risk_comp = np.cumsum(self.primery_risk_comp) \
-            - self.primery_risk_comp[0]
+        self.secondary_risk_comp = np.cumsum(self.primary_risk_comp) \
+            - self.primary_risk_comp[0]
         
         return self.ww
     

@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Jun 19 15:30:50 2021
-
-@author: mircea
-"""
 import pandas as pd
 import numpy as np
 import pandas.tseries.offsets as pt

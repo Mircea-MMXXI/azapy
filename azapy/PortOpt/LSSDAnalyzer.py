@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Jul 20 13:58:06 2021
-
-@author: mircea
-"""
 import numpy as np
 import scipy.sparse as sps
 import warnings
@@ -94,10 +88,10 @@ class LSSDAnalyzer(MADAnalyzer):
             delta.append(dd)
             mu -= dd
             
-        self.primery_risk_comp = np.array(delta)
-        self.secondary_risk_comp = np.cumsum(self.primery_risk_comp) \
-            -self.primery_risk_comp[0]
-        self.risk = np.dot(self.primery_risk_comp, self.coef)
+        self.primary_risk_comp = np.array(delta)
+        self.secondary_risk_comp = np.cumsum(self.primary_risk_comp) \
+            -self.primary_risk_comp[0]
+        self.risk = np.dot(self.primary_risk_comp, self.coef)
         
         return self.risk
 
@@ -181,11 +175,11 @@ class LSSDAnalyzer(MADAnalyzer):
         # mLSSD
         self.risk = res['pcost']
         # LSSD
-        self.primery_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
+        self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
                                            for l in range(ll)])
         # tLSSD
-        self.secondary_risk_comp = np.cumsum(self.primery_risk_comp) \
-            - self.primery_risk_comp[0]
+        self.secondary_risk_comp = np.cumsum(self.primary_risk_comp) \
+            - self.primary_risk_comp[0]
         # optimal weights
         self.ww = np.array(res['x'][:mm])
         self.ww.shape = mm
@@ -273,7 +267,7 @@ class LSSDAnalyzer(MADAnalyzer):
         # risk (=1/t)
         self.risk = 1. / res['x'][-1]
         # LSSD (=u)
-        self.primery_risk_comp = np.array(
+        self.primary_risk_comp = np.array(
             [res['x'][mm + l * (nn + 1)] * self.risk for l in range(ll)])
         # Sharpe
         self.sharpe = -res['pcost']
@@ -283,8 +277,8 @@ class LSSDAnalyzer(MADAnalyzer):
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
          # tLSSD
-        self.secondary_risk_comp = np.cumsum(self.primery_risk_comp) \
-            - self.primery_risk_comp[0]
+        self.secondary_risk_comp = np.cumsum(self.primary_risk_comp) \
+            - self.primary_risk_comp[0]
         
         return self.ww
     
@@ -369,7 +363,7 @@ class LSSDAnalyzer(MADAnalyzer):
         t = res['x'][-1]
         self.risk = res['pcost'] / t
         # LSSD (=u)
-        self.primery_risk_comp = np.array(
+        self.primary_risk_comp = np.array(
             [res['x'][mm + l * (nn + 1)] / t for l in range(ll)])
         
         # optimal weights
@@ -378,8 +372,8 @@ class LSSDAnalyzer(MADAnalyzer):
         # rate of return
         self.RR = 1. / t + self.mu
         # tLSSD
-        self.secondary_risk_comp = np.cumsum(self.primery_risk_comp) \
-            - self.primery_risk_comp[0]
+        self.secondary_risk_comp = np.cumsum(self.primary_risk_comp) \
+            - self.primary_risk_comp[0]
         
         return self.ww
         
@@ -457,11 +451,11 @@ class LSSDAnalyzer(MADAnalyzer):
         # rate of return
         self.RR = -res['pcost']
         # LSSD
-        self.primery_risk_comp = np.array([res['x'][mm + l * (nn + 2)] \
+        self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 2)] \
                                            for l in range(ll)])
         # tLSSD
-        self.secondary_risk_comp = np.cumsum(self.primery_risk_comp) \
-            - self.primery_risk_comp[0]
+        self.secondary_risk_comp = np.cumsum(self.primary_risk_comp) \
+            - self.primary_risk_comp[0]
         # optimal weights
         self.ww = np.array(res['x'][:mm])
         self.ww.shape = mm
@@ -549,11 +543,11 @@ class LSSDAnalyzer(MADAnalyzer):
         # mLSSD
         self.risk = (self.RR + res['pcost']) / self.Lambda
         # LSSD
-        self.primery_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
+        self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
                                            for l in range(ll)])
         # tLSSD
-        self.secondary_risk_comp = np.cumsum(self.primery_risk_comp) \
-            - self.primery_risk_comp[0]
+        self.secondary_risk_comp = np.cumsum(self.primary_risk_comp) \
+            - self.primary_risk_comp[0]
         
         return self.ww
     

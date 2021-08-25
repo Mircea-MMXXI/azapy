@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jun 21 14:49:58 2021
-
-@author: mircea
-"""
 # Examples
 import pandas as pd
 

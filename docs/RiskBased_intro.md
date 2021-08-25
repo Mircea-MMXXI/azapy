@@ -179,6 +179,8 @@ substitute to our personal research. However, *azapy* provides the necessary
 analytical tools to perform a quiet comprehensive quantitative portfolio
 analysis.
 
+![OutOfSample](../graphics/Portfolio_1.png "Out-of-sample")
+
 An out-of-sample analysis, also called backtesting or historical simulation,
 can be performed for any of the implemented portfolio
 strategies. The following information can be extracted:

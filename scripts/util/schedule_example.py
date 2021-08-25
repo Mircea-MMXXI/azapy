@@ -1,9 +1,5 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Jun 19 15:45:43 2021
+# Example of how to call scheule functions
 
-@author: mirce
-"""
 import pandas as pd
 import azapy as az
 

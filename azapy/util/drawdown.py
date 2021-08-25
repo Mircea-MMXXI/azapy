@@ -37,15 +37,16 @@ def max_drawdown(mktdata, col=None):
 
     Returns
     -------
-    val : TYPE float
+    float
         The value of the drawdown.
-    i_min : TYPE pd.Timestamp
-        The maximum drawdown date.
-    i_start : TYPE pd.Timestamp
-        Date when the drawdown had started.
-    i_end : TYPE pd.Timestamp
-        Date of the drawdown recovery. A value of np.nan indicates that the
-        drawdown is in progress.
+        
+            i_min : pd.Timestamp
+                The maximum drawdown date.
+            i_start : pd.Timestamp
+                Date when the drawdown had started.
+            i_end : pd.Timestamp
+                Date of the drawdown recovery. A value of np.nan indicates that the
+                drawdown is in progress.
     """
     rdata = mktdata if  col is None else mktdata[col]
 
@@ -70,19 +71,20 @@ def drawdown(mktdata, col=None, top=10):
         Name of the column of price if mktdata is a pd.DataFrame. If its value 
         is set to None then mktdata is assumed to be a pd.Series.
         The default is None.
-    top int, optional
+    top : int, optional
         Maximum number of the largest drawdown to be computed. 
         The default is 10.
 
     Returns
     -------
-    TYPE pd.DataFrama
+    pd.DataFrama
         Table containing the drawdowns ordered from the largest to smallest.
         Table columns are:
-                'DD': (float) drawdown max value
-                'Date': (pd.Timestamp) drawdown max value date
-                'Start': (pd.Timestamp) drawdown start date
-                'End': (pd.Timestamp) drawdown recovery date
+            
+            - 'DD': (float) drawdown max value
+            - 'Date': (pd.Timestamp) drawdown max value date
+            - 'Start': (pd.Timestamp) drawdown start date
+            - 'End': (pd.Timestamp) drawdown recovery date
         The number of rows is <= top 
     """
     rdata = mktdata if pd.isna(col) else mktdata[col]

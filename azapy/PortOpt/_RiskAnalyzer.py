@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Apr  6 14:29:33 2021
-
-@author: mircea 
-"""
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -88,7 +82,7 @@ class _RiskAnalyzer:
         self.coef = [1.]
         
         self.risk = None
-        self.primery_risk_comp = None
+        self.primary_risk_comp = None
         self.secondary_risk_comp = None
         self.sharpe = None
         self.RR = None
@@ -191,7 +185,7 @@ class _RiskAnalyzer:
         ----------
         ww : list (np.array or pandas.Series)
             Portfolio weights. Its length must be equal to the number of 
-            symbols in rrate (mktdata). All weights must by $>0$. 
+            symbols in rrate (mktdata). All weights must by >0. 
             If it is a list or a np.array then the weights are assumed to 
             by in order of rrate.columns. If it is a pd.Series the index 
             should be compatible with the rrate.columns or mktdata symbols
@@ -206,7 +200,6 @@ class _RiskAnalyzer:
         -------
         float
             The dispersion (risk) measure value.
-
         """
         if rrate is not None: 
             self.set_rrate(rrate)
@@ -220,19 +213,19 @@ class _RiskAnalyzer:
         
         prate = np.dot(self.rrate, w)
         
-        self.primery_risk_comp = []
+        self.primary_risk_comp = []
         self.secondary_risk_comp = []
         for alpha in self.alpha:
-            self.status, secondary, primery = self._risk_calc(prate, alpha)
+            self.status, secondary, primary = self._risk_calc(prate, alpha)
             if self.status != 0:
                 warnings.warn(f"status: {self.status}, \
                               wrong risk calc for alpha {alpha}")
                 return np.nan
             
-            self.primery_risk_comp.append(primery)
+            self.primary_risk_comp.append(primary)
             self.secondary_risk_comp.append(secondary)
-        self.risk = np.dot(self.primery_risk_comp, self.coef)
-        self.primery_risk_comp = np.array(self.primery_risk_comp)
+        self.risk = np.dot(self.primary_risk_comp, self.coef)
+        self.primary_risk_comp = np.array(self.primary_risk_comp)
         self.secondary_risk_comp = np.array(self.secondary_risk_comp)
         self.RR = np.dot(w, self.muk)
         self.ww = w
@@ -272,30 +265,32 @@ class _RiskAnalyzer:
 
         Returns
         -------
-        res : pd.DataFrame
-            The rolling information. 
+        pd.DataFrame: the rolling information. 
+        
+        Columns:
             
-            Columns:
-                
-                * old_nsh : initial number of shares per portfolio
-                    component as well as additional cash position. These are
-                    present in the input.
-                * new_nsh : the new number of shares per component plus the
-                    residual cash (due to the rounding to an integer number of
-                    shares). A negative entry means that the investor needs to
-                    add more cash in order to cover for the number of share
-                    roundups. It has a small value.  
-                * diff_nsh : the number of shares that needs to be
-                    both/sold in order to rebalance the portfolio positions.  
-                * weights : portfolio weights used for rebalance. The cash
-                    entry is the new portfolio value (invested capital).  
-                * prices : the share prices used for rebalance evaluations.  
-                
-            Note: Since the prices are closing prices, the rebalance can be 
-            executed next business. Additional cash slippage may occur due 
-            to share price differential between the previous day closing and 
-            execution time.
-
+            - "old_nsh" : 
+                initial number of shares per portfolio component as well as 
+                additional cash position. These are present in the input. 
+            - "new_nsh" : 
+                the new number of shares per component plus the residual 
+                cash (due to the rounding to an integer number of shares). 
+                A negative entry means that the investor needs to add more 
+                cash in order to cover for the number of share roundups. 
+                It has a small value.  
+            - "diff_nsh" : 
+                the number of shares that needs to be both/sold in order 
+                to rebalance the portfolio positions.  
+            - "weights" : 
+                portfolio weights used for rebalance. The cash entry is 
+                the new portfolio value (invested capital). 
+            - "prices" : 
+                the share prices used for rebalance evaluations.  
+            
+        Note: Since the prices are closing prices, the rebalance can be 
+        executed next business. Additional cash slippage may occur due 
+        to share price differential between the previous day closing and 
+        execution time.
         """
         if rtype is not None:
             self.set_rtype(rtype)
@@ -348,7 +343,7 @@ class _RiskAnalyzer:
             columns are "date", "symbol1", "symbol2", etc. 
         Returns
         -------
-        None.
+        None
         """
         self.nn, self.mm = rrate.shape
         self.muk = rrate.mean()
@@ -382,7 +377,7 @@ class _RiskAnalyzer:
 
         Returns
         -------
-        None.
+        None
         """
         if mktdata is None: 
             return
@@ -415,7 +410,7 @@ class _RiskAnalyzer:
             Optimization type. 
         Returns
         -------
-        None.
+        None
         """
         rtypes = ["Sharpe", "Risk", "MinRisk", "Sharpe2", "InvNrisk", 
                   "RiskAverse"]
@@ -465,7 +460,7 @@ class _RiskAnalyzer:
                 'ylabel' : The default is 'rate of returns' if 
                 fig_type='RR_risk' and 'sharpe' otherwise.\n
                 'tangent' : Boolean flag. If set to True the tangent 
-                (to sharpe point) is add. It has effect only  if  
+                (to sharpe point) is added. It has effect only  if  
                 fig_type='RR_risk'. The default is True.
         saveto : string, optional
             File name to save the figure. The extension dictates the format: 
@@ -484,7 +479,7 @@ class _RiskAnalyzer:
             reconstruct the plots without reevaluations.
         """
         if data is not None:
-            data['save'] = saveto
+            data['saveto'] = saveto
             if fig_type == 'RR_risk':
                 self._plot_f1(data)
             else:
@@ -776,12 +771,12 @@ class _RiskAnalyzer:
         Parameters
         ----------
         seed : int, optional
-            The random generator seed in case you want to set it to a weird 
+            The random generator seed, in case you want to set it to a weird 
             value other than 42 :). The default is 42.
 
         Returns
         -------
-        None.
+        None
         """
         self.rng = np.random.RandomState(seed)
         

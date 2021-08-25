@@ -1,9 +1,5 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jun  7 21:13:07 2021
+# Example of how to call readMkT and summary_MkTData functions
 
-@author: mircea
-"""
 import pandas as pd
 
 import azapy as az

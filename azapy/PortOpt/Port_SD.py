@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Jul 25 16:58:12 2021
-
-@author: mircea
-"""
 from .Port_MV import Port_MV
 from .SDAnalyzer import SDAnalyzer
 
@@ -28,3 +22,4 @@ class Port_SD(Port_MV):
     """
     def _wwgen(self):
         return SDAnalyzer(rtype=self.rtype, method=self.method)
+    

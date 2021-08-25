@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import setuptools
 
 with open("README.md", "r", encoding="utf-8") as readme:
@@ -6,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as readme:
 
 setuptools.setup(
     name="azapy",
-    version="0.0.1",
+    version="0.1.0",
     author="Mircea Marinescu",
     author_email="mircea01012004@hotmail.com",
     description="Finanical portfolio optimization algorithms",
