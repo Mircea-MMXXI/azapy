@@ -21,7 +21,7 @@ port_period_returns(fancy=False)
 *Returns:* `pd.DataFrame`
 
 Each rolling period is indicated by its start date, `Droll`.
-Included are the fixing data, `Dfix`, and the portfolio weights.
+The values of `Dfix` and components weights are included in the report.
 
 [TOP](#TOP)
 

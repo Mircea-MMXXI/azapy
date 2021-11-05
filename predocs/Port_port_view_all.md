@@ -3,7 +3,9 @@
 
 #### <span style="color:green">port_view_all</span>
 
-Plot the portfolio and its component time-series in a relative bases.
+Plot the optimal portfolio and its components time-series in a relative bases.
+The components time series prices are designated by the value of
+`col_ref` argument in the constructor.
 
 *Call:*
 
@@ -27,9 +29,11 @@ The default is `None`.
 * `fancy` : Boolean flag with default value `False`.
     - `False` : it uses the `matplotlib` capabilities.
     - `True` : it uses `plotly` library for interactive time-series view.
-* `saveto` : File name where to save the plot. The default is `None`.
+* `saveto` : File name where to save the plot. The extension dictates the
+format: `png`, `pdf`, `svg`, etc. For more details see the `mathplotlib`
+documentation for `savefig`.The default is `None`.
 
-*Returns:* pd.DataFrame containing the time-series included in the plot.
+*Returns:* `pd.DataFrame` containing the time-series included in the plot.
 
 [TOP](#TOP)
 

@@ -4,8 +4,8 @@
 #### <span style="color:green">get_account</span>
 
 Returns additional bookkeeping information regarding rebalancing
-(*e.g.* residual cash due rounding number of shares, previous period
-dividend cash accumulation, etc.)
+(*e.g.* residual cash due to roundup to an integer of the number of shares,
+previous period dividend cash accumulation, etc.)
 
 *Call:*
 
@@ -34,9 +34,9 @@ value of the shares on the fixing date + cash_roll + cash_divd.
 There are 2 sources for the cash_roll. The roundup to integer
 number of shares and the shares close price differences between
 the fixing (computation) and rolling (execution) dates. It could
-be positive or negative. The finance of the cash_roll during
-each rolling period is assumed  to be done separately by the
-investor.
+be positive or negative. The finance of the cash_roll (it should be a small
+positive or negative value) during each rolling period is assumed to be done
+separately by the investor.
 
 [TOP](#TOP)
 

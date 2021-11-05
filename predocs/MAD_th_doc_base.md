@@ -2,12 +2,15 @@
 $\def\MAD{{\rm MAD}}$
 $\def\cK{{\cal K}}$
 
-# MAD optimal portfolio <a name="TOP">
+# MAD optimal portfolio <a name="TOP"></a>
 
-MAD stands for _Mean Absolute Deviation_. In our implementation we use the
-mixture MAD generalization. It is a superposition of recursive multi MAD measures. It
-incudes the single MAD measure.
-The dispersion measure is given by
+MAD stands for _Mean Absolute Deviation_.
+*azapy* implements a generalization of MAD, namely the Mixture MAD or mMAD.
+
+mMAD is a superposition of recursive high order MAD measures.
+The single MAD measure can be viewed as a particular case of mMAD.
+
+The mMAD dispersion measure is defined as
 
 \begin{equation*}
 	\rho = \sum_{l=1}^L \cK_l \times \delta_l
@@ -15,7 +18,7 @@ The dispersion measure is given by
 
 where:
 
-* $L$ is the number of individual CVaR's,
+* $L$ is the number of individual MAD's,
 * $\cK_l$ are positive coefficients,
 * $\delta_l$ is the l-th order MAD measure.
 
@@ -25,4 +28,4 @@ There are 2 support classes:
 
 * **MADAnalyzer** : computes the portfolio weights and performs in-sample
 analysis.
-* **Port_MAD** : performs portfolio backtesting, out-of-sample analyzes.
+* **Port_MAD** : performs portfolio back testing, out-of-sample analyzes.

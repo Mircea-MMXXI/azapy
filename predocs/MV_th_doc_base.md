@@ -1,13 +1,14 @@
 
 # MV optimal portfolio <a name="TOP">
 
-MV stands for *Mean Variance*. These type of optimal portfolio was
+MV stands for *Mean Variance* and it will play the role of dispersion measure.
+These type of optimal portfolio was
 introduced by the economist Harry Max Markowitz in 1952. It was the main
-body of work that had later triggered the *Modern Portfolio Theory* (MPT).
-In 1990, Markowitz works was rewarded
-with the *Nobel Memorial Prize in Economic Sciences*.
+body of work that later had triggered the development of
+*Modern Portfolio Theory* (MPT).
 
-The portfolio mean-variance is defined as:
+
+The portfolio mean-variance (dispersion measure) is defined as:
 
 \begin{equation*}
 	{\rm var} = w^T C w,
@@ -25,4 +26,4 @@ There are 2 support classes:
 
 * **MVAnalyzer** : computes the portfolio weights and performs in-sample
 analysis.
-* **Port_MV** : performs portfolio backtesting, out-of-sample analyzes.
+* **Port_MV** : performs portfolio back testing, out-of-sample analyzes.

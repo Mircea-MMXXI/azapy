@@ -1,7 +1,8 @@
 
 ## Port_MAD class
 
-Backtesting the MAD optimal portfolio periodically rebalanced.
+Back testing (historical simulation) the MAD optimal portfolio periodically
+rebalanced.
 
 
 **Methods:**
@@ -20,25 +21,22 @@ Backtesting the MAD optimal portfolio periodically rebalanced.
 * [<span style="color:green">get_mktdata</span>](#get_mktdata)
 
 
-The most important method is **set_model**. It has to called before any
+The most important method is **set_model**. It must be called before any
 other method.
 
 ### Constructor
 
 ```
-Port_MAD(mktdata, symb=None, sdate=None, edate=None,
-         col_price='close', col_divd='divd',
-         col_ref='adjusted', col_calib='adjusted',
-         pname='Port', pcolname=None, capital=100000,
-         schedule=None,
-         freq='Q', noffset=-3, fixoffset=-1, hlength=3.25,
-         calendar=None)
+Port_MAD(mktdata, symb=None, sdate=None, edate=None, col_price='close',
+         col_divd='divd', col_ref='adjusted', col_calib='adjusted',
+         pname='Port', pcolname=None, capital=100000, schedule=None,
+         freq='Q', noffset=-3, fixoffset=-1, calendar=None)
 ```
 
 where:
 
 * `mktdata` : `pd.DataFrame`;
-MkT data in the format ``"symbol"``, ``"date"``, ``"open"``, ``"high"``,
+market data in the format ``"symbol"``, ``"date"``, ``"open"``, ``"high"``,
 ``"low"``, ``"close"``, ``"volume`"``, ``"adjusted"``, ``"divd"``, ``"split"``
 (e.g. as returned by `azapy.readMkT`).
 * `symb` :
@@ -61,14 +59,15 @@ Column name in the `mktdata` DataFrame that holds the dividend
 information. The default is ``'dvid'``.
 * `col_ref` :
 Column name in the `mktdata` DataFrame that will be used as a price
-reference for portfolio components. The default is ``'adjusted'``.
+reference for portfolio components (used for various comparisons and graphs).
+The default is ``'adjusted'``.
 * `col_calib` :
 Column name used for historical weights calibrations. The default is
 ``'adjusted'``.
 * `pname` :
 The name of the portfolio. The default is ``'Port'``.
 * `pcolname` :
-Name of the portfolio price column. If it set to `None` than
+Name of the portfolio price column. If it is set to `None` than
 `pcolname=pname`. The default is `None`.
 * `capital` :
 Initial portfolio Capital in dollars. The default is `100000`.
@@ -79,22 +78,21 @@ using the `freq`, `nsoffset`, `fixoffset`, `hlength` and `calendar`
 information. The default is `None`.
 * `freq` :
 Rebalancing frequency. It can be ``'Q'`` for quarterly or ``'M'`` for
-monthly rebalancing, respectively. It is relevant only is schedule
+monthly rebalancing, respectively. It is relevant only if schedule
 is `None`. The default is ``'Q'``.
 * `noffset` :
 Number of business days offset for rebalancing date ``'Droll'``
 relative to the end of the period (quart or month). A positive
 value add business days beyond the calendar end of the period while
-a negative value subtract business days. It is relevant only is
+a negative value subtract business days. It is relevant only if
 `schedule` is `None`. The default is `-3`.
 * `fixoffset` :
 Number of business day offset of fixing date ``'Dfix'`` relative to
 the rebalancing date ``'Droll'``. It cane be `0` or negative. It is
-relevant only is `schedule` is `None`. The default is `-1`.
+relevant only if `schedule` is `None`. The default is `-1`.
 * `calendar` : `np.busdaycalendar`;
 Business calendar. If it is `None` then it will be set to NYSE
-business calendar via `azapy.NYSEgen` function. The default
-is `None`.
+business calendar. The default is `None`.
 
 [TOP](#TOP)
 

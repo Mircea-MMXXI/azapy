@@ -1,7 +1,7 @@
 
 ## Port_Simple class
 
-Backtesting the Buy and Hold portfolio.
+Back testing (historical simulation) of Buy and Hold portfolio strategy.
 
 
 **Methods:**
@@ -16,7 +16,7 @@ Backtesting the Buy and Hold portfolio.
 * [<span style="color:green">get_mktdata</span>](#get_mktdata)
 
 
-The most important method is **set_model**. It has to called before any
+The most important method is **set_model**. It must be called before any
 other method.
 
 ### Constructor
@@ -30,7 +30,7 @@ Port_Simple(mktdata, symb=None, sdate=None, edate=None,
 where:
 
 * `mktdata` : `pd.DataFrame`;
-MkT data in the format ``"symbol"``, ``"date"``, ``"open"``, ``"high"``,
+market data in the format ``"symbol"``, ``"date"``, ``"open"``, ``"high"``,
 ``"low"``, ``"close"``, ``"volume`"``, ``"adjusted"``, ``"divd"``, ``"split"``
 (e.g. as returned by `azapy.readMkT`).
 * `symb` :
@@ -39,8 +39,7 @@ should be present in `mktdata`. If set to `None` the `symb` will be
 set to the full set of symbols present in `mktdata`. The default
 is `None`.
 * `sdate` : `datetime`;
-Start date for historical data. It is also considered to be the date,
-when the portfolio was acquired. If set to `None` the `sdate` will
+Start date for historical data. If set to `None` the `sdate` will
 be set to the earliest date in `mktdata`. The default is `None`.
 * `edate` : datetime;
 End date for historical dates and so the simulation. Must be
@@ -52,11 +51,10 @@ for portfolio aggregation. The default is ``'adjusted'``.
 * `pname` :
 The name of the portfolio. The default is ``'Port'``.
 * `pcolname` :
-Name of the portfolio price column. If it set to `None` than
+Name of the portfolio price column. If it is set to `None` than
 `pcolname=pname`. The default is `None`.
 * `capital` :
 Initial portfolio Capital in dollars. The default is `100000`.
-
 
 [TOP](#TOP)
 

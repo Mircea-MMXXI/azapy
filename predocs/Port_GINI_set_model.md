@@ -4,7 +4,7 @@
 #### <span style="color:green">set_model</span>
 
 Sets model parameters and evaluates portfolio time-series.
-
+It must be called before any other class method.
 
 *Call:*
 
@@ -22,10 +22,10 @@ Reference rate. Its meaning depends of the value of `rtype`. For
     - ``'MinRisk'`` and ``'InvNrisk'`` : `mu` is ignored.
     - ``'RiskAverse'`` : `mu` is the Lambda risk aversion coefficient.
 * `rtype` :
-Type of optimization. It could take the values:
+Type of optimization. It could take the following values:
     - ``'Sharpe'`` - Sharpe optimal portfolio.
-    - ``'Risk'`` - risk optimal portfolio.
-    - ``'MinRisk'`` - Minimum GINI optimal portfolio.
+    - ``'Risk'`` - fixed risk optimal portfolio.
+    - ``'MinRisk'`` - minimum risk optimal portfolio.
     - ``'InvNrisk'`` - optimal portfolio with same risk as the equally
     weighted portfolio.
     - ``'RiskAverse'`` - optimal portfolio for fixed risk aversion.
@@ -33,9 +33,9 @@ Type of optimization. It could take the values:
 * `hlength` :
 The length in year of the historical calibration period relative
 to ``'Dfix'``. A fractional number will be rounded to an integer number
-of months. The default is `1.25`.
+of months. The default is `3.25` years.
 * `method` :
-LP numerical method.
+Designates the LP numerical method.
 Could be one of ``'ecos'``, ``'highs-ds'``, ``'highs-ipm'``, ``'highs'``,
 ``'interior-point'``, ``'glpk'`` and ``'cvxopt'``.
 The default is ``'ecos'``.

@@ -58,7 +58,7 @@ class LSSDAnalyzer(MADAnalyzer):
                 coefficient.
             The default is "Sharpe".
         method : string, optional
-            Linear programming numerical method. 
+            SOCP numerical method. 
             Could be one of 'ecos' and 'cvxopt'.
             The defualt is 'ecos'.
 

@@ -15,7 +15,7 @@ getWeights(mu, rrate=None, rtype=None, d=1)
 
 * `mu` : Rate of reference. Its meaning depends on the optimization method.
 For `rtype` set to:
-    - `'Risk'` : `mu` is the targeted portfolio rate of returns.
+    - `'Risk'` : `mu` is the targeted portfolio expected rate of returns.
     - `'Sharpe'` and `'Sharpe2'` : `mu` is the risk-free rate.
     - `'MinRisk'` and `'InvNRisk'`: `mu` is ignored.
     - `'RiskAverse'` : `mu` is the Lambda aversion coefficient.
@@ -29,7 +29,16 @@ trigger the evaluation of optimal portfolio along the efficient frontier.
 Otherwise it will find the portfolio with the lowest rate of return along the
 inefficient portfolio frontier. The default is `1`.
 
-*Returns:* pd.Series containing the portfolio weights.
+*Returns:* `pd.Series` containing the portfolio weights.
+
+Note: after completion it sets the following class members:
+* _risk_
+* _primary_risk_comp_
+* _secondary_risk_comp_
+* _sharpe_
+* _RR_
+
+The meanings of these members are [here](#RiskMembers).
 
 [TOP](#TOP)
 

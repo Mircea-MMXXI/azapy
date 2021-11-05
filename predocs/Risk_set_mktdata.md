@@ -3,7 +3,7 @@
 
 #### <span style="color:green">set_mktdata</span>
 
-Sets historical market data. It will overwrite the choice made in the
+Sets historical market data. It will overwrite the choices made in the
 constructor.
 
 *Call:*
@@ -26,7 +26,7 @@ Rate of returns horizon in number of business day. it could be
 * `hlength` :
 History length in number of years used for calibration. A
 fractional number will be rounded to an integer number of months.
-The default is `3.25`.
+The default is `3.25` years.
 * `calendar` : `np.busdaycalendar`, optional
 Business days calendar. If is it `None` then the calendar will be set
 to NYSE business calendar via a call to `azapy.NYSEgen`.

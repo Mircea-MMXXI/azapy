@@ -3,14 +3,17 @@ $\def\CVaR{{\rm CVaR}}$
 $\def\cK{{\cal K}}$
 
 
-# CVaR optimal portfolio <a name="TOP">
+# CVaR optimal portfolio <a name="TOP"></a>
 
 CVaR stands for *Conditional Value at Risk*. It is one of the most popular risk
 measures in finance.
-In our implementation we use the
-mixture CVaR generalization. It is a superposition of recursive multi CVaR
-measures. It incudes the single CVaR measure.
-The dispersion measure is given by
+*azapy* implements a generalization of CVaR, namely the Mixture CVaR or mCVaR.
+
+mCVaR is a superposition of CVaR
+measures for different confidence levels. The single CVaR measure can be viewed
+as a particular case of mCVar.
+
+The mCVaR dispersion measure is defined as
 
 \begin{equation*}
 	\rho = \sum_{l=1}^L \cK_l \times \CVaR_{\alpha_l},
@@ -23,10 +26,10 @@ where:
 * $\alpha_l$ are the CVaR confidence levels.
 
 > Note: a typical choice could be $L=3$, $\cK_l=1/3\ \forall l$,
-and $\alpha=\{0.95, 0.9, 0.85\}$
+and $\alpha=\{0.95, 0.90, 0.85\}$
 
 There are 2 support classes:
 
 * **CVaRAnalyzer** : computes the portfolio weights and performs in-sample
-analysis.
-* **Port_CVaR** : performs portfolio backtesting, out-of-sample analyzes.
+analysis,
+* **Port_CVaR** : performs portfolio back testing, out-of-sample analyzes.

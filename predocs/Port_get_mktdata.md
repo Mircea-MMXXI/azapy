@@ -3,7 +3,7 @@
 
 #### <span style="color:green">get_mktdata</span>
 
-Returns the actual MkT data used for portfolio evaluations.
+Returns the actual market data used for portfolio evaluations.
 
 *Call:*
 

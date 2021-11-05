@@ -26,7 +26,9 @@ drawdown events. Columns:
 * `'DD'` : drawdown rate
 * `'Date'` : recorded date of the drawdown
 * `'Star'` : start date of the drawdown
-* `'End'` : end date of the drawdown
+* `'End'` : end date of the drawdown. A `NaN` value indicates that the
+drawdown event is in progress and the value of `'DD'` and `'Date'` are
+provisional only.
 
 [TOP](#TOP)
 

@@ -2,12 +2,15 @@
 $\def\LSSD{{\rm LSSD}}$
 $\def\cK{{\cal K}}$
 
-# LSSD optimal portfolio <a name="TOP">
+# LSSD optimal portfolio <a name="TOP"></a>
 
-MAD stands for *Lower Semi-Standard Deviation*. In our implementation we use the
-mixture LSSD generalization. It is a superposition of recursive multi LSSD measures. It
-incudes the single LSSD measure.
-The dispersion measure is given by
+LSSD stands for *Lower Semi-Standard Deviation*.
+*azapy* implements a generalization of LSSD, namely the Mixture LSSD or mLSSD.
+
+mLSSD is a superposition of recursive high order LSSD measures.
+The single LSSD measure can be viewed as a particular case of mLSSD.
+
+The mLSSD dispersion measure is defined as
 
 \begin{equation*}
 	\rho = \sum_{l=1}^L \cK_l \times \delta_l
@@ -15,7 +18,7 @@ The dispersion measure is given by
 
 where:
 
-* $L$ is the number of individual CVaR's,
+* $L$ is the number of individual LSSD's,
 * $\cK_l$ are positive coefficients,
 * $\delta_l$ is the l-th order LSSD measure.
 
@@ -25,4 +28,4 @@ There are 2 support classes:
 
 * **LSSDAnalyzer** : computes the portfolio weights and performs in-sample
 analysis.
-* **Port_LSSD** : performs portfolio backtesting, out-of-sample analyzes.
+* **Port_LSSD** : performs portfolio back testing, out-of-sample analyzes.

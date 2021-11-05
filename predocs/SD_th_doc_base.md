@@ -1,7 +1,8 @@
 
 # SD optimal portfolio <a name="TOP">
 
-SD stands for *Standard Deviation* (volatility). In many respects SD and MV
+SD stands for *Standard Deviation* (volatility)
+and it will play the role of dispersion measure. In many respects SD and MV
 optimal portfolios are equivalent. However, the SD leads to the original
 expression of Sharpe ratio introduced by William Forsyth Sharpe as a measure
 for risk-adjusted investment performance.
@@ -29,4 +30,4 @@ There are 2 support classes:
 
 * **SDAnalyzer** : computes the portfolio weights and performs in-sample
 analysis.
-* **Port_SD** : performs portfolio backtesting, out-of-sample analyzes.
+* **Port_SD** : performs portfolio back testing, out-of-sample analyzes.

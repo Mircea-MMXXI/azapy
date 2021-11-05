@@ -3,12 +3,14 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to azapy
-================
+Welcome to **azapy**
+====================
 
-Python library to analyze and maintain portfolios of financial assets.
+Python library to perform analyzes and maintenance computations for portfolios
+of financial assets.
+
 It provides support for a large spectrum of portfolio optimization techniques.
-Performs *in* and *out* sample portfolio analysis.
+Performs *in* and *out-of* sample portfolio analysis.
 
 Risk based portfolio optimizations
 ==================================

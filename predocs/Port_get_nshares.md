@@ -17,7 +17,7 @@ get_nshares()
 *Returns:* `pd.DataFrame`
 
 Each rolling period is indicated by its start date, `Droll`.
-Included are the fixing data, `Dfix`, and the portfolio weights.
+
 
 [TOP](#TOP)
 
