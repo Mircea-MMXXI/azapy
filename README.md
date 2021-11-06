@@ -4,33 +4,37 @@ Financial Portfolio Optimization Analytics
 ![TimeSeries](graphics/Portfolio_1.png)
 
 A. Risk based portfolio optimization algorithms:
-  1. mixture CVaR (conditional value at risk)
-  2. mixture SMCR (second momentum coherent risk)
-  3. MV (mean variance)
-  4. SD (standard deviation)
-  5. mixture MAD (mean absolute deviation)
-  6. mixture LSSD (lower semi-standard deviation)
-  5. Gini (as in Corrado Gini - statistician 1884-1965)
-  6. Omega ratio (introduced by Con Keating and William F. Shadwick in 2002)
+  1. Mixture CVaR (Conditional Value at Risk)
+  2. Mixture SMCR (Second Momentum Coherent Risk)
+  3. MV (Mean Variance)
+  4. SD (Standard Deviation)
+  5. Mixture MAD (Mean Absolute Deviation)
+  6. Mixture LSSD (Lower Semi-Standard Deviation)
+  7. Gini (as in Corrado Gini - statistician 1884-1965)
+  8. MSGINI (Second Momentum GINI dispersion measure)
+  9. Omega ratio (introduced by Con Keating and William F. Shadwick in 2002)
 
 For each class of portfolios the following optimization strategies are
 available:
-  1. minimization of dispersion for a give rate of returns target value
+  1. minimization of dispersion for a give expected rate of returns
   2. maximization of generalized Sharpe ratio
-  3. minimization of inverse of generalized Sharpe ratio
+  3. minimization of the inverse of generalized Sharpe ratio
   4. minimum dispersion portfolio strategy
-  5. Inverse-N risk (portfolio with same dispersion measure as the equally
-  weighted portfolio)
-  6. rate of returns maximization for a fixed value of risk aversion coefficient
+  5. Inverse-N risk optimal portfolio (optimal portfolio with the same
+    dispersion measure as equally weighted portfolio)
+  6. maximization of expected rate of returns for a fixed value of
+  risk aversion
 
 B. "Naïve" portfolio strategies:
-  1. Constant weighted (with particular case equally weighted) portfolio
-  2. Inverse volatility (portfolio weights proportional with the inverse of
-  asset volatility)
-  3. Inverse variance (portfolio weights proportional with the inverse of
-  asset variance)
-  4. Inverse drawdown (portfolio weights proportional to the asset absolute
-  value of the maximum drawdown over a predefined history length)
+  1. Constant weighted portfolio. A particular case is equally
+  weighted portfolio.
+  2. Inverse volatility portfolio (i.e. portfolio weights are proportional to
+    the inverse of asset volatility)
+  3. Inverse variance portfolio (i.e. portfolio weights are proportional to the
+    inverse of asset variance)
+  4. Inverse drawdown portfolio (i.e. portfolio weights are proportional to the
+    asset absolute value of maximum drawdown over a predefined
+    historical period)
 
 C. Greedy portfolio optimization strategies:
   1. Kelly's portfolio (as in John Larry Kelly Jr. - scientist 1923-1965) -

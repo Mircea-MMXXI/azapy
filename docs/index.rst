@@ -24,6 +24,7 @@ Risk based portfolio optimizations
    MAD_th_doc
    LSSD_th_doc
    GINI_th_doc
+   SMGINI_th_doc
    MV_th_doc
    SD_th_doc
    Omega_th_doc

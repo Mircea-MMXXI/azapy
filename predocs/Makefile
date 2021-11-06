@@ -4,7 +4,7 @@ INDIR=.
 
 # gen risk-based docs
 
-F_RB = CVaR MAD SMCR LSSD MV SD GINI Omega
+F_RB = CVaR MAD SMCR LSSD MV SD GINI SMGINI Omega
 
 RISK_RB = Risk_getWeights.md Risk_getRisk.md Risk_getPositions.md \
 Risk_ViewFrontiers.md Risk_set_mktdata.md Risk_set_rrate.md \
@@ -57,10 +57,16 @@ endef
 $(foreach ff, $(F_NAIVE), $(eval $(ff)_in=$(call f_naive_in_gen,$(ff))) )
 $(foreach ff, $(F_NAIVE), $(eval $(ff)_out=$(call f_out_gen,$(ff))) )
 
+# gen singles
+
+F_SINGLES = RiskBased_intro.md
+
+$(F_SINGLES)_in = $(addprefix $(INDIR)/, $(F_SINGLES))
+$(F_SINGLES)_out = $(addprefix $(OUTDIR)/, $(F_SINGLES))
 
 # make targets
 
-Target := $(F_RB) $(F_SIMPLE) $(F_NAIVE)
+Target := $(F_RB) $(F_SIMPLE) $(F_NAIVE) $(F_SINGLES)
 
 Target_out := $(foreach ff, $(addsuffix _out, $(Target)), $($(ff)))
 

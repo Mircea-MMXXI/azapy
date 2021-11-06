@@ -35,6 +35,7 @@ strategies based on the following dispersion measures:
 * LSSD - Lower Semi-Standard Deviation and its generalization mLSSD
 (mixture of high order LSSD'm),
 * GINI - Gini ratio,
+* SMGINI - Second Momentum GINI dispersion measure
 * Omega - Omega ratio.
 
 In each case several optimization strategies are implemented. To
@@ -189,8 +190,8 @@ this optimization. In the code this optimization is designated by setting
 ``rtype='RiskAverse'``.
 
 
-*azapy* package covers, 8 risk-based dispersion measures $\times$ 6 optimization
-strategies, in total 48 risk-based portfolio optimization strategies.
+*azapy* package covers, 9 risk-based dispersion measures $\times$ 6 optimization
+strategies, in total 54 risk-based portfolio optimization strategies.
 
 The natural question that arises here is: which one is the best?
 

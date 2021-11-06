@@ -1,5 +1,5 @@
 
-# GINI optimal portfolio <a name="TOP">
+# GINI optimal portfolio <a name="TOP"></a>
 
 GINI index also called GINI ratio or GINI coefficient is a measure
 of statistical dispersion introduced by sociologist *Gini Corrado (1884-1965)*.
@@ -23,4 +23,4 @@ There are 2 support classes:
 
 * **GINIAnalyzer** : computes the portfolio weights and performs in-sample
 analysis.
-* **Port_GINI** : performs portfolio backtesting, out-of-sample analyzes.
+* **Port_GINI** : performs portfolio back testing, out-of-sample analyzes.
