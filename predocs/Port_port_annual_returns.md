@@ -1,5 +1,5 @@
 
-<a name="port_annual_returns">
+<a name="port_annual_returns"></a>
 
 #### <span style="color:green">port_annual_returns</span>
 
@@ -13,7 +13,7 @@ the value of `col_ref` argument in the constructor.
 port_annual_returns(withcomp=False, componly=False, fancy=False)
 ```
 
-*Input:*
+*Inputs:*
 
 * `withcomp` : Boolean flag.
 If `True`, adds the portfolio components annual returns to the

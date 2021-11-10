@@ -3,8 +3,8 @@ from .MVAnalyzer import MVAnalyzer
 
 class Port_MV(Port_CVaR):
     """
-    Backtesting the MV optimal portfolio periodically rebalanced.
-    
+    Back testing the MV optimal portfolio periodically rebalanced.
+
     Methods:
         * set_model
         * get_port
@@ -34,18 +34,18 @@ class Port_MV(Port_CVaR):
                 "MinRisk" and "InvNrisk" : mu is ignored
         rtype : string, optional
             Type of optimization. It could take the values:\n
-                "Sharpe" - C-Sharpe optimal portfolio \n
-                "Risk" - CVaR optimal portfolio \n
-                "MinRisk" - Minimum CVaR optimal portfolio \n
-                "InvNrisk" - optimal portfolio with same CVaR as the equally 
+                "Sharpe" - Sharpe optimal portfolio \n
+                "Risk" - risk optimal portfolio \n
+                "MinRisk" - Minimum risk optimal portfolio \n
+                "InvNrisk" - optimal portfolio with same risk as the equally
                 weighted portfolio. \n
                 The default is 'Sharpe'.
         hlength : float, optional
-            The length in year of the historical calibration period relative 
-            to 'Dfix'. A fractional number will be rounded to an integer number 
-            of months. The default is 3.25. 
+            The length in year of the historical calibration period relative
+            to 'Dfix'. A fractional number will be rounded to an integer number
+            of months. The default is 3.25 years.
         method : string, optional
-            Numerical method to solve the SOCP and QP. Can take one of the 
+            Numerical method to solve the SOCP and QP. Can take one of the
             values 'ecos' and 'cvxopt'. The default is 'ecos'.
 
         Returns
@@ -53,14 +53,14 @@ class Port_MV(Port_CVaR):
         pd.DataFrame
             The portfolio time-series in the format "date", "pcolname".
         """
-        return super().set_model(mu=mu, rtype=rtype, hlength=hlength, 
+        return super().set_model(mu=mu, rtype=rtype, hlength=hlength,
                                  method=method)
-    
+
     def _set_method(self, method):
         methods = ['ecos', 'cvxopt']
         if not method in methods:
-            raise ValueError(f"mehtod must be one of {methods}")          
+            raise ValueError(f"mehtod must be one of {methods}")
         self.method = method
-        
+
     def _wwgen(self):
         return MVAnalyzer(rtype=self.rtype, method=self.method)

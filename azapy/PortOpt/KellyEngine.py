@@ -27,7 +27,7 @@ class KellyEngine(_RiskEngine):
 
         Parameters
         ----------
-        mktdata : pandas.DataFrame, optional
+        mktdata : pd.DataFrame, optional
             Historic daily market data for portfolio components in the format
             returned by azapy.mktData function. The default is None.
         colname : string, optional
@@ -39,15 +39,15 @@ class KellyEngine(_RiskEngine):
         hlength : float, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
-            The default is 3.25
+            The default is 3.25 years.
         calendar : np.busdaycalendar, optional
             Business days calendar. If is it None then the calendar will be set
-            to NYSE business calendar via a call to azapy.NYSEgen(). 
+            to NYSE business calendar.
             The default is None.
         rtype : string, optional
-            Optimization type. it can be:\n
-            'Full' - non-linear original Kelly problem. \n
-            'Order2' - second order Taylor approximation of original Kelly 
+            Optimization approximation. It can be:\n
+                'Full' - non-linear original Kelly problem. \n
+                'Order2' - second order Taylor approximation of original Kelly 
             problem. It is a QP problem. \n
             The default is 'Full'.
         method : string, optional
@@ -65,30 +65,33 @@ class KellyEngine(_RiskEngine):
         self.rtype = None
         self.set_rtype(rtype)
         self.method = None
-        self.set_method(method)
+        self._set_method(method)
         
         
-    def getWeights(self, rrate=None, rtype=None, method=None):
+    def getWeights(self, rrate=None, rtype=None, method=None): 
         """
         Computes the Kelly optimal weights.
 
         Parameters
         ----------
-        rrate : pd.DataFrame
+        rrate : pd.DataFrame, optional
             Portfolio components historical rates of returns in the format 
-           "date", "symbol1", "symbol2", etc. 
+           "date", "symbol1", "symbol2", etc. A value different than `None` 
+           will overwrite the of 'rrate' set by the constructor from 
+           'mktdata'. The default is `None`.
         rtype : string, optional
-            Optimization type. it can be:\n
-            'Full' - non-linear original Kelly problem. \n
-            'Order2' - second order Taylor approximation of original Kelly 
-            problem. It is a QP problem. \n
-            The default is 'Full'.
+            Optimization approximation. It can be: \n
+                'Full' - non-linear original Kelly problem. \n
+                'Order2' - second order Taylor approximation of original Kelly 
+                problem. It is a QP problem. A value different than `None` will
+                overwrite the value for `rype` set in the constructor. \n
+            The default is `None`.
         method : string, optional
             The QP solver class. It is relevant only if rtype='Order2'.
             It takes 2 values: 'ecos' or None for default 'cvxopt' 
-            algorithm.
-            The default is 'ecos'.
-
+            algorithm. A valiue different than `None` will overwrite the
+            value set in the constructor.
+            
         Returns
         -------
         pd.Series
@@ -96,12 +99,12 @@ class KellyEngine(_RiskEngine):
         """
         if rrate is not None:
             self.set_rrate(rrate)
-        
-        if method is not None:
-            self.set_method(method)
             
         if rtype is not None:
             self.set_rtype(rtype)
+            
+        if method is not None:
+            self._set_method(method)
             
         if self.rtype == 'Full':
             return self._calc_full()
@@ -206,7 +209,7 @@ class KellyEngine(_RiskEngine):
         self.rtype = rtype
         
         
-    def set_method(self, method):
+    def _set_method(self, method):
         """
         Sets the QP numerical method for rtype='Order2'
 

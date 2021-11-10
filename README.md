@@ -1,5 +1,8 @@
 # azapy
-Financial Portfolio Optimization Analytics
+Financial Portfolio Optimization Algorithms
+
+Author: Mircea Marinescu
+email: Mircea.Marinescu@outlook.com
 
 ![TimeSeries](graphics/Portfolio_1.png)
 
@@ -11,7 +14,7 @@ A. Risk based portfolio optimization algorithms:
   5. Mixture MAD (Mean Absolute Deviation)
   6. Mixture LSSD (Lower Semi-Standard Deviation)
   7. Gini (as in Corrado Gini - statistician 1884-1965)
-  8. MSGINI (Second Momentum GINI dispersion measure)
+  8. MSGINI (Second Momentum Gini dispersion measure)
   9. Omega ratio (introduced by Con Keating and William F. Shadwick in 2002)
 
 For each class of portfolios the following optimization strategies are

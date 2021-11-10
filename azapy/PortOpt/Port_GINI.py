@@ -3,8 +3,8 @@ from .GINIAnalyzer import GINIAnalyzer
 
 class Port_GINI(Port_CVaR):
     """
-    Backtesting the GINI optimal portfolio periodically rebalanced.
-    
+    Back testing the GINI optimal portfolio periodically rebalanced.
+
     Methods:
         * set_model
         * get_port
@@ -19,7 +19,7 @@ class Port_GINI(Port_CVaR):
         * port_annual_returns
         * port_monthly_returns
         * port_period_returns
-    """ 
+    """
     def set_model(self, mu, rtype='Sharpe', hlength=1.25, method='ecos'):
         """
         Sets model parameters and evaluates portfolio time-series.
@@ -34,19 +34,19 @@ class Port_GINI(Port_CVaR):
                 "MinRisk" and "InvNrisk" : mu is ignored
         rtype : string, optional
             Type of optimization. It could take the values:\n
-                "Sharpe" - C-Sharpe optimal portfolio \n
-                "Risk" - CVaR optimal portfolio \n
-                "MinRisk" - Minimum CVaR optimal portfolio \n
-                "InvNrisk" - optimal portfolio with same CVaR as the equally 
+                "Sharpe" - Sharpe optimal portfolio \n
+                "Risk" - risk optimal portfolio \n
+                "MinRisk" - Minimum risk optimal portfolio \n
+                "InvNrisk" - optimal portfolio with same risk as the equally
                 weighted portfolio. \n
                 The default is 'Sharpe'.
         hlength : float, optional
-            The length in year of the historical calibration period relative 
-            to 'Dfix'. A fractional number will be rounded to an integer number 
-            of months. The default is 1. 
+            The length in year of the historical calibration period relative
+            to 'Dfix'. A fractional number will be rounded to an integer number
+            of months. The default is 1.25 years.
         method : string, optional
-            Linear programming numerical method. 
-            Could be one of 'ecos', 'highs-ds', 'highs-ipm', 'highs', 
+            Linear programming numerical method.
+            Could be one of 'ecos', 'highs-ds', 'highs-ipm', 'highs',
             'interior-point', 'glpk' and 'cvxopt'.
             The defualt is 'ecos'.
 
@@ -57,6 +57,6 @@ class Port_GINI(Port_CVaR):
 
         """
         return super().set_model(mu=mu, rtype=rtype, hlength=hlength)
-        
+
     def _wwgen(self):
         return GINIAnalyzer(rtype=self.rtype, method=self.method)

@@ -5,7 +5,7 @@ from .Port_ConstW import Port_ConstW
 
 class Port_InvVol(Port_ConstW):
     """
-    Backtesting portfolio with weights proportional to the 
+    Back testing portfolio with weights proportional to the 
     inverse of component volatilities, periodically rebalanced.
     
     Methods:
@@ -90,7 +90,7 @@ class Port_InvVol(Port_ConstW):
             relevant only is schedule is None. The default is -1.
         calendar : numpy.busdaycalendar, optional
             Business calendar. If it is None then it will be set to NYSE 
-            business calendar via azapy.NYSEgen function. The default 
+            business calendar. The default 
             is None.
     
         Returns
@@ -115,7 +115,7 @@ class Port_InvVol(Port_ConstW):
         hlength : float, optional
             The length in year of the historical calibration period relative 
             to 'Dfix'. A fractional number will be rounded to an integer number 
-            of months. The default is 3.25. 
+            of months. The default is 3.25 years. 
 
         Returns
         -------

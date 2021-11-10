@@ -1,5 +1,5 @@
 
-<a name="getWeights">
+<a name="getWeights"></a>
 
 #### <span style="color:green">getWeights</span>
 
@@ -11,7 +11,7 @@ Computes the optimal portfolio weights.
 getWeights(mu, rrate=None, rtype=None, d=1)
 ```
 
-*Input:*
+*Inputs:*
 
 * `mu` : Rate of reference. Its meaning depends on the optimization method.
 For `rtype` set to:

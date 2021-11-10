@@ -1,5 +1,5 @@
 
-<a name="get_nshares">
+<a name="get_nshares"></a>
 
 #### <span style="color:green">get_nshares</span>
 
@@ -11,7 +11,7 @@ Returns the number of shares hold after each rolling date.
 get_nshares()
 ```
 
-*Input:* None
+*Inputs:* None
 
 
 *Returns:* `pd.DataFrame`

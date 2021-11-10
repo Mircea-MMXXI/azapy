@@ -1,5 +1,5 @@
 
-<a name="getPositions">
+<a name="getPositions"></a>
 
 #### <span style="color:green">getPositions</span>
 
@@ -9,10 +9,10 @@ component.
 *Call:*
 
 ```
-getPositions(self, mu, rtype=None, nshares=None, cash=0, ww=None)
+getPositions(mu, rtype=None, nshares=None, cash=0, ww=None)
 ```
 
-*Input:*
+*Inputs:*
 
 * `mu` : Rate of reference. Its meaning depends on the optimization method.
 For `rtype` set to:
@@ -51,7 +51,7 @@ is the new portfolio value (invested capital).
 * `'prices'` : share prices used for rebalance evaluations.
 
 >Note: Since the prices are closing prices, the rebalance can be executed next
-business. Additional cash slippage may occur due to share price differential
+business day. Additional cash slippage may occur due to share price differential
 between the previous day closing and  execution time.
 
 [TOP](#TOP)

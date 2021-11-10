@@ -4,7 +4,7 @@ from .Port_Simple import Port_Simple
 
 class Port_Rebalanced(Port_Simple):
     """
-    Portfolio with custom scheduled weights.
+    back testing the portfolio with custom scheduled weights.
     
     Methods:
         * set_model

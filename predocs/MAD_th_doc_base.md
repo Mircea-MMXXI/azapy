@@ -5,7 +5,7 @@ $\def\cK{{\cal K}}$
 # MAD optimal portfolio <a name="TOP"></a>
 
 MAD stands for _Mean Absolute Deviation_.
-*azapy* implements a generalization of MAD, namely the Mixture MAD or mMAD.
+**azapy** implements a generalization of MAD, namely the Mixture MAD (mMAD).
 
 mMAD is a superposition of recursive high order MAD measures.
 The single MAD measure can be viewed as a particular case of mMAD.
@@ -27,5 +27,5 @@ where:
 There are 2 support classes:
 
 * **MADAnalyzer** : computes the portfolio weights and performs in-sample
-analysis.
+analysis,
 * **Port_MAD** : performs portfolio back testing, out-of-sample analyzes.

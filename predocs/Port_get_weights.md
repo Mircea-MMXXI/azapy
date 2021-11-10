@@ -1,9 +1,9 @@
 
-<a name="get_weights">
+<a name="get_weights"></a>
 
 #### <span style="color:green">get_weights</span>
 
-Returns the portfolio weights at each rebalancing period
+Returns the portfolio weights for each rebalancing period.
 
 *Call:*
 
@@ -11,7 +11,7 @@ Returns the portfolio weights at each rebalancing period
 get_weights(fancy=False)
 ```
 
-*Input:*
+*Inputs:*
 
 * `fancy` : Boolean flag with default value `False`.
     - `False` : The values are reported in unaltered algebraic format.

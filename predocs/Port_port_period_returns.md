@@ -1,5 +1,5 @@
 
-<a name="port_period_returns">
+<a name="port_period_returns"></a>
 
 #### <span style="color:green">port_period_returns</span>
 
@@ -11,7 +11,7 @@ Computes the rolling periods rate of returns.
 port_period_returns(fancy=False)
 ```
 
-*Input:*
+*Inputs:*
 
 * `fancy` : Boolean flag with default value `False`.
     - `False` : The values are reported in unaltered algebraic format.
@@ -21,7 +21,8 @@ port_period_returns(fancy=False)
 *Returns:* `pd.DataFrame`
 
 Each rolling period is indicated by its start date, `Droll`.
-The values of `Dfix` and components weights are included in the report.
+For reference, the values of `Dfix` and components weights are
+included in the report.
 
 [TOP](#TOP)
 

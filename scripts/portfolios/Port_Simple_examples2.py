@@ -13,10 +13,10 @@ mktdir = "./MkTdata"
 
 # force=True read from alphavantage server
 # force=False read from local directory if data exists
-mktdata = az.readMkT(symb, dstart = sdate, dend = edate, 
-                     dir=mktdir, force=False) 
+mktdata = az.readMkT(symb, dstart = sdate, dend = edate,
+                     dir=mktdir, force=False)
 
-# transform mktdata as a list of single column DataFrame of close prices
+# transform mktdata into a list of DataFrame's containing close prices
 lmktdata = []
 for k, v in mktdata.groupby(by='symbol'):
     lmktdata.append(v.pivot(columns='symbol', values='close'))
@@ -27,7 +27,7 @@ ww = pd.Series(1./len(symb), index=symb)
 
 #=============================================================================
 # Compute portfolio and view some results
-# use the list version of the DataFrame
+# use the list version of the market data
 p1 = az.Port_Simple(lmktdata, pname='SimplePort')
 port = p1.set_model(ww)
 
@@ -37,4 +37,3 @@ p1.port_drawdown(fancy=True)
 p1.port_perf(fancy=True)
 p1.port_annual_returns()
 p1.port_monthly_returns()
-

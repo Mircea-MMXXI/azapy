@@ -3,7 +3,7 @@ from .SDAnalyzer import SDAnalyzer
 
 class Port_SD(Port_MV):
     """
-    Backtesting the SD optimal portfolio periodically rebalanced.
+    Back testing the SD optimal portfolio periodically rebalanced.
     
     Methods:
         * set_model

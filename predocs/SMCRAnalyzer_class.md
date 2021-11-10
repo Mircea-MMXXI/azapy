@@ -49,14 +49,15 @@ calibration. The default is `'adjusted'`.
 It could be `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
 * `hlength` : History length in number of years used for calibration.
 A fractional number will be rounded to an integer number of months.
-The default is `3.25` (years).
+The default is `3.25` years.
 * `calendar` :  Business days calendar, `np.busdaycalendar`. If is it `None`
-then the calendar will be set internally to NYSE business calendar.
+then the calendar will be set to NYSE business calendar.
 The default is `None`.
-* `rtype` : optimization type. The default is `'Sharpe'`. Possible values:
-    - `'Risk'` : minimization of dispersion (risk) measure.
-    - `'Sharpe'` : maximization of generalized Sharpe ratio.
-    - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value.
+* `rtype` : optimization type. The default is `'Sharpe'`. Possible values are:
+    - `'Risk'` : minimization of dispersion (risk) measure for a fixed values
+    of portfolio expected rate of return,
+    - `'Sharpe'` : maximization of generalized Sharpe ratio,
+    - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value,
     - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
 		as equally weighted portfolio.
     - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
@@ -67,7 +68,7 @@ The default is `'ecos'`.
 > Note:
 >	* ``'ecos'`` : is SOCP implementation of **ecos** *(Embedded Cone Solver)*
 package.
-> * ``'cvxopt'`` : is the SOCP implantation from **CVXOPT** package.
+> * ``'cvxopt'`` : is the SOCP implantation from **cvxopt** package.
 
 > In our cases `'ecos'` is faster than `'cvxopt'`.
 

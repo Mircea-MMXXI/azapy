@@ -24,9 +24,9 @@ cr1 = az.SMGINIAnalyzer(mktdata)
 # computes Sharpe weights for 0 risk-free rate
 ww1 = cr1.getWeights(mu=0.)
 # print portfolio characteristics
-# primary risk = set of SMGINI
-# secondary risk = set of SMGINI
-# risk = weighted sum of SMGINI
+# primary risk = [SMGINI] (redundant)
+# secondary risk = [SMGINI] (redundant)
+# risk = SMGINI
 RR = cr1.RR
 risk = cr1.risk
 prim = cr1.primary_risk_comp.copy()

@@ -32,7 +32,7 @@ def schedule_simple(sdate=pd.to_datetime("2010-01-01"),
         can be zero or negative. The default is -1.
     calendar : np.busdaycalendar, optional
         Business days calendar. If is it None then the calendar will be set
-        to NYSE business calendar via a call to azapy.NYSEgen(). 
+        to NYSE business calendar.
         The default is None.
 
     Returns
@@ -85,13 +85,13 @@ def schedule_roll(sdate=pd.to_datetime("2010-01-01"),
         can be zero or negative. The default is -1.
     calendar : np.busdaycalendar, optional
         Business days calendar. If is it None then the calendar will be set
-        to NYSE business calendar via a call to azapy.NYSEgen(). 
+        to NYSE business calendar.
         The default is None.
     hlength : float, optional
         Offset in number of years for 'Dhist' relative to 'Dfix'. A fractional 
         value will be rounded to an integer number of months via
         round(hlength * 12, 0). hlength must be non negative.
-        The default is 1.25.
+        The default is 1.25 years.
 
     Raises
     ------

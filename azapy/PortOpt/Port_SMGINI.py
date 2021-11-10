@@ -3,7 +3,7 @@ from .SMGINIAnalyzer import SMGINIAnalyzer
 
 class Port_SMGINI(Port_CVaR):
     """
-    Backtesting the SMGINI optimal portfolio periodically rebalanced.
+    Back testing the SMGINI optimal portfolio periodically rebalanced.
     
     Methods:
         * set_model

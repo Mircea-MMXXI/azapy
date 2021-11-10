@@ -1,5 +1,5 @@
 
-<a name="set_mktdata">
+<a name="set_mktdata"></a>
 
 #### <span style="color:green">set_mktdata</span>
 
@@ -12,7 +12,7 @@ constructor.
 set_mktdata(mktdata, colname='adjusted', freq='Q', hlength=3.25, calendar=None)
 ```
 
-*Input:*
+*Inputs:*
 
 * `mktdata` : pd.DataFrame
 Historic daily market data for portfolio components in the format
@@ -21,7 +21,7 @@ returned by `azapy.mktData` function.
 Name of the price column from `mktdata` used in the weights
 calibration. The default is ``'adjusted'``.
 * `freq` :
-Rate of returns horizon in number of business day. it could be
+Rate of returns horizon in number of business days. it could be
 ``'Q'`` for quarter or ``'M'`` for month. The default is ``'Q'``.
 * `hlength` :
 History length in number of years used for calibration. A
@@ -29,8 +29,7 @@ fractional number will be rounded to an integer number of months.
 The default is `3.25` years.
 * `calendar` : `np.busdaycalendar`, optional
 Business days calendar. If is it `None` then the calendar will be set
-to NYSE business calendar via a call to `azapy.NYSEgen`.
-The default is `None`.
+to NYSE business calendar. The default is `None`.
 
 
 *Returns:* `None`

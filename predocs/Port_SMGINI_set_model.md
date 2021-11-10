@@ -12,32 +12,32 @@ It must be called before any other class method.
 set_model(mu, rtype='Sharpe', hlength=1.25, method='ecos'):
 ```
 
-*Input:*
+*Inputs:*
 
 * `mu` :
 Reference rate. Its meaning depends of the value of `rtype`. For
 `rtype` equal to:
-    - ``'Sharpe'`` : `mu` is the risk-free rate.
-    - ``'Risk'`` : `mu` is the targeted expected rate of returns.
-    - ``'MinRisk'`` and ``'InvNrisk'`` : `mu` is ignored.
-    - ``'RiskAverse'`` : `mu` is the Lambda risk aversion coefficient.
+    - `'Sharpe'` : `mu` is the risk-free rate,
+    - `'Risk'` : `mu` is the targeted expected rate of returns,
+    - `'MinRisk'` and `'InvNrisk'` : `mu` is ignored,
+    - `'RiskAverse'` : `mu` is the lambda risk aversion coefficient.
 * `rtype` :
-Type of optimization. It could take the following values:
-    - ``'Sharpe'`` - Sharpe optimal portfolio.
-    - ``'Risk'`` - fixed risk optimal portfolio.
-    - ``'MinRisk'`` - minimum risk optimal portfolio.
-    - ``'InvNrisk'`` - optimal portfolio with same risk as the equally
-    weighted portfolio.
-    - ``'RiskAverse'`` - optimal portfolio for fixed risk aversion.
-    The default is ``'Sharpe'``.
+Optimization type. The default is `'Sharpe'`. Possible values are:
+    - `'Risk'` : minimization of dispersion (risk) measure for a fixed values
+    of portfolio expected rate of return,
+    - `'Sharpe'` : maximization of generalized Sharpe ratio,
+    - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value,
+    - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
+		as equally weighted portfolio.
+    - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
 * `hlength` :
-The length in year of the historical calibration period relative
-to ``'Dfix'``. A fractional number will be rounded to an integer number
-of months. The default is `3.25` years.
+The length in years of historical calibration period relative
+to `'Dfix'`. A fractional number will be rounded to an integer number
+of months. The default is `1.25` years.
 * `method` :
 SOCP numerical method.
-Could be  ``'ecos'`` or ``'cvxopt'``.
-The default is ``'ecos'``.
+Could be  `'ecos'` or `'cvxopt'`.
+The default is `'ecos'`.
 
 *Returns:* `pd.DataFrame` containing the portfolio time-series in the format
 `'date'`, `'pcolname'`.

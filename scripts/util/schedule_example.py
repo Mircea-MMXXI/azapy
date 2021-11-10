@@ -1,4 +1,4 @@
-# Example of how to call scheule functions
+# Example of how to call schedule functions
 
 import pandas as pd
 import azapy as az

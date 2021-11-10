@@ -59,14 +59,33 @@ $(foreach ff, $(F_NAIVE), $(eval $(ff)_out=$(call f_out_gen,$(ff))) )
 
 # gen singles
 
-F_SINGLES = RiskBased_intro.md
+F_SINGLES = RiskBased_intro.md Naive_intro.md Greedy_intro.md
 
-$(F_SINGLES)_in = $(addprefix $(INDIR)/, $(F_SINGLES))
-$(F_SINGLES)_out = $(addprefix $(OUTDIR)/, $(F_SINGLES))
+$(foreach ff, $(F_SINGLES), $(eval $(ff)_in=$(INDIR)/$(ff)))
+$(foreach ff, $(F_SINGLES), $(eval $(ff)_out=$(OUTDIR)/$(ff)))
+
+# gen greedy docs
+
+F_GR = Kelly
+
+RISK_GR =
+
+PORT_GR = Port_port_view.md Port_port_view_all.md Port_port_drawdown.md \
+Port_port_perf.md Port_port_annual_returns.md Port_port_monthly_returns.md \
+Port_port_period_returns.md Port_get_nshares.md \
+Port_get_account.md Port_get_mktdata.md
+
+define f_gr_in_gen
+	$(addprefix $(INDIR)/, $(1)_th_doc_base.md $(1)Engine_class.md $(RISK_GR) \
+	Port_$(1)_class.md Port_$(1)_set_model.md $(PORT_GR))
+endef
+
+$(foreach ff, $(F_GR), $(eval $(ff)_in=$(call f_gr_in_gen,$(ff))) )
+$(foreach ff, $(F_GR), $(eval $(ff)_out=$(call f_out_gen,$(ff))) )
 
 # make targets
 
-Target := $(F_RB) $(F_SIMPLE) $(F_NAIVE) $(F_SINGLES)
+Target := $(F_RB), $(F_SIMPLE), $(F_NAIVE), $(F_SINGLES), $(F_GR)
 
 Target_out := $(foreach ff, $(addsuffix _out, $(Target)), $($(ff)))
 

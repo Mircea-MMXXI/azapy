@@ -1,5 +1,5 @@
 
-<a name="port_view_all">
+<a name="port_view_all"></a>
 
 #### <span style="color:green">port_view_all</span>
 
@@ -13,7 +13,7 @@ The components time series prices are designated by the value of
 port_view_all(sdate=None, edate=None, componly=False, fancy=False, saveto=None)
 ```
 
-*Input:*
+*Inputs:*
 
 * `sdate` : `datetime`;
 Start date of plotted time-series. If it is set to `None`

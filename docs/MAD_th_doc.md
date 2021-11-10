@@ -5,7 +5,7 @@ $\def\cK{{\cal K}}$
 # MAD optimal portfolio <a name="TOP"></a>
 
 MAD stands for _Mean Absolute Deviation_.
-*azapy* implements a generalization of MAD, namely the Mixture MAD or mMAD.
+**azapy** implements a generalization of MAD, namely the Mixture MAD (mMAD).
 
 mMAD is a superposition of recursive high order MAD measures.
 The single MAD measure can be viewed as a particular case of mMAD.
@@ -27,7 +27,7 @@ where:
 There are 2 support classes:
 
 * **MADAnalyzer** : computes the portfolio weights and performs in-sample
-analysis.
+analysis,
 * **Port_MAD** : performs portfolio back testing, out-of-sample analyzes.
 
 ## MADAnalyzer class
@@ -71,33 +71,33 @@ MADAnalyzer(coef=[1.], mktdata=None, colname='adjusted', freq='Q',
 
 where:
 
-  * `coef` : List of non-negative (`>=0`) coefficients with at least one
-  element positive (`>0`). The highest order non zero element defines the
-  highest mMAD order. The default is `[1.]`.
-  * `mktdata` : `pd.DataFrame` containing the market data in the format returned by
-  the function `azapy.readMkT`. The default is `None`. mktdata could be loaded
-  latter.
-  * ``colname`` : Name of the price column from `mktdata` used in the weights
-  calibration. The default is `'adjusted'`.
-  * `freq` : Rate of returns horizon (portfolio rebalancing period).
-  It could be `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
-  * `hlength` : History length in number of years used for calibration.
-  A fractional number will be rounded to an integer number of months.
-  The default is `3.25` (years).
-  * `calendar` :  Business days calendar, `np.busdaycalendar`. If is it `None`
-  then the calendar will be set internally to NYSE business calendar.
-  The default is `None`.
-  * `rtype` : optimization type. The default is `'Sharpe'`. Possible values:
-      - `'Risk'` : minimization of dispersion (risk) measure.
-      - `'Sharpe'` : maximization of generalized Sharpe ratio.
-      - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value.
-      - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
-  		as equally weighted portfolio.
-      - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
-  * `method` : Designates the linear programming numerical method.
-  It could be one of: `'ecos',
-  'highs-ds', 'highs-ipm', 'highs', 'interior-point', 'glpk'` and `'cvxopt'`.
-  The default is `'ecos'`.
+* `coef` : List of non-negative (`>=0`) coefficients with at least one
+element positive (`>0`). The highest order non zero element defines the
+highest mMAD order. The default is `[1.]`.
+* `mktdata` : `pd.DataFrame` containing the market data in the format returned by
+the function `azapy.readMkT`. The default is `None`. mktdata could be loaded
+latter.
+* ``colname`` : Name of the price column from `mktdata` used in the weights
+calibration. The default is `'adjusted'`.
+* `freq` : Rate of returns horizon (portfolio rebalancing period).
+It could be `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
+* `hlength` : History length in number of years used for calibration.
+A fractional number will be rounded to an integer number of months.
+The default is `3.25` (years).
+* `calendar` :  Business days calendar, `np.busdaycalendar`. If is it `None`
+then the calendar will be set internally to NYSE business calendar.
+The default is `None`.
+* `rtype` : optimization type. The default is `'Sharpe'`. Possible values:
+    - `'Risk'` : minimization of dispersion (risk) measure.
+    - `'Sharpe'` : maximization of generalized Sharpe ratio.
+    - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value.
+    - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
+		as equally weighted portfolio.
+    - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
+* `method` : Designates the linear programming numerical method.
+It could be one of: `'ecos',
+'highs-ds', 'highs-ipm', 'highs', 'interior-point', 'glpk'` and `'cvxopt'`.
+The default is `'ecos'`.
 
   > Note:
   >	* `'ecos'` : is LP implementation from __ecos__ _(Embedded Cone Solver)_
@@ -110,7 +110,7 @@ where:
   interface to chose between the two methods based on the computational speed.
   `'interior-point'` is the default __SciPy__ LP algorithm. In our cases it
   proves to be the slowest.
-  > * `'cvxopt'` : is the LP implantation from __CVXOPT__ package.
+  > * `'cvxopt'` : is the LP implantation from __cvxopt__ package.
   > * `'glpk'` : is the GLPK LP implementation.
 
   > In our cases `'ecos'` and `'hight-ds'` provides the fastest computations.
@@ -123,7 +123,7 @@ where:
 
 ### Methods:
 
-<a name="getWeights">
+<a name="getWeights"></a>
 
 #### <span style="color:green">getWeights</span>
 
@@ -135,7 +135,7 @@ Computes the optimal portfolio weights.
 getWeights(mu, rrate=None, rtype=None, d=1)
 ```
 
-*Input:*
+*Inputs:*
 
 * `mu` : Rate of reference. Its meaning depends on the optimization method.
 For `rtype` set to:
@@ -168,7 +168,7 @@ The meanings of these members are [here](#RiskMembers).
 
 ---
 
-<a name="getRisk">
+<a name="getRisk"></a>
 
 #### <span style="color:green">getRsik</span>
 
@@ -179,7 +179,7 @@ Computes the risk of a portfolio defined by a set of weights.
 getRisk(ww, rrate=None)
 ```
 
-*Input:*
+*Inputs:*
 
 * `ww` : List like of portfolio weights. Its length must be equal to the
 number of symbols in `rrate` (`mktdata`). All weights must by `>0`. If it
@@ -197,7 +197,7 @@ computed by the constructor from `mktdata`. The default is `None`.
 
 ---
 
-<a name="getPositions">
+<a name="getPositions"></a>
 
 #### <span style="color:green">getPositions</span>
 
@@ -207,10 +207,10 @@ component.
 *Call:*
 
 ```
-getPositions(self, mu, rtype=None, nshares=None, cash=0, ww=None)
+getPositions(mu, rtype=None, nshares=None, cash=0, ww=None)
 ```
 
-*Input:*
+*Inputs:*
 
 * `mu` : Rate of reference. Its meaning depends on the optimization method.
 For `rtype` set to:
@@ -249,14 +249,14 @@ is the new portfolio value (invested capital).
 * `'prices'` : share prices used for rebalance evaluations.
 
 >Note: Since the prices are closing prices, the rebalance can be executed next
-business. Additional cash slippage may occur due to share price differential
+business day. Additional cash slippage may occur due to share price differential
 between the previous day closing and  execution time.
 
 [TOP](#TOP)
 
 ---
 
-<a name="viewFrontiers">
+<a name="viewFrontiers"></a>
 
 #### <span style="color:green">viewFrontiers</span>
 
@@ -269,7 +269,7 @@ viewFrontiers(efficient=20, inefficient=20, musharpe=0.,
               fig_type='RR_risk', options=None, saveto=None,
               data=None)
 ```
-*Input:*
+*Inputs:*
 * `efficient` : Number of points along the optimal frontier (equally spaced
 	 along the rate of returns axis). The default is `20`.
 * `inefficient` : Number of points along the inefficient frontier (equally
@@ -285,8 +285,8 @@ evaluate and added to the plot for reference. The default is `20`.
 the optimal portfolio with the same dispersion (risk) value are evaluated and
 added to the plot. The default is `True`.
 * `fig_type` : Graphical representation format. If it is set to `'RR_risk'`
-the data is plotted in the rate of return vs dispersion representation,
-otherwise the Sharpe vs rate of return will be used. The default is
+the data is plotted in the risk vs rate of return representation,
+otherwise the rate of return vs Sharpe will be used. The default is
 `'RR_risk'`.
 * `options` : A dictionary with additional graphical setups. Relevant keys
 are:
@@ -315,7 +315,7 @@ reevaluations.
 
 ---
 
-<a name="set_mktdata">
+<a name="set_mktdata"></a>
 
 #### <span style="color:green">set_mktdata</span>
 
@@ -328,7 +328,7 @@ constructor.
 set_mktdata(mktdata, colname='adjusted', freq='Q', hlength=3.25, calendar=None)
 ```
 
-*Input:*
+*Inputs:*
 
 * `mktdata` : pd.DataFrame
 Historic daily market data for portfolio components in the format
@@ -337,7 +337,7 @@ returned by `azapy.mktData` function.
 Name of the price column from `mktdata` used in the weights
 calibration. The default is ``'adjusted'``.
 * `freq` :
-Rate of returns horizon in number of business day. it could be
+Rate of returns horizon in number of business days. it could be
 ``'Q'`` for quarter or ``'M'`` for month. The default is ``'Q'``.
 * `hlength` :
 History length in number of years used for calibration. A
@@ -345,8 +345,7 @@ fractional number will be rounded to an integer number of months.
 The default is `3.25` years.
 * `calendar` : `np.busdaycalendar`, optional
 Business days calendar. If is it `None` then the calendar will be set
-to NYSE business calendar via a call to `azapy.NYSEgen`.
-The default is `None`.
+to NYSE business calendar. The default is `None`.
 
 
 *Returns:* `None`
@@ -355,7 +354,7 @@ The default is `None`.
 
 ---
 
-<a name="set_rrate">
+<a name="set_rrate"></a>
 
 #### <span style="color:green">set_rrate</span>
 
@@ -368,7 +367,7 @@ It will overwrite the value computed by the constructor from `mktdata`.
 set_rrate(rrate)
 ```
 
-*Input:*
+*Inputs:*
 
 * rrate : `pd.DataFrame`,
 portfolio components historical rates of returns, where the
@@ -381,7 +380,7 @@ columns are `'date'`, `symbol1`, `symbol2`, etc.
 
 ---
 
-<a name="set_rtype">
+<a name="set_rtype"></a>
 
 #### <span style="color:green">set_rtype</span>
 
@@ -394,7 +393,7 @@ constructor.
 set_rtype(rtype)
 ```
 
-*Input:*
+*Inputs:*
 
 * `rtype` : Optimization type.
 
@@ -404,7 +403,7 @@ set_rtype(rtype)
 
 ---
 
-<a name="set_random_seed">
+<a name="set_random_seed"></a>
 
 #### <span style="color:green">set_random_seed</span>
 
@@ -416,7 +415,7 @@ Sets the seed for Dirichlet random generator used in `viewFrontiers`.
 set_random_seed(seed=42)
 ```
 
-*Input:*
+*Inputs:*
 
 * `seed` : The random generator seed - in case you want to set it to a weird
 value other than 42 :). The default is `42`.
@@ -429,7 +428,8 @@ value other than 42 :). The default is `42`.
 
 ## Port_MAD class
 
-Back testing (historical simulation) the MAD optimal portfolio periodically
+
+Out-of-Sample (back testing) simulation of MAD optimal portfolio periodically
 rebalanced.
 
 
@@ -464,59 +464,59 @@ Port_MAD(mktdata, symb=None, sdate=None, edate=None, col_price='close',
 where:
 
 * `mktdata` : `pd.DataFrame`;
-market data in the format ``"symbol"``, ``"date"``, ``"open"``, ``"high"``,
-``"low"``, ``"close"``, ``"volume`"``, ``"adjusted"``, ``"divd"``, ``"split"``
+Market data in the format `"symbol"`, `"date"`, `"open"`, `"high"`,
+`"low"`, `"close"`, `"volume"`, `"adjusted"`, `"divd"`, `"split"`
 (e.g. as returned by `azapy.readMkT`).
 * `symb` :
-List of symbols for the basket components. All symbols
+List of symbols of portfolio components. All symbols
 should be present in `mktdata`. If set to `None` the `symb` will be
 set to the full set of symbols present in `mktdata`. The default
 is `None`.
 * `sdate` : `datetime`;
-Start date for historical data. If set to `None` the `sdate` will
+Start date for historical simulation. If set to `None` the `sdate` will
 be set to the earliest date in `mktdata`. The default is `None`.
-* `edate` : datetime;
-End date for historical dates and so the simulation. Must be
+* `edate` : `datetime`;
+End date for historical simulation. Must be
 greater than  `sdate`. If it is `None` then `edate` will be set
 to the latest date in `mktdata`. The default is `None`.
-* `col_price` :
+* `col_price` : `string`;
 Column name in the `mktdata` DataFrame that will be considered
-for portfolio aggregation. The default is ``'close'``.
-* `col_divd` :
+for portfolio aggregation. The default is `'close'`.
+* `col_divd` : `string`;
 Column name in the `mktdata` DataFrame that holds the dividend
-information. The default is ``'dvid'``.
-* `col_ref` :
+information. The default is `'dvid'`.
+* `col_ref` : `string`;
 Column name in the `mktdata` DataFrame that will be used as a price
 reference for portfolio components (used for various comparisons and graphs).
-The default is ``'adjusted'``.
-* `col_calib` :
+The default is `'adjusted'`.
+* `col_calib` : `string`;
 Column name used for historical weights calibrations. The default is
-``'adjusted'``.
-* `pname` :
-The name of the portfolio. The default is ``'Port'``.
-* `pcolname` :
+`'adjusted'`.
+* `pname` : `string`;
+The name of the portfolio. The default is `'Port'`.
+* `pcolname` : `string`;
 Name of the portfolio price column. If it is set to `None` than
 `pcolname=pname`. The default is `None`.
-* `capital` :
+* `capital` : `float`;
 Initial portfolio Capital in dollars. The default is `100000`.
 * `schedule` : `pd.DataFrame`;
-Rebalancing schedule, with columns for ``'Droll'`` rolling date and
-``'Dfix'`` fixing date. If it is `None` than the schedule will be set
+Rebalancing schedule, with columns for `'Droll'` rolling date and
+`'Dfix'` fixing date. If it is `None` than the schedule will be set
 using the `freq`, `nsoffset`, `fixoffset`, `hlength` and `calendar`
 information. The default is `None`.
-* `freq` :
-Rebalancing frequency. It can be ``'Q'`` for quarterly or ``'M'`` for
-monthly rebalancing, respectively. It is relevant only if schedule
-is `None`. The default is ``'Q'``.
-* `noffset` :
-Number of business days offset for rebalancing date ``'Droll'``
+* `freq` : `string`;
+Rebalancing frequency. It can be `'Q'` for quarterly or `'M'` for
+monthly rebalancing. It is relevant only if schedule
+is `None`. The default is `'Q'`.
+* `noffset` : `int`;
+Number of business days offset for rebalancing date `'Droll'`
 relative to the end of the period (quart or month). A positive
 value add business days beyond the calendar end of the period while
 a negative value subtract business days. It is relevant only if
 `schedule` is `None`. The default is `-3`.
-* `fixoffset` :
-Number of business day offset of fixing date ``'Dfix'`` relative to
-the rebalancing date ``'Droll'``. It cane be `0` or negative. It is
+* `fixoffset` : `int`;
+Number of business days offset of fixing date `'Dfix'` relative to
+the rebalancing date `'Droll'`. It cane be `0` or negative. It is
 relevant only if `schedule` is `None`. The default is `-1`.
 * `calendar` : `np.busdaycalendar`;
 Business calendar. If it is `None` then it will be set to NYSE
@@ -540,35 +540,35 @@ It must be called before any other class method.
 def set_model(mu, coef=[1.], rtype='Sharpe', hlength=3.25, method='ecos')
 ```
 
-*Input:*
+*Inputs:*
 
 * `mu` :
 Reference rate. Its meaning depends of the value of `rtype`. For
 `rtype` equal to:
-    - ``'Sharpe'`` : `mu` is the risk-free rate.
-    - ``'Risk'`` : `mu` is the targeted expected rate of returns.
-    - ``'MinRisk'`` and ``'InvNrisk'`` : `mu` is ignored.
-    - ``'RiskAverse'`` : `mu` is the Lambda risk aversion coefficient.
+    - `'Sharpe'` : `mu` is the risk-free rate,
+    - `'Risk'` : `mu` is the targeted expected rate of returns,
+    - `'MinRisk'` and `'InvNrisk'` : `mu` is ignored,
+    - `'RiskAverse'` : `mu` is the lambda risk aversion coefficient.
 * `coef` :
-List of $\cK_l$ mixture coefficients. The default is ``[1.]``.
+List of $\cK_l$ mixture coefficients. The default is `[1.]`.
 * `rtype` :
-Type of optimization. It could take the values:
-    - ``'Sharpe'`` - Sharpe optimal portfolio.
-    - ``'Risk'`` - risk optimal portfolio.
-    - ``'MinRisk'`` - Minimum MAD optimal portfolio.
-    - ``'InvNrisk'`` - optimal portfolio with same risk as the equally
-    weighted portfolio.
-    - ``'RiskAverse'`` - optimal portfolio for fixed risk aversion.
-    The default is ``'Sharpe'``.
+Optimization type. The default is `'Sharpe'`. Possible values are:
+    - `'Risk'` : minimization of dispersion (risk) measure for a fixed values
+    of portfolio expected rate of return,
+    - `'Sharpe'` : maximization of generalized Sharpe ratio,
+    - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value,
+    - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
+		as equally weighted portfolio.
+    - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
 * `hlength` :
-The length in year of the historical calibration period relative
-to ``'Dfix'``. A fractional number will be rounded to an integer number
+The length in years of historical calibration period relative
+to `'Dfix'`. A fractional number will be rounded to an integer number
 of months. The default is `3.25` years.
 * `method` :
 Designates the LP numerical method.
-Could be one of ``'ecos'``, ``'highs-ds'``, ``'highs-ipm'``, ``'highs'``,
-``'interior-point'``, ``'glpk'`` and ``'cvxopt'``.
-The default is ``'ecos'``.
+Could be one of: `'ecos'`, `'highs-ds'`, `'highs-ipm'`, `'highs'`,
+`'interior-point'`, `'glpk'` and `'cvxopt'`.
+The default is `'ecos'`.
 
 *Returns:* `pd.DataFrame` containing the portfolio time-series in the format
 `'date'`, `'pcolname'`.
@@ -577,7 +577,7 @@ The default is ``'ecos'``.
 
 ---
 
-<a name="port_view">
+<a name="port_view"></a>
 
 #### <span style="color:green">port_view</span>
 
@@ -590,7 +590,7 @@ indicators.
 port_view(emas=[30, 200], bollinger=False, fancy=False, saveto=None)
 ```
 
-*Input:*
+*Inputs:*
 
 * `emas` :
 List for EMA durations. The default is ``[30, 200]``.
@@ -611,7 +611,7 @@ documentation for `savefig`. The default is `None`.
 
 ---
 
-<a name="port_view_all">
+<a name="port_view_all"></a>
 
 #### <span style="color:green">port_view_all</span>
 
@@ -625,7 +625,7 @@ The components time series prices are designated by the value of
 port_view_all(sdate=None, edate=None, componly=False, fancy=False, saveto=None)
 ```
 
-*Input:*
+*Inputs:*
 
 * `sdate` : `datetime`;
 Start date of plotted time-series. If it is set to `None`
@@ -651,7 +651,7 @@ documentation for `savefig`.The default is `None`.
 
 ---
 
-<a name="port_drawdown">
+<a name="port_drawdown"></a>
 
 #### <span style="color:green">port_drawdown</span>
 
@@ -663,7 +663,7 @@ Computes the portfolio drawdowns.
 port_drawdown(top=5, fancy=False)
 ```
 
-*Input:*
+*Inputs:*
 
 * `top` :
 The number of largest drawdown that will be reported.
@@ -675,9 +675,9 @@ The default is `5`.
 
 *Returns:* `pd.DataFrame` containing the table of
 drawdown events. Columns:
-* `'DD'` : drawdown rate
-* `'Date'` : recorded date of the drawdown
-* `'Star'` : start date of the drawdown
+* `'DD'` : drawdown rate,
+* `'Date'` : recorded date of the drawdown,
+* `'Star'` : start date of the drawdown,
 * `'End'` : end date of the drawdown. A `NaN` value indicates that the
 drawdown event is in progress and the value of `'DD'` and `'Date'` are
 provisional only.
@@ -686,7 +686,7 @@ provisional only.
 
 ---
 
-<a name="port_perf">
+<a name="port_perf"></a>
 
 #### <span style="color:green">port_perf</span>
 
@@ -699,7 +699,7 @@ in terms of average historical rate of returns and maximum drawdowns.
 port_perf(componly=False, fancy=False)
 ```
 
-*Input:*
+*Inputs:*
 
 * `componly` : Boolean flag.
 If `True`, only the portfolio components information is reported.
@@ -714,7 +714,7 @@ performance information. Columns:
 * `'RR'` : annual average rate of returns,
 * `'DD'` : maximum rate of drawdown during the simulation period,
 * `'Beta'` : `abs(RR/DD)`,
-* `'DD_date'` : recorder date of maximum drawdown,
+* `'DD_date'` : recorded date of maximum drawdown,
 * `'DD_start'` : start date of maximum drawdown,
 * `'DD_end'` : end date of maximum drawdown.
 
@@ -722,7 +722,7 @@ performance information. Columns:
 
 ---
 
-<a name="port_annual_returns">
+<a name="port_annual_returns"></a>
 
 #### <span style="color:green">port_annual_returns</span>
 
@@ -736,7 +736,7 @@ the value of `col_ref` argument in the constructor.
 port_annual_returns(withcomp=False, componly=False, fancy=False)
 ```
 
-*Input:*
+*Inputs:*
 
 * `withcomp` : Boolean flag.
 If `True`, adds the portfolio components annual returns to the
@@ -755,7 +755,7 @@ are reported. The default is `False`.
 
 ---
 
-<a name="port_monthly_returns">
+<a name="port_monthly_returns"></a>
 
 #### <span style="color:green">port_monthly_returns</span>
 
@@ -768,7 +768,7 @@ returns.
 port_monthly_returns(withcomp=False, componly=False, fancy=False)
 ```
 
-*Input:*
+*Inputs:*
 
 * `withcomp` : Boolean flag.
 If `True`, adds the portfolio components monthly returns to the
@@ -787,7 +787,7 @@ are reported. The default is `False`.
 
 ---
 
-<a name="port_period_returns">
+<a name="port_period_returns"></a>
 
 #### <span style="color:green">port_period_returns</span>
 
@@ -799,7 +799,7 @@ Computes the rolling periods rate of returns.
 port_period_returns(fancy=False)
 ```
 
-*Input:*
+*Inputs:*
 
 * `fancy` : Boolean flag with default value `False`.
     - `False` : The values are reported in unaltered algebraic format.
@@ -809,13 +809,14 @@ port_period_returns(fancy=False)
 *Returns:* `pd.DataFrame`
 
 Each rolling period is indicated by its start date, `Droll`.
-The values of `Dfix` and components weights are included in the report.
+For reference, the values of `Dfix` and components weights are
+included in the report.
 
 [TOP](#TOP)
 
 ---
 
-<a name="get_nshares">
+<a name="get_nshares"></a>
 
 #### <span style="color:green">get_nshares</span>
 
@@ -827,7 +828,7 @@ Returns the number of shares hold after each rolling date.
 get_nshares()
 ```
 
-*Input:* None
+*Inputs:* None
 
 
 *Returns:* `pd.DataFrame`
@@ -839,7 +840,7 @@ Each rolling period is indicated by its start date, `Droll`.
 
 ---
 
-<a name="get_account">
+<a name="get_account"></a>
 
 #### <span style="color:green">get_account</span>
 
@@ -853,7 +854,7 @@ previous period dividend cash accumulation, etc.)
 get_account(fancy=False)
 ```
 
-*Input:*
+*Inputs:*
 
 * `fancy` : Boolean flag with default value `False`.
     - `False` : the values are reported in unaltered algebraic format.
@@ -864,9 +865,9 @@ get_account(fancy=False)
 Reports, for each rolling period identified by `'Droll'`:
 
 * for each symbol : the number of shares hold,
-* `'cash_invst'` : cash invested at the beginning of period,
+* `'cash_invst'` : cash invested at the beginning of the period,
 * `'cash_roll'` : cash rolled to the next period,
-* `'cash_divd'` : cash dividend accumulated in the previous period,
+* `'cash_divd'` : cash dividend accumulated in the previous period.
 
 > Note: The capital at the beginning of the period is
 cash_invst + cash_roll. It is also equal to the previous period:
@@ -882,7 +883,7 @@ separately by the investor.
 
 ---
 
-<a name="get_mktdata">
+<a name="get_mktdata"></a>
 
 #### <span style="color:green">get_mktdata</span>
 
@@ -894,7 +895,7 @@ Returns the actual market data used for portfolio evaluations.
 get_mktdata()
 ```
 
-*Input:* None
+*Inputs:* None
 
 
 *Returns:* `pd.DataFrame`

@@ -1,12 +1,12 @@
 
-# Buy and Hold portfolio <a name="TOP">
+# Buy and Hold portfolio <a name="TOP"></a>
 
 A *Buy and Hold* strategy assumes that at some point in time
-the entire capital is invested in a portfolio with fixed composition.
-After that the portfolio is hold until its liquidation.
+the entire capital is invested in a portfolio with fixed composition
+(numbers of shares).
+After that, the portfolio is hold until its liquidation.
 
-The back testing of this strategy could be viewed as a benchmark for analyzing
-more sophisticated portfolio strategies.   
+The back testing of this strategy could be viewed as a performance benchmark.
 
 There is 1 support class:
 

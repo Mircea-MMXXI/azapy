@@ -7,8 +7,8 @@ from azapy.util.schedule import schedule_roll
 
 class Port_ConstW(Port_Rebalanced):
     """
-    Backtesting portfolio with constant weights periodically rebalanced.
-    
+    Back testing portfolio with constant weights periodically rebalanced.
+
     Methods:
         * set_model
         * get_port
@@ -24,9 +24,9 @@ class Port_ConstW(Port_Rebalanced):
         * port_monthly_returns
         * port_period_returns
     """
-    def __init__(self, mktdata, symb=None, sdate=None, edate=None, 
+    def __init__(self, mktdata, symb=None, sdate=None, edate=None,
                  col_price='close', col_divd='divd', col_ref='adjusted',
-                 pname='Port', pcolname=None, capital=100000, 
+                 pname='Port', pcolname=None, capital=100000,
                  schedule=None,
                  freq='Q', noffset=-3, fixoffset=-1, calendar=None):
         """
@@ -40,62 +40,62 @@ class Port_ConstW(Port_Rebalanced):
             by azapy.readMkT).
         symb : list, optional
             List of symbols for the basket components. All symbols MkT data
-            should be included in mktdata. If set to None the symb will be 
-            set to the full set of symbols included in mktdata. The default 
+            should be included in mktdata. If set to None the symb will be
+            set to the full set of symbols included in mktdata. The default
             is None.
         sdate : datetime, optional
-            Start date for historical data. If set to None the sdate will 
+            Start date for historical data. If set to None the sdate will
             be set to the earliest date in mktdata. The default is None.
         edate : datetime, optional
-            End date for historical dates and so the simulation. Must be 
+            End date for historical dates and so the simulation. Must be
             greater than  sdate. If it is None then edate will be set
             to the latest date in mktdata. The default is None.
         col_price : string, optional
-            Column name in the mktdata DataFrame that will be considered 
-            for portfolio aggregation.The default is 'close'.
+            Column name in the mktdata DataFrame that will be considered
+            for portfolio aggregation. The default is 'close'.
         col_divd :  string, optional
-            Column name in the mktdata DataFrame that holds the dividend 
+            Column name in the mktdata DataFrame that holds the dividend
             information. The default is 'dvid'
         col_ref : string, optional
-            Column name in the mktdata DataFrame that will be used as a price 
+            Column name in the mktdata DataFrame that will be used as a price
             reference for portfolio components. The default is 'adjusted'.
         pname : string, optional
             The name of the portfolio. The default is 'Simple'.
         pcolname : string, optional
-            Name of the portfolio price column. If it set to None that 
+            Name of the portfolio price column. If it set to None that
             pcolname=pname. The default is None.
         capital : float, optional
             Initial portfolio Capital in dollars. The default is 100000.
         schedule : pandas.DataFrame, optional
             Rebalancing schedule, with columns for 'Droll' rolling date and
-            'Dfix' fixing date. If it is None than the schedule will be set 
-            using the freq, nsoffset, fixoffset and calendar 
+            'Dfix' fixing date. If it is None than the schedule will be set
+            using the freq, nsoffset, fixoffset and calendar
             information. The default is None.
         freq : string, optional
-            rebalancing frequency. It can be 'Q' for quarterly or 'M' for 
-            monthly rebalancing, respectively. It is relevant only is schedule 
+            rebalancing frequency. It can be 'Q' for quarterly or 'M' for
+            monthly rebalancing, respectively. It is relevant only is schedule
             is None. The default is 'Q'.
         noffset : int, optional
-            Number of business days offset for rebalancing date 'Droll' 
+            Number of business days offset for rebalancing date 'Droll'
             relative to the end of the period (quart or month). A positive
             value add business days beyond the calendar end of the period while
-            a negative value subtract business days. It is relevant only is 
+            a negative value subtract business days. It is relevant only is
             schedule is None. The default is -3.
         fixoffset : int, optional
-            Number of business day offset of fixing date 'Dfix' relative to 
-            the rebalancing date 'Droll'. It cane be 0 or negative. It is 
+            Number of business day offset of fixing date 'Dfix' relative to
+            the rebalancing date 'Droll'. It cane be 0 or negative. It is
             relevant only is schedule is None. The default is -1.
         calendar : numpy.busdaycalendar, optional
-            Business calendar. If it is None then it will be set to NYSE 
-            business calendar via azapy.NYSEgen() function. The default 
+            Business calendar. If it is None then it will be set to NYSE
+            business calendar. The default
             vale is None.
 
         Returns
         -------
         The object.
         """
-        super().__init__(mktdata=mktdata, symb=symb, 
-                         sdate=sdate, edate=edate, 
+        super().__init__(mktdata=mktdata, symb=symb,
+                         sdate=sdate, edate=edate,
                          col_price=col_price, col_divd=col_divd,
                          col_ref=col_ref,
                          pname=pname,
@@ -104,10 +104,10 @@ class Port_ConstW(Port_Rebalanced):
         self.freq = freq
         self.noffset = noffset
         self.fixoffset = fixoffset
-        self.calendar =  calendar 
+        self.calendar =  calendar
         if self.calendar is None: self._default_calendar()
 
-        
+
     def set_model(self, ww=None):
         """
         Set model parameters and evaluate the portfolio time-series.
@@ -115,9 +115,9 @@ class Port_ConstW(Port_Rebalanced):
         Parameters
         ----------
         ww : list (alos np.array or pd.Series), optional
-        
-            List of weights. If it is pd.Series the index should match 
-            the basket symb. Otherwise the weights are considered in the symb 
+
+            List of weights. If it is pd.Series the index should match
+            the basket symb. Otherwise the weights are considered in the symb
             order. If it is set to None than ww will be set to equal weights.
             The default is None.
 
@@ -127,21 +127,21 @@ class Port_ConstW(Port_Rebalanced):
             The portfolio time-series in the format "date", "pcolname".
         """
         self.hlength = 0.
-        
+
         self._set_schedule()
         self._set_weights(ww)
         self._port_calc()
         return self.port
-    
+
     def _default_calendar(self):
         self.calendar = NYSEgen()
-        
+
     def _set_schedule(self):
         if self.schedule is None:
             self.schedule = schedule_roll(self.sdate, self.edate, self.freq,
-                                          self.noffset, self.fixoffset, 
+                                          self.noffset, self.fixoffset,
                                           self.calendar, self.hlength)
-            
+
     def _set_weights(self, ww):
         if ww is None:
             _ww = pd.Series(1., index=self.symb)
@@ -149,7 +149,7 @@ class Port_ConstW(Port_Rebalanced):
             _ww = ww
         else:
             _ww = pd.Series(ww, index=self.symb)
-            
+
         if _ww.size != self.symb.size:
             raise ValueError(f"ww wrong size, it must be {self.symb.size}")
 
@@ -159,7 +159,7 @@ class Port_ConstW(Port_Rebalanced):
         wws = _ww.sum()
         if wws <= 0.:
             raise ValueError("At least one ww element must be > 0")
-        
+
         self.ww = self.schedule
         for sy in self.symb:
             self.ww[sy] = _ww[sy] / wws

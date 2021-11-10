@@ -3,8 +3,8 @@ from .OmegaAnalyzer import OmegaAnalyzer
 
 class Port_Omega(Port_CVaR):
     """
-    Portfolio with Omega optimal weights, periodically rebalanced.
-    
+    Back testing the Omega optimal portfolio weights, periodically rebalanced.
+
     Methods:
         * set_model
         * get_port
@@ -37,19 +37,19 @@ class Port_Omega(Port_CVaR):
             Omega threshold rate (e.g. risk-free rate). The default is 0.
         rtype : string, optional
             Type of optimization. It could take the values:\n
-                "Sharpe" - C-Sharpe optimal portfolio \n
-                "Risk" - CVaR optimal portfolio \n
-                "MinRisk" - Minimum CVaR optimal portfolio \n
-                "InvNrisk" - optimal portfolio with same CVaR as the equally 
+                "Sharpe" - Sharpe optimal portfolio \n
+                "Risk" - risk optimal portfolio \n
+                "MinRisk" - Minimum risk optimal portfolio \n
+                "InvNrisk" - optimal portfolio with same risk as the equally
                 weighted portfolio. \n
                 The default is 'Sharpe'.
         hlength : float, optional
-            The length in year of the historical calibration period relative 
-            to 'Dfix'. A fractional number will be rounded to an integer number 
-            of months. The default is 3.25. 
+            The length in year of the historical calibration period relative
+            to 'Dfix'. A fractional number will be rounded to an integer number
+            of months. The default is 3.25 years.
         method : string, optional
-            Linear programming numerical method. 
-            Could be one of 'ecos', 'highs-ds', 'highs-ipm', 'highs', 
+            Linear programming numerical method.
+            Could be one of 'ecos', 'highs-ds', 'highs-ipm', 'highs',
             'interior-point', 'glpk' and 'cvxopt'.
             The defualt is 'ecos'.
 
@@ -67,13 +67,12 @@ class Port_Omega(Port_CVaR):
             self.mu = mu
         self.hlength = hlength
         self._set_method(method)
-   
+
         self._set_schedule()
         self._set_weights()
         self._port_calc()
         return self.port
 
     def _wwgen(self):
-        return OmegaAnalyzer(self.alpha[0], rtype=self.rtype, 
+        return OmegaAnalyzer(self.alpha[0], rtype=self.rtype,
                              method=self.method)
-    

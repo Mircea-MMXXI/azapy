@@ -7,11 +7,11 @@ $\def\cK{{\cal K}}$
 
 CVaR stands for *Conditional Value at Risk*. It is one of the most popular risk
 measures in finance.
-*azapy* implements a generalization of CVaR, namely the Mixture CVaR or mCVaR.
+**azapy** implements a generalization of CVaR, namely the Mixture CVaR (mCVaR).
 
 mCVaR is a superposition of CVaR
-measures for different confidence levels. The single CVaR measure can be viewed
-as a particular case of mCVar.
+measures for different confidence levels. The single CVaR measure is a
+particular case of mCVar.
 
 The mCVaR dispersion measure is defined as
 

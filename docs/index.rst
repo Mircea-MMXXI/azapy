@@ -36,11 +36,22 @@ Naïve portfolios
 .. toctree::
    :maxdepth: 1
 
+   Naive_intro
    Simple_th_doc
    ConstW_th_doc
    InvVol_th_doc
    InvVar_th_doc
    InvDD_th_doc
+
+
+Greedy portfolios
+=================
+
+.. toctree::
+   :maxdepth: 1
+
+   Greedy_intro
+   Kelly_th_doc
 
 
 Indices and tables

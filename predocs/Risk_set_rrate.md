@@ -1,5 +1,5 @@
 
-<a name="set_rrate">
+<a name="set_rrate"></a>
 
 #### <span style="color:green">set_rrate</span>
 
@@ -12,7 +12,7 @@ It will overwrite the value computed by the constructor from `mktdata`.
 set_rrate(rrate)
 ```
 
-*Input:*
+*Inputs:*
 
 * rrate : `pd.DataFrame`,
 portfolio components historical rates of returns, where the

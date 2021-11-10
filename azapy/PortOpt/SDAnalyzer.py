@@ -8,7 +8,7 @@ from ._solvers import _socp_solver
 
 class SDAnalyzer(_RiskAnalyzer):
     """
-    SD - Standard deviation as dispersion measure based portfolio optimization.
+    SD - Standard Deviation dispersion measure based portfolio optimization.
     
     Methods:
         * getWeights
@@ -41,10 +41,10 @@ class SDAnalyzer(_RiskAnalyzer):
         hlength : float, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
-            The default is 3.25
+            The default is 3.25 years.
         calendar : np.busdaycalendar, optional
             Business days calendar. If is it None then the calendar will be set
-            to NYSE business calendar via a call to azapy.NYSEgen(). 
+            to NYSE business calendar. 
             The default is None.
         rtype : TYPE, optional
             Optimization type. Possible values \n

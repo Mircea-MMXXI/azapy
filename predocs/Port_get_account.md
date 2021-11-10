@@ -1,5 +1,5 @@
 
-<a name="get_account">
+<a name="get_account"></a>
 
 #### <span style="color:green">get_account</span>
 
@@ -13,7 +13,7 @@ previous period dividend cash accumulation, etc.)
 get_account(fancy=False)
 ```
 
-*Input:*
+*Inputs:*
 
 * `fancy` : Boolean flag with default value `False`.
     - `False` : the values are reported in unaltered algebraic format.
@@ -24,9 +24,9 @@ get_account(fancy=False)
 Reports, for each rolling period identified by `'Droll'`:
 
 * for each symbol : the number of shares hold,
-* `'cash_invst'` : cash invested at the beginning of period,
+* `'cash_invst'` : cash invested at the beginning of the period,
 * `'cash_roll'` : cash rolled to the next period,
-* `'cash_divd'` : cash dividend accumulated in the previous period,
+* `'cash_divd'` : cash dividend accumulated in the previous period.
 
 > Note: The capital at the beginning of the period is
 cash_invst + cash_roll. It is also equal to the previous period:

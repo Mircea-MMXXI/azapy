@@ -14,8 +14,8 @@ mktdir = "./MkTdata"
 
 # force=True read from alphavantage server
 # force=False read from local directory if data exists
-mktdata = az.readMkT(symb, dstart = sdate, dend = edate, 
-                     dir=mktdir, force=False) 
+mktdata = az.readMkT(symb, dstart = sdate, dend = edate,
+                     dir=mktdir, force=False)
 
 #=============================================================================
 # Compute Sharpe optimal portfolio
@@ -24,9 +24,9 @@ cr1 = az.GINIAnalyzer(mktdata)
 # computes Sharpe weights for 0 risk-free rate
 ww1 = cr1.getWeights(mu=0.)
 # print portfolio characteristics
-# primary risk = set of GINI
-# secondary risk = set of GINI
-# risk = weighted sum of GINI
+# primary risk = [GINI] (redundant)
+# secondary risk = [GINI] (redundant)
+# risk = GINI
 RR = cr1.RR
 risk = cr1.risk
 prim = cr1.primary_risk_comp.copy()
@@ -47,7 +47,7 @@ test_risk_res = pd.DataFrame({'risk': [risk], 'test_risk': [test_risk],
                               'diff': [risk-test_risk]})
 print(f"Test for the risk computation\n {test_risk_res}")
 
-# Test the Sharpe weights by estimating an optimal portfolio with 
+# Test the Sharpe weights by estimating an optimal portfolio with
 # the same rate of returns.
 test_ww1 = cr1.getWeights(mu=RR, rtype='Risk')
 ww_comp = pd.DataFrame({"ww1": ww1, "test_ww1": test_ww1,
@@ -88,12 +88,12 @@ ww_comp = pd.DataFrame({"ww2": ww2, "ww1": ww1, "diff": ww2-ww1})
 print(f"coef\n {ww_comp}")
 seco_comp = pd.DataFrame({"seco2": seco2, "seco1": seco1, "diff": seco2-seco1})
 print(f"Secondary risk\n {seco_comp}")
-prim_comp = pd.DataFrame({"prim2": prim2, "prim1": prim1, 
+prim_comp = pd.DataFrame({"prim2": prim2, "prim1": prim1,
                           "diff": prim2-prim1})
 print(f"Primary risk\n {prim_comp}")
 RR_comp = pd.DataFrame({'RR2': [RR2], 'RR1': [RR1], 'diff': [RR2 - RR1]})
 print(f"RR comp\n {RR_comp}")
-risk_comp = pd.DataFrame({'risk2': [risk2], 'risk1': [risk1], 
+risk_comp = pd.DataFrame({'risk2': [risk2], 'risk1': [risk1],
                           'diff': [risk2-risk1]})
 print(f"risk comp\n {risk_comp}")
 sharpe_comp = pd.DataFrame({'sharpe2': [sharpe2], 'sharpe1': [sharpe1],
@@ -114,11 +114,11 @@ risk = cr1.getRisk(ww)
 # compute the weights of InvNrisk
 ww1 = cr1.getWeights(mu=0., rtype="InvNrisk")
 RR1 = cr1.RR
-# compute the optimal portfolio for RR1 targeted rate of return 
+# compute the optimal portfolio for RR1 targeted rate of return
 ww2 = cr1.getWeights(mu=RR1, rtype="Risk")
 # print comparison results
 print("\nInvNrisk\n")
-risk_comp = pd.DataFrame({'1/N': [risk], 'InvNrisk': [cr1.risk], 
+risk_comp = pd.DataFrame({'1/N': [risk], 'InvNrisk': [cr1.risk],
                           'diff': [risk - cr1.risk]})
 print(f"risk comp\n {risk_comp}")
 ww_comp = pd.DataFrame({"InvNrisk": ww1, "Optimal": ww2, 'diff': ww1-ww2})
@@ -131,7 +131,7 @@ cr1 = az.GINIAnalyzer(mktdata)
 ww1 = cr1.getWeights(mu=0., rtype="MinRisk")
 # test
 ww2 = cr1.getWeights(mu=0., rtype="Risk")
-# print comparison 
+# print comparison
 print("\nMinRisk\n")
 ww_comp = pd.DataFrame({"MinRisk": ww1, "Test": ww2, 'diff': ww1-ww2})
 print(f"weights comp\n {ww_comp}")
@@ -144,12 +144,12 @@ ww1 = cr1.getWeights(mu=0.)
 sharpe = cr1.sharpe
 risk = cr1.risk
 
-# compute RiskAverse portfolio for Lambda=sharpe 
+# compute RiskAverse portfolio for Lambda=sharpe
 Lambda = sharpe
 cr2 = az.GINIAnalyzer(mktdata)
 ww2 = cr2.getWeights(mu=Lambda, rtype='RiskAverse')
 
-# comparison - practically they should be identical 
+# comparison - practically they should be identical
 print("\nRiskAverse\n")
 risk_comp = pd.DataFrame({'risk': [cr2.risk], 'test': [cr2.RR / Lambda],
                           'Sharpe risk': [risk]})
@@ -159,7 +159,7 @@ print(f"weigths:\n {ww_comp}")
 
 #=============================================================================
 # # speed comparisons for different LP methods
-# # may take some time to complete 
+# # may take some time to complete
 # # you have to uncomment the lines below
 # crx1 = az.GINIAnalyzer(mktdata, method='highs-ds')
 # wwx1 = crx1.getWeights(mu=0.)

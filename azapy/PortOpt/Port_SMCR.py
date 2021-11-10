@@ -3,7 +3,7 @@ from .SMCRAnalyzer import SMCRAnalyzer
 
 class Port_SMCR(Port_CVaR):
     """
-    Backtesting the SMCR optimal portfolio periodically rebalanced.
+    Back testing the SMCR optimal portfolio periodically rebalanced.
     
     Methods:
         * set_model

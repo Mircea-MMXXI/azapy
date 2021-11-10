@@ -1,7 +1,7 @@
 
-# MV optimal portfolio <a name="TOP">
+# MV optimal portfolio <a name="TOP"></a>
 
-MV stands for *Mean Variance* and it will play the role of dispersion measure.
+MV stands for *Mean Variance*. It will play the role of dispersion measure.
 These type of optimal portfolio was
 introduced by the economist Harry Max Markowitz in 1952. It was the main
 body of work that later had triggered the development of
@@ -19,11 +19,11 @@ where:
 * $w$ is the vector of portfolio weights,
 * $C$ is the covariance matrix between portfolio components.
 
-> Note: In our case $C$ is estimated from historical rate of returns
-observations.
+> Note: In our case $C$ is estimated from historical observations of
+portfolio components rate of returns.
 
 There are 2 support classes:
 
 * **MVAnalyzer** : computes the portfolio weights and performs in-sample
-analysis.
+analysis,
 * **Port_MV** : performs portfolio back testing, out-of-sample analyzes.

@@ -45,7 +45,11 @@ class SMCRAnalyzer(CVaRAnalyzer):
         hlength : float, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
-            The default is 3.25
+            The default is 3.25 years.
+        calendar : np.busdaycalendar, optional
+            Business days calendar. If is it None then the calendar will be set
+            to NYSE business calendar. 
+            The default is None.
         rtype : string, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure. \n

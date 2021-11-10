@@ -21,7 +21,7 @@ or risk measure. In this document we will use both terms
 interchangeable.
 
 The dispersion measure can be defined in many ways. **azapy** package
-provides a quite comprehensive collection of risk-based portfolio optimization
+provides a comprehensive collection of risk-based portfolio optimization
 strategies based on the following dispersion measures:
 
 * CVaR - Conditional Value at Risk and its generalization
@@ -40,7 +40,7 @@ strategies based on the following dispersion measures:
 
 In each case several optimization strategies are implemented. To
 understand them better, let's look at a generic example of portfolio frontiers
-in the figure below.
+graphically represented in the figure below.
 
 
 ![InSample1](../graphics/frontiers_1.png)
@@ -52,16 +52,16 @@ This is a typical representation of portfolio frontiers. On the x-axis we
 have the values of the dispersion measure (risk) while on the y-axis
 is the expected rate of returns. Several features are worth mentioning.
 
-The red line is called the *efficient frontier*. It represents
+The blue line is called the *efficient frontier*. It represents
 the set of portfolios with the highest expected rate of returns for a
 given value of risk. These are the portfolios of interest for an investor.
 
 The lower
-blue line is called the *inefficient frontier*. These are the portfolios
+red line is called the *inefficient frontier*. These are the portfolios
 with the lowest rate of returns for a given value of risk. Clearly, this
 family of portfolios are to be avoided by an investor.
 
-The most left point, where the red and blue lines meet, is the
+The most left point, where the blue and red lines meet, is the
 *Minimum Risk Portfolio*. This is the portfolio with minimum risk. Investing
 in portfolios with minimum risk is a relative common strategy among
 professional investors.
@@ -90,15 +90,19 @@ with the highest expected excess rate of return (above the risk-free rate)
 per unit of risk. This is a remarkable efficient portfolio often preferred by
 the investors.
 
-All the points between the efficient (red line) and
-inefficient (blue line) frontiers are called *inefficient portfolios*.  
+All the points between the efficient (blue line) and
+inefficient (red line) frontiers are called *inefficient portfolios*.  
 There are no valid portfolios outside the portfolio frontiers.
+
+The solid blue squares are the portfolios where the
+entire capital is allocated to a single component. They are labeled by
+the market symbol of this portfolio component.
 
 Among the *inefficient portfolios* there is a remarkable portfolio. That is
 the portfolio with equal weights. All weights
 are equal to $1/N$ where $N$ is the number of portfolio
 components. Hence, its name $1/N$*-portfolio* or *inverse-N portfolio*.
-In out plot this portfolio is represented by a green X with label $1/N$.
+In our plot this portfolio is represented by a green X with label $1/N$.
 
 On the *efficient frontier* there is its correspondent. In our plot
 it is a green X with label *InvNrisk*. This is the efficient portfolio
@@ -108,7 +112,7 @@ the expected rate of returns is larger for *InvNrisk*  than
 for *inverse-N* portfolio.
 
 It is remarkable that out-of-sample, although not always,
-for certain quite desired portfolio compositions and
+for certain quite desirable portfolio compositions and
 under rather common market conditions, the *inverse-N* portfolio tends to
 outperform the *InvNrisk*. The reasons behind this odd behavior are still
 under debate among the specialists in the field.
@@ -131,9 +135,9 @@ excess return per unit or risk.
 
 
 For all dispersion measures mentioned above, the **azapy** package offers
-the following portfolio optimization strategies.
+the following portfolio optimization strategies:
 
-1. *Minimization of the risk given fixed expected rate of returns*. This is
+1. *Minimization of the risk given a fixed expected rate of returns*. This is
 the most common portfolio optimization strategy.  It requires the user to
 input the desired value of the expected rate of returns. This value must be
 between the expected rate of returns of the efficient portfolio with minimum
@@ -176,34 +180,32 @@ point along the *efficient frontier*. For $\lambda=+\infty$ the optimal
 portfolio is the *Minimum Risk portfolio*, the most left point on the
 *efficient frontier*. Any other value for $\lambda$ will lead to an
 optimal portfolio along the *efficient frontier*. In general it is
-difficult if not impossible for an investor to specify a rational value
-for *risk aversion* factor. The same value of $\lambda$ leads
+not intuitive for an investor to specify a rational value
+for the *risk aversion* factor. The same value of $\lambda$ may lead
 to different portfolio compositions under different dispersion
 measures and market conditions. Therefore, a direct engagement of  
 this strategy, by specifying a desired value for $\lambda$, may not
 be advisable. However, this strategy may be useful if it is combined
-with a strategy for finding the value of *risk aversion* factor based on
-market conditions (*e.g.* technical analysis, etc.). We are looking forward
-to implement some techniques in estimating the risk aversion. For now
-the user needs to specify a concreate value for $\lambda$ in order to trigger
-this optimization. In the code this optimization is designated by setting
+with a strategy to estimate the value of *risk aversion* factor based on
+market conditions (*e.g.* technical analysis, etc.).
+In the code this optimization is designated by setting
 ``rtype='RiskAverse'``.
 
 
-*azapy* package covers, 9 risk-based dispersion measures $\times$ 6 optimization
+**azapy** package covers, 9 risk-based dispersion measures $\times$ 6 optimization
 strategies, in total 54 risk-based portfolio optimization strategies.
 
 The natural question that arises here is: which one is the best?
 
-There is no absolute answer to this question and so there is not
-substitute to our personal research. To this end, *azapy* package
+There is no absolute answer to this question and so there is no
+substitute to our personal research. To this end, **azapy** package
 provides the necessary
 analytical tools to perform a quiet comprehensive quantitative portfolio
 analysis.
 
 ![OutOfSample](../graphics/Portfolio_1.png)
 
-_Fig 3. Example of portfolio back testing._
+_Fig 3. Example of out-of-sample (back testing) portfolio performance._
 
 An out-of-sample analysis, also called back testing or historical simulation,
 can be performed for any of the implemented portfolio
@@ -222,12 +224,12 @@ in a collection of Jupyter notebooks and Python scripts.
 They can be used as a source of inspiration for further research.
 
 Once we have decided for a portfolio composition and optimization strategy,
-*azapy* can help with portfolio maintenance. It can proved comprehensive
+**azapy** can help with portfolio maintenance. It can proved comprehensive
 information regarding the prevailing portfolio weights, number of shares,
 delta positions and cash flow at rebalancing time.
 An example is provided in a Jupyter notebook.
 
-*azapy* package has its own facility to collect market data from
+**azapy** package has its own facility to collect market data from
 **alphavantage** provider.[^alphavantage]
 
 
@@ -254,7 +256,7 @@ An example is provided in a Jupyter notebook.
 [^sharpe]: The concept of Sharpe ratio was introduced 1966 by William F. Sharpe.
 In the original definition $\rho$ is the portfolio volatility $\sigma$.
 In our presentation we use a generalization of Sharpe ratio where the
-standard deviation from the denominator is replaced by the dispersion
+volatility is replaced by the prevailing dispersion
 measure.
 
-[^alphavantage]: Requires a valid API key from alphavantage.co
+[^alphavantage]: Requires a valid API key from *alphavantage.co*

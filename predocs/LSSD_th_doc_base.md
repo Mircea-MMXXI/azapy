@@ -5,7 +5,7 @@ $\def\cK{{\cal K}}$
 # LSSD optimal portfolio <a name="TOP"></a>
 
 LSSD stands for *Lower Semi-Standard Deviation*.
-*azapy* implements a generalization of LSSD, namely the Mixture LSSD or mLSSD.
+*azapy* implements a generalization of LSSD, namely the Mixture LSSD (mLSSD).
 
 mLSSD is a superposition of recursive high order LSSD measures.
 The single LSSD measure can be viewed as a particular case of mLSSD.
@@ -27,5 +27,5 @@ where:
 There are 2 support classes:
 
 * **LSSDAnalyzer** : computes the portfolio weights and performs in-sample
-analysis.
+analysis,
 * **Port_LSSD** : performs portfolio back testing, out-of-sample analyzes.

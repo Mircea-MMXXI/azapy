@@ -40,33 +40,33 @@ MADAnalyzer(coef=[1.], mktdata=None, colname='adjusted', freq='Q',
 
 where:
 
-  * `coef` : List of non-negative (`>=0`) coefficients with at least one
-  element positive (`>0`). The highest order non zero element defines the
-  highest mMAD order. The default is `[1.]`.
-  * `mktdata` : `pd.DataFrame` containing the market data in the format returned by
-  the function `azapy.readMkT`. The default is `None`. mktdata could be loaded
-  latter.
-  * ``colname`` : Name of the price column from `mktdata` used in the weights
-  calibration. The default is `'adjusted'`.
-  * `freq` : Rate of returns horizon (portfolio rebalancing period).
-  It could be `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
-  * `hlength` : History length in number of years used for calibration.
-  A fractional number will be rounded to an integer number of months.
-  The default is `3.25` (years).
-  * `calendar` :  Business days calendar, `np.busdaycalendar`. If is it `None`
-  then the calendar will be set internally to NYSE business calendar.
-  The default is `None`.
-  * `rtype` : optimization type. The default is `'Sharpe'`. Possible values:
-      - `'Risk'` : minimization of dispersion (risk) measure.
-      - `'Sharpe'` : maximization of generalized Sharpe ratio.
-      - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value.
-      - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
-  		as equally weighted portfolio.
-      - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
-  * `method` : Designates the linear programming numerical method.
-  It could be one of: `'ecos',
-  'highs-ds', 'highs-ipm', 'highs', 'interior-point', 'glpk'` and `'cvxopt'`.
-  The default is `'ecos'`.
+* `coef` : List of non-negative (`>=0`) coefficients with at least one
+element positive (`>0`). The highest order non zero element defines the
+highest mMAD order. The default is `[1.]`.
+* `mktdata` : `pd.DataFrame` containing the market data in the format returned by
+the function `azapy.readMkT`. The default is `None`. mktdata could be loaded
+latter.
+* ``colname`` : Name of the price column from `mktdata` used in the weights
+calibration. The default is `'adjusted'`.
+* `freq` : Rate of returns horizon (portfolio rebalancing period).
+It could be `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
+* `hlength` : History length in number of years used for calibration.
+A fractional number will be rounded to an integer number of months.
+The default is `3.25` (years).
+* `calendar` :  Business days calendar, `np.busdaycalendar`. If is it `None`
+then the calendar will be set internally to NYSE business calendar.
+The default is `None`.
+* `rtype` : optimization type. The default is `'Sharpe'`. Possible values:
+    - `'Risk'` : minimization of dispersion (risk) measure.
+    - `'Sharpe'` : maximization of generalized Sharpe ratio.
+    - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value.
+    - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
+		as equally weighted portfolio.
+    - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
+* `method` : Designates the linear programming numerical method.
+It could be one of: `'ecos',
+'highs-ds', 'highs-ipm', 'highs', 'interior-point', 'glpk'` and `'cvxopt'`.
+The default is `'ecos'`.
 
   > Note:
   >	* `'ecos'` : is LP implementation from __ecos__ _(Embedded Cone Solver)_
@@ -79,7 +79,7 @@ where:
   interface to chose between the two methods based on the computational speed.
   `'interior-point'` is the default __SciPy__ LP algorithm. In our cases it
   proves to be the slowest.
-  > * `'cvxopt'` : is the LP implantation from __CVXOPT__ package.
+  > * `'cvxopt'` : is the LP implantation from __cvxopt__ package.
   > * `'glpk'` : is the GLPK LP implementation.
 
   > In our cases `'ecos'` and `'hight-ds'` provides the fastest computations.

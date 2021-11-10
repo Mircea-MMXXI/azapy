@@ -5,8 +5,8 @@ from .MADAnalyzer import MADAnalyzer
 
 class Port_MAD(Port_CVaR):
     """
-    Backtesting the MAD optimal portfolio periodically rebalanced.
-    
+    Back testing the MAD optimal portfolio periodically rebalanced.
+
     Methods:
         * set_model
         * get_port
@@ -21,8 +21,8 @@ class Port_MAD(Port_CVaR):
         * port_annual_returns
         * port_monthly_returns
         * port_period_returns
-    """    
-    def set_model(self, mu, coef=[1.], rtype='Sharpe', hlength=3.25, 
+    """
+    def set_model(self, mu, coef=[1.], rtype='Sharpe', hlength=3.25,
                   method='ecos'):
         """
         Set model parameters and evaluates portfolio time-series.
@@ -39,19 +39,19 @@ class Port_MAD(Port_CVaR):
             The coefficients values. The default is [1.].
         rtype : string, optional
             Type of optimization. It could take the values:\n
-                "Sharpe" - C-Sharpe optimal portfolio \n
-                "Risk" - CVaR optimal portfolio \n
-                "MinRisk" - Minimum CVaR optimal portfolio \n
-                "InvNrisk" - optimal portfolio with same CVaR as the equally 
+                "Sharpe" - Sharpe optimal portfolio \n
+                "Risk" - risk optimal portfolio \n
+                "MinRisk" - Minimum risk optimal portfolio \n
+                "InvNrisk" - optimal portfolio with same risk as the equally
                 weighted portfolio. \n
                 The default is 'Sharpe'.
         hlength : float, optional
-            The length in year of the historical calibration period relative 
-            to 'Dfix'. A fractional number will be rounded to an integer number 
-            of months. The default is 3.25.
+            The length in year of the historical calibration period relative
+            to 'Dfix'. A fractional number will be rounded to an integer number
+            of months. The default is 3.25 years.
         method : string, optional
-            Linear programming numerical method. 
-            Could be one of 'ecos', 'highs-ds', 'highs-ipm', 'highs', 
+            Linear programming numerical method.
+            Could be one of 'ecos', 'highs-ds', 'highs-ipm', 'highs',
             'interior-point', 'glpk' and 'cvxopt'.
             The defualt is 'ecos'.
 
@@ -60,9 +60,9 @@ class Port_MAD(Port_CVaR):
         pd.DataFrame
             The portfolio time-series in the format "date", "pcolname".
         """
-        return super().set_model(mu=mu, coef=coef, rtype=rtype, 
+        return super().set_model(mu=mu, coef=coef, rtype=rtype,
                                  hlength=hlength)
-    
+
     def _set_alpha(self, alpha, coef):
         # ignore alpha
         coef = np.trim_zeros(np.array(coef), trim='b')
@@ -72,7 +72,7 @@ class Port_MAD(Port_CVaR):
         if ssc <= 0.:
             raise ValueError("at least one coef must be > 0")
         self.coef = coef / ssc
-        
+
     def _wwgen(self):
-        return MADAnalyzer(coef=self.coef, rtype=self.rtype, 
+        return MADAnalyzer(coef=self.coef, rtype=self.rtype,
                            method=self.method)

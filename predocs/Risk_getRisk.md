@@ -1,5 +1,5 @@
 
-<a name="getRisk">
+<a name="getRisk"></a>
 
 #### <span style="color:green">getRsik</span>
 
@@ -10,7 +10,7 @@ Computes the risk of a portfolio defined by a set of weights.
 getRisk(ww, rrate=None)
 ```
 
-*Input:*
+*Inputs:*
 
 * `ww` : List like of portfolio weights. Its length must be equal to the
 number of symbols in `rrate` (`mktdata`). All weights must by `>0`. If it

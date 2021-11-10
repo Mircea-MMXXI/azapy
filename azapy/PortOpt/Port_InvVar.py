@@ -2,7 +2,7 @@ from .Port_InvVol import Port_InvVol
 
 class Port_InvVar(Port_InvVol):
     """
-    Backtesting portfolio with weights proportional to the inverse of component 
+    Back testing portfolio with weights proportional to the inverse of component 
     variances, periodically rebalanced.
     
     Methods:

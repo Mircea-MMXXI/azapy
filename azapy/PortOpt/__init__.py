@@ -7,7 +7,6 @@ from .MVAnalyzer import *
 from .SDAnalyzer import *
 from .OmegaAnalyzer import *
 from .LSSDAnalyzer import *
-
 from .KellyEngine import *
 
 from .Port_Simple import *
@@ -25,5 +24,4 @@ from .Port_SD import *
 from .Port_Omega import *
 from .Port_SMCR import *
 from .Port_LSSD import *
-
 from .Port_Kelly import *

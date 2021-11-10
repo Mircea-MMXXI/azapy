@@ -3,7 +3,7 @@ from .LSSDAnalyzer import LSSDAnalyzer
 
 class Port_LSSD(Port_MAD):
     """
-    Backtesting the LSSD optimal portfolio periodically rebalanced.
+    Back testing the LSSD optimal portfolio periodically rebalanced.
     
     Methods:
         * set_model

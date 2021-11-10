@@ -1,5 +1,5 @@
 
-<a name="viewFrontiers">
+<a name="viewFrontiers"></a>
 
 #### <span style="color:green">viewFrontiers</span>
 
@@ -12,7 +12,7 @@ viewFrontiers(efficient=20, inefficient=20, musharpe=0.,
               fig_type='RR_risk', options=None, saveto=None,
               data=None)
 ```
-*Input:*
+*Inputs:*
 * `efficient` : Number of points along the optimal frontier (equally spaced
 	 along the rate of returns axis). The default is `20`.
 * `inefficient` : Number of points along the inefficient frontier (equally
@@ -28,8 +28,8 @@ evaluate and added to the plot for reference. The default is `20`.
 the optimal portfolio with the same dispersion (risk) value are evaluated and
 added to the plot. The default is `True`.
 * `fig_type` : Graphical representation format. If it is set to `'RR_risk'`
-the data is plotted in the rate of return vs dispersion representation,
-otherwise the Sharpe vs rate of return will be used. The default is
+the data is plotted in the risk vs rate of return representation,
+otherwise the rate of return vs Sharpe will be used. The default is
 `'RR_risk'`.
 * `options` : A dictionary with additional graphical setups. Relevant keys
 are:

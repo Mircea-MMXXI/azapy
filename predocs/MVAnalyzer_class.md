@@ -42,20 +42,21 @@ where:
 * `mktdata` : `pd.DataFrame` containing the market data in the format returned by
 the function `azapy.readMkT`. The default is `None`. mktdata could be loaded
 latter.
-* ``colname`` : Name of the price column from `mktdata` used in the weights
+* `colname` : Name of the price column from `mktdata` used in the weights
 calibration. The default is `'adjusted'`.
 * `freq` : Rate of returns horizon (portfolio rebalancing period).
 It could be `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
 * `hlength` : History length in number of years used for calibration.
 A fractional number will be rounded to an integer number of months.
-The default is `3.25` (years).
+The default is `3.25` years.
 * `calendar` :  Business days calendar, `np.busdaycalendar`. If is it `None`
-then the calendar will be set internally to NYSE business calendar.
+then the calendar will be set to NYSE business calendar.
 The default is `None`.
-* `rtype` : optimization type. The default is `'Sharpe'`. Possible values:
-    - `'Risk'` : minimization of dispersion (risk) measure.
-    - `'Sharpe'` : maximization of generalized Sharpe ratio.
-    - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value.
+* `rtype` : optimization type. The default is `'Sharpe'`. Possible values are:
+    - `'Risk'` : minimization of dispersion (risk) measure for a fixed values
+    of portfolio expected rate of return,
+    - `'Sharpe'` : maximization of generalized Sharpe ratio,
+    - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value,
     - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
 		as equally weighted portfolio.
     - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
@@ -65,7 +66,7 @@ The default is `'ecos'`.
 
 >Note: **ecos** dose not provide a python explicit interface to a
 QP *(Quadratic Programming)* solver. However, any QP problem can be transformed
-into a SCOP *(Second Order Cone Programming)* problem. **CVXOPT** provides
+into a SOCP *(Second Order Cone Programming)* problem. **cvxopt** provides
 its own interface to a QP solver.
 
 

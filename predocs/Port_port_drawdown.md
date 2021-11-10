@@ -1,5 +1,5 @@
 
-<a name="port_drawdown">
+<a name="port_drawdown"></a>
 
 #### <span style="color:green">port_drawdown</span>
 
@@ -11,7 +11,7 @@ Computes the portfolio drawdowns.
 port_drawdown(top=5, fancy=False)
 ```
 
-*Input:*
+*Inputs:*
 
 * `top` :
 The number of largest drawdown that will be reported.
@@ -23,9 +23,9 @@ The default is `5`.
 
 *Returns:* `pd.DataFrame` containing the table of
 drawdown events. Columns:
-* `'DD'` : drawdown rate
-* `'Date'` : recorded date of the drawdown
-* `'Star'` : start date of the drawdown
+* `'DD'` : drawdown rate,
+* `'Date'` : recorded date of the drawdown,
+* `'Star'` : start date of the drawdown,
 * `'End'` : end date of the drawdown. A `NaN` value indicates that the
 drawdown event is in progress and the value of `'DD'` and `'Date'` are
 provisional only.

@@ -5,10 +5,10 @@ with open("README.md", "r", encoding="utf-8") as readme:
 
 setuptools.setup(
     name="azapy",
-    version="0.1.0",
+    version="1.0.0",
     author="Mircea Marinescu",
-    author_email="mircea01012004@hotmail.com",
-    description="Finanical portfolio optimization algorithms",
+    author_email="mircea.marinescu@outlook.com",
+    description="Financial portfolio optimization algorithms",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="",

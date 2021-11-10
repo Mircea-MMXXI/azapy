@@ -60,18 +60,18 @@ The default is `None`.
     - `'Sharpe'` : maximization of generalized Sharpe ratio.
     - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value.
     - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
-    as equally weighted portfolio.
+		as equally weighted portfolio.
     - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
-    * `method` : Designates the SOCP numerical method.
-    It could be ``'ecos'`` or ``'cvxopt'``.
-    The default is `'ecos'`.
+* `method` : Designates the SOCP numerical method.
+It could be ``'ecos'`` or ``'cvxopt'``.
+The default is `'ecos'`.
 
-    > Note:
-    >	* ``'ecos'`` : is SOCP implementation of **ecos** *(Embedded Cone Solver)*
-    package.
-    > * ``'cvxopt'`` : is the SOCP implantation from **CVXOPT** package.
+> Note:
+>	* ``'ecos'`` : is SOCP implementation of **ecos** *(Embedded Cone Solver)*
+package.
+> * ``'cvxopt'`` : is the SOCP implantation from **cvxopt** package.
 
-    > In our cases `'ecos'` is faster than `'cvxopt'`.
+> In our cases `'ecos'` is faster than `'cvxopt'`.
 
 [TOP](#TOP)
 

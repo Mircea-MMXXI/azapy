@@ -1,5 +1,5 @@
 
-<a name="port_monthly_returns">
+<a name="port_monthly_returns"></a>
 
 #### <span style="color:green">port_monthly_returns</span>
 
@@ -12,7 +12,7 @@ returns.
 port_monthly_returns(withcomp=False, componly=False, fancy=False)
 ```
 
-*Input:*
+*Inputs:*
 
 * `withcomp` : Boolean flag.
 If `True`, adds the portfolio components monthly returns to the

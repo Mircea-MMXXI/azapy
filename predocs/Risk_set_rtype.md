@@ -1,5 +1,5 @@
 
-<a name="set_rtype">
+<a name="set_rtype"></a>
 
 #### <span style="color:green">set_rtype</span>
 
@@ -12,7 +12,7 @@ constructor.
 set_rtype(rtype)
 ```
 
-*Input:*
+*Inputs:*
 
 * `rtype` : Optimization type.
 

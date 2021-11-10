@@ -1,5 +1,5 @@
 
-<a name="port_view">
+<a name="port_view"></a>
 
 #### <span style="color:green">port_view</span>
 
@@ -12,7 +12,7 @@ indicators.
 port_view(emas=[30, 200], bollinger=False, fancy=False, saveto=None)
 ```
 
-*Input:*
+*Inputs:*
 
 * `emas` :
 List for EMA durations. The default is ``[30, 200]``.

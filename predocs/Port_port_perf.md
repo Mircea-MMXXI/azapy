@@ -1,5 +1,5 @@
 
-<a name="port_perf">
+<a name="port_perf"></a>
 
 #### <span style="color:green">port_perf</span>
 
@@ -12,7 +12,7 @@ in terms of average historical rate of returns and maximum drawdowns.
 port_perf(componly=False, fancy=False)
 ```
 
-*Input:*
+*Inputs:*
 
 * `componly` : Boolean flag.
 If `True`, only the portfolio components information is reported.
@@ -27,7 +27,7 @@ performance information. Columns:
 * `'RR'` : annual average rate of returns,
 * `'DD'` : maximum rate of drawdown during the simulation period,
 * `'Beta'` : `abs(RR/DD)`,
-* `'DD_date'` : recorder date of maximum drawdown,
+* `'DD_date'` : recorded date of maximum drawdown,
 * `'DD_start'` : start date of maximum drawdown,
 * `'DD_end'` : end date of maximum drawdown.
 
