@@ -7,7 +7,7 @@ sdate = pd.to_datetime('2015-01-01')
 edate = pd.to_datetime('2020-12-31')
 
 sims = az.schedule_simple(sdate=sdate, edate=edate)
-print(f"simple schedule\n {sims}")
+print(f"simple schedule\n{sims}")
 
 srol = az.schedule_roll(sdate=sdate, edate=edate)
-print(f"roll schedule\n {srol}")
+print(f"roll schedule\n{srol}")

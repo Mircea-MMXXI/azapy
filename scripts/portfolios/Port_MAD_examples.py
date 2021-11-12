@@ -10,7 +10,7 @@ sdate = pd.to_datetime("2012-01-01")
 edate = pd.to_datetime('today')
 symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
 
-mktdir = "./MkTdata"
+mktdir = "../../MkTdata"
 
 # force=True read from alphavantage server
 # force=False read from local directory if data exists
@@ -24,7 +24,7 @@ coef = coef / coef.sum()
 
 #=============================================================================
 # Compute MAD-Sharpe optimal portfolio
-p4 = az.Port_MAD(mktdata) 
+p4 = az.Port_MAD(mktdata, pname='MADPort') 
  
 import time
 tic = time.perf_counter()
@@ -47,7 +47,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
         
 # Test using the Port_Rebalanced weights schedule ww (from above)
-p2 = az.Port_Rebalanced(mktdata)
+p2 = az.Port_Rebalanced(mktdata, pname='TestPort')
 port2  = p2.set_model(ww)     
 
 # Compare - must be identical

@@ -9,7 +9,7 @@ sdate = pd.to_datetime("2012-01-01")
 edate = pd.to_datetime('today')
 symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 
-mktdir = "./MkTdata"
+mktdir = "../../MkTdata"
 
 # force=True read from alphavantage server
 # force=False read from local directory if data exists
@@ -63,7 +63,7 @@ print(f"Test for weights computation\n {ww_comp}")
 print("\nFrontiers evaluations\n")
 opt ={'title': "Omega Port", 'tangent': True}
 print("\n rate of returns vs risk representation")
-rft = cr1.viewFrontiers(musharpe=0, randomport=1, options=opt)
+rft = cr1.viewFrontiers(musharpe=0, randomport=100, options=opt)
 print("\n Sharpe vs rate of returns representation")
 rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR')
 
