@@ -6,8 +6,7 @@
 Welcome to **azapy**
 ====================
 
-Python library to perform analyzes and maintenance computations for portfolios
-of financial assets.
+Python library - Finical portfolios performance analysis.
 
 It provides support for a large spectrum of portfolio optimization techniques.
 Performs *in* and *out-of* sample portfolio analysis.
@@ -52,6 +51,17 @@ Greedy portfolios
 
    Greedy_intro
    Kelly_th_doc
+
+
+Utility functions
+=================
+
+.. toctree::
+  :maxdepth: 1
+
+  Util_readMkT
+  Util_summary_MkTData
+  Util_NYSEgen
 
 
 Indices and tables

@@ -5,13 +5,12 @@ Contains two functions
 - readMkT : read historic market data from alphavantge
 """
 
-import pandas as pd
-import pandas_datareader as web
-from datetime import datetime, date
 import time
 import os
 import pathlib
 import numpy as np
+import pandas as pd
+import pandas_datareader as web
 import pandas_market_calendars as mcal
 
 def NYSEgen(sdate = np.datetime64('1980-01-01'),
@@ -46,21 +45,22 @@ def NYSEgen(sdate = np.datetime64('1980-01-01'),
     hdates = hdates[(hdates >= sdate) & ( hdates <= edate)]
     return np.busdaycalendar(holidays=hdates)
 
-def readMkT(symbols, dstart=datetime(2012, 1, 1), dend=date.today(), 
+def readMkT(symbols, 
+            dstart=np.datetime64('2012-01-01'), dend=np.datetime64('today'),
             force=False, verbose=True, dir='outData', save=True,
             api_key=None, maxsymbs=5, adj_split=True, out_dict=False):
     """
     Read historic market data from alphavantage servers or from the local disk.
-    Historic market data is collected between ``dstart`` and ``dend`` dates.
+    Historic market data is collected between `dstart` and `dend` dates.
 
     Parameters
     ----------
     symbols : list
         List of stock symbols.
     dstart : datetime, optional
-        Start date. The default is np.datetime64('2050-12-31').
+        Start date. The default is np.datetime64('2012-01-01').
     dend : datetime, optional
-        End date. The default is date.today().
+        End date. The default is np.datetime64('today').
     force : boolean, optional
         - True: market data will be read from alphavantage.
         - False: it attempts to read the market data from the disk. If it
@@ -81,11 +81,11 @@ def readMkT(symbols, dstart=datetime(2012, 1, 1), dend=date.today(),
         
         The default is True.
     api_key : string, optional
-        Valid alphavantage key. If is set to ``None`` then the key will be read
+        Valid alphavantage key. If is set to `None` then the key will be read
         from environment variable 'ALPHAVANTAGE_API_KEY'.
-        The default is ``None``.
+        The default is `None`.
     maxsymbs : int, optional
-        Maximum number of symbol that can be read per minute. Should match 
+        Maximum number of symbols that can be read per minute. Should match 
         alphavantage account limits. After the maxsymbs is reached the program 
         will sleep for 1 min before resuming reading more data. 
         The default is 5.
@@ -97,7 +97,7 @@ def readMkT(symbols, dstart=datetime(2012, 1, 1), dend=date.today(),
     out_dict : boolean, optional
         Choose the output format:
             
-        - True: a pandas.DataFrame with columns: "symbol", "date", "open",
+        - True: a dp.DataFrame with columns: "symbol", "date", "open",
         "high", "low", "close", "volume", "adjusted", "divd", "split".
         
         - False: a dictoanry where the keys are the symbols and the items are
@@ -108,8 +108,8 @@ def readMkT(symbols, dstart=datetime(2012, 1, 1), dend=date.today(),
 
     Returns
     -------
-    pandas.DataFrame or a dictionary of pandas.DataFrame, according with the 
-    value of ``out_dict``.
+    pd.DataFrame or a dictionary of pd.DataFrame, according with the 
+    value of `out_dict`.
     """
     if save: pathlib.Path(dir).mkdir(parents=True, exist_ok=True) 
     rkod = 1

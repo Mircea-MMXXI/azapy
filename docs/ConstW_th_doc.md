@@ -2,9 +2,27 @@
 # Constant weights portfolio <a name="TOP"></a>
 Portfolio with constant weights periodically rebalanced.
 
-A remarkable member of this class of portfolios is the
-Portfolio with equal weights. It serves as a very important benchmark
-for back testing other more sophisticated portfolio strategies.   
+A remarkable member of this class is _equal weighted portfolio_.
+It is a very important benchmark to assess a portfolio performance.
+
+Relative to a risk based optimal portfolio, the equal weighted portfolio
+is always inefficient. It means that in-sample there is always an efficient
+portfolio that has the same risk profile but a higher expected
+rate of returns than the equal weighted portfolio.
+However, out-of-sample the equal weighted portfolio
+may outperform this efficient portfolio.
+This odd effect occurs for many reasonable portfolio compositions under
+rather normal market conditions. Therefor it is always advisable to compare
+the performance of a portfolio optimization strategy with the performance of
+equal weighted portfolio. An example of a portfolio strategies comparison is
+presented in a Jupyter note.
+
+>Note: _Constant weights_ should not be confused with _constant number_ of shares.
+>Constant number of shares leads to a Buy and Hold type of portfolio, where
+>the number of shares on each portfolio component is kept constant during the
+>life of the investment. 
+>A portfolio with constant weights assumes that the fraction of capital invested
+>in each portfolio component is constant after each rebalancing event.
 
 
 There is 1 support class:
@@ -13,7 +31,8 @@ There is 1 support class:
 
 ## Port_ConstW class
 
-Back testing (historical simulation) of  portfolio with constant weights
+
+Out-of-Sample (back testing) simulation of portfolio with constant weights
 periodically rebalanced.
 
 
@@ -48,59 +67,59 @@ Port_ConstW(mktdata, symb=None, sdate=None, edate=None, col_price='close',
 where:
 
 * `mktdata` : `pd.DataFrame`;
-market data in the format ``"symbol"``, ``"date"``, ``"open"``, ``"high"``,
-``"low"``, ``"close"``, ``"volume`"``, ``"adjusted"``, ``"divd"``, ``"split"``
+Market data in the format `"symbol"`, `"date"`, `"open"`, `"high"`,
+`"low"`, `"close"`, `"volume"`, `"adjusted"`, `"divd"`, `"split"`
 (e.g. as returned by `azapy.readMkT`).
 * `symb` :
-List of symbols for the basket components. All symbols
+List of symbols of portfolio components. All symbols
 should be present in `mktdata`. If set to `None` the `symb` will be
 set to the full set of symbols present in `mktdata`. The default
 is `None`.
 * `sdate` : `datetime`;
-Start date for historical data. If set to `None` the `sdate` will
+Start date for historical simulation. If set to `None` the `sdate` will
 be set to the earliest date in `mktdata`. The default is `None`.
-* `edate` : datetime;
-End date for historical dates and so the simulation. Must be
+* `edate` : `datetime`;
+End date for historical simulation. Must be
 greater than  `sdate`. If it is `None` then `edate` will be set
 to the latest date in `mktdata`. The default is `None`.
-* `col_price` :
+* `col_price` : `string`;
 Column name in the `mktdata` DataFrame that will be considered
-for portfolio aggregation. The default is ``'close'``.
-* `col_divd` :
+for portfolio aggregation. The default is `'close'`.
+* `col_divd` : `string`;
 Column name in the `mktdata` DataFrame that holds the dividend
-information. The default is ``'dvid'``.
-* `col_ref` :
+information. The default is `'dvid'`.
+* `col_ref` : `string`;
 Column name in the `mktdata` DataFrame that will be used as a price
 reference for portfolio components (used for various comparisons and graphs).
-The default is ``'adjusted'``.
-* `col_calib` :
+The default is `'adjusted'`.
+* `col_calib` : `string`;
 Column name used for historical weights calibrations. The default is
-``'adjusted'``.
-* `pname` :
-The name of the portfolio. The default is ``'Port'``.
-* `pcolname` :
+`'adjusted'`.
+* `pname` : `string`;
+The name of the portfolio. The default is `'Port'`.
+* `pcolname` : `string`;
 Name of the portfolio price column. If it is set to `None` than
 `pcolname=pname`. The default is `None`.
-* `capital` :
+* `capital` : `float`;
 Initial portfolio Capital in dollars. The default is `100000`.
 * `schedule` : `pd.DataFrame`;
-Rebalancing schedule, with columns for ``'Droll'`` rolling date and
-``'Dfix'`` fixing date. If it is `None` than the schedule will be set
+Rebalancing schedule, with columns for `'Droll'` rolling date and
+`'Dfix'` fixing date. If it is `None` than the schedule will be set
 using the `freq`, `nsoffset`, `fixoffset`, `hlength` and `calendar`
 information. The default is `None`.
-* `freq` :
-Rebalancing frequency. It can be ``'Q'`` for quarterly or ``'M'`` for
-monthly rebalancing, respectively. It is relevant only if schedule
-is `None`. The default is ``'Q'``.
-* `noffset` :
-Number of business days offset for rebalancing date ``'Droll'``
+* `freq` : `string`;
+Rebalancing frequency. It can be `'Q'` for quarterly or `'M'` for
+monthly rebalancing. It is relevant only if schedule
+is `None`. The default is `'Q'`.
+* `noffset` : `int`;
+Number of business days offset for rebalancing date `'Droll'`
 relative to the end of the period (quart or month). A positive
 value add business days beyond the calendar end of the period while
 a negative value subtract business days. It is relevant only if
 `schedule` is `None`. The default is `-3`.
-* `fixoffset` :
-Number of business day offset of fixing date ``'Dfix'`` relative to
-the rebalancing date ``'Droll'``. It cane be `0` or negative. It is
+* `fixoffset` : `int`;
+Number of business days offset of fixing date `'Dfix'` relative to
+the rebalancing date `'Droll'`. It cane be `0` or negative. It is
 relevant only if `schedule` is `None`. The default is `-1`.
 * `calendar` : `np.busdaycalendar`;
 Business calendar. If it is `None` then it will be set to NYSE
@@ -110,7 +129,7 @@ business calendar. The default is `None`.
 
 ### Methods:
 
-<a name="set_model">
+<a name="set_model"></a>
 
 #### <span style="color:green">set_model</span>
 
@@ -124,14 +143,15 @@ It must be called before any other class method.
 set_model(ww=None)
 ```
 
-*Input:*
+*Inputs:*
 
 * `ww` :
 List like weights, `len(ww)` must be equal to
 `len(symb)`. If `ww` is a `pd.Series`
 the index should match the portfolio symbols, `symb`
 Otherwise the weights are considered in the  `symb`
-order. If it is set to `None` than `ww` will be set to equal weights.
+order. If it is `None` than `ww` will be set to equal weights,
+`ww = [1 / len(symb)] * len(symb)`.
 The default is `None`.
 
 *Returns:* `pd.DataFrame` containing the portfolio time-series in the format
@@ -141,7 +161,7 @@ The default is `None`.
 
 ---
 
-<a name="port_view">
+<a name="port_view"></a>
 
 #### <span style="color:green">port_view</span>
 
@@ -154,7 +174,7 @@ indicators.
 port_view(emas=[30, 200], bollinger=False, fancy=False, saveto=None)
 ```
 
-*Input:*
+*Inputs:*
 
 * `emas` :
 List for EMA durations. The default is ``[30, 200]``.
@@ -175,7 +195,7 @@ documentation for `savefig`. The default is `None`.
 
 ---
 
-<a name="port_view_all">
+<a name="port_view_all"></a>
 
 #### <span style="color:green">port_view_all</span>
 
@@ -189,7 +209,7 @@ The components time series prices are designated by the value of
 port_view_all(sdate=None, edate=None, componly=False, fancy=False, saveto=None)
 ```
 
-*Input:*
+*Inputs:*
 
 * `sdate` : `datetime`;
 Start date of plotted time-series. If it is set to `None`
@@ -215,7 +235,7 @@ documentation for `savefig`.The default is `None`.
 
 ---
 
-<a name="port_drawdown">
+<a name="port_drawdown"></a>
 
 #### <span style="color:green">port_drawdown</span>
 
@@ -227,7 +247,7 @@ Computes the portfolio drawdowns.
 port_drawdown(top=5, fancy=False)
 ```
 
-*Input:*
+*Inputs:*
 
 * `top` :
 The number of largest drawdown that will be reported.
@@ -239,9 +259,9 @@ The default is `5`.
 
 *Returns:* `pd.DataFrame` containing the table of
 drawdown events. Columns:
-* `'DD'` : drawdown rate
-* `'Date'` : recorded date of the drawdown
-* `'Star'` : start date of the drawdown
+* `'DD'` : drawdown rate,
+* `'Date'` : recorded date of the drawdown,
+* `'Star'` : start date of the drawdown,
 * `'End'` : end date of the drawdown. A `NaN` value indicates that the
 drawdown event is in progress and the value of `'DD'` and `'Date'` are
 provisional only.
@@ -250,7 +270,7 @@ provisional only.
 
 ---
 
-<a name="port_perf">
+<a name="port_perf"></a>
 
 #### <span style="color:green">port_perf</span>
 
@@ -263,7 +283,7 @@ in terms of average historical rate of returns and maximum drawdowns.
 port_perf(componly=False, fancy=False)
 ```
 
-*Input:*
+*Inputs:*
 
 * `componly` : Boolean flag.
 If `True`, only the portfolio components information is reported.
@@ -278,7 +298,7 @@ performance information. Columns:
 * `'RR'` : annual average rate of returns,
 * `'DD'` : maximum rate of drawdown during the simulation period,
 * `'Beta'` : `abs(RR/DD)`,
-* `'DD_date'` : recorder date of maximum drawdown,
+* `'DD_date'` : recorded date of maximum drawdown,
 * `'DD_start'` : start date of maximum drawdown,
 * `'DD_end'` : end date of maximum drawdown.
 
@@ -286,7 +306,7 @@ performance information. Columns:
 
 ---
 
-<a name="port_annual_returns">
+<a name="port_annual_returns"></a>
 
 #### <span style="color:green">port_annual_returns</span>
 
@@ -300,7 +320,7 @@ the value of `col_ref` argument in the constructor.
 port_annual_returns(withcomp=False, componly=False, fancy=False)
 ```
 
-*Input:*
+*Inputs:*
 
 * `withcomp` : Boolean flag.
 If `True`, adds the portfolio components annual returns to the
@@ -319,7 +339,7 @@ are reported. The default is `False`.
 
 ---
 
-<a name="port_monthly_returns">
+<a name="port_monthly_returns"></a>
 
 #### <span style="color:green">port_monthly_returns</span>
 
@@ -332,7 +352,7 @@ returns.
 port_monthly_returns(withcomp=False, componly=False, fancy=False)
 ```
 
-*Input:*
+*Inputs:*
 
 * `withcomp` : Boolean flag.
 If `True`, adds the portfolio components monthly returns to the
@@ -351,7 +371,7 @@ are reported. The default is `False`.
 
 ---
 
-<a name="port_period_returns">
+<a name="port_period_returns"></a>
 
 #### <span style="color:green">port_period_returns</span>
 
@@ -363,7 +383,7 @@ Computes the rolling periods rate of returns.
 port_period_returns(fancy=False)
 ```
 
-*Input:*
+*Inputs:*
 
 * `fancy` : Boolean flag with default value `False`.
     - `False` : The values are reported in unaltered algebraic format.
@@ -373,13 +393,14 @@ port_period_returns(fancy=False)
 *Returns:* `pd.DataFrame`
 
 Each rolling period is indicated by its start date, `Droll`.
-The values of `Dfix` and components weights are included in the report.
+For reference, the values of `Dfix` and components weights are
+included in the report.
 
 [TOP](#TOP)
 
 ---
 
-<a name="get_nshares">
+<a name="get_nshares"></a>
 
 #### <span style="color:green">get_nshares</span>
 
@@ -391,7 +412,7 @@ Returns the number of shares hold after each rolling date.
 get_nshares()
 ```
 
-*Input:* None
+*Inputs:* None
 
 
 *Returns:* `pd.DataFrame`
@@ -403,7 +424,7 @@ Each rolling period is indicated by its start date, `Droll`.
 
 ---
 
-<a name="get_account">
+<a name="get_account"></a>
 
 #### <span style="color:green">get_account</span>
 
@@ -417,7 +438,7 @@ previous period dividend cash accumulation, etc.)
 get_account(fancy=False)
 ```
 
-*Input:*
+*Inputs:*
 
 * `fancy` : Boolean flag with default value `False`.
     - `False` : the values are reported in unaltered algebraic format.
@@ -428,9 +449,9 @@ get_account(fancy=False)
 Reports, for each rolling period identified by `'Droll'`:
 
 * for each symbol : the number of shares hold,
-* `'cash_invst'` : cash invested at the beginning of period,
+* `'cash_invst'` : cash invested at the beginning of the period,
 * `'cash_roll'` : cash rolled to the next period,
-* `'cash_divd'` : cash dividend accumulated in the previous period,
+* `'cash_divd'` : cash dividend accumulated in the previous period.
 
 > Note: The capital at the beginning of the period is
 cash_invst + cash_roll. It is also equal to the previous period:
@@ -446,7 +467,7 @@ separately by the investor.
 
 ---
 
-<a name="get_mktdata">
+<a name="get_mktdata"></a>
 
 #### <span style="color:green">get_mktdata</span>
 
@@ -458,7 +479,7 @@ Returns the actual market data used for portfolio evaluations.
 get_mktdata()
 ```
 
-*Input:* None
+*Inputs:* None
 
 
 *Returns:* `pd.DataFrame`

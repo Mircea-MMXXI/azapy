@@ -1,12 +1,12 @@
 
-# Buy and Hold portfolio <a name="TOP">
+# Buy and Hold portfolio <a name="TOP"></a>
 
 A *Buy and Hold* strategy assumes that at some point in time
-the entire capital is invested in a portfolio with fixed composition.
-After that the portfolio is hold until its liquidation.
+the entire capital is invested in a portfolio with fixed composition
+(numbers of shares).
+After that, the portfolio is hold until its liquidation.
 
-The back testing of this strategy could be viewed as a benchmark for analyzing
-more sophisticated portfolio strategies.   
+The back testing of this strategy could be viewed as a performance benchmark.
 
 There is 1 support class:
 
@@ -14,7 +14,8 @@ There is 1 support class:
 
 ## Port_Simple class
 
-Back testing (historical simulation) of Buy and Hold portfolio strategy.
+
+Out-of-Sample (back testing) simulation of Buy and Hold portfolio strategy.
 
 
 **Methods:**
@@ -35,45 +36,44 @@ other method.
 ### Constructor
 
 ```
-Port_Simple(mktdata, symb=None, sdate=None, edate=None,
-            col='adjusted', pname='Port', pcolname=None,
-            capital=100000)
+Port_Simple(mktdata, symb=None, sdate=None, edate=None, col='adjusted',
+            pname='Port', pcolname=None, capital=100000)
 ```
 
 where:
 
 * `mktdata` : `pd.DataFrame`;
-market data in the format ``"symbol"``, ``"date"``, ``"open"``, ``"high"``,
-``"low"``, ``"close"``, ``"volume`"``, ``"adjusted"``, ``"divd"``, ``"split"``
+Market data in the format `"symbol"`, `"date"`, `"open"`, `"high"`,
+`"low"`, `"close"`, `"volume"`, `"adjusted"`, `"divd"`, `"split"`
 (e.g. as returned by `azapy.readMkT`).
 * `symb` :
-List of symbols for the basket components. All symbols
+List of symbols of portfolio components. All symbols
 should be present in `mktdata`. If set to `None` the `symb` will be
 set to the full set of symbols present in `mktdata`. The default
 is `None`.
 * `sdate` : `datetime`;
-Start date for historical data. If set to `None` the `sdate` will
+Start date for historical simulation. If set to `None` the `sdate` will
 be set to the earliest date in `mktdata`. The default is `None`.
-* `edate` : datetime;
-End date for historical dates and so the simulation. Must be
+* `edate` : `datetime`;
+End date for historical simulation. Must be
 greater than  `sdate`. If it is `None` then `edate` will be set
 to the latest date in `mktdata`. The default is `None`.
 * `col` :
 Column name in the `mktdata` DataFrame that will be considered
-for portfolio aggregation. The default is ``'adjusted'``.
-* `pname` :
-The name of the portfolio. The default is ``'Port'``.
-* `pcolname` :
+for portfolio aggregation. The default is `'adjusted'`.
+* `pname` : `string`;
+The name of the portfolio. The default is `'Port'`.
+* `pcolname` : `string`;
 Name of the portfolio price column. If it is set to `None` than
 `pcolname=pname`. The default is `None`.
-* `capital` :
+* `capital` : `float`;
 Initial portfolio Capital in dollars. The default is `100000`.
 
 [TOP](#TOP)
 
 ### Methods:
 
-<a name="set_model">
+<a name="set_model"></a>
 
 #### <span style="color:green">set_model</span>
 
@@ -86,14 +86,15 @@ It must be called before any other class method.
 set_model(ww=None)
 ```
 
-*Input:*
+*Inputs:*
 
 * `ww` :
-List like weights, `len(ww)` must be equal to 
+List like weights, `len(ww)` must be equal to
 `len(symb)`. If `ww` is a `pd.Series`
 the index should match the portfolio symbols, `symb`
 Otherwise the weights are considered in the  `symb`
-order. If it is set to `None` than `ww` will be set to equal weights.
+order. If it is `None` than `ww` will be set to equal weights,
+`ww = [1 / len(symb)] * len(symb)`.
 The default is `None`.
 
 *Returns:* `pd.DataFrame` containing the portfolio time-series in the format
@@ -103,7 +104,7 @@ The default is `None`.
 
 ---
 
-<a name="port_view">
+<a name="port_view"></a>
 
 #### <span style="color:green">port_view</span>
 
@@ -116,7 +117,7 @@ indicators.
 port_view(emas=[30, 200], bollinger=False, fancy=False, saveto=None)
 ```
 
-*Input:*
+*Inputs:*
 
 * `emas` :
 List for EMA durations. The default is ``[30, 200]``.
@@ -137,7 +138,7 @@ documentation for `savefig`. The default is `None`.
 
 ---
 
-<a name="port_view_all">
+<a name="port_view_all"></a>
 
 #### <span style="color:green">port_view_all</span>
 
@@ -151,7 +152,7 @@ The components time series prices are designated by the value of
 port_view_all(sdate=None, edate=None, componly=False, fancy=False, saveto=None)
 ```
 
-*Input:*
+*Inputs:*
 
 * `sdate` : `datetime`;
 Start date of plotted time-series. If it is set to `None`
@@ -177,7 +178,7 @@ documentation for `savefig`.The default is `None`.
 
 ---
 
-<a name="port_drawdown">
+<a name="port_drawdown"></a>
 
 #### <span style="color:green">port_drawdown</span>
 
@@ -189,7 +190,7 @@ Computes the portfolio drawdowns.
 port_drawdown(top=5, fancy=False)
 ```
 
-*Input:*
+*Inputs:*
 
 * `top` :
 The number of largest drawdown that will be reported.
@@ -201,9 +202,9 @@ The default is `5`.
 
 *Returns:* `pd.DataFrame` containing the table of
 drawdown events. Columns:
-* `'DD'` : drawdown rate
-* `'Date'` : recorded date of the drawdown
-* `'Star'` : start date of the drawdown
+* `'DD'` : drawdown rate,
+* `'Date'` : recorded date of the drawdown,
+* `'Star'` : start date of the drawdown,
 * `'End'` : end date of the drawdown. A `NaN` value indicates that the
 drawdown event is in progress and the value of `'DD'` and `'Date'` are
 provisional only.
@@ -212,7 +213,7 @@ provisional only.
 
 ---
 
-<a name="port_perf">
+<a name="port_perf"></a>
 
 #### <span style="color:green">port_perf</span>
 
@@ -225,7 +226,7 @@ in terms of average historical rate of returns and maximum drawdowns.
 port_perf(componly=False, fancy=False)
 ```
 
-*Input:*
+*Inputs:*
 
 * `componly` : Boolean flag.
 If `True`, only the portfolio components information is reported.
@@ -240,7 +241,7 @@ performance information. Columns:
 * `'RR'` : annual average rate of returns,
 * `'DD'` : maximum rate of drawdown during the simulation period,
 * `'Beta'` : `abs(RR/DD)`,
-* `'DD_date'` : recorder date of maximum drawdown,
+* `'DD_date'` : recorded date of maximum drawdown,
 * `'DD_start'` : start date of maximum drawdown,
 * `'DD_end'` : end date of maximum drawdown.
 
@@ -248,7 +249,7 @@ performance information. Columns:
 
 ---
 
-<a name="port_annual_returns">
+<a name="port_annual_returns"></a>
 
 #### <span style="color:green">port_annual_returns</span>
 
@@ -262,7 +263,7 @@ the value of `col_ref` argument in the constructor.
 port_annual_returns(withcomp=False, componly=False, fancy=False)
 ```
 
-*Input:*
+*Inputs:*
 
 * `withcomp` : Boolean flag.
 If `True`, adds the portfolio components annual returns to the
@@ -281,7 +282,7 @@ are reported. The default is `False`.
 
 ---
 
-<a name="port_monthly_returns">
+<a name="port_monthly_returns"></a>
 
 #### <span style="color:green">port_monthly_returns</span>
 
@@ -294,7 +295,7 @@ returns.
 port_monthly_returns(withcomp=False, componly=False, fancy=False)
 ```
 
-*Input:*
+*Inputs:*
 
 * `withcomp` : Boolean flag.
 If `True`, adds the portfolio components monthly returns to the
@@ -313,7 +314,7 @@ are reported. The default is `False`.
 
 ---
 
-<a name="get_mktdata">
+<a name="get_mktdata"></a>
 
 #### <span style="color:green">get_mktdata</span>
 
@@ -325,7 +326,7 @@ Returns the actual market data used for portfolio evaluations.
 get_mktdata()
 ```
 
-*Input:* None
+*Inputs:* None
 
 
 *Returns:* `pd.DataFrame`

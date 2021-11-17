@@ -6,23 +6,24 @@ from .readMkTData import NYSEgen
 
 def summary_MkTData(mktdata, calendar=None, sdate=None, edate=None):
     """
-    Summary of MkT data time-series length and quality
+    Summary of MkT data time-series length and quality (cheks for missing
+    records).
 
     Parameters
     ----------
-    mktdata :a pd.DataFrame or a dictonary of pd.DataFrame's
+    mktdata :pd.DataFrame or a dictonary of pd.DataFrame's
         Market Data in the format returned by azapy.readMkT function.
     calendar : np.busdaycalendar, optional
         Business days calendar. If is set to None it will 
         default to NYSE business calendar.
     sdate : pd.Timestamp, optional
-        Time-series start date. If is None then sdate will be set to the 
+        Time-series start date. If it is None then sdate will be set to the 
         earliest date in mktdata.
-        Default value is None.
+        The default is None.
     edate : pd.Timestamp, optional
-        Time-series end date. If it None then edate will be set to the most 
+        Time-series end date. If it is None then edate will be set to the most 
         recent date in mktdata.
-        Default value is None.
+        The default is None.
 
     Returns
     -------
@@ -31,7 +32,7 @@ def summary_MkTData(mktdata, calendar=None, sdate=None, edate=None):
         - begin : start date
         - end : end date
         - length : number of records
-        - na_total : total number of ``nan``'s
+        - na_total : total number of `nan`
         - na_b : number of missing records at the beginning
         - na_e : number of missing records at the end
         - cont : total number of missing records
