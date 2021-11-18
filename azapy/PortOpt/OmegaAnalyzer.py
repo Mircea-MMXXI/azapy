@@ -1,37 +1,52 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Apr 28 14:41:24 2021
-
-@author: mircea
-"""
 import numpy as np
 import scipy.sparse as sps
-from scipy.optimize import linprog
 import warnings
 
-from .RiskAnalyzer import RiskAnalyzer
+from ._RiskAnalyzer import _RiskAnalyzer
+from ._solvers import _lp_solver
 
-class OmegaAnalyzer(RiskAnalyzer):
+class OmegaAnalyzer(_RiskAnalyzer):
     """
-    Omega measure based portfolio optimization.
-        Note inherits from azapy.RiskAnalyzer \n
-        Function inherited\n
-            getWeights \n
-            getRisk \n
-            set_rtype \n
+    Omega measure/ratio based portfolio optimization.
+    
+    Methods:
+        * getWeights
+        * getRisk
+        * getPositions
+        * viewForntiers
+        * set_rrate
+        * set_mktdata
+        * set_rtype
+        * set_random_seed
     """
-    def __init__(self, mu0 = 0., rrate=None, rtype='Sharpe', 
-                 method='highs-ipm'):
+    def __init__(self, mu0 = 0., 
+                 mktdata=None, colname='adjusted', freq='Q', 
+                 hlength=3.25, calendar=None, 
+                 rtype='Sharpe', method='ecos'):
         """
         Constructor
 
         Parameters
         ----------
         mu0 : float, optional
-            Risk-free rate (Omega threshold). The default is 0.
-        rrate : pandas.DataFrame, optional
-            MkT data for portfolio components in the format 
-            "date", "symbol1", "symbol2", etc. The default is None.
+            Omega threshold. The default is 0.
+        mktdata : pd.DataFrame, optional
+            Historic daily market data for portfolio components in the format
+            returned by azapy.mktData function. The default is None.
+        colname : string, optional
+            Name of the price column from mktdata used in the weights 
+            calibration. The default is 'adjusted'.
+        freq : string, optional
+            Rate of returns horizon in number of business day. it could be 
+            'Q' for quarter or 'M' for month. The default is 'Q'.
+        hlength : float, optional
+            History length in number of years used for calibration. A 
+            fractional number will be rounded to an integer number of months.
+            The default is 3.25 years.
+        calendar : np.busdaycalendar, optional
+            Business days calendar. If is it None then the calendar will be set
+            to NYSE business calendar.
+            The default is None.
         rtype : string, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure.\n
@@ -41,27 +56,35 @@ class OmegaAnalyzer(RiskAnalyzer):
                 "MinRisk" : optimal portfolio with minimum dispersion (risk) 
                 value.\n
                 "InvNRisk" : optimal portfolio with the same dispersion (risk)
-                value as equally weighted portfolio. 
+                value as equally weighted portfolio. \n
+                "RiskAverse" : optimal portfolio for a fixed risk aversion 
+                coefficient.
             The default is "Sharpe".
         method : string, optional
             Linear programming numerical method. 
-            Could be 'highs-ds', 'highs-ipm', 'highs' and 'interior-point'.
-            The default is 'highs'.\n
+            Could be one of 'ecos', 'highs-ds', 'highs-ipm', 'highs', 
+            'interior-point', 'glpk' and 'cvxopt'.
+            The defualt is 'ecos'.
 
         Returns
         -------
         The object.
-
         """
-        super().__init__(rrate, rtype)
+        super().__init__(mktdata, colname, freq, hlength, calendar, rtype)
+        
+        lp_methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 
+                       'interior-point', 'glpk', 'cvxopt']
+        if not method in lp_methods:
+            raise ValueError(f"method must be one of {lp_methods}")
         self.method = method
+        
         self.alpha = [mu0]
         
     def viewFrontiers(self, efficient=20, inefficient=20, musharpe=None,
                       component=True, randomport=20, fig_type='RR_risk',
-                      options=None, save=None, data=None):
+                      options=None, saveto=None, data=None):
         """
-        Compute the elements of the portfolio frontiers.
+        Computes the elements of the portfolio frontiers.
 
         Parameters
         ----------
@@ -90,11 +113,10 @@ class OmegaAnalyzer(RiskAnalyzer):
             vs dispersion representation, otherwise the Sharpe vs rate of 
             return will be used. The default is 'RR_risk'.
         options : dictionary, optional
-            Additional graphical setups (keys): "title", "xlabel", "ylabel", 
-            "tangent".\n
-            "title", "xlabel" and "ylabel" are strings overwriting the default 
+            Additional graphical setups (keys): \n
+            "title", "xlabel", "ylabel" : strings overwriting the default 
             values. \n
-            "tangent" is a boolean. If set to True it will print
+            "tangent" : boolean. If set to True it will print
             the Sharpe tangent. The default is True.
         save : string, optional
             File name to save the plot. The default is None.
@@ -108,7 +130,6 @@ class OmegaAnalyzer(RiskAnalyzer):
         -------
         dictionary
             Numerical data used to make the plots. 
-
         """
         if musharpe is not None:
             self.alpha[0] = musharpe
@@ -117,21 +138,23 @@ class OmegaAnalyzer(RiskAnalyzer):
         super().viewFrontiers(efficient=efficient, inefficient=inefficient,
                               musharpe=self.alpha[0],
                               component=component, randomport=randomport,
-                              fig_type=fig_type, options=options, save=save, 
-                              data=data)
+                              fig_type=fig_type, options=options, 
+                              saveto=saveto, data=data)
         
     def set_rrate(self, rrate):
         """
-        Set the Mkt Data.
+        Sets ortfolio components historical rates of returns in the format 
+        "date", "symbol1", "symbol2", etc. 
 
         Parameters
         ----------
         rrate : pandas.DataFrame
-            MkT Data. It will overwrite the value set by the constructor.
+            Portfolio components historical rates of returns in the format 
+           "date", "symbol1", "symbol2", etc.
+            It will overwrite the values set by the constructor.
         Returns
         -------
         None.
-
         """
         self.nn, self.mm = rrate.shape
         self.muk = rrate.mean()
@@ -153,55 +176,57 @@ class OmegaAnalyzer(RiskAnalyzer):
         mm = self.mm
         
         # build c
-        c = [0.] * mm + [1. / nn] * nn
+        c_data = [0.] * mm + [1. / nn] * nn
         
-        # build A_ub
-        icol = list(range(mm)) * nn + list(range(mm, mm + nn)) \
+        # build G
+        G_icol = list(range(mm)) * nn + list(range(mm, mm + nn)) \
             + list(range(mm))
-        irow = [k  for k in range(nn) for _ in range(mm)] \
+        G_irow = [k  for k in range(nn) for _ in range(mm)] \
             + list(range(nn)) + [nn] * mm
-        adata = list(np.ravel(-self.rrate)) + [-1.] * nn + list(-self.muk * d)
+        G_data = list(np.ravel(-self.rrate)) + [-1.] * nn + list(-self.muk * d)
+        G_icol += list(range(mm + nn))
+        G_irow += list(range(nn + 1, nn + 1 + mm + nn))
+        G_data += [-1.] *(mm + nn)
         
-        A = sps.coo_matrix((adata, (irow, icol)),  shape=(nn + 1, mm + nn))
+        G_shape = (nn + 1 + mm + nn, mm + nn)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
+       
+        # build h
+        h_data = [-self.alpha[0]] * nn + [-self.mu * d] + [0.] *(mm + nn)
         
-        # build b_ub
-        b = [-self.alpha[0]] * nn + [-self.mu * d]
+        # build A
+        A_icol = list(range(mm))
+        A_irow = [0] * mm
+        A_data = [1.] * mm
+        A_shape = (1, mm + nn)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
+       
+        # build b
+        b_data = [1.]
         
-        # build A_eq
-        Ae = sps.coo_matrix(([1.] * mm, ([0] * mm, list(range(mm)))), 
-                            shape=(1, mm + nn)) 
-        
-        # build b_eq
-        be = [1.]
-        
-        # options
-        opt = {'sparse': True}
-        
-        # compute - suppress warning
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            res = linprog(c, A, b, Ae, be, method=self.method, options=opt)
+        # calc
+        res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
+ 
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"warning {res['infostring']}")
+            return np.array([np.nan] * mm)
             
-        # gather the results
-        self.status = res.status
-        if self.status != 0: 
-            warnings.warn(res.message)
-            return np.nan
-        
-        # average CVaR
-        self.risk = res.fun
+        # delta-risk
+        self.risk = res['pcost']
         # optimal weights
-        self.ww = np.array(res.x[:mm])
+        self.ww = np.array(res['x'][:mm])
+        self.ww.shape = mm
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
-        # primery risk components - default to risk
-        self.primery_risk_comp = np.array([self.risk])
-        # secondary raisk components - default to risk
+        # primary risk components - default to risk
+        self.primary_risk_comp = np.array([self.risk])
+        # secondary risk components - default to risk
         self.secondary_risk_comp = np.array([self.risk])
         
         return self.ww
     
-    def _sharpe_min(self):
+    def _sharpe_inv_min(self):
         # Order of variables:
         # w <- [0:mm] 
         # s <- [mm : mm + nn]
@@ -211,55 +236,54 @@ class OmegaAnalyzer(RiskAnalyzer):
         mm = self.mm
         
         # build c
-        c = list(-self.muk) + [0.] * nn + [self.mu]
+        c_data = list(-self.muk) + [0.] * nn + [self.mu]
         
-        # build A_ub
-        icol = list(range(mm)) * nn + list(range(mm, mm + nn)) \
+        # build G
+        G_icol = list(range(mm)) * nn + list(range(mm, mm + nn)) \
             + [mm + nn] * nn 
-        irow = [k  for k in range(nn) for _ in range(mm)] \
+        G_irow = [k  for k in range(nn) for _ in range(mm)] \
             + list(range(nn)) * 2 
-        adata = list(np.ravel(-self.rrate)) + [-1.] * nn \
+        G_data = list(np.ravel(-self.rrate)) + [-1.] * nn \
             + [self.mu] * nn 
+        G_icol += list(range(mm + nn + 1))   
+        G_irow += list(range(nn, nn + mm + nn + 1))
+        G_data += [-1.] * (mm + nn + 1)
         
-        A = sps.coo_matrix((adata, (irow, icol)),  shape=(nn, mm + nn + 1))
+        G_shape = (nn + mm + nn + 1, mm + nn + 1)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
         
-        # build b_ub
-        b = [0.] * nn 
+        # build h
+        h_data = [0.] * (nn + mm + nn + 1)
         
-        #build A_eq
-        icol = list(range(mm, mm + nn)) + list(range(mm)) + [mm + nn]
-        irow = [0] * nn + [1] * (mm + 1)
-        adata = [1. / nn] * nn + [1.] * mm + [-1.]
+        #build A
+        A_icol = list(range(mm, mm + nn)) + list(range(mm)) + [mm + nn]
+        A_irow = [0] * nn + [1] * (mm + 1)
+        A_data = [1. / nn] * nn + [1.] * mm + [-1.]
+        A_shape = (2, mm + nn + 1)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         
-        Ae = sps.coo_matrix((adata, (irow, icol)), shape=(2, mm + nn + 1)) 
+        # build b
+        b_data = [1., 0.]
         
-        # build b_eq
-        be = [1., 0.]
-        
-        # options
-        opt = {'sparse': True}
-        
-        # compute - suppress warning
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            res = linprog(c, A, b, Ae, be, method=self.method, options=opt)
-            
-        # gather the results
-        self.status = res.status
+        # calc
+        res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
+ 
+        self.status = res['status']
         if self.status != 0:
-            warnings.warn(res.message)
-            return np.nan
-        
+            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            return np.array([np.nan] * mm)
+            
         # Omega
-        self.sharpe = -res.fun 
+        self.sharpe = -res['pcost']
         # risk
-        self.risk = 1 / res.x[-1]
+        self.risk = 1. / res['x'][-1]
         # optimal weights
-        self.ww = np.array(res.x[:mm] * self.risk)
+        self.ww = np.array(res['x'][:mm] * self.risk)
+        self.ww.shape = mm
         # rate of return
-        self.RR = -res.fun * self.risk + self.mu
+        self.RR = -res['pcost'] * self.risk + self.mu
         # primary risk components - default to risk
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
         # secondary risk components - default to risk
         self.secondary_risk_comp = np.array([self.risk])
         
@@ -275,56 +299,55 @@ class OmegaAnalyzer(RiskAnalyzer):
         mm = self.mm
         
         # build c
-        c = [0.] * mm + [1. / nn] * nn + [0.]
+        c_data = [0.] * mm + [1. / nn] * nn + [0.]
         
-        # build A_ub
-        icol = list(range(mm)) * nn + list(range(mm, mm + nn)) \
+        # build G
+        G_icol = list(range(mm)) * nn + list(range(mm, mm + nn)) \
             + [mm + nn] * nn 
-        irow = [k  for k in range(nn) for _ in range(mm)] \
+        G_irow = [k  for k in range(nn) for _ in range(mm)] \
             + list(range(nn)) * 2 
-        adata = list(np.ravel(-self.rrate)) + [-1.] * nn \
+        G_data = list(np.ravel(-self.rrate)) + [-1.] * nn \
             + [self.mu] * nn 
+        G_icol += list(range(mm + nn + 1))   
+        G_irow += list(range(nn, nn + mm + nn + 1))
+        G_data += [-1.] * (mm + nn + 1)
         
-        A = sps.coo_matrix((adata, (irow, icol)),  shape=(nn, mm + nn + 1))
+        G_shape = (nn + mm + nn + 1, mm + nn + 1)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
         
-        # build b_ub
-        b = [0.] * nn 
+        # build h
+        h_data = [0.] * (nn + mm + nn + 1)
         
-        #build A_eq
-        icol = list(range(mm)) + [mm + nn] + list(range(mm)) + [mm + nn]
-        irow = [0] * (mm + 1) + [1] * (mm + 1)
-        adata = list(self.muk) +[-self.mu] + [1.] * mm + [-1.]
+        #build A
+        A_icol = list(range(mm)) + [mm + nn] + list(range(mm)) + [mm + nn]
+        A_irow = [0] * (mm + 1) + [1] * (mm + 1)
+        A_data = list(self.muk) +[-self.mu] + [1.] * mm + [-1.]
+        A_shape = (2, mm + nn + 1)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         
-        Ae = sps.coo_matrix((adata, (irow, icol)), shape=(2, mm + nn + 1)) 
+        # build b
+        b_data = [1., 0.]
         
-        # build b_eq
-        be = [1., 0.]
-        
-        # options
-        opt = {'sparse': True}
-        
-        # compute - suppress warning
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            res = linprog(c, A, b, Ae, be, method=self.method, options=opt)
-            
-        # gather the results
-        self.status = res.status
+        # calc
+        res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
+ 
+        self.status = res['status']
         if self.status != 0:
-            warnings.warn(res.message)
-            return np.nan
-        
-        t = res.x[-1]
+            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            return np.array([np.nan] * mm)
+            
+        t = res['x'][-1]
         # Omega
-        self.sharpe = 1. / res.fun 
+        self.sharpe = 1. / res['pcost']
         # risk
-        self.risk =  res.fun / t
+        self.risk =  res['pcost'] / t
         # optimal weights
-        self.ww = np.array(res.x[:mm] / t)
+        self.ww = np.array(res['x'][:mm] / t)
+        self.ww.shape = mm
         # rate of return
         self.RR = 1. / t + self.mu
         # primary risk components - default to risk
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
         # secondary risk components - default to risk
         self.secondary_risk_comp = np.array([self.risk])
         
@@ -339,50 +362,106 @@ class OmegaAnalyzer(RiskAnalyzer):
         mm = self.mm
         
         # build c
-        c = list(-self.muk) + [0.] * nn 
+        c_data = list(-self.muk) + [0.] * nn 
         
-        # build A_ub
-        icol = list(range(mm)) * nn + list(range(mm, mm + nn))
-        irow = [k  for k in range(nn) for _ in range(mm)] + list(range(nn)) 
-        adata = list(np.ravel(-self.rrate)) + [-1.] * nn 
+        # build G
+        G_icol = list(range(mm)) * nn + list(range(mm, mm + nn))
+        G_irow = [k  for k in range(nn) for _ in range(mm)] + list(range(nn)) 
+        G_data = list(np.ravel(-self.rrate)) + [-1.] * nn 
+        G_icol += list(range(mm + nn))   
+        G_irow += list(range(nn, nn + mm + nn))
+        G_data += [-1.] * (mm + nn)
         
-        A = sps.coo_matrix((adata, (irow, icol)),  shape=(nn, mm + nn))
+        G_shape = (nn + mm + nn, mm + nn)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
         
-        # build b_ub
-        b = [-self.alpha[0]] * nn
+        # build h
+        h_data = [-self.alpha[0]] * nn + [0.] * (mm + nn)
         
-        #build A_eq
-        icol = list(range(mm, mm + nn)) + list(range(mm))
-        irow = [0] * nn + [1] * mm
-        adata = [1. / nn] * nn + [1.] * mm 
+        #build A
+        A_icol = list(range(mm, mm + nn)) + list(range(mm))
+        A_irow = [0] * nn + [1] * mm
+        A_data = [1. / nn] * nn + [1.] * mm 
+        A_shape = (2, mm + nn)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
+ 
+        # build b
+        b_data = [self.risk, 1.]
         
-        Ae = sps.coo_matrix((adata, (irow, icol)), shape=(2, mm + nn)) 
-        
-        # build b_eq
-        be = [self.risk, 1.]
-        
-        # options
-        opt = {'sparse': True}
-        
-        # compute - suppress warning
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            res = linprog(c, A, b, Ae, be, method=self.method, options=opt)
-            
-        # gather the results
-        self.status = res.status
+        # calc
+        res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
+ 
+        self.status = res['status']
         if self.status != 0:
-            warnings.warn(res.message)
-            return np.nan
-        
+            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            return np.array([np.nan] * mm)
+            
         # rate of return
-        self.RR = -res.fun
+        self.RR = -res['pcost']
         # optimal weights
-        self.ww = np.array(res.x[:mm])
-        
+        self.ww = np.array(res['x'][:mm])
+        self.ww.shape = mm
         # primary risk components - default to risk
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
         # secondary risk components - default to risk
         self.secondary_risk_comp = np.array([self.risk])
         
         return self.ww
+    
+    def _risk_averse(self):
+        # Order of variables
+        # w <- [0 : mm]
+        # s <- [mm : mm + nn]
+        # in total dim = mm + nn
+        nn = self.nn
+        mm = self.mm
+        
+        # build c
+        c_data = list(-self.muk) + [self.Lambda / nn] * nn
+        
+        # build G
+        G_icol = list(range(mm)) * nn + list(range(mm, mm + nn)) 
+        G_irow = [k  for k in range(nn) for _ in range(mm)] + list(range(nn)) 
+        G_data = list(np.ravel(-self.rrate)) + [-1.] * nn 
+        G_icol += list(range(mm + nn))   
+        G_irow += list(range(nn, nn + mm + nn))
+        G_data += [-1.] * (mm + nn)
+        
+        G_shape = (nn + mm + nn, mm + nn)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
+  
+        # build h
+        h_data = [-self.alpha[0]] * nn + [0.] * (mm + nn)
+        
+        # build A
+        A_icol = list(range(mm))
+        A_irow = [0] * mm
+        A_data = [1.] * mm
+        A_shape = (1, mm + nn)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
+
+        # build b
+        b_data = [1.]
+        
+        # calc
+        res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
+ 
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            return np.array([np.nan] * mm)
+            
+        # optimal weights
+        self.ww = np.array(res['x'][:mm])
+        self.ww.shape = mm
+        # rate of return
+        self.RR = np.dot(self.ww, self.muk)
+        # delta-risk
+        self.risk = (res['pcost'] + self.RR) / self.Lambda
+        # primary risk components - default to risk
+        self.primary_risk_comp = np.array([self.risk])
+        # secondary risk components - default to risk
+        self.secondary_risk_comp = np.array([self.risk])
+        
+        return self.ww
+        

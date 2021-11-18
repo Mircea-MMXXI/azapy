@@ -1,29 +1,28 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Apr  6 14:44:13 2021
-
-@author: mircea
-"""
 import numpy as np
 import scipy.sparse as sps
-from scipy.optimize import linprog
 import warnings
 
-from .RiskAnalyzer import RiskAnalyzer
+from ._RiskAnalyzer import _RiskAnalyzer
+from ._solvers import _lp_solver
 
-class CVaRAnalyzer(RiskAnalyzer):
+class CVaRAnalyzer(_RiskAnalyzer):
     """
-    CVaR risk measure based portfolio optimizations.
-        Note: inherits from azapy.RiskAnalyzer \n
-        Function inherited\n
-            getWeights \n
-            getRisk \n
-            set_rrate \n
-            set_rtype \n
-            viewFrontiers
+    CVaR risk measure based portfolio optimizer.
+        
+    Methods:
+        * getWeights
+        * getRisk
+        * getPositions
+        * viewForntiers
+        * set_rrate
+        * set_mktdata
+        * set_rtype
+        * set_random_seed
     """
-    def __init__(self, alpha=[0.975], coef=[1.], rrate=None, rtype='Sharpe',
-                 method='highs'):
+    def __init__(self, alpha=[0.975], coef=[1.], 
+                 mktdata=None, colname='adjusted', freq='Q', 
+                 hlength=3.25, calendar=None,
+                 rtype='Sharpe', method='ecos'):
         """
         Constructor
 
@@ -34,9 +33,23 @@ class CVaRAnalyzer(RiskAnalyzer):
         coef : list, optional
             List of coefficients. Must be the same size with 
             alpha. The default is [1.].
-        rrate : pandas.DataFrame, optional
-            MkT data for portfolio components in the format 
-            "date", "symbol1", "symbol2", etc. The default is None.
+        mktdata : pandas.DataFrame, optional
+            Historic daily market data for portfolio components in the format
+            returned by azapy.mktData function. The default is None.
+        colname : string, optional
+            Name of the price column from mktdata used in the weights 
+            calibration. The default is 'adjusted'.
+        freq : string, optional
+            Rate of returns horizon. It could be 
+            'Q' for quarter or 'M' for month. The default is 'Q'.
+        hlength : float, optional
+            History length in number of years used for calibration. A 
+            fractional number will be rounded to an integer number of months.
+            The default is 3.25 years.
+        calendar : np.busdaycalendar, optional
+            Business days calendar. If is it None then the calendar will be set
+            to NYSE business calendar. 
+            The default is None.
         rtype : string, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure. \n
@@ -47,37 +60,43 @@ class CVaRAnalyzer(RiskAnalyzer):
                 value.\n
                 "InvNRisk" : optimal portfolio with the same dispersion (risk)
                 value as equally weighted portfolio. 
+                "RiskAverse" : optimal portfolio for a fixed risk aversion 
+                coefficient.
             The default is "Sharpe".
         method : string, optional
             Linear programming numerical method. 
-            Could be 'highs-ds', 'highs-ipm', 'highs' and 'interior-point'.
-            The default is 'highs'.\n
+            Could be one of 'ecos', 'highs-ds', 'highs-ipm', 'highs', 
+            'interior-point', 'glpk' and 'cvxopt'.
+            The default is 'ecos'.
             
         Returns
         -------
         The object.
-
         """
-        super().__init__(rrate, rtype)
+        super().__init__(mktdata, colname, freq, hlength, calendar, rtype)
         
-        method_names = ['highs-ds', 'highs-ipm', 'highs', 'interior-point']
-        assert method in method_names, f"method must be one of {method_names}"
+        lp_methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 
+                      'interior-point', 'glpk', 'cvxopt']
+        if not method in lp_methods:
+            raise ValueError(f"method must be one of {lp_methods}")
         self.method = method
 
-        assert len(alpha) == len(coef), \
-            "lenght of alpha and coef must be the same"
+        if len(alpha) != len(coef):
+            raise ValueError("alpha and coef must have the same length")
         self.alpha = np.array(alpha)
         self.coef = np.array(coef)
-        assert all(0. < self.coef), \
-            "All coefficients must be positive"
-        assert all((0. < self.alpha) & (self.alpha < 1.)), \
-            "alpha components must be in (0,1)"
+        if any(self.coef <= 0.):
+            raise ValueError("All coef must be positive")
+        if any((self.alpha <= 0.) | (1. <= self.alpha)):
+            raise ValueError("All alpha coefficients must be in (0,1)")
+        
         
         self.coef = self.coef / self.coef.sum()
         self.ll = len(alpha)
 
     
-    def _risk_calc(self, prate, alpha):
+    def _risk_calc_lp(self, prate, alpha):
+        # lp formulation of CVaR & VaR
         # Order of variables:
         # u <- 0, 
         # s <- [1:nn] 
@@ -85,34 +104,37 @@ class CVaRAnalyzer(RiskAnalyzer):
         nn = self.nn
         
         # build c
-        c = [1] + [1 / (1 - alpha) / nn] * nn
-     
-        # build A_ub
-        icol = [0] * nn + list(range(1, nn + 1))
-        irow = list(range(nn)) + list(range(nn))
-        adata = [-1] * (nn + nn)
-        A = sps.coo_matrix((adata, (irow, icol)), shape=(nn, nn + 1))
+        c_data = [1.] + [1. / (1. - alpha) / nn] * nn
+        
+        # build G
+        G_icol = [0] * nn + list(range(1, nn + 1)) + list(range(nn+1))
+        G_irow = list(range(nn)) * 2 + list(range(nn, 2 * nn + 1))
+        G_data = [-1.] * (3 * nn + 1)
+        G_shape = (2 * nn + 1, nn + 1)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
+
+        # build h
+        h_data = list(prate) + [0.] * (nn + 1)
     
-        # build b_ub
-        b = list(prate)
+        # calc
+        res = _lp_solver(self.method, c_data, G, h_data)
+        
+        if res['status'] != 0:
+            return 2, np.nan, np.nan
+        
+        VaR = res['x'][0]
+        CVaR = res['pcost']
+  
+        return 0, VaR, CVaR
     
-        # options
-        opt = {'sparse': True}
+    def _risk_calc(self, prate, alpha):
+        # Analytic formulation of CVaR & VaR
+        ws = np.sort(prate)
+        nnl = len(ws) * (1. - alpha)
+        VaR = -ws[int(nnl)]
+        CVaR = VaR - (ws[ws <= -VaR] + VaR).sum() / nnl
         
-        # compute - suppress warning
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            res = linprog(c, A, b, method=self.method, options=opt)
-            
-        status = res.status
-        if status != 0:
-            warnings.warn(res.message)
-            return np.nan
-        
-        VaR = res.x[0]
-        CVaR = res.fun
-        
-        return status, VaR, CVaR
+        return 0, VaR, CVaR
     
     def _risk_min(self, d=1):
         # Order of variables:
@@ -126,65 +148,66 @@ class CVaRAnalyzer(RiskAnalyzer):
         mm = self.mm
     
         # build c
-        c = [0] * mm
+        c_data = [0] * mm
         for l in range(ll):
-            c += [self.coef[l]] \
-                + [self.coef[l] / (1 - self.alpha[l] ) / nn] * nn
-            
-        # build A_ub
-        icol = list(range(mm)) * (nn * ll)
-        irow = [k  for k in range(nn * ll) for _ in range(mm)]
-        adata = list(np.ravel(-self.rrate)) * ll
+            c_data += [self.coef[l]] \
+                    + [self.coef[l] / (1 - self.alpha[l] ) / nn] * nn
+       
+        # build G
+        G_icol = list(range(mm)) * (nn * ll)
+        G_irow = [k  for k in range(nn * ll) for _ in range(mm)]
+        G_data = list(np.ravel(-self.rrate)) * ll
         for l in range(ll):
-            icol += [mm + l * (nn + 1)] * nn \
+            G_icol += [mm + l * (nn + 1)] * nn \
                 + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
-            irow += list(range(l * nn, (l + 1) * nn)) \
+            G_irow += list(range(l * nn, (l + 1) * nn)) \
                 + list(range(l * nn, (l + 1) * nn))
-            adata += [-1] * nn + [-1] * nn
-        icol += list(range(mm))
-        irow += [nn * ll] * mm
-        adata += list(-self.muk * d)
-     
-        A = sps.coo_matrix((adata, (irow, icol)), 
-                           shape=(nn * ll + 1, mm + (nn + 1) * ll))
+            G_data += [-1] * nn + [-1] * nn
+        G_icol += list(range(mm))
+        G_irow += [nn * ll] * mm
+        G_data += list(-self.muk * d)
+        G_icol += list(range(mm + ll * (nn + 1)))
+        G_irow += list(range(ll * nn + 1, ll * nn + 1 + mm + ll * (nn + 1)))
+        G_data += [-1.] * (mm + ll * (nn + 1) )
         
-        # build b_ub
-        b = [0] * (nn * ll) + [-self.mu * d]
+        G_shape = (nn * ll + 1 + mm + ll * (nn + 1), mm + (nn + 1) * ll)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
+ 
+        # build h
+        h_data = [0.] * (nn * ll) + [-self.mu * d] + [0.] *(mm + ll * (nn + 1))
         
-        # build A_eq
-        Ae = sps.coo_matrix(([1.] * mm, ([0] * mm, list(range(mm)))), 
-                            shape=(1, mm + (nn + 1) * ll)) 
+        # build A
+        A_icol = list(range(mm))
+        A_irow = [0] * mm
+        A_data = [1.] * mm
+        A_shape = (1, mm + ll * (nn + 1))
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
+
+        # build b
+        b_data = [1.]
         
-        # build b_eq
-        be = [1.]
-        
-        # options
-        opt = {'sparse': True}
-        
-        # compute - suppress warning
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            res = linprog(c, A, b, Ae, be, method=self.method, options=opt)
+        # calc
+        res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
+ 
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            return np.array([np.nan] * mm)
             
-        # gather the results
-        self.status = res.status
-        if self.status != 0: 
-            warnings.warn(res.message)
-            return np.nan
-        
         # VaR (u)
-        self.secondary_risk_comp = np.array([res.x[mm + l * (nn + 1)] \
+        self.secondary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
                                     for l in range(ll)])
         # average CVaR
-        self.risk = res.fun
+        self.risk = res['pcost']
         # CVaR (recomputed)
-        self.primery_risk_comp = \
-            np.array([res.x[mm + l * (nn + 1)] \
+        self.primary_risk_comp = \
+            np.array([res['x'][mm + l * (nn + 1)] \
              + 1 / (1 - self.alpha[l]) * np.mean(
-                 res.x[(mm + l * (nn + 1) + 1) : (mm + (l + 1) * (nn + 1))])
+                 res['x'][(mm + l * (nn + 1) + 1) : (mm + (l + 1) * (nn + 1))])
              for l in range(ll)])
         # optimal weights
-        self.ww = np.array(res.x[:mm])
+        self.ww = np.array(res['x'][:mm])
+        self.ww.shape = mm
         # rate of returns
         self.RR = np.dot(self.ww, self.muk)
         
@@ -203,78 +226,76 @@ class CVaRAnalyzer(RiskAnalyzer):
         mm = self.mm
         
         # build c
-        c = list(-self.muk) + [0.] * (ll * (nn + 1)) + [self.mu]
+        c_data = list(-self.muk) + [0.] * (ll * (nn + 1)) + [self.mu]
         
-        # build A_ub
-        icol = list(range(mm)) * (nn * ll)
-        irow = [k  for k in range(nn * ll) for _ in range(mm)]
-        adata = list(np.ravel(-self.rrate)) * ll
+        # build G
+        G_icol = list(range(mm)) * (nn * ll)
+        G_irow = [k  for k in range(nn * ll) for _ in range(mm)]
+        G_data = list(np.ravel(-self.rrate)) * ll
         for l in range(ll):
-            icol += [mm + l * (nn + 1)] * nn \
+            G_icol += [mm + l * (nn + 1)] * nn \
                 + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
-            irow += list(range(l * nn, (l + 1) * nn)) \
+            G_irow += list(range(l * nn, (l + 1) * nn)) \
                 + list(range(l * nn, (l + 1) * nn))
-            adata += [-1] * nn + [-1] * nn
-     
-        A = sps.coo_matrix((adata, (irow, icol)), 
-                           shape=(nn * ll, mm + ll * (nn + 1) + 1))
+            G_data += [-1] * nn + [-1] * nn
+        G_icol += list(range(mm + ll * (nn + 1) + 1))
+        G_irow += list(range(ll * nn, ll * nn + mm + ll * (nn + 1) + 1))
+        G_data += [-1.] * (mm + ll * (nn + 1) + 1)
         
-        # build b_ub
-        b = [0] * (nn * ll)
+        G_shape = (ll * nn + mm + ll * (nn + 1) + 1, mm + ll * (nn + 1) + 1)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
+      
+        # build h
+        h_data = [0.] * (nn * ll + mm + ll * (nn + 1) + 1)
         
-        # build A_eq
-        icol = list(range(mm)) + [mm + ll * (nn + 1)]
-        irow = [0] * (mm + 1)
-        adata = [1.] * mm + [-1]
+        # build A
+        A_icol = list(range(mm)) + [mm + ll * (nn + 1)]
+        A_irow = [0] * (mm + 1)
+        A_data = [1.] * mm + [-1]
         for l in range(ll):
-            icol += [mm + l * (nn + 1)] \
+            A_icol += [mm + l * (nn + 1)] \
                 + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
-            irow += [1] * (nn + 1)
-            adata += [self.coef[l]] \
+            A_irow += [1] * (nn + 1)
+            A_data += [self.coef[l]] \
                 + [self.coef[l] / (1 - self.alpha[l]) / nn ] * nn
-            
-        Ae = sps.coo_matrix((adata, (irow, icol)), 
-                            shape=(2, mm + ll * (nn + 1) + 1)) 
+ 
+        A_shape = (2, mm + ll * (nn + 1) + 1)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
+  
+        # build b
+        b_data = [0., 1.]
         
-        # build b_eq
-        be = [0., 1.]
-        
-        # options
-        opt = {'sparse': True}
-        
-        # compute - suppress warning
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            res = linprog(c, A, b, Ae, be, method=self.method, options=opt)
-            
-        # gather the results
-        self.status = res.status
+        # calc
+        res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
+       
+        self.status = res['status']
         if self.status != 0:
-            warnings.warn(res.message)
-            return np.nan
-        
+            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            return np.array([np.nan] * mm)
+
         # average CVaR (1/t)
-        self.risk = 1 / res.x[-1]
+        self.risk = 1. / res['x'][-1]
         # VaR (u)
         self.secondary_risk_comp = \
-            np.array([res.x[mm + l * (nn + 1)] * self.risk for l in range(ll)])
+            np.array([res['x'][mm + l * (nn + 1)] * self.risk \
+                      for l in range(ll)])
         # Sharpe
-        self.sharpe = -res.fun
+        self.sharpe = -res['pcost']
         # optimal weights
-        self.ww = np.array(res.x[:mm] * self.risk)
+        self.ww = np.array(res['x'][:mm] * self.risk)
+        self.ww.shape = mm
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
-        #self.RR = self.sharpe * self.risk + self.mu
         # component CVaR (recomputed)
-        self.primery_risk_comp = \
-            np.array([(res.x[mm + l * (nn + 1)] + 1 / (1 - self.alpha[l]) \
-            * np.mean(res.x[(mm + l * (nn + 1) + 1) :\
-                            (mm + (l + 1) * (nn + 1))])) \
+        self.primary_risk_comp = \
+            np.array([(res['x'][mm + l * (nn + 1)] + 1 / (1 - self.alpha[l]) \
+            * np.mean(res['x'][(mm + l * (nn + 1) + 1) :\
+                               (mm + (l + 1) * (nn + 1))])) \
             * self.risk for l in range(ll)])
         
         return self.ww
     
-    def _sharpe_min(self):
+    def _sharpe_inv_min(self):
         # Order of variables:
         # w <- [0:mm] 
         # then for l <- [0:ll]
@@ -287,75 +308,73 @@ class CVaRAnalyzer(RiskAnalyzer):
         mm = self.mm
         
         # build c   
-        c = [0.] * mm 
+        c_data = [0.] * mm 
         for l in range(ll):
-            c += [self.coef[l]] \
-                + [self.coef[l] / (1. - self.alpha[l]) / nn] * nn
-        c += [0.]
+            c_data += [self.coef[l]] \
+                    + [self.coef[l] / (1. - self.alpha[l]) / nn] * nn
+        c_data += [0.]
         
-        # build A_ub
-        icol = list(range(mm)) * (nn * ll)
-        irow = [k  for k in range(nn * ll) for _ in range(mm)]
-        adata = list(np.ravel(-self.rrate)) * ll
+        # build G
+        G_icol = list(range(mm)) * (nn * ll)
+        G_irow = [k  for k in range(nn * ll) for _ in range(mm)]
+        G_data = list(np.ravel(-self.rrate)) * ll
         for l in range(ll):
-            icol += [mm + l * (nn + 1)] * nn \
+            G_icol += [mm + l * (nn + 1)] * nn \
                 + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
-            irow += list(range(l * nn, (l + 1) * nn)) \
+            G_irow += list(range(l * nn, (l + 1) * nn)) \
                 + list(range(l * nn, (l + 1) * nn))
-            adata += [-1] * nn + [-1] * nn
+            G_data += [-1.] * nn + [-1.] * nn
+        G_icol += list(range(mm + ll * (nn + 1) + 1))
+        G_irow += list(range(ll * nn, ll * nn + mm + ll * (nn + 1) + 1))
+        G_data += [-1.] * (mm + ll * (nn + 1) + 1)
+        
+        G_shape = (ll * nn + mm + ll * (nn + 1) + 1, mm + ll * (nn + 1) + 1)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
      
-        A = sps.coo_matrix((adata, (irow, icol)), 
-                           shape=(nn * ll, mm + ll * (nn + 1) + 1))
+        # build h
+        h_data = [0.] * (nn * ll + mm + ll * (nn + 1) + 1)
         
-        # build b_ub
-        b = [0] * (nn * ll)
+        #build A
+        A_icol = list(range(mm)) + [mm + ll * (nn + 1)]
+        A_irow = [0] * (mm + 1)
+        A_data = [1.] * mm + [-1.]
+        A_icol += list(range(mm)) + [mm + ll * (nn + 1)]
+        A_irow += [1] * (mm + 1)
+        A_data += list(self.muk) + [-self.mu]
         
-        #build A_eq
-        icol = list(range(mm)) + [mm + ll * (nn + 1)]
-        irow = [0] * (mm + 1)
-        adata = [1] * mm + [-1]
-        icol += list(range(mm)) + [mm + ll * (nn + 1)]
-        irow += [1] * (mm + 1)
-        adata += list(self.muk) + [-self.mu]
-        
-        Ae = sps.coo_matrix((adata, (irow, icol)), 
-                            shape=(2, mm + ll * (nn + 1) + 1)) 
-        
-        # build b_eq
-        be = [0., 1.]
-        
-        # options
-        opt = {'sparse': True}
-        
-        # compute - suppress warning
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            res = linprog(c, A, b, Ae, be, method=self.method, options=opt)
-            
-        # gather the results
-        self.status = res.status
+        A_shape = (2, mm + ll * (nn + 1) + 1)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
+     
+        # build b
+        b_data = [0., 1.]
+
+        # calc
+        res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
+       
+        self.status = res['status']
         if self.status != 0:
-            warnings.warn(res.message)
-            return np.nan
-        
-        # average CVaR (1/t)
-        self.risk = res.fun / res.x[-1]
+            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            return np.array([np.nan] * mm)
+
+        t = res['x'][-1]
+        # average CVaR (g/t)
+        self.risk = res['pcost'] / t
         # VaR (u)
         self.secondary_risk_comp = \
-            np.array([res.x[mm + l * (nn + 1)] / res.x[-1] for l in range(ll)])
+            np.array([res['x'][mm + l * (nn + 1)] / t for l in range(ll)])
         # Sharpe
-        self.sharpe = 1. / res.fun
+        self.sharpe = 1. / res['pcost']
         # optimal weights
-        self.ww = np.array(res.x[:mm] / res.x[-1])
+        self.ww = np.array(res['x'][:mm] / t)
+        self.ww.shape = mm
         # rate of return
-        #self.RR = np.dot(self.ww, self.muk)
-        self.RR = 1. / res.x[-1] + self.mu
+        self.RR = 1. / t + self.mu
         # component CVaR (recomputed)
-        self.primery_risk_comp = \
-            np.array([(res.x[mm + l * (nn + 1)] + 1 / (1 - self.alpha[l]) \
-            * np.mean(res.x[(mm + l * (nn + 1) + 1) :\
-                            (mm + (l + 1) * (nn + 1))])) \
-            / res.x[-1] for l in range(ll)])
+        self.primary_risk_comp = \
+            np.array([(res['x'][mm + l * (nn + 1)] + 1 / (1 - self.alpha[l]) \
+            * np.mean(res['x'][(mm + l * (nn + 1) + 1) :\
+                            (mm + (l + 1) * (nn + 1))])) /t \
+            for l in range(ll)])
         
         return self.ww
     
@@ -371,68 +390,138 @@ class CVaRAnalyzer(RiskAnalyzer):
         mm = self.mm
     
         # build c
-        c = list(-self.muk) + [0.] * ((nn + 1) * ll)
+        c_data = list(-self.muk) + [0.] * ((nn + 1) * ll)
             
-        # build A_ub
-        icol = list(range(mm)) * (nn * ll)
-        irow = [k  for k in range(nn * ll) for _ in range(mm)]
-        adata = list(np.ravel(-self.rrate)) * ll
+        # build G
+        G_icol = list(range(mm)) * (nn * ll)
+        G_irow = [k  for k in range(nn * ll) for _ in range(mm)]
+        G_data = list(np.ravel(-self.rrate)) * ll
         for l in range(ll):
-            icol += [mm + l * (nn + 1)] * nn \
+            G_icol += [mm + l * (nn + 1)] * nn \
                 + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
-            irow += list(range(l * nn, (l + 1) * nn)) \
+            G_irow += list(range(l * nn, (l + 1) * nn)) \
                 + list(range(l * nn, (l + 1) * nn))
-            adata += [-1] * nn + [-1] * nn
-     
-        A = sps.coo_matrix((adata, (irow, icol)), 
-                           shape=(nn * ll, mm + (nn + 1) * ll))
+            G_data += [-1.] * nn + [-1.] * nn
+        G_icol += list(range(mm + ll * (nn + 1)))
+        G_irow += list(range(ll * nn, ll * nn + mm + ll * (nn + 1)))
+        G_data += [-1.] * (mm + ll * (nn + 1))
         
-        # build b_ub
-        b = [0] * (nn * ll)
+        G_shape = (nn * ll + mm + (nn + 1) * ll, mm + (nn + 1) * ll )
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
+
+        # build h
+        h_data = [0.] * (nn * ll + mm + (nn + 1) * ll)
         
-        # build A_eq
-        icol = list(range(mm + (nn + 1) * ll))
-        irow = [0] * mm + [1] * ((nn + 1) * ll)
-        adata = [1.] * mm
+        # build A
+        A_icol = list(range(mm + (nn + 1) * ll))
+        A_irow = [0] * mm + [1] * ((nn + 1) * ll)
+        A_data = [1.] * mm
         for l in range(ll):
-            adata += [self.coef[l]] \
-                   + [self.coef[l] / (1 - self.alpha[l]) / nn] * nn
-                   
-        Ae = sps.coo_matrix((adata, (irow, icol)), 
-                            shape=(2, mm + (nn + 1) * ll)) 
+            A_data += [self.coef[l]] \
+                  + [self.coef[l] / (1 - self.alpha[l]) / nn] * nn
+
+        A_shape = (2, mm + (nn + 1) * ll)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
+   
+        # build b
+        b_data = [1., self.risk]
         
-        # build b_eq
-        be = [1., self.risk]
-        
-        # options
-        opt = {'sparse': True}
-        
-        # compute - suppress warning
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            res = linprog(c, A, b, Ae, be, method=self.method, options=opt)
-            
-        # gather the results
-        self.status = res.status
-        if self.status != 0: 
-            warnings.warn(res.message)
-            return np.nan
-        
+        # calc
+        res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
+       
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            return np.array([np.nan] * mm)
+
         # VaR (u)
-        self.secondary_risk_comp = np.array([res.x[mm + l * (nn + 1)] \
+        self.secondary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
                                     for l in range(ll)])
-        # average CVaR
-        # self.risk = trisk
         # CVaR (recomputed)
-        self.primery_risk_comp = \
-            np.array([res.x[mm + l * (nn + 1)] \
+        self.primary_risk_comp = \
+            np.array([res['x'][mm + l * (nn + 1)] \
              + 1 / (1 - self.alpha[l]) * np.mean(
-                 res.x[(mm + l * (nn + 1) + 1) : (mm + (l + 1) * (nn + 1))])
+                 res['x'][(mm + l * (nn + 1) + 1) : (mm + (l + 1) * (nn + 1))])
              for l in range(ll)])
         # optimal weights
-        self.ww = np.array(res.x[:mm])
+        self.ww = np.array(res['x'][:mm])
+        self.ww.shape = mm
         # rate of return
-        self.RR = -res.fun
+        self.RR = -res['pcost']
         
         return self.ww 
  
+    def _risk_averse(self):
+        # Order of variables:
+        # w <- [0:mm] 
+        # then for l <- [0:ll]
+        #   u_l <- mm + l(nn+1), 
+        #   s_l <- [mm + l(nn + 1) + 1: mm + (l + 1)(nn + 1)]
+        # in total dim = mm + ll(nn + 1)
+        ll = self.ll
+        nn = self.nn
+        mm = self.mm
+    
+        # build c
+        c_data = list(-self.muk)
+        for l in range(ll):
+            c_data += [self.Lambda * self.coef[l]] \
+               + [self.Lambda * self.coef[l] / (1 - self.alpha[l] ) / nn] * nn
+            
+        # build G
+        G_icol = list(range(mm)) * (nn * ll)
+        G_irow = [k  for k in range(nn * ll) for _ in range(mm)]
+        G_data = list(np.ravel(-self.rrate)) * ll
+        for l in range(ll):
+            G_icol += [mm + l * (nn + 1)] * nn \
+                + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
+            G_irow += list(range(l * nn, (l + 1) * nn)) \
+                + list(range(l * nn, (l + 1) * nn))
+            G_data += [-1] * nn + [-1] * nn
+        G_icol += list(range(mm + ll * (nn + 1)))
+        G_irow += list(range(ll * nn, ll * nn + mm + ll * (nn + 1)))
+        G_data += [-1.] * (mm + ll * (nn + 1))
+        
+        G_shape = (nn * ll + mm + (nn + 1) * ll, mm + (nn + 1) * ll)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
+
+        # build h
+        h_data = [0.] * (nn * ll + mm + (nn + 1) * ll)
+        
+        # build A
+        A_icol = list(range(mm))
+        A_irow = [0] * mm
+        A_data = [1.] * mm
+        A_shape = (1, mm + ll * (nn + 1))
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
+
+        # build b
+        b_data = [1.]
+        
+        # calc
+        res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
+       
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            return np.array([np.nan] * mm)
+
+        # optimal weights
+        self.ww = np.array(res['x'][:mm])
+        self.ww.shape = mm
+        # VaR (u)
+        self.secondary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
+                                    for l in range(ll)])
+        # rate of returns
+        self.RR = np.dot(self.ww, self.muk)
+        # average CVaR
+        self.risk = (res['pcost'] + self.RR) / self.Lambda
+        # CVaR (recomputed)
+        self.primary_risk_comp = \
+            np.array([res['x'][mm + l * (nn + 1)] \
+             + 1 / (1 - self.alpha[l]) * np.mean(
+                 res['x'][(mm + l * (nn + 1) + 1) : (mm + (l + 1) * (nn + 1))])
+             for l in range(ll)])
+        
+        return self.ww
+        

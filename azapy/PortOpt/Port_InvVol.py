@@ -1,133 +1,150 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Mar 26 16:11:18 2021
-
-@author: mircea
-"""
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-from .Port_ConstN import Port_ConstN
+from .Port_ConstW import Port_ConstW
 
-class Port_InvVol(Port_ConstN):
+class Port_InvVol(Port_ConstW):
     """
-    Portfolio with weights proportional to inverse of volatility, 
-    periodically rebalanced.
-    Inherits from azapy.Port_ConstN \n
-    Functions: \n
-        get_port \n
-        get_nshares \n
-        get_weights \n
-        get_account \n
-        get_mktdata \n
-        port_view \n
-        port_view_all \n
-        port_drawdown \n
-        port_perf \n
-        port_annual_returns \n
-        port_monthly_returns
+    Back testing portfolio with weights proportional to the 
+    inverse of component volatilities, periodically rebalanced.
+    
+    Methods:
+        * set_model
+        * get_port
+        * get_nshares
+        * get_weights
+        * get_account
+        * get_mktdata
+        * port_view
+        * port_view_all
+        * port_drawdown
+        * port_perf
+        * port_annual_returns
+        * port_monthly_returns
+        * port_period_returns
     """
-    def __init__(self, rprice, symb=None, sdate=None, edate=None, col='close', 
-                 pname='InvVol', pcolname=None, capital=100000, 
-                 freq='Q', noffset=-3, hlenght=1, calendar=None):
+    def __init__(self, mktdata, symb=None, sdate=None, edate=None, 
+                 col_price='close', col_divd='divd', col_ref='adjusted',
+                 col_calib='adjusted',
+                 pname='Port', pcolname=None, capital=100000, 
+                 schedule=None,
+                 freq='Q', noffset=-3, fixoffset=-1, calendar=None):
         """
         Constructor
-
+    
         Parameters
         ----------
-        rprice : pd.DataFrame
+        mktdata : pd.DataFrame
             MkT data in the format "symbol", "date", "open", "high", "low",
             "close", "volume", "adjusted", "divd", "split" (e.g. as returned
             by azapy.readMkT).
         symb : list, optional
             List of symbols for the basket components. All symbols MkT data
-            should be included in rprice. If set to None the symb will be 
-            set to the full set of symbols included in rprice. The default 
+            should be present in mktdata. If set to None the symb will be 
+            set to the full set of symbols present in mktdata. The default 
             is None.
         sdate : datetime, optional
             Start date for historical data. If set to None the sdate will 
-            be set to the earliest date in rprice. The default is None.
+            be set to the earliest date in mktdata. The default is None.
         edate : datetime, optional
             End date for historical dates and so the simulation. Must be 
             greater than  sdate. If it is None then edate will be set
-            to the latest date in rprice. The default is None.
-        col : string, optional
-            Name of column in the rprice DataFrame that will be considered 
+            to the latest date in mktdata. The default is None.
+        col_price : string, optional
+            Column name in the mktdata DataFrame that will be considered 
             for portfolio aggregation.The default is 'close'.
+        col_divd :  string, optional
+            Column name in the mktdata DataFrame that holds the dividend 
+            information. The default is 'dvid'.
+        col_ref : string, optional
+            Column name in the mktdata DataFrame that will be used as a price 
+            reference for portfolio components. The default is 'adjusted'.
+        col_calib : string, optional
+            Column name used for historical weights calibrations. 
+            The default is 'adjusted'.
         pname : string, optional
-            The name of the portfolio. The default is 'Simple'.
+            The name of the portfolio. The default is 'Port'.
         pcolname : string, optional
-            Name of the portfolio price column. If it set to None that 
+            Name of the portfolio price column. If it set to None than 
             pcolname=pname. The default is None.
         capital : float, optional
             Initial portfolio Capital in dollars. The default is 100000.
+        schedule : pandas.DataFrame, optional
+            Rebalancing schedule, with columns for 'Droll' rolling date and
+            'Dfix' fixing date. If it is None than the schedule will be set 
+            using the freq, nsoffset, fixoffset, hlength and calendar 
+            information. The default is None.
         freq : string, optional
-            Defines the rebalancing period. Can take the following values:
-                "M" : monthly rebalancing \n
-                "Q" : quarterly rebalancing \n
-                The default is 'Q'. 
+            rebalancing frequency. It can be 'Q' for quarterly or 'M' for 
+            monthly rebalancing, respectively. It is relevant only is schedule 
+            is None. The default is 'Q'.
         noffset : int, optional
-            Number of offset business day form the calendar end of investment 
-            period (rebalancing period). A positive value will add business 
-            days beyond the calendar end of the period while a negative value
-            will subtract business days. The default is -3.
-        hlenght : float, optional
-            Defines the calibration period in years for basket component 
-            volatilities. The calibration period is prior and ends on the 
-            fixing date. It could be a fractional number but the actual 
-            calibration period will rounded to the nearest multiple of 
-            rebalancing periods. The default is 1.
+            Number of business days offset for rebalancing date 'Droll' 
+            relative to the end of the period (quart or month). A positive
+            value add business days beyond the calendar end of the period while
+            a negative value subtract business days. It is relevant only is 
+            schedule is None. The default is -3.
+        fixoffset : int, optional
+            Number of business day offset of fixing date 'Dfix' relative to 
+            the rebalancing date 'Droll'. It cane be 0 or negative. It is 
+            relevant only is schedule is None. The default is -1.
         calendar : numpy.busdaycalendar, optional
-            Business calendar compatible with the MkT data from rprice. If it
-            None then it will be set to NYSE business calendar.
-            The default is None.
-
+            Business calendar. If it is None then it will be set to NYSE 
+            business calendar. The default 
+            is None.
+    
         Returns
         -------
         The object.
         """
-        super().__init__(rprice, symb, sdate, edate, col, 
-                        pname, pcolname, capital, freq, noffset, calendar)
-        self.hlenght = hlenght
-        
-        self.schedule = None
-        
-    def get_port(self):
+        super().__init__(mktdata=mktdata, symb=symb, 
+                         sdate=sdate, edate=edate, 
+                         col_price=col_price, col_divd=col_divd,
+                         col_ref=col_ref, pname=pname,
+                         pcolname=pcolname, capital=capital, 
+                         schedule=schedule, freq=freq, noffset=noffset, 
+                         fixoffset=fixoffset, calendar=calendar)
+        self.col_calib = col_calib
+    
+    def set_model(self, hlength=3.25):
         """
-        Evaluates the portfolio time-series.
+        Set model parameters and evaluate the portfolio time-series.
+        
+        Parameters
+        ----------
+        hlength : float, optional
+            The length in year of the historical calibration period relative 
+            to 'Dfix'. A fractional number will be rounded to an integer number 
+            of months. The default is 3.25 years. 
 
         Returns
         -------
         pd.DataFrame
             The portfolio time-series in the format "date", "pcolname".
         """
-        self._make_schedule()
-        self._make_ww()
+        self.hlength = hlength
+        
+        self._set_schedule()
+        self._set_weights()
         self._port_calc()
         return self.port
     
-    def _make_schedule(self):
-        sch = self._make_simple_schedule()
-        sch['Dhist'] = sch['Dfix'] - pd.offsets \
-            .DateOffset(months=round(self.hlenght * 12, 0))
-        sch['Dhist'] = np.busday_offset(sch['Dhist'].to_numpy(dtype='<M8[D]'), 
-                                        0, roll='backward', 
-                                        busdaycal=self.calendar)
-        for k in range(len(sch)):
-            if sch['Dhist'][k] >= self.sdate: 
-                self.schedule = sch[k:].reset_index(drop=True)
-                return 
+    def _set_weights(self):
+        mktdata = self.mktdata.pivot(columns='symbol', values=self.col_calib)
+        periods = 63 if self.freq == 'Q' else 21
         
-        raise ValueError("Cannot make a schedule!!")
-        
-    def _make_ww(self):
-        mktdata = self.mktdata.pivot(columns='symbol', values='adjusted')
+        # local function
+        def _fww(rr):
+            if rr.Dfix > self.edate:
+                return pd.Series(np.nan, index=mktdata.columns)
             
-        w = []
-        for isch in self.schedule.index:
-            md = mktdata[self.schedule.Dhist[isch]:self.schedule.Droll[isch]]
-            vv = 1. / md.diff().std()
-            w.append(vv / vv.sum())
+            mm = mktdata[rr.Dhist:rr.Dfix].pct_change(periods=periods).dropna()
+            return self._ww_calc(mm)
         
-        self.ww = pd.concat([self.schedule, pd.DataFrame(w)], axis=1)
-        print(self.ww)
+        w = self.schedule.apply(_fww, axis=1)
+ 
+        self.ww = pd.concat([self.schedule, w], axis=1)
+        
+    def _ww_calc(self, data):
+        vv = 1. / data.std()
+        return vv / vv.sum()

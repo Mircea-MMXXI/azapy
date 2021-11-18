@@ -1,35 +1,49 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon May 10 11:48:17 2021
-
-@author: mircea
-"""
 import numpy as np
 import scipy.sparse as sps
-from scipy.optimize import linprog
 import warnings
 
-from .RiskAnalyzer import RiskAnalyzer
+from ._RiskAnalyzer import _RiskAnalyzer
+from ._solvers import _lp_solver
 
-class GINIAnalyzer(RiskAnalyzer):
+class GINIAnalyzer(_RiskAnalyzer):
     """
     GINI dispersion measure based portfolio optimization.
-        Note: inherits from azapy.RiskAnalyzer \n
-        Function inherited\n
-            getWeights \n
-            getRisk \n
-            set_rtype \n
-            viewFrontiers
+    
+    Methods:
+        * getWeights
+        * getRisk
+        * getPositions
+        * viewForntiers
+        * set_rrate
+        * set_mktdata
+        * set_rtype
+        * set_random_seed
     """
-    def __init__(self, rrate=None, rtype='Sharpe', method='highs-ipm'):
+    def __init__(self, mktdata=None, colname='adjusted', freq='Q', 
+                 hlength=1.25, calendar=None, 
+                 rtype='Sharpe', method='ecos'):
         """
         Constructor
 
         Parameters
         ----------
-        rrate : pandas.DataFrame, optional
-            MkT data for portfolio components in the format 
-            "date", "symbol1", "symbol2", etc. The default is None.
+        mktdata : pandas.DataFrame, optional
+            Historic daily market data for portfolio components in the format
+            returned by azapy.mktData function. The default is None.
+        colname : string, optional
+            Name of the price column from mktdata used in the weights 
+            calibration. The default is 'adjusted'.
+        freq : string, optional
+            Rate of returns horizon in number of business day. it could be 
+            'Q' for quarter or 'M' for month. The default is 'Q'.
+        hlength : float, optional
+            History length in number of years used for calibration. A 
+            fractional number will be rounded to an integer number of months.
+            The default is 1.25 years.
+        calendar : np.busdaycalendar, optional
+            Business days calendar. If is it None then the calendar will be set
+            to NYSE business calendar.
+            The default is None.
         rtype : string, optional
             Optimization type. Possible values \n
                 "Risk" - minimization of dispersion (risk) measure.\n
@@ -40,21 +54,28 @@ class GINIAnalyzer(RiskAnalyzer):
                 value.\n
                 "InvNRisk" - optimal portfolio with the same dispersion (risk)
                 value as equally weighted portfolio.\n
+                "RiskAverse" : optimal portfolio for a fixed risk aversion 
+                coefficient.
             The default is "Sharpe".
         method : string, optional
-            Linear programming numerical method. Could be 
-            'highs-ds', 'highs-ipm', 'highs' and 'interior-point'. 
-            The default is 'highs-ipm'.
+            Linear programming numerical method. 
+            Could be one of 'ecos', 'highs-ds', 'highs-ipm', 'highs', 
+            'interior-point', 'glpk' and 'cvxopt'.
+            The defualt is 'ecos'.
             
         Returns
         -------
         The object.
-
         """
-        self.method = method
         self.drate = None
         self.nn2 = None
-        super().__init__(rrate, rtype)
+        super().__init__(mktdata, colname, freq, hlength, calendar, rtype)
+        
+        lp_methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 
+                       'interior-point', 'glpk', 'cvxopt']
+        if not method in lp_methods:
+            raise ValueError(f"method must be one of {lp_methods}")
+        self.method = method
         
         
     def _risk_calc(self, prate, alpha):
@@ -65,18 +86,18 @@ class GINIAnalyzer(RiskAnalyzer):
         # status, gini, gini
         return 0, gini, gini
             
+    
     def set_rrate(self, rrate):
         """
-        Set the MkT Data.
+        Sets the MkT Data.
 
         Parameters
         ----------
         rrate : pandas.DataFrame
-            MkT Data. It will overwrite the value set by the constructor.
+            Market data. It will overwrite the value set by the constructor.
         Returns
         -------
         None.
-
         """
         self.nn, self.mm = rrate.shape
         self.muk = rrate.mean()
@@ -91,6 +112,7 @@ class GINIAnalyzer(RiskAnalyzer):
                        for j in range(i + 1, self.nn)])
         self.drate = np.concatenate(yy)
         
+        
     def _risk_min(self, d=1):
         # Order of variables (mm - no of symb, nn - no of observations)
         # w <- [0 : mm]
@@ -101,56 +123,58 @@ class GINIAnalyzer(RiskAnalyzer):
         nn2 = self.nn2
         
         # build c
-        c = [0.] * mm + [0.5 / nn2] * nn2
+        c_data = [0.] * mm + [0.5 / nn2] * nn2
         
-        # bild A_up
-        icol = [m for m in range(mm) for _ in range(nn2)] * 2
-        irow = list(range(nn2)) * mm + list(range(nn2, 2 * nn2)) * mm
-        data = list(self.drate) + list(-self.drate)
+        # bild G
+        G_icol = [m for m in range(mm) for _ in range(nn2)] * 2
+        G_irow = list(range(nn2)) * mm + list(range(nn2, 2 * nn2)) * mm
+        G_data = list(self.drate) + list(-self.drate)
         
-        icol += list(range(mm, mm + nn2)) * 2
-        irow += list(range(nn2 * 2))
-        data += [-1.] * (nn2 * 2)
+        G_icol += list(range(mm, mm + nn2)) * 2
+        G_irow += list(range(nn2 * 2))
+        G_data += [-1.] * (nn2 * 2)
         
-        icol += list(range(mm))
-        irow += [nn2 * 2] * mm
-        data += list(-self.muk * d)
+        G_icol += list(range(mm))
+        G_irow += [nn2 * 2] * mm
+        G_data += list(-self.muk * d)
         
-        A = sps.coo_matrix((data, (irow, icol)), 
-                            shape=(nn2 * 2 + 1, mm + nn2))
+        G_icol += list(range(mm + nn2))
+        G_irow += list(range(nn2 * 2 + 1, nn2 * 3 + 1 + mm))
+        G_data += [-1.] * (mm + nn2)
         
-        # build b_ub
-        b = [0.] * (nn2 * 2) + [-self.mu * d]
+        G_shape = (nn2 * 3 + 1 + mm, mm + nn2)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
+   
+        # build h
+        h_data = [0.] * (nn2 * 2) + [-self.mu * d] + [0.] * (mm + nn2)
         
-        # build A_eq
-        Ae = sps.coo_matrix(([1.] * mm, ([0] * mm, list(range(mm)))), 
-                            shape=(1, mm + nn2)) 
+        # build A
+        A_icol = list(range(mm))
+        A_irow = [0] * mm
+        A_data = [1.] * mm
+        A_shape = (1, mm + nn2)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         
-        # build b_eq
-        be = [1.]
+        # build b
+        b_data = [1.]
         
-        # options
-        opt = {'sparse': True}
-        
-        # compute - suppress warning
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            res = linprog(c, A, b, Ae, be, method=self.method, options=opt)
+        # calc
+        res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
+ 
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            return np.array([np.nan] * mm)
             
-        # gather the results
-        self.status = res.status
-        if self.status != 0: 
-            warnings.warn(res.message)
-            return np.nan
-        
         # GINI
-        self.risk = res.fun
+        self.risk = res['pcost']
         # optimal weights
-        self.ww = np.array(res.x[:mm])
+        self.ww = np.array(res['x'][:mm])
+        self.ww.shape = mm
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
         
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
         self.secondary_risk_comp = np.array([self.risk])
         
         return self.ww
@@ -167,63 +191,63 @@ class GINIAnalyzer(RiskAnalyzer):
         nn2 = self.nn2
         
         # build c
-        c = list(-self.muk) + [0.] * nn2 + [self.mu]
+        c_data = list(-self.muk) + [0.] * nn2 + [self.mu]
         
-        # bild A_up
-        icol = [m for m in range(mm) for _ in range(nn2)] * 2
-        irow = list(range(nn2)) * mm + list(range(nn2, 2 * nn2)) * mm
-        data = list(self.drate) + list(-self.drate)
+        # bild G
+        G_icol = [m for m in range(mm) for _ in range(nn2)] * 2
+        G_irow = list(range(nn2)) * mm + list(range(nn2, 2 * nn2)) * mm
+        G_data = list(self.drate) + list(-self.drate)
         
-        icol += list(range(mm, mm + nn2)) * 2
-        irow += list(range(nn2 * 2))
-        data += [-1.] * (nn2 * 2)
+        G_icol += list(range(mm, mm + nn2)) * 2
+        G_irow += list(range(nn2 * 2))
+        G_data += [-1.] * (nn2 * 2)
         
-        A = sps.coo_matrix((data, (irow, icol)), 
-                            shape=(nn2 * 2, mm + nn2 + 1))
+        G_icol += list(range(mm))
+        G_irow += list(range(nn2 * 2, nn2 * 2 + mm))
+        G_data += [-1.] * mm
         
-        # build b_ub
-        b = [0.] * (nn2 * 2) 
+        G_shape = (nn2 * 2 + mm , mm + nn2 + 1)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
         
-        # build A_eq
-        icol = list(range(mm, mm + nn2)) + list(range(mm)) + [mm + nn2] 
-        irow = [0] * nn2 + [1] * (mm + 1)
-        data = [0.5 / nn2] * nn2 + [1.] * mm + [-1.]
-        Ae = sps.coo_matrix((data, (irow, icol)), 
-                             shape=(2, mm + nn2 + 1))
+        # build h
+        h_data = [0.] * (nn2 * 2 + mm) 
         
-        # build b_eq
-        be = [1., 0.]
+        # build A
+        A_icol = list(range(mm, mm + nn2)) + list(range(mm)) + [mm + nn2] 
+        A_irow = [0] * nn2 + [1] * (mm + 1)
+        A_data = [0.5 / nn2] * nn2 + [1.] * mm + [-1.]
+        A_shape = (2, mm + nn2 + 1)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         
-        # options
-        opt = {'sparse': True}
+        # build b
+        b_data = [1., 0.]
         
-        # compute - suppress warning
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            res = linprog(c, A, b, Ae, be, method=self.method, options=opt)
+        # calc
+        res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
+ 
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            return np.array([np.nan] * mm)
             
-        # gather the results
-        self.status = res.status
-        if self.status != 0: 
-            warnings.warn(res.message)
-            return np.nan
-        
-        t = res.x[-1]
+        t = res['x'][-1]
         # Sharpe
-        self.sharpe = -res.fun
+        self.sharpe = -res['pcost']
         # GINI
-        self.risk = 1 / t
+        self.risk = 1. / t
         # optimal weights
-        self.ww = np.array(res.x[:mm] / t)
+        self.ww = np.array(res['x'][:mm] / t)
+        self.ww.shape = mm
         # rate of return
-        self.RR = -res.fun / t + self.mu
+        self.RR = -res['pcost'] / t + self.mu
         
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
         self.secondary_risk_comp = np.array([self.risk])
         
         return self.ww
     
-    def _sharpe_min(self):
+    
+    def _sharpe_inv_min(self):
         # Order of variables (mm - no of symb, nn - no of observations)
         # w <- [0 : mm]
         # s <- [mm : mm + nn2]
@@ -234,61 +258,61 @@ class GINIAnalyzer(RiskAnalyzer):
         nn2 = self.nn2
         
         # build c
-        c = [0.] * mm + [0.5 / nn2] * nn2 + [0.]
+        c_data = [0.] * mm + [0.5 / nn2] * nn2 + [0.]
         
-        # build A_up
-        icol = [m for m in range(mm) for _ in range(nn2)] * 2
-        irow = list(range(nn2)) * mm + list(range(nn2, 2 * nn2)) * mm
-        data = list(self.drate) + list(-self.drate)
+        # build G
+        G_icol = [m for m in range(mm) for _ in range(nn2)] * 2
+        G_irow = list(range(nn2)) * mm + list(range(nn2, 2 * nn2)) * mm
+        G_data = list(self.drate) + list(-self.drate)
         
-        icol += list(range(mm, mm + nn2)) * 2
-        irow += list(range(nn2 * 2))
-        data += [-1.] * (nn2 * 2)
+        G_icol += list(range(mm, mm + nn2)) * 2
+        G_irow += list(range(nn2 * 2))
+        G_data += [-1.] * (nn2 * 2)
         
-        A = sps.coo_matrix((data, (irow, icol)), 
-                            shape=(nn2 * 2, mm + nn2 + 1))
+        G_icol += list(range(mm))
+        G_irow += list(range(nn2 * 2, nn2 * 2 + mm))
+        G_data += [-1.] * mm
         
-        # build b_ub
-        b = [0.] * (nn2 * 2) 
+        G_shape = (nn2 * 2 + mm, mm + nn2 + 1)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
         
-        # build A_eq
-        icol = (list(range(mm)) + [mm + nn2]) * 2
-        irow = [0] * (mm + 1) + [1] * (mm + 1)
-        data = list(self.muk) + [-self.mu] + [1.] * mm + [-1.]
-        Ae = sps.coo_matrix((data, (irow, icol)), 
-                             shape=(2, mm + nn2 + 1))
+        # build h
+        h_data = [0.] * (nn2 * 2 + mm) 
         
-        # build b_eq
-        be = [1., 0.]
+        # build A
+        A_icol = (list(range(mm)) + [mm + nn2]) * 2
+        A_irow = [0] * (mm + 1) + [1] * (mm + 1)
+        A_data = list(self.muk) + [-self.mu] + [1.] * mm + [-1.]
+        A_shape = (2, mm + nn2 + 1)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         
-        # options
-        opt = {'sparse': True}
+        # build b
+        b_data = [1., 0.]
         
-        # compute - suppress warning
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            res = linprog(c, A, b, Ae, be, method=self.method, options=opt)
+        # calc
+        res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
+ 
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            return np.array([np.nan] * mm)
             
-        # gather the results
-        self.status = res.status
-        if self.status != 0: 
-            warnings.warn(res.message)
-            return np.nan
-        
-        t = res.x[-1]
+        t = res['x'][-1]
         # Sharpe
-        self.sharpe = 1 / res.fun
+        self.sharpe = 1. / res['pcost']
         # GINI
-        self.risk = res.fun / t
+        self.risk = res['pcost'] / t
         # optimal weights
-        self.ww = np.array(res.x[:mm] / t)
+        self.ww = np.array(res['x'][:mm] / t)
+        self.ww.shape = mm
         # rate of return
-        self.RR = 1 / t + self.mu
+        self.RR = 1. / t + self.mu
         
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
         self.secondary_risk_comp = np.array([self.risk])
         
         return self.ww
+    
     
     def _rr_max(self):
         # Order of variables (mm - no of symb, nn - no of observations)
@@ -300,53 +324,116 @@ class GINIAnalyzer(RiskAnalyzer):
         nn2 = self.nn2
         
         # build c
-        c = list(-self.muk) + [0.] * nn2
+        c_data = list(-self.muk) + [0.] * nn2
         
-        # bild A_up
-        icol = [m for m in range(mm) for _ in range(nn2)] * 2
-        irow = list(range(nn2)) * mm + list(range(nn2, 2 * nn2)) * mm
-        data = list(self.drate) + list(-self.drate)
+        # build G
+        G_icol = [m for m in range(mm) for _ in range(nn2)] * 2
+        G_irow = list(range(nn2)) * mm + list(range(nn2, 2 * nn2)) * mm
+        G_data = list(self.drate) + list(-self.drate)
         
-        icol += list(range(mm, mm + nn2)) * 2
-        irow += list(range(nn2 * 2))
-        data += [-1.] * (nn2 * 2)
+        G_icol += list(range(mm, mm + nn2)) * 2
+        G_irow += list(range(nn2 * 2))
+        G_data += [-1.] * (nn2 * 2)
         
-        A = sps.coo_matrix((data, (irow, icol)), 
-                            shape=(nn2 * 2, mm + nn2))
+        G_icol += list(range(mm))
+        G_irow += list(range(nn2 * 2, nn2 * 2 + mm))
+        G_data += [-1.] * mm
         
-        # build b_ub
-        b = [0.] * (nn2 * 2) 
+        G_shape = (nn2 * 2 + mm, mm + nn2)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
         
-        # build A_eq
-        icol = list(range(mm)) + list(range(mm, mm + nn2))
-        irow = [0] * mm + [1] * nn2
-        data = [1.] * mm + [0.5 / nn2] * nn2
-        Ae = sps.coo_matrix((data, (irow, icol)), 
-                             shape=(2, mm + nn2))
+        # build h
+        h_data = [0.] * (nn2 * 2 + mm) 
         
-        # build b_eq
-        be = [1., self.risk]
+        # build A
+        A_icol = list(range(mm)) + list(range(mm, mm + nn2))
+        A_irow = [0] * mm + [1] * nn2
+        A_data = [1.] * mm + [0.5 / nn2] * nn2
+        A_shape = (2, mm + nn2)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         
-         # options
-        opt = {'sparse': True}
+        # build b
+        b_data = [1., self.risk]
         
-        # compute - suppress warning
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            res = linprog(c, A, b, Ae, be, method=self.method, options=opt)
+        # calc
+        res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
+ 
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            return np.array([np.nan] * mm)
             
-        # gather the results
-        self.status = res.status
-        if self.status != 0: 
-            warnings.warn(res.message)
-            return np.nan
-        
         # optimal weights
-        self.ww = np.array(res.x[:mm])
+        self.ww = np.array(res['x'][:mm])
+        self.ww.shape = mm
         # rate of return
-        self.RR = -res.fun
+        self.RR = -res['pcost']
         
-        self.primery_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([self.risk])
         self.secondary_risk_comp = np.array([self.risk])
         
         return self.ww
+
+
+    def _risk_averse(self):
+        # Order of variables (mm - no of symb, nn - no of observations)
+        # w <- [0 : mm]
+        # s <- [mm : mm + nn2]
+        # in total dim = mm + nn2 
+        # where nn2 = nn * (nn - 1) / 2
+        mm = self.mm
+        nn2 = self.nn2
+        
+        # build c
+        c_data = list(-self.muk) + [0.5 * self.Lambda / nn2] * nn2
+        
+        # bild G
+        G_icol = [m for m in range(mm) for _ in range(nn2)] * 2
+        G_irow = list(range(nn2)) * mm + list(range(nn2, 2 * nn2)) * mm
+        G_data = list(self.drate) + list(-self.drate)
+        
+        G_icol += list(range(mm, mm + nn2)) * 2
+        G_irow += list(range(nn2 * 2))
+        G_data += [-1.] * (nn2 * 2)
+        
+        G_icol += list(range(mm))
+        G_irow += list(range(nn2 * 2, nn2 * 2 + mm))
+        G_data += [-1.] * (mm)
+        
+        G_shape = (nn2 * 2 + mm, mm + nn2)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
+        
+        # build h
+        h_data = [0.] * (nn2 * 2 + mm)
+        
+        # build A
+        A_icol = list(range(mm))
+        A_irow = [0] * mm
+        A_data = [1.] * mm
+        A_shape = (1, mm + nn2)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
+        
+        # build b
+        b_data = [1.]
+        
+        # calc
+        res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
+ 
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            return np.array([np.nan] * mm)
+            
+        # optimal weights
+        self.ww = np.array(res['x'][:mm])
+        self.ww.shape = mm
+        # rate of return
+        self.RR = np.dot(self.ww, self.muk)
+        # GINI
+        self.risk = (res['pcost'] + self.RR) / self.Lambda
+ 
+        self.primary_risk_comp = np.array([self.risk])
+        self.secondary_risk_comp = np.array([self.risk])
+        
+        return self.ww
+        
