@@ -28,9 +28,10 @@ Optimization type. The default is `'Sharpe'`. Possible values are:
     - `'Risk'` : minimization of dispersion (risk) measure for a fixed values
     of portfolio expected rate of return,
     - `'Sharpe'` : maximization of generalized Sharpe ratio,
+    - `'Sharpe2'` : minimization of inverse generalized Sharpe ratio,
     - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value,
     - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
-		as equally weighted portfolio.
+		as equal weighted portfolio,
     - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
 * `hlength` :
 The length in years of historical calibration period relative

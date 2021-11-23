@@ -13,16 +13,16 @@ A. Risk based portfolio optimization algorithms:
   4. SD (Standard Deviation)
   5. Mixture MAD (Mean Absolute Deviation)
   6. Mixture LSSD (Lower Semi-Standard Deviation)
-  7. Gini (as in Corrado Gini - statistician 1884-1965)
+  7. GINI (as in Corrado Gini - statistician 1884-1965)
   8. MSGINI (Second Momentum Gini dispersion measure)
-  9. Omega ratio (introduced by Con Keating and William F. Shadwick in 2002)
+  9. Omega ratio (introduced by Con Keating and William F. Shadwick - 2002)
 
 For each class of portfolios the following optimization strategies are
 available:
   1. minimization of dispersion for a give expected rate of returns
   2. maximization of generalized Sharpe ratio
   3. minimization of the inverse of generalized Sharpe ratio
-  4. minimum dispersion portfolio strategy
+  4. global minimum dispersion portfolio strategy
   5. Inverse-N risk optimal portfolio (optimal portfolio with the same
     dispersion measure as equally weighted portfolio)
   6. maximization of expected rate of returns for a fixed value of

@@ -12,8 +12,9 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 
 mktdir = "../../MkTdata"
 
-# force=True read from alphavantage server
-# force=False read from local directory if data exists
+# force=True read directly from alphavantage
+# force=False read first from local directory, if data does not exists, 
+#             read from alphavantage
 mktdata = az.readMkT(symb, dstart = sdate, dend = edate,
                      dir=mktdir, force=False)
 
@@ -55,7 +56,7 @@ ww_comp = pd.DataFrame({"ww1": ww1, "test_ww1": test_ww1,
 print(f"Test for weights computation\n {ww_comp}")
 
 #=============================================================================
-# Frontier evaluations - may take some time
+# Frontiers evaluations
 print("\nFrontiers evaluations\n")
 opt ={'title': "SMGINI Port", 'tangent': True}
 print("\n rate of returns vs risk representation")
@@ -101,6 +102,7 @@ sharpe_comp = pd.DataFrame({'sharpe2': [sharpe2], 'sharpe1': [sharpe1],
 print(f"Sharpe comp\n {sharpe_comp}")
 
 # # Speed of Sharpe vs Sharpe2 - may take some time
+# # please uncomment the lines below
 # %timeit cr2.getWeights(mu=0., rtype='Sharpe')
 # %timeit cr2.getWeights(mu=0., rtype='Sharpe2')
 
@@ -158,9 +160,9 @@ ww_comp = pd.DataFrame({'ww1': ww1, 'ww2': ww2, 'diff': ww1-ww2})
 print(f"weigths:\n {ww_comp}")
 
 #=============================================================================
-# # speed comparisons for different LP methods
+# # speed comparisons for different SOCP methods
 # # may take some time to complete
-# # you have to uncomment the lines below
+# # please uncomment the lines below
 # crx1 = az.SMGINIAnalyzer(mktdata, method='ecos')
 # wwx1 = crx1.getWeights(mu=0.)
 # print(f"ecos : {wwx1}")

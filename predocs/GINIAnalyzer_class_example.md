@@ -1,0 +1,215 @@
+<a name="GINIAnalyzer_class_example"></a>
+
+### Examples
+
+```
+import numpy as np
+import pandas as pd
+
+import azapy as az
+
+#=============================================================================
+# Collect some market data
+sdate = pd.to_datetime("2012-01-01")
+edate = pd.to_datetime('today')
+symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
+
+mktdir = "../../MkTdata"
+
+# force=True read directly from alphavantage
+# force=False read first from local directory, if data does not exists,
+#             read from alphavantage
+mktdata = az.readMkT(symb, dstart = sdate, dend = edate,
+                     dir=mktdir, force=False)
+
+#=============================================================================
+# Compute Sharpe optimal portfolio
+# build the analyzer object
+cr1 = az.GINIAnalyzer(mktdata)
+# computes Sharpe weights for 0 risk-free rate
+ww1 = cr1.getWeights(mu=0.)
+# print portfolio characteristics
+# primary risk = [GINI] (redundant)
+# secondary risk = [GINI] (redundant)
+# risk = GINI
+RR = cr1.RR
+risk = cr1.risk
+prim = cr1.primary_risk_comp.copy()
+seco = cr1.secondary_risk_comp.copy()
+sharpe = cr1.sharpe
+print("\nSharpe optimal portfolio\n")
+print(f"status {cr1.status}")
+print(f"coef {ww1}")
+print(f"Secondary risk {seco}")
+print(f"Primary risk {prim}")
+print(f"Sharpe {sharpe}")
+print(f"RR {RR}")
+print(f"risk {risk}")
+
+# Test risk by computing the risk of a portfolio with weights ww1
+test_risk = cr1.getRisk(ww1)
+test_risk_res = pd.DataFrame({'risk': [risk], 'test_risk': [test_risk],
+                              'diff': [risk-test_risk]})
+print(f"Test for the risk computation\n {test_risk_res}")
+
+# Test the Sharpe weights by estimating an optimal portfolio with
+# the same rate of returns.
+test_ww1 = cr1.getWeights(mu=RR, rtype='Risk')
+ww_comp = pd.DataFrame({"ww1": ww1, "test_ww1": test_ww1,
+                        'diff': ww1-test_ww1})
+print(f"Test for weights computation\n {ww_comp}")
+
+#=============================================================================
+# Frontiers evaluations
+print("\nFrontiers evaluations\n")
+opt ={'title': "GINI Port", 'tangent': True}
+print("\n rate of returns vs risk representation")
+rft = cr1.viewFrontiers(musharpe=0, randomport=100, options=opt)
+print("\n Sharpe vs rate of returns representation")
+rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR')
+
+#=============================================================================
+# Test Sharpe vs. Sharpe2
+# first Sharpe (default rtype)
+cr1 = az.GINIAnalyzer(mktdata)
+ww1 = cr1.getWeights(mu=0.)
+RR1 = cr1.RR
+risk1 = cr1.risk
+prim1 = cr1.primary_risk_comp.copy()
+seco1 = cr1.secondary_risk_comp.copy()
+sharpe1 = cr1.sharpe
+# second Sharpe2
+cr2 = az.GINIAnalyzer(mktdata)
+ww2 = cr2.getWeights(mu=0., rtype="Sharpe2")
+RR2 = cr2.RR
+risk2 = cr2.risk
+prim2 = cr2.primary_risk_comp.copy()
+seco2 = cr2.secondary_risk_comp.copy()
+sharpe2 = cr2.sharpe
+# print comparison
+print("\nSharpe vs. Sharpe2\n")
+print(f"status {cr2.status} = {cr1.status}")
+ww_comp = pd.DataFrame({"ww2": ww2, "ww1": ww1, "diff": ww2-ww1})
+print(f"coef\n {ww_comp}")
+seco_comp = pd.DataFrame({"seco2": seco2, "seco1": seco1, "diff": seco2-seco1})
+print(f"Secondary risk\n {seco_comp}")
+prim_comp = pd.DataFrame({"prim2": prim2, "prim1": prim1,
+                          "diff": prim2-prim1})
+print(f"Primary risk\n {prim_comp}")
+RR_comp = pd.DataFrame({'RR2': [RR2], 'RR1': [RR1], 'diff': [RR2 - RR1]})
+print(f"RR comp\n {RR_comp}")
+risk_comp = pd.DataFrame({'risk2': [risk2], 'risk1': [risk1],
+                          'diff': [risk2-risk1]})
+print(f"risk comp\n {risk_comp}")
+sharpe_comp = pd.DataFrame({'sharpe2': [sharpe2], 'sharpe1': [sharpe1],
+                            'diff': [sharpe2-sharpe1]})
+print(f"Sharpe comp\n {sharpe_comp}")
+
+# # Speed of Sharpe vs Sharpe2 - may take some time
+# # please uncomment the lines below
+# %timeit cr2.getWeights(mu=0., rtype='Sharpe')
+# %timeit cr2.getWeights(mu=0., rtype='Sharpe2')
+
+#=============================================================================
+# Test for InvNrisk
+cr1 = az.GINIAnalyzer(mktdata)
+# compute the risk of a equally weighted portfolio
+ww = np.ones(len(symb))
+ww = ww / np.sum(ww)
+risk = cr1.getRisk(ww)
+# compute the weights of InvNrisk
+ww1 = cr1.getWeights(mu=0., rtype="InvNrisk")
+RR1 = cr1.RR
+# compute the optimal portfolio for RR1 targeted rate of return
+ww2 = cr1.getWeights(mu=RR1, rtype="Risk")
+# print comparison results
+print("\nInvNrisk\n")
+risk_comp = pd.DataFrame({'1/N': [risk], 'InvNrisk': [cr1.risk],
+                          'diff': [risk - cr1.risk]})
+print(f"risk comp\n {risk_comp}")
+ww_comp = pd.DataFrame({"InvNrisk": ww1, "Optimal": ww2, 'diff': ww1-ww2})
+print(f"weights comp\n {ww_comp}")
+
+#=============================================================================
+# Test for MinRisk
+cr1 = az.GINIAnalyzer(mktdata)
+# compute the MinRisk portfolio
+ww1 = cr1.getWeights(mu=0., rtype="MinRisk")
+# test
+ww2 = cr1.getWeights(mu=0., rtype="Risk")
+# print comparison
+print("\nMinRisk\n")
+ww_comp = pd.DataFrame({"MinRisk": ww1, "Test": ww2, 'diff': ww1-ww2})
+print(f"weights comp\n {ww_comp}")
+
+#=============================================================================
+# Test for RiskAverse
+# first compute the Sharpe portfolio
+cr1 = az.GINIAnalyzer(mktdata)
+ww1 = cr1.getWeights(mu=0.)
+sharpe = cr1.sharpe
+risk = cr1.risk
+
+# compute RiskAverse portfolio for Lambda=sharpe
+Lambda = sharpe
+cr2 = az.GINIAnalyzer(mktdata)
+ww2 = cr2.getWeights(mu=Lambda, rtype='RiskAverse')
+
+# comparison - practically they should be identical
+print("\nRiskAverse\n")
+risk_comp = pd.DataFrame({'risk': [cr2.risk], 'test': [cr2.RR / Lambda],
+                          'Sharpe risk': [risk]})
+print(f"risk comp\n {risk_comp}")
+ww_comp = pd.DataFrame({'ww1': ww1, 'ww2': ww2, 'diff': ww1-ww2})
+print(f"weigths:\n {ww_comp}")
+
+#=============================================================================
+# # speed comparisons for different LP methods
+# # may take some time to complete
+# # please uncomment the lines below
+# crx1 = az.GINIAnalyzer(mktdata, method='highs-ds')
+# wwx1 = crx1.getWeights(mu=0.)
+# print(f"high-ds : {wwx1}")
+# crx2 = az.GINIAnalyzer(mktdata, method='highs-ipm')
+# wwx2 = crx2.getWeights(mu=0.)
+# print(f"highs-ipm : {wwx2}")
+# crx3 = az.GINIAnalyzer(mktdata, method='highs')
+# wwx3 = crx3.getWeights(mu=0.)
+# print(f"highs : {wwx3}")
+# crx4 = az.GINIAnalyzer(mktdata, method='interior-point')
+# wwx4 = crx4.getWeights(mu=0.)
+# print(f"interior-point : {wwx4}")
+# crx5 = az.GINIAnalyzer(mktdata, method='glpk')
+# wwx5 = crx5.getWeights(mu=0.)
+# print(f"glpk : {wwx5}")
+# crx6 = az.GINIAnalyzer(mktdata, method='cvxopt')
+# wwx6 = crx6.getWeights(mu=0.)
+# print(f"cvxopt : {wwx6}")
+# crx7 = az.GINIAnalyzer(mktdata, method='ecos')
+# wwx7 = crx7.getWeights(mu=0.)
+# print(f"ecos : {wwx7}")
+
+# %timeit crx1.getWeights(mu=0.)
+# %timeit crx2.getWeights(mu=0.)
+# %timeit crx3.getWeights(mu=0.)
+# %timeit crx4.getWeights(mu=0.)
+# %timeit crx5.getWeights(mu=0.)
+# %timeit crx6.getWeights(mu=0.)
+# %timeit crx7.getWeights(mu=0.)
+
+#=============================================================================
+# Example of rebalancing positions
+cr1 = az.GINIAnalyzer(mktdata)
+
+# existing positions and cash
+ns = pd.Series(100, index=symb)
+cash = 0.
+
+# new positions and rolling info
+pos = cr1.getPositions(mu=0., rtype='Sharpe', nshares=ns, cash=0.)
+print(f" New position report\n {pos}")
+```
+
+[TOP](#TOP)
+
+---

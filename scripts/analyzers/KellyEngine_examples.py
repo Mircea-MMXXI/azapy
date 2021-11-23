@@ -11,15 +11,17 @@ symb = ['PSJ', 'SPY', 'XLV', 'VGT', 'ONEQ']
 
 mktdir = "../../MkTdata"
 
-# force=True read from alphavantage server
-# force=False read from local directory if data exists
+# force=True read directly from alphavantage
+# force=False read first from local directory, if data does not exists, 
+#             read from alphavantage
 mktdata = az.readMkT(symb, dstart = sdate, dend = edate, 
                      dir=mktdir, force=False) 
 
 #=============================================================================
 # set approximation level
-# the levels are 'Full' no approximation (convex non-linear optimization 
-# problem) or 'Order2' for second order Taylor approximation (QP problem)
+# the levels are:
+#  - 'Full' no approximation (convex non-linear optimization problem)
+#  - 'Order2' for second order Taylor approximation (QP problem)
 rtype1 = 'Full'
 rtype2 = 'Order2'
 

@@ -11,8 +11,9 @@ symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
 
 mktdir = "../../MkTdata"
 
-# force=True read from alphavantage server
-# force=False read from local directory if data exists
+# force=True read directly from alphavantage
+# force=False read first from local directory, if data does not exists, 
+#             read from alphavantage
 mktdata = az.readMkT(symb, dstart = sdate, dend = edate, 
                      dir=mktdir, force=False) 
 
@@ -40,6 +41,7 @@ p4.port_period_returns()
 p4.get_nshares()
 p4.get_account(fancy=True)
 
+#=============================================================================
 # Test using the Port_Rebalanced weights schedule ww (from above)
 p2 = az.Port_Rebalanced(mktdata, pname='TestPort')
 port2  = p2.set_model(ww)     

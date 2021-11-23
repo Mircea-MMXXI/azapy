@@ -35,7 +35,7 @@ strategies based on the following dispersion measures:
 * LSSD - Lower Semi-Standard Deviation and its generalization mLSSD
 (mixture of high order LSSD'm),
 * GINI - Gini ratio,
-* SMGINI - Second Momentum GINI dispersion measure
+* SMGINI - Second Momentum GINI dispersion measure,
 * Omega - Omega ratio.
 
 In each case several optimization strategies are implemented. To
@@ -62,7 +62,8 @@ with the lowest rate of returns for a given value of risk. Clearly, this
 family of portfolios are to be avoided by an investor.
 
 The most left point, where the blue and red lines meet, is the
-*Minimum Risk Portfolio*. This is the portfolio with minimum risk. Investing
+*Minimum Risk Portfolio* (sometime called *Global Minimum Risk Portfolio*).
+This is the portfolio with minimum risk. Investing
 in portfolios with minimum risk is a relative common strategy among
 professional investors.
 
@@ -100,7 +101,7 @@ the market symbol of this portfolio component.
 
 Among the *inefficient portfolios* there is a remarkable portfolio. That is
 the portfolio with equal weights. All weights
-are equal to $1/N$ where $N$ is the number of portfolio
+are proportional to $1/N$ where $N$ is the number of portfolio
 components. Hence, its name $1/N$*-portfolio* or *inverse-N portfolio*.
 In our plot this portfolio is represented by a green X with label $1/N$.
 
@@ -124,11 +125,12 @@ figure.
 
 _Fig 2. : Example of portfolio frontiers - expected rate of return vs. Sharpe ratio._
 
-It contain the same information as Fig 1. However, now in the
-x-axis is the expected rate of return while in the y-axis is the Sharpe ratio.
-We have preserved all the symbols and the code of colors between the figs.
+It contain the same information as Fig 1. However, now the
+x-axis is the expected rate of return while the y-axis is the Sharpe ratio.
+We have preserved the color code and all the symbols from Fig.1.
+
 Fig 2. gives a better intuition of portfolio efficiency in terms of
-excess return per unit or risk.
+e3xpected excess return per unit or risk.
 
 
 
@@ -144,31 +146,31 @@ between the expected rate of returns of the efficient portfolio with minimum
 risk and the highest rate of returns among the portfolio components. If
 the input value is outside of this range than it will automatically default
 to the nearby limit. In the code this strategy is designated by setting
-``rtype='Risk'``.
+`rtype='Risk'`.
 2. *Maximization of Sharpe ratio*. This is the portfolio with the highest
-excess rate of returns per unit of risk hold by the investor. It is a
+expected excess rate of return per unit of risk hold by the investor. It is a
 very popular strategy among investors.
-In the code this strategy is designated by setting ``rtype='Sharpe'``.
-3. *Minimization of inverse Sharpe ratio*. Obviously this strategy is
+In the code this strategy is designated by setting `rtype='Sharpe'`.
+3. *Minimization of inverse Sharpe ratio*. Obviously, this strategy is
 logically equivalent with the one above. It returns the same portfolio
-weights. However, from a mathematical point of view the direct
+weights. However, from a mathematical point of view, the direct
 minimization of inverse Sharpe ratio is a different programming problem
-then the direct maximization of Sharpe ratio. Some authors insist that
+than the direct maximization of Sharpe ratio. Some authors insist that
 the minimization of the inverse Sharpe leads to more stable numerical algorithms
-(under certain conditions). In our experience we were not able to verify
+(under certain conditions). We were not able to verify
 this claim. Both methods have proved to be very stable with similar
 computational times. For completeness, we choose
-to make available this implementation under the setting ``rtype='Sharpe2'``.
+to make available this implementation under the setting `rtype='Sharpe2'`.
 4. *Minimum Risk portfolio*. This is the efficient portfolio with
 minimum risk (the most left limit of the *efficient frontier*). It is
 a common strategy among professional investor. This strategy is available
-under the setting ``rtype='MinRisk'``.
+under the setting `rtype='MinRisk'`.
 5. *Efficient portfolio with same risk as inverse-N*. This is the
 optimal portfolio that
 has the same risk as the *inverse-N* portfolio. For many investor this could be
 the preferred choices since its out-of-sample (back testing) performance
 can be compared directly against *inverse-N* portfolio. In the code this
-strategy is designated by setting ``rtype='InvNrisk'``.
+strategy is designated by setting `rtype='InvNrisk'`.
 6. *Maximization of the expected rate of returns for a given risk aversion*
 *factor*. In this strategy the optimal portfolio weights
 maximize the quantity $R -\lambda \rho$, where $R$ is the portfolio
@@ -189,7 +191,7 @@ be advisable. However, this strategy may be useful if it is combined
 with a strategy to estimate the value of *risk aversion* factor based on
 market conditions (*e.g.* technical analysis, etc.).
 In the code this optimization is designated by setting
-``rtype='RiskAverse'``.
+`rtype='RiskAverse'`.
 
 
 **azapy** package covers, 9 risk-based dispersion measures $\times$ 6 optimization

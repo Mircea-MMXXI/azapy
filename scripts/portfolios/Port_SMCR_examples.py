@@ -11,14 +11,16 @@ symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
 
 mktdir = "../../MkTdata"
 
-# force=True read from alphavantage server
-# force=False read from local directory if data exists
+# force=True read directly from alphavantage
+# force=False read first from local directory, if data does not exists, 
+#             read from alphavantage
 mktdata = az.readMkT(symb, dstart = sdate, dend = edate, 
                      dir=mktdir, force=False) 
 
 #=============================================================================
-# Setup SMCR parameters
+# Setup mSMCR parameters
 alpha = [0.9, 0.85]
+# assume equal weighted coef - default
 
 #=============================================================================
 # Compute SMCR-Sharpe optimal portfolio
@@ -52,7 +54,7 @@ port2  = p2.set_model(ww)
 port4.merge(port2, how='left', on='date').plot()
 
 #=============================================================================
-# Compute SMCR optimal portfolio
+# Compute mSMCR optimal portfolio
 port4 = p4.set_model(mu=0.1, alpha=alpha, rtype="Risk")   
 ww = p4.get_weights()
 p4.port_view()
@@ -67,7 +69,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute minimum SMCR optimal portfolio
+# Compute minimum mSMCR optimal portfolio
 port4 = p4.set_model(mu=0.1, alpha=alpha, rtype="MinRisk")   
 ww = p4.get_weights()
 p4.port_view()
@@ -82,7 +84,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute optimal portfolio with SMCR of equally weighted portfolio
+# Compute optimal portfolio with mSMCR of equal weighted portfolio
 port4 = p4.set_model(mu=0.1, alpha=alpha, rtype="InvNrisk")   
 ww = p4.get_weights()
 p4.port_view()
@@ -95,3 +97,33 @@ p4.port_monthly_returns()
 p4.port_period_returns()
 p4.get_nshares()
 p4.get_account(fancy=True)
+
+#=============================================================================
+# Compute optimal portfolio for fixed risk aversion
+port4 = p4.set_model(mu=0.5, alpha=alpha, rtype="RiskAverse")   
+ww = p4.get_weights()
+p4.port_view()
+p4.port_view_all()
+p4.port_perf()
+p4.port_drawdown(fancy=True)
+p4.port_perf(fancy=True)
+p4.port_annual_returns()
+p4.port_monthly_returns()
+p4.port_period_returns()
+p4.get_nshares()
+p4.get_account(fancy=True)  
+
+#=============================================================================
+# # speed comparisons for different SOCP methods
+# # may take some time to complete
+# # please uncomment the lines below
+
+# toc = time.perf_counter()
+# p4.set_model(mu=0., alpha=alpha)   
+# tic = time.perf_counter()
+# print(f"ecos: time get_port: {tic-toc}")  
+
+# toc = time.perf_counter()
+# p4.set_model(mu=0., alpha=alpha, method='cvxopt')
+# tic = time.perf_counter()
+# print(f"cvxopt: time get_port: {tic-toc}")  

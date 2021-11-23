@@ -12,13 +12,14 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 
 mktdir = "../../MkTdata"
 
-# force=True read from alphavantage server
-# force=False read from local directory if data exists
+# force=True read directly from alphavantage
+# force=False read first from local directory, if data does not exists, 
+#             read from alphavantage
 mktdata = az.readMkT(symb, dstart = sdate, dend = edate,
                      dir=mktdir, force=False)
 
 #=============================================================================
-# define CVaR measure parameters alpha and coef
+# define mCVaR measure parameters alpha and coef
 alpha = np.array([0.99, 0.975, 0.95])
 coef = np.ones(len(alpha))
 coef = coef / coef.sum()
@@ -54,14 +55,14 @@ test_risk_res = pd.DataFrame({'risk': [risk], 'test_risk': [test_risk],
 print(f"Test for the risk computation\n {test_risk_res}")
 
 # Test the Sharpe weights by estimating an optimal portfolio with
-# the same rate of returns.
+# the same expected rate of return.
 test_ww1 = cr1.getWeights(mu=RR, rtype='Risk')
 ww_comp = pd.DataFrame({"ww1": ww1, "test_ww1": test_ww1,
                         'diff': ww1-test_ww1})
 print(f"Test for weights computation\n {ww_comp}")
 
 #=============================================================================
-#Frontier evaluations
+# Frontiers evaluations
 print("\nFrontiers evaluations\n")
 opt ={'title': "CVaR Port", 'tangent': True}
 print("\n rate of returns vs risk representation")
@@ -106,7 +107,8 @@ sharpe_comp = pd.DataFrame({'sharpe2': [sharpe2], 'sharpe1': [sharpe1],
                             'diff': [sharpe2-sharpe1]})
 print(f"Sharpe comp\n {sharpe_comp}")
 
-# Speed of Sharpe vs Sharpe2 - may take some time
+# # Speed of Sharpe vs Sharpe2 - may take some time
+# # please uncomment the lines below
 # %timeit cr2.getWeights(mu=0., rtype='Sharpe')
 # %timeit cr2.getWeights(mu=0., rtype='Sharpe2')
 
@@ -166,7 +168,7 @@ print(f"weigths:\n {ww_comp}")
 #=============================================================================
 # # speed comparisons for different LP methods
 # # may take some time to complete
-# # you have to uncomment the lines below
+# # please uncomment the lines below
 # crx1 = az.CVaRAnalyzer(alpha, coef, rrate, method='highs-ds')
 # wwx1 = crx1.getWeights(mu=0.)
 # print(f"high-ds : {wwx1}")

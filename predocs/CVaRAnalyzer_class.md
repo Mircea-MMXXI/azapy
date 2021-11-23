@@ -54,13 +54,14 @@ The default is `3.25` years.
 * `calendar` :  Business days calendar, `np.busdaycalendar`. If is it `None`
 then the calendar will be set to NYSE business calendar.
 The default is `None`.
-* `rtype` : optimization type. The default is `'Sharpe'`. Possible values are:
+* `rtype` : Optimization type. The default is `'Sharpe'`. Possible values are:
     - `'Risk'` : minimization of dispersion (risk) measure for a fixed values
     of portfolio expected rate of return,
     - `'Sharpe'` : maximization of generalized Sharpe ratio,
+    - `'Sharpe2'` : minimization of inverse generalized Sharpe ratio,
     - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value,
     - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
-		as equally weighted portfolio.
+		as equal weighted portfolio,
     - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
 * `method` : Designates the linear programming numerical method.
 It could be one of: `'ecos',

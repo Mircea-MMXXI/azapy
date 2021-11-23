@@ -46,19 +46,20 @@ class MVAnalyzer(_RiskAnalyzer):
             Business days calendar. If is it None then the calendar will be set
             to NYSE business calendar.
             The default is None.
-        rtype : TYPE, optional
+        rtype : string, optional
             Optimization type. Possible values \n
-                "Risk" : minimization of dispersion (risk) measure.\n
+                "Risk" : minimization of dispersion (risk) measure for a fixed 
+                vale of expected rate of return. \n
                 "Sharpe" : maximization of generalized Sharpe ratio.\n
-                "Sharpe2" : alternative computation of generalized Sharpe 
+                "Sharpe2" : minimization of the inverse generalized Sharpe 
                 ratio.\n
                 "MinRisk" : optimal portfolio with minimum dispersion (risk) 
                 value.\n
                 "InvNRisk" : optimal portfolio with the same dispersion (risk)
-                value as equally weighted portfolio. \n
-                "RiskAverse" : optimal portfolio for a fixed risk aversion 
-                coefficient.
-            The default is "Sharpe".
+                value as equal weighted portfolio. 
+                "RiskAverse" : optimal portfolio for a fixed value of risk 
+                aversion coefficient.
+            The default is "Sharpe". 
         method : string, optional
             Quadratic programming numerical method. Could be 'ecos' or
             'cvxopt'. The default is 'ecos'.

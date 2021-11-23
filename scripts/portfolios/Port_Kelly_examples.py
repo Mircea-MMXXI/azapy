@@ -10,21 +10,22 @@ sdate = pd.to_datetime("2012-01-01")
 edate = pd.to_datetime('today')
 symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
 
-mktdir = "./MkTdata"
+mktdir = "../../MkTdata"
 
-# force=True read from alphavantage server
-# force=False read from local directory if data exists
+# force=True read directly from alphavantage
+# force=False read first from local directory, if data does not exists, 
+#             read from alphavantage
 mktdata = az.readMkT(symb, dstart = sdate, dend = edate, 
                      dir=mktdir, force=False) 
 
 #=============================================================================
-# Compute optimal portfolio with full Kelly selection 
+# Compute optimal portfolio with full Kelly criterion
 p4 = az.Port_Kelly(mktdata, pname='KellyPort')    
 
 tic = time.perf_counter()
 port4 = p4.set_model()   
 toc = time.perf_counter()
-print(f"time get_port: {toc-tic}")
+print(f"time get_port full Kelly criterion: {toc-tic}")
 
 ww = p4.get_weights()
 p4.port_view()
@@ -46,15 +47,15 @@ port2  = p2.set_model(ww)
 port4.merge(port2, how='left', on='date').plot()
 
 #=============================================================================
-# Compare with Order2 approximation of Kelly selection algorithm
+# Compare with Order2 approximation of Kelly criterion algorithm
 p5 = az.Port_Kelly(mktdata, pname='KellyApxPort')   
  
 tic = time.perf_counter()
 port5 = p5.set_model(rtype='Order2')   
 toc = time.perf_counter()
-print(f"time get_port: {toc-tic}")
+print(f"time get_port 2-nd order aprox Kelly criterion: {toc-tic}")
                  
-# The comparison is very close
+# The results are very close
 
 port_all = port5.merge(port4, how='left', on='date')\
            .melt(var_name='symbol', value_name='price', ignore_index=False)

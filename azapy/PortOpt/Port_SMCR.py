@@ -27,6 +27,6 @@ class Port_SMCR(Port_CVaR):
             
         self.method = method
         
-    def wwgen(self):
+    def _wwgen(self):
         return SMCRAnalyzer(self.alpha, self.coef, rtype=self.rtype,
                             method=self.method)

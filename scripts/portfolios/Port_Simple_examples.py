@@ -11,17 +11,18 @@ symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
 
 mktdir = "../../MkTdata"
 
-# force=True read from alphavantage server
-# force=False read from local directory if data exists
+# force=True read directly from alphavantage
+# force=False read first from local directory, if data does not exists, 
+#             read from alphavantage
 mktdata = az.readMkT(symb, dstart = sdate, dend = edate, 
                      dir=mktdir, force=False) 
 
 #=============================================================================
-# defines some weights
+# define some weights
 ww = pd.Series(1./len(symb), index=symb)
 
 #=============================================================================
-# Compute portfolio and view some results
+# Compute portfolio and view the results
 p1 = az.Port_Simple(mktdata, pname='SimplePort')
 port = p1.set_model(ww)
 

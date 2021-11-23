@@ -17,7 +17,9 @@ Port_get_account.md Port_get_mktdata.md \
 
 define f_br_in_gen
 	$(addprefix $(INDIR)/, $(1)_th_doc_base.md $(1)Analyzer_class.md $(RISK_RB) \
-	Port_$(1)_class.md Port_$(1)_set_model.md $(PORT_RB))
+	$(1)Analyzer_class_example.md \
+	Port_$(1)_class.md Port_$(1)_set_model.md $(PORT_RB) \
+	Port_$(1)_class_example.md)
 endef
 
 define f_out_gen
@@ -37,7 +39,8 @@ Port_get_mktdata.md \
 
 define f_sp_in_gen
 	$(addprefix $(INDIR)/, $(1)_th_doc_base.md \
-	Port_$(1)_class.md Port_$(1)_set_model.md $(PORT_SIMPLE))
+	Port_$(1)_class.md Port_$(1)_set_model.md $(PORT_SIMPLE) \
+	Port_$(1)_class_example.md)
 endef
 
 $(foreach ff, $(F_SIMPLE), $(eval $(ff)_in=$(call f_sp_in_gen,$(ff))) )
@@ -54,7 +57,7 @@ Port_get_mktdata.md \
 
 define f_naive_in_gen
 	$(addprefix $(INDIR)/, $(1)_th_doc_base.md Port_$(1)_class.md \
-	Port_$(1)_set_model.md $(PORT_NAIVE))
+	Port_$(1)_set_model.md $(PORT_NAIVE) Port_$(1)_class_example.md)
 endef
 
 $(foreach ff, $(F_NAIVE), $(eval $(ff)_in=$(call f_naive_in_gen,$(ff))) )
@@ -81,7 +84,9 @@ Port_get_account.md Port_get_mktdata.md \
 
 define f_gr_in_gen
 	$(addprefix $(INDIR)/, $(1)_th_doc_base.md $(1)Engine_class.md $(RISK_GR) \
-	Port_$(1)_class.md Port_$(1)_set_model.md $(PORT_GR))
+	$(1)Engine_class_example.md \
+	Port_$(1)_class.md Port_$(1)_set_model.md $(PORT_GR) \
+	Port_$(1)_class_example.md)
 endef
 
 $(foreach ff, $(F_GR), $(eval $(ff)_in=$(call f_gr_in_gen,$(ff))) )

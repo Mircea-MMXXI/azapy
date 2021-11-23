@@ -22,7 +22,7 @@ An important member of this class is the equal weighted portfolio. It is one of
 the most important benchmarks to assess a portfolio performance.
 
 **azapy** package provides the following "Naïve" portfolio constructions.
-The weights are periodical rebalance according to targeted policy.
+The weights are periodical rebalanced according to the  targeted policy.
 
 * Constant weighed portfolio - it includes the particular case of equal weighted
 portfolio,

@@ -273,6 +273,62 @@ set_rtype(rtype)
 
 ---
 
+### Examples
+
+```
+import pandas as pd
+
+import azapy as az
+
+#=============================================================================
+# Collect some market data
+sdate = pd.to_datetime("2012-01-01")
+edate = pd.to_datetime('today')
+symb = ['PSJ', 'SPY', 'XLV', 'VGT', 'ONEQ']
+
+mktdir = "../../MkTdata"
+
+# force=True read directly from alphavantage
+# force=False read first from local directory, if data does not exists,
+#             read from alphavantage
+mktdata = az.readMkT(symb, dstart = sdate, dend = edate,
+                     dir=mktdir, force=False)
+
+#=============================================================================
+# set approximation level
+# the levels are:
+#  - 'Full' no approximation (convex non-linear optimization problem)
+#  - 'Order2' for second order Taylor approximation (QP problem)
+rtype1 = 'Full'
+rtype2 = 'Order2'
+
+#=============================================================================
+# examole: weights evaluation
+cr1 = az.KellyEngine(mktdata, rtype=rtype1, hlength=4)
+ww1 = cr1.getWeights()
+
+cr2 = az.KellyEngine(mktdata, rtype=rtype2, hlength=4)
+ww2 = cr2.getWeights()
+
+wwcomp = pd.DataFrame({'Full': ww1.round(6), 'Order2': ww2.round(6)})
+print(f"weights comparison\n {wwcomp}")
+
+#=============================================================================
+# Example of rebalancing positions
+# existing positions and cash
+ns = pd.Series(100, index=symb)
+cash = 0.
+
+# new positions and rolling info
+pos1 = cr1.getPositions(nshares=ns, cash=0.)
+print(f" Full: New position report\n {pos1}")
+
+pos2 = cr2.getPositions(nshares=ns, cash=0.)
+print(f" Order2: New position report\n {pos2}")
+```
+
+[TOP](#TOP)
+
 ## Port_Kelly class
 
 Out-of-Sample (back testing) simulation of Kelly optimal portfolio periodically
@@ -728,5 +784,77 @@ get_mktdata()
 
 
 *Returns:* `pd.DataFrame`
+
+[TOP](#TOP)
+
+---
+
+### Examples
+
+```
+import pandas as pd
+import time
+
+import azapy as az
+
+#=============================================================================
+# Collect some market data
+sdate = pd.to_datetime("2012-01-01")
+edate = pd.to_datetime('today')
+symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
+
+mktdir = "../../MkTdata"
+
+# force=True read directly from alphavantage
+# force=False read first from local directory, if data does not exists,
+#             read from alphavantage
+mktdata = az.readMkT(symb, dstart = sdate, dend = edate,
+                     dir=mktdir, force=False)
+
+#=============================================================================
+# Compute optimal portfolio with full Kelly criterion
+p4 = az.Port_Kelly(mktdata, pname='KellyPort')    
+
+tic = time.perf_counter()
+port4 = p4.set_model()   
+toc = time.perf_counter()
+print(f"time get_port full Kelly criterion: {toc-tic}")
+
+ww = p4.get_weights()
+p4.port_view()
+p4.port_view_all()
+p4.port_perf()
+p4.port_drawdown(fancy=True)
+p4.port_perf(fancy=True)
+p4.port_annual_returns()
+p4.port_monthly_returns()
+p4.port_period_returns()
+p4.get_nshares()
+p4.get_account(fancy=True)
+
+# Test using the Port_Rebalanced weights schedule ww (from above)
+p2 = az.Port_Rebalanced(mktdata, pname='TestPort')
+port2  = p2.set_model(ww)     
+
+# Compare - must be identical
+port4.merge(port2, how='left', on='date').plot()
+
+#=============================================================================
+# Compare with Order2 approximation of Kelly criterion algorithm
+p5 = az.Port_Kelly(mktdata, pname='KellyApxPort')   
+
+tic = time.perf_counter()
+port5 = p5.set_model(rtype='Order2')   
+toc = time.perf_counter()
+print(f"time get_port 2-nd order aprox Kelly criterion: {toc-tic}")
+
+# The results are very close
+
+port_all = port5.merge(port4, how='left', on='date')\
+           .melt(var_name='symbol', value_name='price', ignore_index=False)
+pp = az.Port_Simple(port_all, col='price')
+_ = pp.set_model()
+_ = pp.port_view_all(componly=True)
+```
 
 [TOP](#TOP)

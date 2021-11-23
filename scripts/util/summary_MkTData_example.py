@@ -12,18 +12,20 @@ symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
 
 mktdir = "../../MkTdata"
 
-# force=True read from alphavantage server
-# force=False read from local directory if data exists
-# as a pd.DataFrame
+# force=True read directly from alphavantage
+# force=False read first from local directory, if data does not exists, 
+#             read from alphavantage
+
+# returns a pd.DataFrame
 mktdata = az.readMkT(symb, dstart = sdate, dend = edate, 
                      dir=mktdir, force=False) 
 
-# as a dict
+# returns a dict of pd.DataFrame
 mktdata_dict = az.readMkT(symb, dstart=sdate, dend=edate, force=False,
                           dir=mktdir, out_dict=True)
 
 #==============================================================================
-# Check if there are gaps (both MkT data formats)
+# Check if there are gaps (for both MkT data formats)
 smry1 = az.summary_MkTData(mktdata)
 print(f"summary\n{smry1}")
      
