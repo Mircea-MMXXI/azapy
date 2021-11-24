@@ -13,7 +13,7 @@ where:
 
 * $\mu_0$ is the Omega threshold (it may be interpreted as a risk-free rate),
 * $N$ is the number of historical observations,
-* $r_i$ is the portfolio rate of returns i-th historical observation.
+* $r_i$ is the i-th observation of portfolio historical rate of returns.
 * $(\cdot)^+$ stands for positive part (*i.e.* $\max\{0, \cdot\}$).
 
 > Note: The Delta-risk measure is not a coherent risk measure nor a
@@ -25,4 +25,4 @@ There are 2 support classes:
 
 * **OmegaAnalyzer** : computes the portfolio weights and performs in-sample
 analysis,
-* **Port_Omega** : performs portfolio back testing, out-of-sample analyzes.
+* **Port_Omega** : performs portfolio back testing, out-of-sample analysis.

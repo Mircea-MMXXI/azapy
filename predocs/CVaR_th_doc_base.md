@@ -32,4 +32,4 @@ There are 2 support classes:
 
 * **CVaRAnalyzer** : computes the portfolio weights and performs in-sample
 analysis,
-* **Port_CVaR** : performs portfolio back testing, out-of-sample analyzes.
+* **Port_CVaR** : performs portfolio back testing, out-of-sample analysis.

@@ -6,7 +6,7 @@
 Welcome to **azapy**
 ====================
 
-Python library - Finical portfolios performance analysis.
+Python library - Financial Portfolio Optimization Algorithms
 
 It provides support for a large spectrum of portfolio optimization techniques.
 Performs *in* and *out-of* sample portfolio analysis.
@@ -43,8 +43,8 @@ Naïve portfolios
    InvDD_th_doc
 
 
-Greedy portfolios
-=================
+Greedy portfolio optimizations
+==============================
 
 .. toctree::
    :maxdepth: 1

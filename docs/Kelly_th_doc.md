@@ -466,7 +466,7 @@ The default is `'ecos'`.
 
 #### <span style="color:green">port_view</span>
 
-Plot the optimal portfolio time series together with some technical
+Plots the optimal portfolio time series together with some technical
 indicators.
 
 *Call:*
@@ -480,12 +480,12 @@ port_view(emas=[30, 200], bollinger=False, fancy=False, saveto=None)
 * `emas` :
 List for EMA durations. The default is ``[30, 200]``.
 * `bollinger` : Boolean flag.
-If set `True` it adds the Bollinger bands. The default is `False`.
+`True` adds the Bollinger bands. The default is `False`.
 * `view` : Boolean flag.
 `False` suppresses the plotting to the terminal. The default is `True`.
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : it uses the `matplotlib` capabilities.
-    - `True` : it uses `plotly` library for interactive time-series view.
+    - `False` : it uses the `matplotlib` package capabilities.
+    - `True` : it uses `plotly` package for interactive time-series view.
 * `saveto` : File name where to save the plot. The extension dictates the
 format: `png`, `pdf`, `svg`, etc. For more details see the `mathplotlib`
 documentation for `savefig`. The default is `None`.
@@ -500,7 +500,7 @@ documentation for `savefig`. The default is `None`.
 
 #### <span style="color:green">port_view_all</span>
 
-Plot the optimal portfolio and its components time-series in a relative bases.
+Plots in a relative bases the optimal portfolio and its components time-series.
 The components time series prices are designated by the value of
 `col_ref` argument in the constructor.
 
@@ -513,19 +513,19 @@ port_view_all(sdate=None, edate=None, componly=False, fancy=False, saveto=None)
 *Inputs:*
 
 * `sdate` : `datetime`;
-Start date of plotted time-series. If it is set to `None`
-then the `sdate` is set to the earliest date in the time-series.
+Start date of plotted time-series. If it is `None`,
+then `sdate` is set to the earliest date in the time-series.
 The default is `None`.
 * `edate` : `datetime`;
-End date of plotted time-series. If it set to `None` then the `edate`
+End date of plotted time-series. If it is `None`, then `edate`
 is set to the most recent date of the time-series.
 The default is `None`.
 * `componly` : Boolean flag with default value `True`.
     - `True` : only the portfolio components time-series are plotted.
     - `False` : the portfolio and its components times-series are plotted.
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : it uses the `matplotlib` capabilities.
-    - `True` : it uses `plotly` library for interactive time-series view.
+    - `False` : it uses the `matplotlib` package capabilities.
+    - `True` : it uses `plotly` package for interactive time-series view.
 * `saveto` : File name where to save the plot. The extension dictates the
 format: `png`, `pdf`, `svg`, etc. For more details see the `mathplotlib`
 documentation for `savefig`.The default is `None`.
@@ -554,8 +554,8 @@ port_drawdown(top=5, fancy=False)
 The number of largest drawdown that will be reported.
 The default is `5`.
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : The values are reported in unaltered algebraic format.
-    - `True` : The values are reported in percent rounded
+    - `False` : the values are reported in unaltered algebraic format.
+    - `True` : the values are reported in percent rounded
     to 2 decimals.
 
 *Returns:* `pd.DataFrame` containing the table of
@@ -564,7 +564,7 @@ drawdown events. Columns:
 * `'Date'` : recorded date of the drawdown,
 * `'Star'` : start date of the drawdown,
 * `'End'` : end date of the drawdown. A `NaN` value indicates that the
-drawdown event is in progress and the value of `'DD'` and `'Date'` are
+drawdown event is in progress and the values of `'DD'` and `'Date'` are
 provisional only.
 
 [TOP](#TOP)
@@ -590,8 +590,8 @@ port_perf(componly=False, fancy=False)
 If `True`, only the portfolio components information is reported.
 The default is `False`.
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : The values are reported in unaltered algebraic format,
-    - `True` : The values are reported in percent rounded
+    - `False` : the values are reported in unaltered algebraic format.
+    - `True` : the values are reported in percent rounded
     to 2 decimals.
 
 *Returns:* `pd.DataFrame` containing the table of
@@ -611,7 +611,7 @@ performance information. Columns:
 
 #### <span style="color:green">port_annual_returns</span>
 
-Compute optimal portfolio and its components annual (calendar) rates of returns.
+Computes optimal portfolio and its components annual (calendar) rates of returns.
 The components time series prices used in the estimations are designated by
 the value of `col_ref` argument in the constructor.
 
@@ -630,8 +630,8 @@ report. The default is `False`.
 If `True`, only the portfolio components annual returns
 are reported. The default is `False`.
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : The values are reported in unaltered algebraic format.
-    - `True` : The values are reported in percent rounded
+    - `False` : the values are reported in unaltered algebraic format.
+    - `True` : the values are reported in percent rounded
     to 2 decimals and presented is color style.
 
 *Returns:* `pd.DataFrame`
@@ -662,8 +662,8 @@ report. The default is `False`.
 If `True`, only the portfolio components monthly returns
 are reported. The default is `False`.
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : The values are reported in unaltered algebraic format,
-    - `True` : The values are reported in percent rounded
+    - `False` : the values are reported in unaltered algebraic format.
+    - `True` : the values are reported in percent rounded
     to 2 decimals and presented is color style.
 
 *Returns:* `pd.DataFrame`
@@ -687,8 +687,8 @@ port_period_returns(fancy=False)
 *Inputs:*
 
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : The values are reported in unaltered algebraic format.
-    - `True` : The values are reported in percent rounded
+    - `False` : the values are reported in unaltered algebraic format.
+    - `True` : the values are reported in percent rounded
     to 2 decimals.
 
 *Returns:* `pd.DataFrame`
@@ -730,7 +730,7 @@ Each rolling period is indicated by its start date, `Droll`.
 #### <span style="color:green">get_account</span>
 
 Returns additional bookkeeping information regarding rebalancing
-(*e.g.* residual cash due to roundup to an integer of the number of shares,
+(*e.g.* residual cash due the number of shares roundup to an integer,
 previous period dividend cash accumulation, etc.)
 
 *Call:*
@@ -747,22 +747,22 @@ get_account(fancy=False)
 
 *Returns:* `pd.DataFrame`
 
-Reports, for each rolling period identified by `'Droll'`:
+Accounting report; each rolling period is identified by `'Droll'`. Columns:
 
-* for each symbol : the number of shares hold,
+* for each symbol : number of shares hold,
 * `'cash_invst'` : cash invested at the beginning of the period,
 * `'cash_roll'` : cash rolled to the next period,
 * `'cash_divd'` : cash dividend accumulated in the previous period.
 
-> Note: The capital at the beginning of the period is
-cash_invst + cash_roll. It is also equal to the previous period:
-value of the shares on the fixing date + cash_roll + cash_divd.
-There are 2 sources for the cash_roll. The roundup to integer
-number of shares and the shares close price differences between
-the fixing (computation) and rolling (execution) dates. It could
-be positive or negative. The finance of the cash_roll (it should be a small
-positive or negative value) during each rolling period is assumed to be done
-separately by the investor.
+> Note: The capital at the beginning of the rolling period is
+`'cash_invst'` + `'cash_roll'`. It is also equal to the previous period
+value of the shares on the fixing date + `'cash_roll'` + `'cash_divd'`.
+There are 2 sources for `'cash_roll'`. The roundup to an integer
+number of shares and the shares price differential between
+the fixing (computation) and rolling (execution) dates. In general it
+has a small positive or negative value.
+The finance of the `'cash_roll'` (if it has a negative value) is assumed
+to be done separately by the investor.
 
 [TOP](#TOP)
 

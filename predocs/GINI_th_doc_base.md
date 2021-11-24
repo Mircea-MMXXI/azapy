@@ -12,7 +12,7 @@ In Finance it is defined as:
 where:
 
 * $N$ is the number of historical observations,
-* $r_i$ is the portfolio rate of returns i-th historical observation.
+* $r_i$ is the i-th observation of portfolio historical rate of returns.
 
 > Note: The computational effort scales with $N^2$. Therefore, the
 computational time increases quadratic with the number of historical
@@ -23,4 +23,4 @@ There are 2 support classes:
 
 * **GINIAnalyzer** : computes the portfolio weights and performs in-sample
 analysis,
-* **Port_GINI** : performs portfolio back testing, out-of-sample analyzes.
+* **Port_GINI** : performs portfolio back testing, out-of-sample analysis.

@@ -4,7 +4,7 @@ $\def\cK{{\cal K}}$
 
 # SMCR optimal portfolio <a name="TOP"></a>
 
-SMCR stands for *Second Momentum Coherent Risk*.
+SMCR stands for *Second Moment Coherent Risk*.
 **azapy** implements a generalization of SMCR, namely the Mixture SMCR (mSMCR).
 
 mSMCR is a superposition of SMCR
@@ -30,4 +30,4 @@ There are 2 support classes:
 
 * **SMCRAnalyzer** : computes the portfolio weights and performs in-sample
 analysis,
-* **Port_SMCR** : performs portfolio back testing, out-of-sample analyzes.
+* **Port_SMCR** : performs portfolio back testing, out-of-sample analysis.

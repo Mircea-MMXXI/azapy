@@ -28,4 +28,4 @@ There are 2 support classes:
 
 * **MADAnalyzer** : computes the portfolio weights and performs in-sample
 analysis,
-* **Port_MAD** : performs portfolio back testing, out-of-sample analyzes.
+* **Port_MAD** : performs portfolio back testing, out-of-sample analysis.

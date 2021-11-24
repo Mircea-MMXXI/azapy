@@ -30,4 +30,4 @@ There are 2 support classes:
 
 * **SDAnalyzer** : computes the portfolio weights and performs in-sample
 analysis,
-* **Port_SD** : performs portfolio back testing, out-of-sample analyzes.
+* **Port_SD** : performs portfolio back testing, out-of-sample analysis.

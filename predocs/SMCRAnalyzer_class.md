@@ -27,7 +27,7 @@ During its computations the following class members are also set:
   * _RR_ : optimal portfolio expected rate of return.
 
 
-  * **getPositions** : Provides practical information regarding the portfolio
+* **getPositions** : Provides practical information regarding the portfolio
   rebalancing delta positions and costs.
 
 ### Constructor
@@ -41,7 +41,7 @@ where:
 * `coef` : List of positive (`>0`) coefficients. `len(coef)` must be equal to
 `len(alpha)`. The default is `[1.]`.
 * `mktdata` : `pd.DataFrame` containing the market data in the format returned by
-the function `azapy.readMkT`. The default is `None`. mktdata could be loaded
+the function `azapy.readMkT`. The default is `None`. `mktdata` could be loaded
 latter.
 * `colname` : Name of the price column from `mktdata` used in the weights
 calibration. The default is `'adjusted'`.
@@ -50,7 +50,7 @@ It could be `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
 * `hlength` : History length in number of years used for calibration.
 A fractional number will be rounded to an integer number of months.
 The default is `3.25` years.
-* `calendar` :  Business days calendar, `np.busdaycalendar`. If is it `None`
+* `calendar` : `np.busdaycalendar` business days calendar. If is it `None`,
 then the calendar will be set to NYSE business calendar.
 The default is `None`.
 * `rtype` : Optimization type. The default is `'Sharpe'`. Possible values are:

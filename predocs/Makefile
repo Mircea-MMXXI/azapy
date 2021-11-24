@@ -18,7 +18,7 @@ Port_get_account.md Port_get_mktdata.md \
 define f_br_in_gen
 	$(addprefix $(INDIR)/, $(1)_th_doc_base.md $(1)Analyzer_class.md $(RISK_RB) \
 	$(1)Analyzer_class_example.md \
-	Port_$(1)_class.md Port_$(1)_set_model.md $(PORT_RB) \
+	Port_$(1)_class.md Port_constructor.md Port_$(1)_set_model.md $(PORT_RB) \
 	Port_$(1)_class_example.md)
 endef
 
@@ -57,6 +57,7 @@ Port_get_mktdata.md \
 
 define f_naive_in_gen
 	$(addprefix $(INDIR)/, $(1)_th_doc_base.md Port_$(1)_class.md \
+	Port_constructor.md \
 	Port_$(1)_set_model.md $(PORT_NAIVE) Port_$(1)_class_example.md)
 endef
 

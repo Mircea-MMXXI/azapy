@@ -18,8 +18,8 @@ port_perf(componly=False, fancy=False)
 If `True`, only the portfolio components information is reported.
 The default is `False`.
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : The values are reported in unaltered algebraic format,
-    - `True` : The values are reported in percent rounded
+    - `False` : the values are reported in unaltered algebraic format.
+    - `True` : the values are reported in percent rounded
     to 2 decimals.
 
 *Returns:* `pd.DataFrame` containing the table of

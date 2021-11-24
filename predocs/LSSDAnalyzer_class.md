@@ -43,17 +43,17 @@ where:
 element positive (`>0`). The highest order non zero element defines the
 highest mMAD order. The default is `[1.]`.
 * `mktdata` : `pd.DataFrame` containing the market data in the format returned by
-the function `azapy.readMkT`. The default is `None`. mktdata could be loaded
+the function `azapy.readMkT`. The default is `None`. `mktdata` could be loaded
 latter.
-* ``colname`` : Name of the price column from `mktdata` used in the weights
+* `colname` : Name of the price column from `mktdata` used in the weights
 calibration. The default is `'adjusted'`.
 * `freq` : Rate of returns horizon (portfolio rebalancing period).
 It could be `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
 * `hlength` : History length in number of years used for calibration.
 A fractional number will be rounded to an integer number of months.
 The default is `3.25` (years).
-* `calendar` :  Business days calendar, `np.busdaycalendar`. If is it `None`
-then the calendar will be set internally to NYSE business calendar.
+* `calendar` :  `np.busdaycalendar`, business days calendar. If it is `None`
+then the calendar will be set to NYSE business calendar.
 The default is `None`.
 * `rtype` : Optimization type. The default is `'Sharpe'`. Possible values are:
     - `'Risk'` : minimization of dispersion (risk) measure for a fixed values
@@ -69,9 +69,9 @@ It could be ``'ecos'`` or ``'cvxopt'``.
 The default is `'ecos'`.
 
 > Note:
->	* ``'ecos'`` : is SOCP implementation of **ecos** *(Embedded Cone Solver)*
+>	* `'ecos'` : is SOCP implementation of **ecos** *(Embedded Cone Solver)*
 package.
-> * ``'cvxopt'`` : is the SOCP implantation from **cvxopt** package.
+> * `'cvxopt'` : is the SOCP implantation from **cvxopt** package.
 
 > In our cases `'ecos'` is faster than `'cvxopt'`.
 

@@ -10,9 +10,9 @@ summary_MkTData(mktdata, calendar=None, sdate=None, edate=None)
 
 ### Inputs:
 * `mktdata` : `pd.DataFrame` or a `dictonary` of `pd.DataFrame`.
-Market Data in the format returned by `azapy.readMkT` function.
+Market data in the format returned by `azapy.readMkT` function.
 * `calendar` : `np.busdaycalendar`
-business days calendar. If is set to `None` it will
+business days calendar. If it is  `None`, then it will
 default to NYSE business calendar. The default is `None`.
 * `sdate` : `datetime`.
 Time-series start date. If it is `None` then `sdate` is set to the

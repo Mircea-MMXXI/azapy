@@ -26,4 +26,4 @@ There are 2 support classes:
 
 * **MVAnalyzer** : computes the portfolio weights and performs in-sample
 analysis,
-* **Port_MV** : performs portfolio back testing, out-of-sample analyzes.
+* **Port_MV** : performs portfolio back testing, out-of-sample analysis.

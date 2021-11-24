@@ -17,8 +17,8 @@ port_drawdown(top=5, fancy=False)
 The number of largest drawdown that will be reported.
 The default is `5`.
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : The values are reported in unaltered algebraic format.
-    - `True` : The values are reported in percent rounded
+    - `False` : the values are reported in unaltered algebraic format.
+    - `True` : the values are reported in percent rounded
     to 2 decimals.
 
 *Returns:* `pd.DataFrame` containing the table of
@@ -27,7 +27,7 @@ drawdown events. Columns:
 * `'Date'` : recorded date of the drawdown,
 * `'Star'` : start date of the drawdown,
 * `'End'` : end date of the drawdown. A `NaN` value indicates that the
-drawdown event is in progress and the value of `'DD'` and `'Date'` are
+drawdown event is in progress and the values of `'DD'` and `'Date'` are
 provisional only.
 
 [TOP](#TOP)

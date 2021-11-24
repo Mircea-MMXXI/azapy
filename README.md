@@ -22,30 +22,29 @@ available:
   1. minimization of dispersion for a give expected rate of returns
   2. maximization of generalized Sharpe ratio
   3. minimization of the inverse of generalized Sharpe ratio
-  4. global minimum dispersion portfolio strategy
+  4. minimum dispersion portfolio strategy
   5. Inverse-N risk optimal portfolio (optimal portfolio with the same
-    dispersion measure as equally weighted portfolio)
+     dispersion measure as equal weighted portfolio)
   6. maximization of expected rate of returns for a fixed value of
-  risk aversion
+     risk aversion
 
 B. "Naïve" portfolio strategies:
-  1. Constant weighted portfolio. A particular case is equally
-  weighted portfolio.
+  1. Constant weighted portfolio. A particular case is equal
+     weighted portfolio.
   2. Inverse volatility portfolio (i.e. portfolio weights are proportional to
-    the inverse of asset volatility)
+     the inverse of asset volatilities)
   3. Inverse variance portfolio (i.e. portfolio weights are proportional to the
-    inverse of asset variance)
+     inverse of asset variances)
   4. Inverse drawdown portfolio (i.e. portfolio weights are proportional to the
-    asset absolute value of maximum drawdown over a predefined
-    historical period)
+     asset absolute value of maximum drawdowns over a predefined
+     historical period)
 
 C. Greedy portfolio optimization strategies:
   1. Kelly's portfolio (as in John Larry Kelly Jr. - scientist 1923-1965) -
-  maximization of portfolio log returns
-
+     maximization of portfolio log returns
 
 Utility functions:
   1. Collect historical market data from a data provider (at this point only
-    from *alphavantage*)
+     from *alphavantage*)
   2. Generate business calendars (at this point only NYSE business calendar)
   3. Generate rebalancing portfolio schedules

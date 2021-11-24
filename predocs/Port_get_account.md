@@ -4,7 +4,7 @@
 #### <span style="color:green">get_account</span>
 
 Returns additional bookkeeping information regarding rebalancing
-(*e.g.* residual cash due to roundup to an integer of the number of shares,
+(*e.g.* residual cash due the number of shares roundup to an integer,
 previous period dividend cash accumulation, etc.)
 
 *Call:*
@@ -21,22 +21,22 @@ get_account(fancy=False)
 
 *Returns:* `pd.DataFrame`
 
-Reports, for each rolling period identified by `'Droll'`:
+Accounting report; each rolling period is identified by `'Droll'`. Columns:
 
-* for each symbol : the number of shares hold,
+* for each symbol : number of shares hold,
 * `'cash_invst'` : cash invested at the beginning of the period,
 * `'cash_roll'` : cash rolled to the next period,
 * `'cash_divd'` : cash dividend accumulated in the previous period.
 
-> Note: The capital at the beginning of the period is
-cash_invst + cash_roll. It is also equal to the previous period:
-value of the shares on the fixing date + cash_roll + cash_divd.
-There are 2 sources for the cash_roll. The roundup to integer
-number of shares and the shares close price differences between
-the fixing (computation) and rolling (execution) dates. It could
-be positive or negative. The finance of the cash_roll (it should be a small
-positive or negative value) during each rolling period is assumed to be done
-separately by the investor.
+> Note: The capital at the beginning of the rolling period is
+`'cash_invst'` + `'cash_roll'`. It is also equal to the previous period
+value of the shares on the fixing date + `'cash_roll'` + `'cash_divd'`.
+There are 2 sources for `'cash_roll'`. The roundup to an integer
+number of shares and the shares price differential between
+the fixing (computation) and rolling (execution) dates. In general it
+has a small positive or negative value.
+The finance of the `'cash_roll'` (if it has a negative value) is assumed
+to be done separately by the investor.
 
 [TOP](#TOP)
 

@@ -12,15 +12,16 @@ rate of returns than the equal weighted portfolio.
 However, out-of-sample the equal weighted portfolio
 may outperform this efficient portfolio.
 This odd effect occurs for many reasonable portfolio compositions under
-rather normal market conditions. Therefor it is always advisable to compare
+rather normal market conditions. Therefor, it is always advisable to compare
 the performance of a portfolio optimization strategy with the performance of
-equal weighted portfolio. An example of a portfolio strategies comparison is
-presented in a Jupyter note.
+equal weighted portfolio. An example is
+presented in this
+[Jupyter note](https://github.com/Mircea2004/azapy/blob/main/jpy_scripts/EqualWeights_Comparisons.ipynb).
 
 >Note: _Constant weights_ should not be confused with _constant number_ of shares.
->Constant number of shares leads to a Buy and Hold type of portfolio, where
+>Constant number of shares leads to a *Buy and Hold* type of portfolio, where
 >the number of shares on each portfolio component is kept constant during the
->life of the investment. 
+>life of the investment.
 >A portfolio with constant weights assumes that the fraction of capital invested
 >in each portfolio component is constant after each rebalancing event.
 
@@ -64,41 +65,42 @@ Port_ConstW(mktdata, symb=None, sdate=None, edate=None, col_price='close',
             freq='Q', noffset=-3, fixoffset=-1, calendar=None)
 ```
 
+
 where:
 
 * `mktdata` : `pd.DataFrame`;
 Market data in the format `"symbol"`, `"date"`, `"open"`, `"high"`,
 `"low"`, `"close"`, `"volume"`, `"adjusted"`, `"divd"`, `"split"`
-(e.g. as returned by `azapy.readMkT`).
+(*e.g.* as returned by `azapy.readMkT`).
 * `symb` :
 List of symbols of portfolio components. All symbols
-should be present in `mktdata`. If set to `None` the `symb` will be
-set to the full set of symbols present in `mktdata`. The default
+should be present in `mktdata`. If it is `None`, then `symb` will default
+to the full set of symbols present in `mktdata`. The default
 is `None`.
 * `sdate` : `datetime`;
-Start date for historical simulation. If set to `None` the `sdate` will
-be set to the earliest date in `mktdata`. The default is `None`.
+Start date for historical simulation. If it is `None`, then `sdate` will
+default to the earliest date in `mktdata`. The default is `None`.
 * `edate` : `datetime`;
 End date for historical simulation. Must be
-greater than  `sdate`. If it is `None` then `edate` will be set
+greater than  `sdate`. If it is `None`, then `edate` will default
 to the latest date in `mktdata`. The default is `None`.
 * `col_price` : `string`;
-Column name in the `mktdata` DataFrame that will be considered
+Column name in the `mktdata` that will be considered
 for portfolio aggregation. The default is `'close'`.
 * `col_divd` : `string`;
-Column name in the `mktdata` DataFrame that holds the dividend
+Column name in the `mktdata` that holds the dividend
 information. The default is `'dvid'`.
 * `col_ref` : `string`;
-Column name in the `mktdata` DataFrame that will be used as a price
+Column name in the `mktdata` that will be used as a price
 reference for portfolio components (used for various comparisons and graphs).
 The default is `'adjusted'`.
 * `col_calib` : `string`;
-Column name used for historical weights calibrations. The default is
-`'adjusted'`.
+Column name in the `mktdata` used for historical weights calibrations.
+The default is `'adjusted'`.
 * `pname` : `string`;
 The name of the portfolio. The default is `'Port'`.
 * `pcolname` : `string`;
-Name of the portfolio price column. If it is set to `None` than
+Name of the portfolio price column. If it is `None`, than
 `pcolname=pname`. The default is `None`.
 * `capital` : `float`;
 Initial portfolio Capital in dollars. The default is `100000`.
@@ -112,17 +114,17 @@ Rebalancing frequency. It can be `'Q'` for quarterly or `'M'` for
 monthly rebalancing. It is relevant only if schedule
 is `None`. The default is `'Q'`.
 * `noffset` : `int`;
-Number of business days offset for rebalancing date `'Droll'`
+Rebalancing date `'Droll'` number of offset business days
 relative to the end of the period (quart or month). A positive
 value add business days beyond the calendar end of the period while
 a negative value subtract business days. It is relevant only if
 `schedule` is `None`. The default is `-3`.
 * `fixoffset` : `int`;
-Number of business days offset of fixing date `'Dfix'` relative to
+fixing date `'Dfix'` number of offset business days relative to
 the rebalancing date `'Droll'`. It cane be `0` or negative. It is
 relevant only if `schedule` is `None`. The default is `-1`.
 * `calendar` : `np.busdaycalendar`;
-Business calendar. If it is `None` then it will be set to NYSE
+Business calendar. If it is `None`, then it will be set to NYSE
 business calendar. The default is `None`.
 
 [TOP](#TOP)
@@ -146,7 +148,7 @@ set_model(ww=None)
 *Inputs:*
 
 * `ww` :
-List like weights, `len(ww)` must be equal to
+List like positive weights, `len(ww)` must be equal to
 `len(symb)`. If `ww` is a `pd.Series`
 the index should match the portfolio symbols, `symb`
 Otherwise the weights are considered in the  `symb`
@@ -165,7 +167,7 @@ The default is `None`.
 
 #### <span style="color:green">port_view</span>
 
-Plot the optimal portfolio time series together with some technical
+Plots the optimal portfolio time series together with some technical
 indicators.
 
 *Call:*
@@ -179,12 +181,12 @@ port_view(emas=[30, 200], bollinger=False, fancy=False, saveto=None)
 * `emas` :
 List for EMA durations. The default is ``[30, 200]``.
 * `bollinger` : Boolean flag.
-If set `True` it adds the Bollinger bands. The default is `False`.
+`True` adds the Bollinger bands. The default is `False`.
 * `view` : Boolean flag.
 `False` suppresses the plotting to the terminal. The default is `True`.
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : it uses the `matplotlib` capabilities.
-    - `True` : it uses `plotly` library for interactive time-series view.
+    - `False` : it uses the `matplotlib` package capabilities.
+    - `True` : it uses `plotly` package for interactive time-series view.
 * `saveto` : File name where to save the plot. The extension dictates the
 format: `png`, `pdf`, `svg`, etc. For more details see the `mathplotlib`
 documentation for `savefig`. The default is `None`.
@@ -199,7 +201,7 @@ documentation for `savefig`. The default is `None`.
 
 #### <span style="color:green">port_view_all</span>
 
-Plot the optimal portfolio and its components time-series in a relative bases.
+Plots in a relative bases the optimal portfolio and its components time-series.
 The components time series prices are designated by the value of
 `col_ref` argument in the constructor.
 
@@ -212,19 +214,19 @@ port_view_all(sdate=None, edate=None, componly=False, fancy=False, saveto=None)
 *Inputs:*
 
 * `sdate` : `datetime`;
-Start date of plotted time-series. If it is set to `None`
-then the `sdate` is set to the earliest date in the time-series.
+Start date of plotted time-series. If it is `None`,
+then `sdate` is set to the earliest date in the time-series.
 The default is `None`.
 * `edate` : `datetime`;
-End date of plotted time-series. If it set to `None` then the `edate`
+End date of plotted time-series. If it is `None`, then `edate`
 is set to the most recent date of the time-series.
 The default is `None`.
 * `componly` : Boolean flag with default value `True`.
     - `True` : only the portfolio components time-series are plotted.
     - `False` : the portfolio and its components times-series are plotted.
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : it uses the `matplotlib` capabilities.
-    - `True` : it uses `plotly` library for interactive time-series view.
+    - `False` : it uses the `matplotlib` package capabilities.
+    - `True` : it uses `plotly` package for interactive time-series view.
 * `saveto` : File name where to save the plot. The extension dictates the
 format: `png`, `pdf`, `svg`, etc. For more details see the `mathplotlib`
 documentation for `savefig`.The default is `None`.
@@ -253,8 +255,8 @@ port_drawdown(top=5, fancy=False)
 The number of largest drawdown that will be reported.
 The default is `5`.
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : The values are reported in unaltered algebraic format.
-    - `True` : The values are reported in percent rounded
+    - `False` : the values are reported in unaltered algebraic format.
+    - `True` : the values are reported in percent rounded
     to 2 decimals.
 
 *Returns:* `pd.DataFrame` containing the table of
@@ -263,7 +265,7 @@ drawdown events. Columns:
 * `'Date'` : recorded date of the drawdown,
 * `'Star'` : start date of the drawdown,
 * `'End'` : end date of the drawdown. A `NaN` value indicates that the
-drawdown event is in progress and the value of `'DD'` and `'Date'` are
+drawdown event is in progress and the values of `'DD'` and `'Date'` are
 provisional only.
 
 [TOP](#TOP)
@@ -289,8 +291,8 @@ port_perf(componly=False, fancy=False)
 If `True`, only the portfolio components information is reported.
 The default is `False`.
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : The values are reported in unaltered algebraic format,
-    - `True` : The values are reported in percent rounded
+    - `False` : the values are reported in unaltered algebraic format.
+    - `True` : the values are reported in percent rounded
     to 2 decimals.
 
 *Returns:* `pd.DataFrame` containing the table of
@@ -310,7 +312,7 @@ performance information. Columns:
 
 #### <span style="color:green">port_annual_returns</span>
 
-Compute optimal portfolio and its components annual (calendar) rates of returns.
+Computes optimal portfolio and its components annual (calendar) rates of returns.
 The components time series prices used in the estimations are designated by
 the value of `col_ref` argument in the constructor.
 
@@ -329,8 +331,8 @@ report. The default is `False`.
 If `True`, only the portfolio components annual returns
 are reported. The default is `False`.
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : The values are reported in unaltered algebraic format.
-    - `True` : The values are reported in percent rounded
+    - `False` : the values are reported in unaltered algebraic format.
+    - `True` : the values are reported in percent rounded
     to 2 decimals and presented is color style.
 
 *Returns:* `pd.DataFrame`
@@ -361,8 +363,8 @@ report. The default is `False`.
 If `True`, only the portfolio components monthly returns
 are reported. The default is `False`.
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : The values are reported in unaltered algebraic format,
-    - `True` : The values are reported in percent rounded
+    - `False` : the values are reported in unaltered algebraic format.
+    - `True` : the values are reported in percent rounded
     to 2 decimals and presented is color style.
 
 *Returns:* `pd.DataFrame`
@@ -386,8 +388,8 @@ port_period_returns(fancy=False)
 *Inputs:*
 
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : The values are reported in unaltered algebraic format.
-    - `True` : The values are reported in percent rounded
+    - `False` : the values are reported in unaltered algebraic format.
+    - `True` : the values are reported in percent rounded
     to 2 decimals.
 
 *Returns:* `pd.DataFrame`
@@ -429,7 +431,7 @@ Each rolling period is indicated by its start date, `Droll`.
 #### <span style="color:green">get_account</span>
 
 Returns additional bookkeeping information regarding rebalancing
-(*e.g.* residual cash due to roundup to an integer of the number of shares,
+(*e.g.* residual cash due the number of shares roundup to an integer,
 previous period dividend cash accumulation, etc.)
 
 *Call:*
@@ -446,22 +448,22 @@ get_account(fancy=False)
 
 *Returns:* `pd.DataFrame`
 
-Reports, for each rolling period identified by `'Droll'`:
+Accounting report; each rolling period is identified by `'Droll'`. Columns:
 
-* for each symbol : the number of shares hold,
+* for each symbol : number of shares hold,
 * `'cash_invst'` : cash invested at the beginning of the period,
 * `'cash_roll'` : cash rolled to the next period,
 * `'cash_divd'` : cash dividend accumulated in the previous period.
 
-> Note: The capital at the beginning of the period is
-cash_invst + cash_roll. It is also equal to the previous period:
-value of the shares on the fixing date + cash_roll + cash_divd.
-There are 2 sources for the cash_roll. The roundup to integer
-number of shares and the shares close price differences between
-the fixing (computation) and rolling (execution) dates. It could
-be positive or negative. The finance of the cash_roll (it should be a small
-positive or negative value) during each rolling period is assumed to be done
-separately by the investor.
+> Note: The capital at the beginning of the rolling period is
+`'cash_invst'` + `'cash_roll'`. It is also equal to the previous period
+value of the shares on the fixing date + `'cash_roll'` + `'cash_divd'`.
+There are 2 sources for `'cash_roll'`. The roundup to an integer
+number of shares and the shares price differential between
+the fixing (computation) and rolling (execution) dates. In general it
+has a small positive or negative value.
+The finance of the `'cash_roll'` (if it has a negative value) is assumed
+to be done separately by the investor.
 
 [TOP](#TOP)
 

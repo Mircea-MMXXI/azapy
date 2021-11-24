@@ -18,10 +18,10 @@ set_model(mu, mu0=0., rtype='Sharpe', hlength=3.25, method='ecos'):
 * `mu` :
 Reference rate. Its meaning depends of the value of `rtype`. For
 `rtype` equal to:
-    - `'Sharpe'` : `mu` is the risk-free rate,
     - `'Risk'` : `mu` is the targeted expected rate of returns,
+    - `'Sharpe'` and `'Sharpe2'`: `mu` is the risk-free rate,
     - `'MinRisk'` and `'InvNrisk'` : `mu` is ignored,
-    - `'RiskAverse'` : `mu` is the lambda risk aversion coefficient.
+    - `'RiskAverse'` : `mu` is the risk aversion coefficient $\lambda$.
 * `mu0` : Omega threshold rate (*e.g.* risk-free rate). The default is `0`.
 * `rtype` :
 Optimization type. The default is `'Sharpe'`. Possible values are:

@@ -17,8 +17,8 @@ set_model(mu, rtype='Sharpe', hlength=1.25, method='ecos'):
 * `mu` :
 Reference rate. Its meaning depends of the value of `rtype`. For
 `rtype` equal to:
-    - `'Sharpe'` : `mu` is the risk-free rate,
     - `'Risk'` : `mu` is the targeted expected rate of returns,
+    - `'Sharpe'` and `'Sharpe2'` : `mu` is the risk-free rate,
     - `'MinRisk'` and `'InvNrisk'` : `mu` is ignored,
     - `'RiskAverse'` : `mu` is the lambda risk aversion coefficient.
 * `rtype` :

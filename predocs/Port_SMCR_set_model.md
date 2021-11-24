@@ -19,10 +19,10 @@ set_model(mu, alpha=[0.9], coef=None, rtype='Sharpe',
 * `mu` :
 Reference rate. Its meaning depends of the value of `rtype`. For
 `rtype` equal to:
-    - `'Sharpe'` : `mu` is the risk-free rate,
     - `'Risk'` : `mu` is the targeted expected rate of returns,
+    - `'Sharpe'` and `'Sharpe2'`: `mu` is the risk-free rate,
     - `'MinRisk'` and `'InvNrisk'` : `mu` is ignored,
-    - `'RiskAverse'` : `mu` is the lambda risk aversion coefficient.
+    - `'RiskAverse'` : `mu` is the risk aversion coefficient $\lambda$.
 * `alpha` :
 List of $\alpha_l$ confidence levels. The default is `[0.975]`.
 * `coef` :
