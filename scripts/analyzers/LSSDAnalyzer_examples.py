@@ -168,15 +168,19 @@ print(f"weigths:\n {ww_comp}")
 # # speed comparisons for different SOCP methods
 # # may take some time to complete
 # # please uncomment the lines below
-# crx1 = az.LSSDAnalyzer(coef, mktdata, method='ecos')
-# wwx1 = crx1.getWeights(mu=0.)
-# print(f"ecos : {wwx1}")
-# crx2 = az.LSSDAnalyzer(coef, mktdata, method='cvxopt')
-# wwx2 = crx2.getWeights(mu=0.)
-# print(f"cvxopt : {wwx2}")
+# import time
+# methods = ['ecos', 'cvxopt']
+# xta = {}
+# for method in methods:
+#     crrx = az.LSSDAnalyzer(coef, mktdata, method=method)
+#     toc = time.perf_counter()
+#     wwx = crrx.getWeights(mu=0.)
+#     tic = time.perf_counter() - toc
+#     print(f"method: {method} time: {tic}")
+#     xta[method] = pd.Series([tic], index=["Time"]).append(wwx)
 
-# %timeit crx1.getWeights(mu=0.)
-# %timeit crx2.getWeights(mu=0.)
+# res = pd.DataFrame(xta)
+# print(res.round(4))
 
 #=============================================================================
 # Example of rebalancing positions

@@ -168,35 +168,20 @@ print(f"weigths:\n {ww_comp}")
 # # speed comparison for different LP methods
 # # may take some time to complete
 # # please uncomment the lines below
-# crx1 = az.MADAnalyzer(coef, rrate, method='highs-ds')
-# wwx1 = crx1.getWeights(mu=0.)
-# print(f"high-ds : {wwx1}")
-# crx2 = az.MADAnalyzer(coef, rrate, method='highs-ipm')
-# wwx2 = crx2.getWeights(mu=0.)
-# print(f"highs-ipm : {wwx2}")
-# crx3 = az.MADAnalyzer(coef, rrate, method='highs')
-# wwx3 = crx3.getWeights(mu=0.)
-# print(f"highs : {wwx3}")
-# crx4 = az.MADAnalyzer(coef, rrate, method='interior-point')
-# wwx4 = crx4.getWeights(mu=0.)
-# print(f"interior-point : {wwx4}")
-# crx5 = az.MADAnalyzer(coef, rrate, method='glpk')
-# wwx5 = crx5.getWeights(mu=0.)
-# print(f"glpk : {wwx5}")
-# crx6 = az.MADAnalyzer(coef, rrate, method='cvxopt')
-# wwx6 = crx6.getWeights(mu=0.)
-# print(f"cvxopt : {wwx6}")
-# crx7 = az.MADAnalyzer(coef, rrate, method='ecos')
-# wwx7 = crx7.getWeights(mu=0.)
-# print(f"ecos : {wwx7}")
+# import time
+# methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 'glpk', 'cvxopt',  
+#             'interior-point' ]
+# xta = {}
+# for method in methods:
+#     crrx = az.MADAnalyzer(coef, mktdata, method=method)
+#     toc = time.perf_counter()
+#     wwx = crrx.getWeights(mu=0.)
+#     tic = time.perf_counter() - toc
+#     print(f"method: {method} time: {tic}")
+#     xta[method] = pd.Series([tic], index=["Time"]).append(wwx)
 
-# %timeit crx1.getWeights(mu=0.)
-# %timeit crx2.getWeights(mu=0.)
-# %timeit crx3.getWeights(mu=0.)
-# %timeit crx4.getWeights(mu=0.)
-# %timeit crx5.getWeights(mu=0.)
-# %timeit crx6.getWeights(mu=0.)
-# %timeit crx7.getWeights(mu=0.)
+# res = pd.DataFrame(xta)
+# print(res.round(4))
 
 #=============================================================================
 # Example of rebalancing positions

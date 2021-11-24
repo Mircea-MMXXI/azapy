@@ -29,12 +29,21 @@ rtype1 = 'Full'
 rtype2 = 'Order2'
 
 #=============================================================================
-# examole: weights evaluation
+# example: weights evaluation
+import time
+
 cr1 = az.KellyEngine(mktdata, rtype=rtype1, hlength=4)
+toc = time.perf_counter()
 ww1 = cr1.getWeights()
+tic = time.perf_counter()
+print(f"{rtype1}: time {tic-toc}")
+
 
 cr2 = az.KellyEngine(mktdata, rtype=rtype2, hlength=4)
+toc = time.perf_counter()
 ww2 = cr2.getWeights()
+tic = time.perf_counter()
+print(f"{rtype2}: time {tic-toc}")
 
 wwcomp = pd.DataFrame({'Full': ww1.round(6), 'Order2': ww2.round(6)})
 print(f"weights comparison\n {wwcomp}")
