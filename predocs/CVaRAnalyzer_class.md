@@ -42,7 +42,7 @@ where:
 * `coef` : List of positive (`>0`) coefficients. `len(coef)` must be equal to
 `len(alpha)`. The default is `[1.]`.
 * `mktdata` : `pd.DataFrame` containing the market data in the format returned by
-the function `azapy.readMkT`. The default is `None`. mktdata could be loaded
+the function `azapy.readMkT`. The default is `None`. `mktdata` could be loaded
 latter.
 * `colname` : Name of the price column from `mktdata` used in the weights
 calibration. The default is `'adjusted'`.
@@ -51,16 +51,17 @@ It could be `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
 * `hlength` : History length in number of years used for calibration.
 A fractional number will be rounded to an integer number of months.
 The default is `3.25` years.
-* `calendar` :  Business days calendar, `np.busdaycalendar`. If is it `None`
+* `calendar` :  Business days calendar, `np.busdaycalendar`. If it is `None`
 then the calendar will be set to NYSE business calendar.
 The default is `None`.
-* `rtype` : optimization type. The default is `'Sharpe'`. Possible values are:
+* `rtype` : Optimization type. The default is `'Sharpe'`. Possible values are:
     - `'Risk'` : minimization of dispersion (risk) measure for a fixed values
     of portfolio expected rate of return,
     - `'Sharpe'` : maximization of generalized Sharpe ratio,
+    - `'Sharpe2'` : minimization of inverse generalized Sharpe ratio,
     - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value,
     - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
-		as equally weighted portfolio.
+		as equal weighted portfolio,
     - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
 * `method` : Designates the linear programming numerical method.
 It could be one of: `'ecos',
@@ -75,7 +76,7 @@ However, a LP problem can be viewed as a particular case of a SOCP problem.
 implementations from __SciPy__ package. `'highs-ds'` and `'highs-ipm'` are
 the HiGHS _(high performance software for linear optimization)_ dual simplex
 and interior point methods, respectively, while `'highs'` is only a dispatch
-interface to chose between the two methods based on the computational speed.
+interface to chose between the two methods based on the computation speed.
 `'interior-point'` is the default __SciPy__ LP algorithm. In our cases it
 proves to be the slowest.
 > * `'cvxopt'` : is the LP implantation from __cvxopt__ package.
@@ -85,7 +86,7 @@ proves to be the slowest.
 However, we notice that in rear occasions `'hight-ds'` fails to compute with no
 apparent reasons. These cases will be investigate further. Therefore we choose
 `'ecos'` to be the default LP computation engine. Beside `'ecos'` all other
-methods can be used although longer computational times may be encounter.
+methods can be used although longer computational times may be encountered.
 
 [TOP](#TOP)
 

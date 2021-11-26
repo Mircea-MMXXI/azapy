@@ -1,5 +1,5 @@
 
-# SD optimal portfolio <a name="TOP"></a>
+# SD optimal portfolios <a name="TOP"></a>
 
 SD stands for *Standard Deviation* (volatility).
 It will play the role of dispersion measure. In many respects SD and MV
@@ -26,8 +26,17 @@ different than MV-Sharpe ratio defined as $\beta_{MV} = (E(r)- \mu) / \sigma^2$.
 Therefore the Sharpe and MV-Sharpe optimal portfolios have different
 weights.
 
+The following portfolio optimization strategies are available:
+* minimization of dispersion for a give expected rate of return,
+* maximization of Sharpe ratio,
+* minimization of the inverse of Sharpe ratio,
+* minimum dispersion portfolio,
+* Inverse-N risk optimal portfolio (optimal portfolio with the same
+	 dispersion measure as equal weighted portfolio),
+* maximization of expected rate of returns for a given risk aversion.
+
 There are 2 support classes:
 
 * **SDAnalyzer** : computes the portfolio weights and performs in-sample
 analysis,
-* **Port_SD** : performs portfolio back testing, out-of-sample analyzes.
+* **Port_SD** : performs portfolio back testing, out-of-sample analysis.

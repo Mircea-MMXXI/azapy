@@ -15,11 +15,11 @@ set_model(ww=None)
 *Inputs:*
 
 * `ww` :
-List like weights, `len(ww)` must be equal to
+List like of positive weights. `len(ww)` must be equal to
 `len(symb)`. If `ww` is a `pd.Series`
 the index should match the portfolio symbols, `symb`
 Otherwise the weights are considered in the  `symb`
-order. If it is `None` than `ww` will be set to equal weights,
+order. If it is `None`, than `ww` will be set to equal weights,
 `ww = [1 / len(symb)] * len(symb)`.
 The default is `None`.
 

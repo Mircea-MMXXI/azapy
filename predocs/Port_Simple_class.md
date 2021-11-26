@@ -32,26 +32,26 @@ where:
 * `mktdata` : `pd.DataFrame`;
 Market data in the format `"symbol"`, `"date"`, `"open"`, `"high"`,
 `"low"`, `"close"`, `"volume"`, `"adjusted"`, `"divd"`, `"split"`
-(e.g. as returned by `azapy.readMkT`).
+(*e.g.* as returned by `azapy.readMkT`).
 * `symb` :
 List of symbols of portfolio components. All symbols
-should be present in `mktdata`. If set to `None` the `symb` will be
-set to the full set of symbols present in `mktdata`. The default
+should be present in `mktdata`. If it is `None`, then `symb` will default to
+the full set of symbols present in `mktdata`. The default
 is `None`.
 * `sdate` : `datetime`;
-Start date for historical simulation. If set to `None` the `sdate` will
-be set to the earliest date in `mktdata`. The default is `None`.
+Start date for historical simulation. If it is `None`, then `sdate` will
+default to the earliest date in `mktdata`. The default is `None`.
 * `edate` : `datetime`;
 End date for historical simulation. Must be
-greater than  `sdate`. If it is `None` then `edate` will be set
+greater than  `sdate`. If it is `None`, then `edate` will default
 to the latest date in `mktdata`. The default is `None`.
 * `col` :
-Column name in the `mktdata` DataFrame that will be considered
+Column name in the `mktdata` that will be considered
 for portfolio aggregation. The default is `'adjusted'`.
 * `pname` : `string`;
 The name of the portfolio. The default is `'Port'`.
 * `pcolname` : `string`;
-Name of the portfolio price column. If it is set to `None` than
+Name of the portfolio price column. If it is `None` than
 `pcolname=pname`. The default is `None`.
 * `capital` : `float`;
 Initial portfolio Capital in dollars. The default is `100000`.

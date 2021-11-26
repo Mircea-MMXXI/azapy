@@ -43,15 +43,20 @@ class Port_CVaR(Port_InvVol):
             List of mixture coefficients values. Note that `len(coef)`
             must be equal to `len(alpha)`. A value of `None` assumes
             `coef = [1 / len(alpha)] * len(alpha)`.
-        rtype : string, optional
-            Type of optimization. It could take the values:\n
-                'Sharpe' - Sharpe optimal portfolio. \n
-                'Risk' - risk optimal portfolio. \n
-                'MinRisk' - Minimum risk optimal portfolio. \n
-                'InvNrisk' - optimal portfolio with same risk as the equally
-                weighted portfolio. \n
-                'RiskAverse' - optimal portfolio for fixed risk aversion . \n
-                The default is 'Sharpe'.
+       rtype : string, optional
+            Optimization type. Possible values \n
+                "Risk" : minimization of dispersion (risk) measure for a fixed 
+                vale of expected rate of return. \n
+                "Sharpe" : maximization of generalized Sharpe ratio.\n
+                "Sharpe2" : minimization of the inverse generalized Sharpe 
+                ratio.\n
+                "MinRisk" : optimal portfolio with minimum dispersion (risk) 
+                value.\n
+                "InvNRisk" : optimal portfolio with the same dispersion (risk)
+                value as equal weighted portfolio. 
+                "RiskAverse" : optimal portfolio for a fixed value of risk 
+                aversion coefficient.
+            The default is "Sharpe".
         hlength : float, optional
             The length in year of the historical calibration period relative
             to 'Dfix'. A fractional number will be rounded to an integer number
@@ -111,7 +116,7 @@ class Port_CVaR(Port_InvVol):
 
     def _set_method(self, method):
         method_values = ['ecos', 'highs-ds', 'highs-ipm', 'highs',
-                       'interior-point', 'glpk', 'cvxopt']
+                         'interior-point', 'glpk', 'cvxopt']
         if not method in method_values:
             raise ValueError(f"mehtod must be one of {method_values}")
         self.method = method

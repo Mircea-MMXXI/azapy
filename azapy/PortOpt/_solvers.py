@@ -27,7 +27,6 @@ def _lp_scipy(c, G, h, A, b, method):
     
     return rout
 
-
 def _lp_cvxopt(c, G, h, A, b, method):
     c = cx.matrix(c)
     G = cx.spmatrix(G.data, G.row, G.col, size=G.shape)
@@ -79,7 +78,7 @@ def _lp_ecos(c, G, h, A, b, method):
 def _lp_solver(method, c_data, G, h_data, A=None, b_data=None):
     if method == 'ecos':
         return _lp_ecos(c_data, G, h_data, A, b_data, method)
-    elif method in ['glpk', 'conelp']:
+    elif method in ['glpk', 'conelp', 'cvxopt']:
         return _lp_cvxopt(c_data, G, h_data, A, b_data, method)
     else:
         return _lp_scipy(c_data, G, h_data, A, b_data, method)

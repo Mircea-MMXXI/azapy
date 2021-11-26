@@ -23,3 +23,9 @@ default to the previous business day. The default is
 
 ### Returns:
 `np.busdaycalendar` object.
+
+### Examples:
+
+```
+buscal = NYSEgen()
+```

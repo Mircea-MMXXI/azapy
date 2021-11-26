@@ -1,5 +1,6 @@
 # Examples
 import pandas as pd
+import time
 
 import azapy as az
 
@@ -11,8 +12,9 @@ symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
 
 mktdir = "../../MkTdata"
 
-# force=True read from alphavantage server
-# force=False read from local directory if data exists
+# force=True read directly from alphavantage
+# force=False read first from local directory, if data does not exists, 
+#             read from alphavantage
 mktdata = az.readMkT(symb, dstart = sdate, dend = edate, 
                      dir=mktdir, force=False) 
 
@@ -27,11 +29,8 @@ for sy in symb:
 # Compute portfolio
 p2 = az.Port_Rebalanced(mktdata, pname='RBPort')
 
-import time
 tic = time.perf_counter()
-
 port2  = p2.set_model(ww)   
- 
 toc = time.perf_counter()
 print(f"time get_port: {toc-tic}")
 

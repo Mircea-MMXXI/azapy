@@ -3,13 +3,15 @@
 
 ## Collects historical market data from *alphavantage* provider.
 
-You will need a valid key from *alphavantage* in order to access their servers
+A valid key is needed to access *alphavantage* servers
 (*see alphavantage.co for more information on how to obtain a key*).
+The key value can be stored in the environment variable
+'ALPHAVANTAGE_API_KEY' or it can be passed directly to the `readMkT` function.
 
 The function offers the facility to save the data on the local drive for future
-use. It is intended to speed data access in working session requiring multiple
+use. It is intended to speed data access in working sessions requiring multiple
 readings of the same data and to reduce the number of external
-server hits.
+servers hits.
 
 ### Call:
 
@@ -81,3 +83,31 @@ A `pd.DataFrame` or a dictionary of `pd.DataFrame` according to the value set of
 
 >Hint: use the flag combination `force=True` and `save=True` to overwrite the
 existing old data from `dir`.
+
+### Examples:
+
+```
+import pandas as pd
+
+import azapy as az
+
+#==============================================================================
+# Collect market data
+sdate = pd.to_datetime("2000-01-01")
+edate = pd.to_datetime('today')
+symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
+
+mktdir = "../../MkTdata"
+
+# force=True read directly from alphavantage
+# force=False read first from local directory, if data does not exists,
+#             read from alphavantage
+
+# returns a pd.DataFrame
+mktdata = az.readMkT(symb, dstart = sdate, dend = edate,
+                     dir=mktdir, force=False)
+
+# returns a dict of pd.DataFrame
+mktdata_dict = az.readMkT(symb, dstart=sdate, dend=edate, force=False,
+                          dir=mktdir, out_dict=True)
+```

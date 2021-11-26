@@ -14,17 +14,17 @@ viewFrontiers(efficient=20, inefficient=20, musharpe=0.,
 ```
 *Inputs:*
 * `efficient` : Number of points along the optimal frontier (equally spaced
-	 along the rate of returns axis). The default is `20`.
+	 along the x-axis). The default is `20`.
 * `inefficient` : Number of points along the inefficient frontier (equally
-	 spaced along the rate of returns axis). The default is `20`.
+	 spaced along the x-axis). The default is `20`.
 * `musharpe` : Risk-free rate value used in the evaluation of generalized
 Sharpe ratio. The default is `0`.
 * `component` : Boolean flag. If `True` the portfolios containing a single
-component are evaluated and added to the plot for references.
+component are evaluated and added to the plot for reference.
 The default is `True`.
 * `randomport` : Number of portfolios with random weights (inefficient) to be
 evaluate and added to the plot for reference. The default is `20`.
-* `inverseN` : Boolean flag. If `True` the equally weighted portfolio and
+* `inverseN` : Boolean flag. If `True` the equal weighted portfolio and
 the optimal portfolio with the same dispersion (risk) value are evaluated and
 added to the plot. The default is `True`.
 * `fig_type` : Graphical representation format. If it is set to `'RR_risk'`
@@ -47,7 +47,7 @@ documentation for `savefig`. The default is `None`.
 * `data` : Precomputed numerical data used to construct the plot.
 If it is not `None` it
 will take precedence and no other numerical evaluations will be
-performed. The main use is to produce different plot representations
+performed. Its main use is to produce different plot representations
 without reevaluations. The default is `None`.
 
 *Returns:* Dictionary containing numerical data used to make the plots.

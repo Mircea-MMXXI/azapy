@@ -36,13 +36,19 @@ class Port_Omega(Port_CVaR):
         mu0 : float, optional
             Omega threshold rate (e.g. risk-free rate). The default is 0.
         rtype : string, optional
-            Type of optimization. It could take the values:\n
-                "Sharpe" - Sharpe optimal portfolio \n
-                "Risk" - risk optimal portfolio \n
-                "MinRisk" - Minimum risk optimal portfolio \n
-                "InvNrisk" - optimal portfolio with same risk as the equally
-                weighted portfolio. \n
-                The default is 'Sharpe'.
+            Optimization type. Possible values \n
+                "Risk" : minimization of dispersion (risk) measure for a fixed 
+                vale of expected rate of return. \n
+                "Sharpe" : maximization of generalized Sharpe ratio.\n
+                "Sharpe2" : minimization of the inverse generalized Sharpe 
+                ratio.\n
+                "MinRisk" : optimal portfolio with minimum dispersion (risk) 
+                value.\n
+                "InvNRisk" : optimal portfolio with the same dispersion (risk)
+                value as equal weighted portfolio. 
+                "RiskAverse" : optimal portfolio for a fixed value of risk 
+                aversion coefficient.
+            The default is "Sharpe". 
         hlength : float, optional
             The length in year of the historical calibration period relative
             to 'Dfix'. A fractional number will be rounded to an integer number

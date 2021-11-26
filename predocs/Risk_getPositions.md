@@ -19,8 +19,8 @@ For `rtype` set to:
     - `'Risk'` : `mu` is the targeted portfolio expected rate of returns,
     - `'Sharpe'` and `'Sharpe2'` : `mu` is the risk-free rate,
     - `'MinRisk'` and `'InvNRisk'`: `mu` is ignored,
-    - `'RiskAverse'` : `mu` is the Lambda aversion coefficient.
-* `rtype`: Optimization type. If it is not `None` it will overwrite the value
+    - `'RiskAverse'` : `mu` is the risk aversion coefficient $\lambda$.
+* `rtype`: Optimization type. If it is not `None`, it will overwrite the value
 set by the constructor. The default is `None`.
 * `nshares` : Initial number of shares for each portfolio component. The total
 value of these shares is the value of the invested capital.
@@ -31,8 +31,8 @@ The default is `None`.
 * `cash` : Additional cash to be added to the capital. A negative entry
 assumes a reduction in the total capital  available for rebalance.
 The default is `0`.
-* `ww` : External portfolio weights (`pd.Series`). If it not set to `None`
-these weights will overwrite the calibrated weights.  The default is `None`.
+* `ww` : `pd.Series` external portfolio weights. If it is not `None`
+these weights will overwrite the calibrated weights. The default is `None`.
 
 *Returns:* `pd.DataFrame` containing the rolling information.
 

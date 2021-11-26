@@ -14,8 +14,8 @@ port_period_returns(fancy=False)
 *Inputs:*
 
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : The values are reported in unaltered algebraic format.
-    - `True` : The values are reported in percent rounded
+    - `False` : the values are reported in unaltered algebraic format.
+    - `True` : the values are reported in percent rounded
     to 2 decimals.
 
 *Returns:* `pd.DataFrame`

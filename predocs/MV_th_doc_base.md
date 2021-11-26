@@ -1,5 +1,5 @@
 
-# MV optimal portfolio <a name="TOP"></a>
+# MV optimal portfolios <a name="TOP"></a>
 
 MV stands for *Mean Variance*. It will play the role of dispersion measure.
 These type of optimal portfolio was
@@ -22,8 +22,17 @@ where:
 > Note: In our case $C$ is estimated from historical observations of
 portfolio components rate of returns.
 
+The following portfolio optimization strategies are available:
+* minimization of dispersion for a give expected rate of return,
+* maximization of Sharpe ratio,
+* minimization of the inverse of Sharpe ratio,
+* minimum dispersion portfolio,
+* Inverse-N risk optimal portfolio (optimal portfolio with the same
+	 dispersion measure as equal weighted portfolio),
+* maximization of expected rate of returns for a given risk aversion.
+
 There are 2 support classes:
 
 * **MVAnalyzer** : computes the portfolio weights and performs in-sample
 analysis,
-* **Port_MV** : performs portfolio back testing, out-of-sample analyzes.
+* **Port_MV** : performs portfolio back testing, out-of-sample analysis.

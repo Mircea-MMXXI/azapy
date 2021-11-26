@@ -46,19 +46,20 @@ class MVAnalyzer(_RiskAnalyzer):
             Business days calendar. If is it None then the calendar will be set
             to NYSE business calendar.
             The default is None.
-        rtype : TYPE, optional
+        rtype : string, optional
             Optimization type. Possible values \n
-                "Risk" : minimization of dispersion (risk) measure.\n
+                "Risk" : minimization of dispersion (risk) measure for a fixed 
+                vale of expected rate of return. \n
                 "Sharpe" : maximization of generalized Sharpe ratio.\n
-                "Sharpe2" : alternative computation of generalized Sharpe 
+                "Sharpe2" : minimization of the inverse generalized Sharpe 
                 ratio.\n
                 "MinRisk" : optimal portfolio with minimum dispersion (risk) 
                 value.\n
                 "InvNRisk" : optimal portfolio with the same dispersion (risk)
-                value as equally weighted portfolio. \n
-                "RiskAverse" : optimal portfolio for a fixed risk aversion 
-                coefficient.
-            The default is "Sharpe".
+                value as equal weighted portfolio. 
+                "RiskAverse" : optimal portfolio for a fixed value of risk 
+                aversion coefficient.
+            The default is "Sharpe". 
         method : string, optional
             Quadratic programming numerical method. Could be 'ecos' or
             'cvxopt'. The default is 'ecos'.
@@ -140,19 +141,22 @@ class MVAnalyzer(_RiskAnalyzer):
         P = self.rrate.cov().to_numpy()
         nn = P.shape[0]
         
-        # build c
-        c_data = list(-self.muk) + [self.mu]
-       
+        # build c 
+        c_data = list(-self.muk) + [self.mu] 
+
         # biuld G
+        # ww > 0 and t > 0
         dd = np.diag([-1.] * (nn + 1))
+        # cone
+        xx = sps.coo_matrix(([-1.], ([0], [nn])), shape=(1, nn + 1))
         pp = sps.block_diag((-la.cholesky(P, overwrite_a=True), [-1.]))
-        G = sps.vstack([dd, pp])
+        G = sps.vstack([dd, xx, pp])
         
         # biuld dims
-        dims = {'l': nn, 'q': [nn + 2]}
+        dims = {'l': nn + 1, 'q': [nn + 2]}
         
         # build h
-        h_data = [0.] * nn + [0.25] + [0.] * nn + [-0.25]
+        h_data = [0.] * (nn + 1) + [0.25] + [0.] * nn + [-0.25]
         
         # build A
         A = sps.coo_matrix([1.] * nn + [-1.])
@@ -201,16 +205,20 @@ class MVAnalyzer(_RiskAnalyzer):
         sq2 = -np.sqrt(0.5)
 
         # build G
-        dd = sps.block_diag((np.diag([-1.] * nn), [sq2, sq2]))
+        # ww > 0 and u > 0 and t > 0
+        dd = np.diag([-1.] * (nn + 2))
+        # cone
+        xx = sps.coo_matrix(([sq2, sq2], ([0, 0], [nn, nn + 1])), 
+                            shape=(1, nn + 2))
         pp = sps.block_diag((-la.cholesky(P, overwrite_a=True), 
                              np.diag([sq2, sq2])))
-        G = sps.vstack([dd, pp])
+        G = sps.vstack([dd, xx, pp])
         
         # build h
-        h_data = [0.] * (2 * nn + 3)
+        h_data = [0.] * (2 * nn + 5)
         
         # def dims
-        dims = {'l': nn, 'q': [nn + 3]}
+        dims = {'l': nn + 2, 'q': [nn + 3]}
         
         # build A
         A = sps.coo_matrix(

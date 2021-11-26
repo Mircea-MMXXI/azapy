@@ -35,7 +35,7 @@ strategies based on the following dispersion measures:
 * LSSD - Lower Semi-Standard Deviation and its generalization mLSSD
 (mixture of high order LSSD'm),
 * GINI - Gini ratio,
-* SMGINI - Second Momentum GINI dispersion measure
+* SMGINI - Second Moment Gini dispersion measure,
 * Omega - Omega ratio.
 
 In each case several optimization strategies are implemented. To
@@ -62,7 +62,8 @@ with the lowest rate of returns for a given value of risk. Clearly, this
 family of portfolios are to be avoided by an investor.
 
 The most left point, where the blue and red lines meet, is the
-*Minimum Risk Portfolio*. This is the portfolio with minimum risk. Investing
+*Minimum Risk Portfolio* (also called *Global Minimum Risk Portfolio*).
+This is the portfolio with minimum risk. Investing
 in portfolios with minimum risk is a relative common strategy among
 professional investors.
 
@@ -70,7 +71,7 @@ The black straight line, in the upper part of the plot, is tangent to the
 *efficient frontier*. Its intersection with the y-axis (not shown in the plot)
 is at a level equal with the risk-free rate accessible to the investor.
 In this example the risk-free rate was set to 0. The
-tangency point along the efficient frontier (in out plot depicted by a green
+tangency point along the efficient frontier (in our plot depicted by a green
 diamond) is the
 *tangency portfolio* or the *market portfolio*. This is the portfolio
 that maximizes the Sharpe ratio. The Sharpe ratio[^sharpe] is defined as
@@ -81,7 +82,7 @@ that maximizes the Sharpe ratio. The Sharpe ratio[^sharpe] is defined as
 
 where:
 
-* $R$ is the expected portfolio rate of return,
+* $R$ is the portfolio expected rate of return,
 * $r_f$ is the risk-free rate accessible to the investor,
 * $\rho$ is the dispersion of portfolio rate of return.
 
@@ -100,7 +101,7 @@ the market symbol of this portfolio component.
 
 Among the *inefficient portfolios* there is a remarkable portfolio. That is
 the portfolio with equal weights. All weights
-are equal to $1/N$ where $N$ is the number of portfolio
+are proportional to $1/N$ where $N$ is the number of portfolio
 components. Hence, its name $1/N$*-portfolio* or *inverse-N portfolio*.
 In our plot this portfolio is represented by a green X with label $1/N$.
 
@@ -124,14 +125,12 @@ figure.
 
 _Fig 2. : Example of portfolio frontiers - expected rate of return vs. Sharpe ratio._
 
-It contain the same information as Fig 1. However, now in the
-x-axis is the expected rate of return while in the y-axis is the Sharpe ratio.
-We have preserved all the symbols and the code of colors between the figs.
+It contain the same information as Fig 1. However, now the
+x-axis is the expected rate of return while the y-axis is the Sharpe ratio.
+We have preserved the color code and all the symbols from Fig.1.
+
 Fig 2. gives a better intuition of portfolio efficiency in terms of
-excess return per unit or risk.
-
-
-
+expected excess return per unit or risk.
 
 
 For all dispersion measures mentioned above, the **azapy** package offers
@@ -144,31 +143,31 @@ between the expected rate of returns of the efficient portfolio with minimum
 risk and the highest rate of returns among the portfolio components. If
 the input value is outside of this range than it will automatically default
 to the nearby limit. In the code this strategy is designated by setting
-``rtype='Risk'``.
+`rtype='Risk'`.
 2. *Maximization of Sharpe ratio*. This is the portfolio with the highest
-excess rate of returns per unit of risk hold by the investor. It is a
+expected excess rate of return per unit of risk hold by the investor. It is a
 very popular strategy among investors.
-In the code this strategy is designated by setting ``rtype='Sharpe'``.
-3. *Minimization of inverse Sharpe ratio*. Obviously this strategy is
+In the code this strategy is designated by setting `rtype='Sharpe'`.
+3. *Minimization of inverse Sharpe ratio*. Obviously, this strategy is
 logically equivalent with the one above. It returns the same portfolio
-weights. However, from a mathematical point of view the direct
+weights. However, from a mathematical point of view, the direct
 minimization of inverse Sharpe ratio is a different programming problem
-then the direct maximization of Sharpe ratio. Some authors insist that
+than the direct maximization of Sharpe ratio. Some authors insist that
 the minimization of the inverse Sharpe leads to more stable numerical algorithms
-(under certain conditions). In our experience we were not able to verify
+(under certain conditions). We were not able to verify
 this claim. Both methods have proved to be very stable with similar
 computational times. For completeness, we choose
-to make available this implementation under the setting ``rtype='Sharpe2'``.
-4. *Minimum Risk portfolio*. This is the efficient portfolio with
+to make available this implementation under the setting `rtype='Sharpe2'`.
+4. *Minimum risk portfolio*. This is the efficient portfolio with
 minimum risk (the most left limit of the *efficient frontier*). It is
-a common strategy among professional investor. This strategy is available
-under the setting ``rtype='MinRisk'``.
+a common strategy among professional investor. It is available
+under the setting `rtype='MinRisk'`.
 5. *Efficient portfolio with same risk as inverse-N*. This is the
-optimal portfolio that
-has the same risk as the *inverse-N* portfolio. For many investor this could be
+optimal portfolio that has the same risk as the equal weighted portfolio.
+For many investor this could be
 the preferred choices since its out-of-sample (back testing) performance
 can be compared directly against *inverse-N* portfolio. In the code this
-strategy is designated by setting ``rtype='InvNrisk'``.
+strategy is designated by setting `rtype='InvNrisk'`.
 6. *Maximization of the expected rate of returns for a given risk aversion*
 *factor*. In this strategy the optimal portfolio weights
 maximize the quantity $R -\lambda \rho$, where $R$ is the portfolio
@@ -177,8 +176,8 @@ expected rate of returns, $\rho$ is the risk, and $\lambda$ is the
 $+\infty$. For $\lambda=0$ the optimal portfolio will contain only the
 asset with higher expected rate of returns. This is the most right
 point along the *efficient frontier*. For $\lambda=+\infty$ the optimal
-portfolio is the *Minimum Risk portfolio*, the most left point on the
-*efficient frontier*. Any other value for $\lambda$ will lead to an
+portfolio is the *minimum risk portfolio*, the most left point on the
+*efficient frontier*. Any other values for $\lambda$ will lead to an
 optimal portfolio along the *efficient frontier*. In general it is
 not intuitive for an investor to specify a rational value
 for the *risk aversion* factor. The same value of $\lambda$ may lead
@@ -188,14 +187,14 @@ this strategy, by specifying a desired value for $\lambda$, may not
 be advisable. However, this strategy may be useful if it is combined
 with a strategy to estimate the value of *risk aversion* factor based on
 market conditions (*e.g.* technical analysis, etc.).
-In the code this optimization is designated by setting
-``rtype='RiskAverse'``.
+In the code this optimization strategy is designated by setting
+`rtype='RiskAverse'`.
 
 
 **azapy** package covers, 9 risk-based dispersion measures $\times$ 6 optimization
 strategies, in total 54 risk-based portfolio optimization strategies.
 
-The natural question that arises here is: which one is the best?
+The natural question that arises is: which one is the best?
 
 There is no absolute answer to this question and so there is no
 substitute to our personal research. To this end, **azapy** package
@@ -220,17 +219,20 @@ exposed to.
 different portfolios all together.
 
 Examples of how to carry out a portfolio out-of-sample analysis are present
-in a collection of Jupyter notebooks and Python scripts.
+in a collection of
+[Jupyter notebooks](https://github.com/Mircea2004/azapy/tree/main/jpy_scripts)
+and [Python scripts](https://github.com/Mircea2004/azapy/tree/main/scripts/portfolios).
 They can be used as a source of inspiration for further research.
 
 Once we have decided for a portfolio composition and optimization strategy,
 **azapy** can help with portfolio maintenance. It can proved comprehensive
 information regarding the prevailing portfolio weights, number of shares,
 delta positions and cash flow at rebalancing time.
-An example is provided in a Jupyter notebook.
+An example is provided in a
+[Jupyter notebook](https://github.com/Mircea2004/azapy/blob/main/jpy_scripts/Rebalance_example.ipynb).
 
 **azapy** package has its own facility to collect market data from
-**alphavantage** provider.[^alphavantage]
+**alphavantage** provider[^alphavantage] (see section *Utility functions*).
 
 
 

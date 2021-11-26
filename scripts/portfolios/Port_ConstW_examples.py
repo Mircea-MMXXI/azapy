@@ -11,13 +11,14 @@ symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
 
 mktdir = "../../MkTdata"
 
-# force=True read from alphavantage server
-# force=False read from local directory if data exists
+# force=True read directly from alphavantage
+# force=False read first from local directory, if data does not exists, 
+#             read from alphavantage
 mktdata = az.readMkT(symb, dstart = sdate, dend = edate, 
                      dir=mktdir, force=False) 
 
 #=============================================================================
-# Build some weights
+# define some weights
 ww = pd.Series(1./len(symb), index=symb)
 
 #=============================================================================
@@ -31,7 +32,7 @@ tic = time.perf_counter()
 port3  = p3.set_model(ww)    
 
 toc = time.perf_counter()
-print(f"time get_port: {toc-tic}")
+print(f"time to get port: {toc-tic}")
 
 p3.port_view()
 p3.port_view_all()
@@ -56,7 +57,9 @@ for sy in symb:
 p2 = az.Port_Rebalanced(mktdata, pname='TestPort')
 port2  = p2.set_model(wwr)    
 
-# Compare - must be identical
-port3.merge(port2, how='left', on='date').plot()
+# must be identical   
+pp = az.Port_Simple([port2, port3])
+_ = pp.set_model()
+_ = pp.port_view_all(componly=True)
 
 

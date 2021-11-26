@@ -45,26 +45,26 @@ where:
 * `mktdata` : `pd.DataFrame`;
 Market data in the format `"symbol"`, `"date"`, `"open"`, `"high"`,
 `"low"`, `"close"`, `"volume"`, `"adjusted"`, `"divd"`, `"split"`
-(e.g. as returned by `azapy.readMkT`).
+(*e.g.* as returned by `azapy.readMkT`).
 * `symb` :
 List of symbols of portfolio components. All symbols
-should be present in `mktdata`. If set to `None` the `symb` will be
-set to the full set of symbols present in `mktdata`. The default
+should be present in `mktdata`. If it is `None`, then `symb` will default to
+the full set of symbols present in `mktdata`. The default
 is `None`.
 * `sdate` : `datetime`;
-Start date for historical simulation. If set to `None` the `sdate` will
-be set to the earliest date in `mktdata`. The default is `None`.
+Start date for historical simulation. If it is `None`, then `sdate` will
+default to the earliest date in `mktdata`. The default is `None`.
 * `edate` : `datetime`;
 End date for historical simulation. Must be
-greater than  `sdate`. If it is `None` then `edate` will be set
+greater than  `sdate`. If it is `None`, then `edate` will default
 to the latest date in `mktdata`. The default is `None`.
 * `col` :
-Column name in the `mktdata` DataFrame that will be considered
+Column name in the `mktdata` that will be considered
 for portfolio aggregation. The default is `'adjusted'`.
 * `pname` : `string`;
 The name of the portfolio. The default is `'Port'`.
 * `pcolname` : `string`;
-Name of the portfolio price column. If it is set to `None` than
+Name of the portfolio price column. If it is `None` than
 `pcolname=pname`. The default is `None`.
 * `capital` : `float`;
 Initial portfolio Capital in dollars. The default is `100000`.
@@ -89,11 +89,11 @@ set_model(ww=None)
 *Inputs:*
 
 * `ww` :
-List like weights, `len(ww)` must be equal to
+List like of positive weights. `len(ww)` must be equal to
 `len(symb)`. If `ww` is a `pd.Series`
 the index should match the portfolio symbols, `symb`
 Otherwise the weights are considered in the  `symb`
-order. If it is `None` than `ww` will be set to equal weights,
+order. If it is `None`, than `ww` will be set to equal weights,
 `ww = [1 / len(symb)] * len(symb)`.
 The default is `None`.
 
@@ -108,7 +108,7 @@ The default is `None`.
 
 #### <span style="color:green">port_view</span>
 
-Plot the optimal portfolio time series together with some technical
+Plots the optimal portfolio time series together with some technical
 indicators.
 
 *Call:*
@@ -122,12 +122,12 @@ port_view(emas=[30, 200], bollinger=False, fancy=False, saveto=None)
 * `emas` :
 List for EMA durations. The default is ``[30, 200]``.
 * `bollinger` : Boolean flag.
-If set `True` it adds the Bollinger bands. The default is `False`.
+`True` adds the Bollinger bands. The default is `False`.
 * `view` : Boolean flag.
 `False` suppresses the plotting to the terminal. The default is `True`.
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : it uses the `matplotlib` capabilities.
-    - `True` : it uses `plotly` library for interactive time-series view.
+    - `False` : it uses the `matplotlib` package capabilities.
+    - `True` : it uses `plotly` package for interactive time-series view.
 * `saveto` : File name where to save the plot. The extension dictates the
 format: `png`, `pdf`, `svg`, etc. For more details see the `mathplotlib`
 documentation for `savefig`. The default is `None`.
@@ -142,7 +142,7 @@ documentation for `savefig`. The default is `None`.
 
 #### <span style="color:green">port_view_all</span>
 
-Plot the optimal portfolio and its components time-series in a relative bases.
+Plots in a relative bases the optimal portfolio and its components time-series.
 The components time series prices are designated by the value of
 `col_ref` argument in the constructor.
 
@@ -155,19 +155,19 @@ port_view_all(sdate=None, edate=None, componly=False, fancy=False, saveto=None)
 *Inputs:*
 
 * `sdate` : `datetime`;
-Start date of plotted time-series. If it is set to `None`
-then the `sdate` is set to the earliest date in the time-series.
+Start date of plotted time-series. If it is `None`,
+then `sdate` is set to the earliest date in the time-series.
 The default is `None`.
 * `edate` : `datetime`;
-End date of plotted time-series. If it set to `None` then the `edate`
+End date of plotted time-series. If it is `None`, then `edate`
 is set to the most recent date of the time-series.
 The default is `None`.
 * `componly` : Boolean flag with default value `True`.
     - `True` : only the portfolio components time-series are plotted.
     - `False` : the portfolio and its components times-series are plotted.
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : it uses the `matplotlib` capabilities.
-    - `True` : it uses `plotly` library for interactive time-series view.
+    - `False` : it uses the `matplotlib` package capabilities.
+    - `True` : it uses `plotly` package for interactive time-series view.
 * `saveto` : File name where to save the plot. The extension dictates the
 format: `png`, `pdf`, `svg`, etc. For more details see the `mathplotlib`
 documentation for `savefig`.The default is `None`.
@@ -196,8 +196,8 @@ port_drawdown(top=5, fancy=False)
 The number of largest drawdown that will be reported.
 The default is `5`.
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : The values are reported in unaltered algebraic format.
-    - `True` : The values are reported in percent rounded
+    - `False` : the values are reported in unaltered algebraic format.
+    - `True` : the values are reported in percent rounded
     to 2 decimals.
 
 *Returns:* `pd.DataFrame` containing the table of
@@ -206,7 +206,7 @@ drawdown events. Columns:
 * `'Date'` : recorded date of the drawdown,
 * `'Star'` : start date of the drawdown,
 * `'End'` : end date of the drawdown. A `NaN` value indicates that the
-drawdown event is in progress and the value of `'DD'` and `'Date'` are
+drawdown event is in progress and the values of `'DD'` and `'Date'` are
 provisional only.
 
 [TOP](#TOP)
@@ -232,8 +232,8 @@ port_perf(componly=False, fancy=False)
 If `True`, only the portfolio components information is reported.
 The default is `False`.
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : The values are reported in unaltered algebraic format,
-    - `True` : The values are reported in percent rounded
+    - `False` : the values are reported in unaltered algebraic format.
+    - `True` : the values are reported in percent rounded
     to 2 decimals.
 
 *Returns:* `pd.DataFrame` containing the table of
@@ -253,7 +253,7 @@ performance information. Columns:
 
 #### <span style="color:green">port_annual_returns</span>
 
-Compute optimal portfolio and its components annual (calendar) rates of returns.
+Computes optimal portfolio and its components annual (calendar) rates of returns.
 The components time series prices used in the estimations are designated by
 the value of `col_ref` argument in the constructor.
 
@@ -272,8 +272,8 @@ report. The default is `False`.
 If `True`, only the portfolio components annual returns
 are reported. The default is `False`.
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : The values are reported in unaltered algebraic format.
-    - `True` : The values are reported in percent rounded
+    - `False` : the values are reported in unaltered algebraic format.
+    - `True` : the values are reported in percent rounded
     to 2 decimals and presented is color style.
 
 *Returns:* `pd.DataFrame`
@@ -304,8 +304,8 @@ report. The default is `False`.
 If `True`, only the portfolio components monthly returns
 are reported. The default is `False`.
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : The values are reported in unaltered algebraic format,
-    - `True` : The values are reported in percent rounded
+    - `False` : the values are reported in unaltered algebraic format.
+    - `True` : the values are reported in percent rounded
     to 2 decimals and presented is color style.
 
 *Returns:* `pd.DataFrame`
@@ -330,5 +330,90 @@ get_mktdata()
 
 
 *Returns:* `pd.DataFrame`
+
+[TOP](#TOP)
+
+---
+
+### Examples
+
+```
+## Set from market data (as returned by azapy.readMkT)
+import pandas as pd
+
+import azapy as az
+
+#=============================================================================
+# Collect some market data
+sdate = pd.to_datetime("2012-01-01")
+edate = pd.to_datetime('today')
+symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
+
+mktdir = "../../MkTdata"
+
+# force=True read directly from alphavantage
+# force=False read first from local directory, if data does not exists,
+#             read from alphavantage
+mktdata = az.readMkT(symb, dstart = sdate, dend = edate,
+                     dir=mktdir, force=False)
+
+#=============================================================================
+# define some weights
+ww = pd.Series(1./len(symb), index=symb)
+
+#=============================================================================
+# Compute portfolio and view the results
+p1 = az.Port_Simple(mktdata, pname='SimplePort')
+port = p1.set_model(ww)
+
+p1.port_view()
+p1.port_view_all()
+p1.port_drawdown(fancy=True)
+p1.port_perf(fancy=True)
+p1.port_annual_returns()
+p1.port_monthly_returns()
+```
+
+```
+## Set from a list of pd.DataFrame of time series
+import pandas as pd
+
+import azapy as az
+
+#=============================================================================
+# Collect some market data
+sdate = pd.to_datetime("2012-01-01")
+edate = pd.to_datetime('today')
+symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
+
+mktdir = "../../MkTdata"
+
+# force=True read from alphavantage server
+# force=False read from local directory if data exists
+mktdata = az.readMkT(symb, dstart = sdate, dend = edate,
+                     dir=mktdir, force=False)
+
+# transform mktdata into a list of DataFrame's containing close prices
+lmktdata = []
+for k, v in mktdata.groupby(by='symbol'):
+    lmktdata.append(v.pivot(columns='symbol', values='close'))
+
+#=============================================================================
+# defines some weights
+ww = pd.Series(1./len(symb), index=symb)
+
+#=============================================================================
+# Compute portfolio and view some results
+# use the list version of the market data
+p1 = az.Port_Simple(lmktdata, pname='SimplePort')
+port = p1.set_model(ww)
+
+p1.port_view()
+p1.port_view_all()
+p1.port_drawdown(fancy=True)
+p1.port_perf(fancy=True)
+p1.port_annual_returns()
+p1.port_monthly_returns()
+```
 
 [TOP](#TOP)

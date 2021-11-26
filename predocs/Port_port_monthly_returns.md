@@ -21,8 +21,8 @@ report. The default is `False`.
 If `True`, only the portfolio components monthly returns
 are reported. The default is `False`.
 * `fancy` : Boolean flag with default value `False`.
-    - `False` : The values are reported in unaltered algebraic format,
-    - `True` : The values are reported in percent rounded
+    - `False` : the values are reported in unaltered algebraic format.
+    - `True` : the values are reported in percent rounded
     to 2 decimals and presented is color style.
 
 *Returns:* `pd.DataFrame`
