@@ -141,19 +141,22 @@ class MVAnalyzer(_RiskAnalyzer):
         P = self.rrate.cov().to_numpy()
         nn = P.shape[0]
         
-        # build c
-        c_data = list(-self.muk) + [self.mu]
-       
+        # build c 
+        c_data = list(-self.muk) + [self.mu] 
+
         # biuld G
+        # ww > 0 and t > 0
         dd = np.diag([-1.] * (nn + 1))
+        # cone
+        xx = sps.coo_matrix(([-1.], ([0], [nn])), shape=(1, nn + 1))
         pp = sps.block_diag((-la.cholesky(P, overwrite_a=True), [-1.]))
-        G = sps.vstack([dd, pp])
+        G = sps.vstack([dd, xx, pp])
         
         # biuld dims
-        dims = {'l': nn, 'q': [nn + 2]}
+        dims = {'l': nn + 1, 'q': [nn + 2]}
         
         # build h
-        h_data = [0.] * nn + [0.25] + [0.] * nn + [-0.25]
+        h_data = [0.] * (nn + 1) + [0.25] + [0.] * nn + [-0.25]
         
         # build A
         A = sps.coo_matrix([1.] * nn + [-1.])
@@ -202,16 +205,20 @@ class MVAnalyzer(_RiskAnalyzer):
         sq2 = -np.sqrt(0.5)
 
         # build G
-        dd = sps.block_diag((np.diag([-1.] * nn), [sq2, sq2]))
+        # ww > 0 and u > 0 and t > 0
+        dd = np.diag([-1.] * (nn + 2))
+        # cone
+        xx = sps.coo_matrix(([sq2, sq2], ([0, 0], [nn, nn + 1])), 
+                            shape=(1, nn + 2))
         pp = sps.block_diag((-la.cholesky(P, overwrite_a=True), 
                              np.diag([sq2, sq2])))
-        G = sps.vstack([dd, pp])
+        G = sps.vstack([dd, xx, pp])
         
         # build h
-        h_data = [0.] * (2 * nn + 3)
+        h_data = [0.] * (2 * nn + 5)
         
         # def dims
-        dims = {'l': nn, 'q': [nn + 3]}
+        dims = {'l': nn + 2, 'q': [nn + 3]}
         
         # build A
         A = sps.coo_matrix(

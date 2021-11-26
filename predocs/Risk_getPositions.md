@@ -19,7 +19,7 @@ For `rtype` set to:
     - `'Risk'` : `mu` is the targeted portfolio expected rate of returns,
     - `'Sharpe'` and `'Sharpe2'` : `mu` is the risk-free rate,
     - `'MinRisk'` and `'InvNRisk'`: `mu` is ignored,
-    - `'RiskAverse'` : `mu` is the risk aversion coefficient $\lamnda$.
+    - `'RiskAverse'` : `mu` is the risk aversion coefficient $\lambda$.
 * `rtype`: Optimization type. If it is not `None`, it will overwrite the value
 set by the constructor. The default is `None`.
 * `nshares` : Initial number of shares for each portfolio component. The total

@@ -62,7 +62,8 @@ class Port_GINI(Port_CVaR):
             The portfolio time-series in the format "date", "pcolname".
 
         """
-        return super().set_model(mu=mu, rtype=rtype, hlength=hlength)
+        return super().set_model(mu=mu, rtype=rtype, hlength=hlength, 
+                                 method=method)
 
     def _wwgen(self):
         return GINIAnalyzer(rtype=self.rtype, method=self.method)

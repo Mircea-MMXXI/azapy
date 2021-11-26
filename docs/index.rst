@@ -3,12 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to **azapy**
-====================
+Welcome to **azapy** - Financial Portfolio Optimization Algorithms
+==================================================================
 
-Python library - Financial Portfolio Optimization Algorithms
-
-It provides support for a large spectrum of portfolio optimization techniques.
+Provides support for a large spectrum of portfolio optimization techniques.
 Performs *in* and *out-of* sample portfolio analysis.
 
 Risk based portfolio optimizations

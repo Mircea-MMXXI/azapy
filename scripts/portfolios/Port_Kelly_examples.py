@@ -1,6 +1,5 @@
 # Examples
 import pandas as pd
-import time
 
 import azapy as az
 
@@ -22,6 +21,7 @@ mktdata = az.readMkT(symb, dstart = sdate, dend = edate,
 # Compute optimal portfolio with full Kelly criterion
 p4 = az.Port_Kelly(mktdata, pname='KellyPort')    
 
+import time
 tic = time.perf_counter()
 port4 = p4.set_model()   
 toc = time.perf_counter()
@@ -56,10 +56,6 @@ toc = time.perf_counter()
 print(f"time get_port 2-nd order aprox Kelly criterion: {toc-tic}")
                  
 # The results are very close
-
-port_all = port5.merge(port4, how='left', on='date')\
-           .melt(var_name='symbol', value_name='price', ignore_index=False)
-pp = az.Port_Simple(port_all, col='price')
+pp = az.Port_Simple([port4, port5])
 _ = pp.set_model()
 _ = pp.port_view_all(componly=True)
-

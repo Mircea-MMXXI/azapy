@@ -4,6 +4,7 @@
 ```
 import numpy as np
 import pandas as pd
+import time
 
 import azapy as az
 
@@ -30,13 +31,10 @@ coef = coef / coef.sum()
 # Compute MAD-Sharpe optimal portfolio
 p4 = az.Port_MAD(mktdata, pname='MADPort')
 
-import time
 tic = time.perf_counter()
-
 port4 = p4.set_model(mu=0., coef=coef)   
-
 toc = time.perf_counter()
-print(f"time get_port: {toc-tic}")
+print(f"time Sharpe: {toc-tic}")
 
 ww = p4.get_weights()
 p4.port_view()
@@ -50,12 +48,18 @@ p4.port_period_returns()
 p4.get_nshares()
 p4.get_account(fancy=True)
 
-# Test using the Port_Rebalanced weights schedule ww (from above)
-p2 = az.Port_Rebalanced(mktdata, pname='TestPort')
-port2  = p2.set_model(ww)     
+# Use rtype='Sharpe2' - should be the same results
+tic = time.perf_counter()
+port4_2 = p4.set_model(mu=0., coef=coef, rtype='Sharpe2')   
+toc = time.perf_counter()
+print(f"time Sharpe2: {toc-tic}")
 
-# Compare - must be identical
-port4.merge(port2, how='left', on='date').plot()
+# compare - should be identical
+port4.columns = ['Sharpe']
+port4_2.columns = ['Sharpe2']
+pp = az.Port_Simple([port4, port4_2])
+_ = pp.set_model()
+_ = pp.port_view_all(componly=(True))
 
 #=============================================================================
 # Compute mMAD optimal portfolio
@@ -121,41 +125,21 @@ p4.get_account(fancy=True)
 # # speed comparisons for different LP methods
 # # may take some time to complete
 # # please uncomment the lines below
+# methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 'glpk', 'cvxopt',  
+#            'interior-point' ]
+# zts = []
+# for method in methods:
+#     toc = time.perf_counter()
+#     zz = p4.set_model(mu=0., coef=coef, method=method)  
+#     tic = time.perf_counter()
+#     print(f"{method} time: {tic-toc}")  
+#     zz.columns = [method]
+#     zts.append(zz)
 
-# toc = time.perf_counter()
-# p4.set_model(mu=0., coef=coef)   
-# tic = time.perf_counter()
-# print(f"ecos: time get_port: {tic-toc}")  
-
-# toc = time.perf_counter()
-# p4.set_model(mu=0., coef=coef, method='highs')
-# tic = time.perf_counter()
-# print(f"highs: time get_port: {tic-toc}")  
-
-# toc = time.perf_counter()
-# p4.set_model(mu=0., coef=coef, method='highs-ds')
-# tic = time.perf_counter()
-# print(f"highs-ds: time get_port: {tic-toc}")  
-
-# toc = time.perf_counter()
-# p4.set_model(mu=0., coef=coef, method='highs-ipm')
-# tic = time.perf_counter()
-# print(f"highs-ipm: time get_port: {tic-toc}")  
-
-# toc = time.perf_counter()
-# p4.set_model(mu=0., coef=coef, method='cvxopt')
-# tic = time.perf_counter()
-# print(f"cvxopt: time get_port: {tic-toc}")  
-
-# toc = time.perf_counter()
-# p4.set_model(mu=0., coef=coef, method='glpk')
-# tic = time.perf_counter()
-# print(f"glpk: time get_port: {tic-toc}")  
-
-# toc = time.perf_counter()
-# p4.set_model(mu=0., coef=coef, method='interior-point')
-# tic = time.perf_counter()
-# print(f"interior-point: time get_port: {tic-toc}")  
+# # must be identical   
+# pp = az.Port_Simple(zts)
+# _ = pp.set_model()
+# _ = pp.port_view_all(componly=True)
 ```
 
 [TOP](#TOP)

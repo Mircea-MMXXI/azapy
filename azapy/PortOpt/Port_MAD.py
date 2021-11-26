@@ -67,7 +67,7 @@ class Port_MAD(Port_CVaR):
             The portfolio time-series in the format "date", "pcolname".
         """
         return super().set_model(mu=mu, coef=coef, rtype=rtype,
-                                 hlength=hlength)
+                                 hlength=hlength, method=method)
 
     def _set_alpha(self, alpha, coef):
         # ignore alpha

@@ -2,6 +2,7 @@
 ### Examples
 
 ```
+## Set from market data (as returned by azapy.readMkT)
 import pandas as pd
 
 import azapy as az
@@ -27,6 +28,48 @@ ww = pd.Series(1./len(symb), index=symb)
 #=============================================================================
 # Compute portfolio and view the results
 p1 = az.Port_Simple(mktdata, pname='SimplePort')
+port = p1.set_model(ww)
+
+p1.port_view()
+p1.port_view_all()
+p1.port_drawdown(fancy=True)
+p1.port_perf(fancy=True)
+p1.port_annual_returns()
+p1.port_monthly_returns()
+```
+
+```
+## Set from a list of pd.DataFrame of time series
+import pandas as pd
+
+import azapy as az
+
+#=============================================================================
+# Collect some market data
+sdate = pd.to_datetime("2012-01-01")
+edate = pd.to_datetime('today')
+symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
+
+mktdir = "../../MkTdata"
+
+# force=True read from alphavantage server
+# force=False read from local directory if data exists
+mktdata = az.readMkT(symb, dstart = sdate, dend = edate,
+                     dir=mktdir, force=False)
+
+# transform mktdata into a list of DataFrame's containing close prices
+lmktdata = []
+for k, v in mktdata.groupby(by='symbol'):
+    lmktdata.append(v.pivot(columns='symbol', values='close'))
+
+#=============================================================================
+# defines some weights
+ww = pd.Series(1./len(symb), index=symb)
+
+#=============================================================================
+# Compute portfolio and view some results
+# use the list version of the market data
+p1 = az.Port_Simple(lmktdata, pname='SimplePort')
 port = p1.set_model(ww)
 
 p1.port_view()

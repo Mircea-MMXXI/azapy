@@ -1,5 +1,6 @@
 # Examples
 import pandas as pd
+import time
 
 import azapy as az
 
@@ -21,11 +22,8 @@ mktdata = az.readMkT(symb, dstart = sdate, dend = edate,
 # Compute portfolio
 p4 = az.Port_InvVar(mktdata, pname='InvVarPort')    
 
-import time
 tic = time.perf_counter()
-
 port4 = p4.set_model()   
-
 toc = time.perf_counter()
 print(f"time get_port: {toc-tic}")
 
@@ -46,6 +44,8 @@ p4.get_account(fancy=True)
 p2 = az.Port_Rebalanced(mktdata, pname='TestPort')
 port2  = p2.set_model(ww)     
 
-# Compare - must be identical
-port4.merge(port2, how='left', on='date').plot()
+# must be identical   
+pp = az.Port_Simple([port2, port4])
+_ = pp.set_model()
+_ = pp.port_view_all(componly=True)
                  

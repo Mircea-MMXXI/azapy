@@ -3,7 +3,7 @@ $\def\CVaR{{\rm CVaR}}$
 $\def\cK{{\cal K}}$
 
 
-# CVaR optimal portfolio <a name="TOP"></a>
+# CVaR optimal portfolios <a name="TOP"></a>
 
 CVaR stands for *Conditional Value at Risk*. It is one of the most popular risk
 measures in finance.
@@ -27,6 +27,15 @@ where:
 
 > Note: a typical choice could be $L=3$, $\cK_l=1/3\ \forall l$,
 and $\alpha=\{0.95, 0.90, 0.85\}$
+
+The following portfolio optimization strategies are available:
+* minimization of dispersion for a give expected rate of return,
+* maximization of Sharpe ratio,
+* minimization of the inverse of Sharpe ratio,
+* minimum dispersion portfolio,
+* Inverse-N risk optimal portfolio (optimal portfolio with the same
+	 dispersion measure as equal weighted portfolio),
+* maximization of expected rate of returns for a given risk aversion.
 
 There are 2 support classes:
 
@@ -231,7 +240,7 @@ For `rtype` set to:
     - `'Risk'` : `mu` is the targeted portfolio expected rate of returns,
     - `'Sharpe'` and `'Sharpe2'` : `mu` is the risk-free rate,
     - `'MinRisk'` and `'InvNRisk'`: `mu` is ignored,
-    - `'RiskAverse'` : `mu` is the risk aversion coefficient $\lamnda$.
+    - `'RiskAverse'` : `mu` is the risk aversion coefficient $\lambda$.
 * `rtype`: Optimization type. If it is not `None`, it will overwrite the value
 set by the constructor. The default is `None`.
 * `nshares` : Initial number of shares for each portfolio component. The total
@@ -464,7 +473,7 @@ mktdata = az.readMkT(symb, dstart = sdate, dend = edate,
                      dir=mktdir, force=False)
 
 #=============================================================================
-# define mCVaR measure parameters alpha and coef
+# Define mCVaR measure parameters alpha and coef
 alpha = np.array([0.99, 0.975, 0.95])
 coef = np.ones(len(alpha))
 coef = coef / coef.sum()
@@ -509,14 +518,14 @@ print(f"Test for weights computation\n {ww_comp}")
 #=============================================================================
 # Frontiers evaluations
 print("\nFrontiers evaluations\n")
-opt ={'title': "CVaR Port", 'tangent': True}
+opt = {'title': "CVaR Port", 'tangent': True}
 print("\n rate of returns vs risk representation")
 rft = cr1.viewFrontiers(musharpe=0, randomport=100, options=opt)
 print("\n Sharpe vs rate of returns representation")
 rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR')
 
 #=============================================================================
-# Test Sharpe vs. Sharpe2
+# Sharpe vs. Sharpe2
 # first Sharpe (default rtype)
 cr1 = az.CVaRAnalyzer(alpha, coef, mktdata)
 ww1 = cr1.getWeights(mu=0.)
@@ -533,7 +542,7 @@ risk2 = cr2.risk
 prim2 = cr2.primary_risk_comp.copy()
 seco2 = cr2.secondary_risk_comp.copy()
 sharpe2 = cr2.sharpe
-# print comparison
+# print comparison - must be very close
 print("\nSharpe vs. Sharpe2\n")
 print(f"status {cr2.status} = {cr1.status}")
 ww_comp = pd.DataFrame({"ww2": ww2, "ww1": ww1, "diff": ww2-ww1})
@@ -558,39 +567,44 @@ print(f"Sharpe comp\n {sharpe_comp}")
 # %timeit cr2.getWeights(mu=0., rtype='Sharpe2')
 
 #=============================================================================
-# Test for InvNrisk
+# Compute InvNrisk optimal portfolio
 cr1 = az.CVaRAnalyzer(alpha, coef, mktdata)
-# compute the risk of a equally weighted portfolio
-ww = np.ones(len(symb))
-ww = ww / np.sum(ww)
-risk = cr1.getRisk(ww)
 # compute the weights of InvNrisk
 ww1 = cr1.getWeights(mu=0., rtype="InvNrisk")
 RR1 = cr1.RR
-# compute the optimal portfolio for RR1 targeted rate of return
+
+# Test - compute the optimal portfolio for RR1 targeted rate of return
 ww2 = cr1.getWeights(mu=RR1, rtype="Risk")
-# print comparison results
+# print comparison results - must be very close
 print("\nInvNrisk\n")
-risk_comp = pd.DataFrame({'1/N': [risk], 'InvNrisk': [cr1.risk],
-                          'diff': [risk - cr1.risk]})
-print(f"risk comp\n {risk_comp}")
 ww_comp = pd.DataFrame({"InvNrisk": ww1, "Optimal": ww2, 'diff': ww1-ww2})
 print(f"weights comp\n {ww_comp}")
 
+# Test - compute the risk of equal weighted portfolio
+ww = np.ones(len(symb))
+ww = ww / np.sum(ww)
+risk = cr1.getRisk(ww)
+# print comparison results - must be identical
+risk_comp = pd.DataFrame({'1/N': [risk], 'InvNrisk': [cr1.risk],
+                          'diff': [risk - cr1.risk]})
+print(f"risk comp\n {risk_comp}")
+
 #=============================================================================
-# Test for MinRisk
+# Compute MinRisk optimal portfolio
 cr1 = az.CVaRAnalyzer(alpha, coef, mktdata)
 # compute the MinRisk portfolio
 ww1 = cr1.getWeights(mu=0., rtype="MinRisk")
-# test
+
+# Test - using rtype='Risk' for expected rate of return 0
+# should default to 'MinRisk' optimal portfolio
 ww2 = cr1.getWeights(mu=0., rtype="Risk")
-# print comparison
+# print comparison - should be identical
 print("\nMinRisk\n")
 ww_comp = pd.DataFrame({"MinRisk": ww1, "Test": ww2, 'diff': ww1-ww2})
 print(f"weights comp\n {ww_comp}")
 
 #=============================================================================
-# Test for RiskAverse
+# Compute RiskAverse optimal portfolio
 # first compute the Sharpe portfolio
 cr1 = az.CVaRAnalyzer(alpha, coef, mktdata)
 ww1 = cr1.getWeights(mu=0.)
@@ -602,7 +616,7 @@ Lambda = sharpe
 cr2 = az.CVaRAnalyzer(alpha, coef, mktdata)
 ww2 = cr2.getWeights(mu=Lambda, rtype='RiskAverse')
 
-# comparison - practically they should be identical
+# comparison - they should be very close
 print("\nRiskAverse\n")
 risk_comp = pd.DataFrame({'risk': [cr2.risk], 'test': [cr2.RR / Lambda],
                           'Sharpe risk': [risk]})
@@ -614,35 +628,20 @@ print(f"weigths:\n {ww_comp}")
 # # speed comparisons for different LP methods
 # # may take some time to complete
 # # please uncomment the lines below
-# crx1 = az.CVaRAnalyzer(alpha, coef, rrate, method='highs-ds')
-# wwx1 = crx1.getWeights(mu=0.)
-# print(f"high-ds : {wwx1}")
-# crx2 = az.CVaRAnalyzer(alpha, coef, rrate, method='highs-ipm')
-# wwx2 = crx2.getWeights(mu=0.)
-# print(f"highs-ipm : {wwx2}")
-# crx3 = az.CVaRAnalyzer(alpha, coef, rrate, method='highs')
-# wwx3 = crx3.getWeights(mu=0.)
-# print(f"highs : {wwx3}")
-# crx4 = az.CVaRAnalyzer(alpha, coef, rrate, method='interior-point')
-# wwx4 = crx4.getWeights(mu=0.)
-# print(f"interior-point : {wwx4}")
-# crx5 = az.CVaRAnalyzer(alpha, coef, rrate, method='glpk')
-# wwx5 = crx5.getWeights(mu=0.)
-# print(f"glpk : {wwx5}")
-# crx6 = az.CVaRAnalyzer(alpha, coef, rrate, method='cvxopt')
-# wwx6 = crx6.getWeights(mu=0.)
-# print(f"cvxopt : {wwx6}")
-# crx7 = az.CVaRAnalyzer(alpha, coef, rrate, method='ecos')
-# wwx7 = crx7.getWeights(mu=0.)
-# print(f"ecos : {wwx7}")
+# import time
+# methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 'glpk', 'cvxopt',  
+#            'interior-point' ]
+# xta = {}
+# for method in methods:
+#     crrx = az.CVaRAnalyzer(alpha, coef, mktdata, method=method)
+#     toc = time.perf_counter()
+#     wwx = crrx.getWeights(mu=0.)
+#     tic = time.perf_counter() - toc
+#     print(f"method: {method} time: {tic}")
+#     xta[method] = pd.Series([tic], index=["Time"]).append(wwx)
 
-# %timeit crx1.getWeights(mu=0.)
-# %timeit crx2.getWeights(mu=0.)
-# %timeit crx3.getWeights(mu=0.)
-# %timeit crx4.getWeights(mu=0.)
-# %timeit crx5.getWeights(mu=0.)
-# %timeit crx6.getWeights(mu=0.)
-# %timeit crx7.getWeights(mu=0.)
+# res = pd.DataFrame(xta)
+# print(res.round(4))
 
 #=============================================================================
 # Example of rebalancing positions
@@ -655,9 +654,7 @@ cash = 0.
 # new positions and rolling info
 pos = cr1.getPositions(mu=0., rtype='Sharpe', nshares=ns, cash=0.)
 print(f" New position report\n {pos}")
-
 ```
-
 
 [TOP](#TOP)
 
@@ -1152,6 +1149,7 @@ get_mktdata()
 
 ```
 import pandas as pd
+import time
 
 import azapy as az
 
@@ -1178,13 +1176,10 @@ alpha = [0.99, 0.975, 0.95]
 # Compute C-Sharpe optimal portfolio
 p4 = az.Port_CVaR(mktdata, pname='CVaRPort')
 
-import time
 tic = time.perf_counter()
-
-port4 = p4.set_model(mu=0., alpha=alpha, method='ecos')   
-
+port4 = p4.set_model(mu=0., alpha=alpha)   
 toc = time.perf_counter()
-print(f"time get_port: {toc-tic}")
+print(f"time Sharpe: {toc-tic}")
 
 ww = p4.get_weights()
 p4.port_view()
@@ -1198,12 +1193,18 @@ p4.port_period_returns()
 p4.get_nshares()
 p4.get_account(fancy=True)
 
-# Test using the Port_Rebalanced weights schedule ww (from above)
-p2 = az.Port_Rebalanced(mktdata, pname='TestPort')
-port2  = p2.set_model(ww)     
+# Use rtype='Sharpe2' - should be the same results
+tic = time.perf_counter()
+port4_2 = p4.set_model(mu=0., alpha=alpha, rtype='Sharpe2')   
+toc = time.perf_counter()
+print(f"time Sharpe2: {toc-tic}")
 
-# Compare - must be identical
-port4.merge(port2, how='left', on='date').plot()
+# compare - should be identical
+port4.columns = ['Sharpe']
+port4_2.columns = ['Sharpe2']
+pp = az.Port_Simple([port4, port4_2])
+_ = pp.set_model()
+_ = pp.port_view_all(componly=(True))
 
 #=============================================================================
 # Compute mCVaR optimal portfolio
@@ -1269,42 +1270,21 @@ p4.get_account(fancy=True)
 # # speed comparisons for different LP methods
 # # may take some time to complete
 # # please uncomment the lines below
+# methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 'glpk', 'cvxopt',  
+#             'interior-point' ]
+# zts = []
+# for method in methods:
+#     toc = time.perf_counter()
+#     zz = p4.set_model(mu=0., alpha=alpha, method=method)  
+#     tic = time.perf_counter()
+#     print(f"{method} time: {tic-toc}")  
+#     zz.columns = [method]
+#     zts.append(zz)
 
-# toc = time.perf_counter()
-# p4.set_model(mu=0., alpha=alpha)   
-# tic = time.perf_counter()
-# print(f"ecos: time get_port: {tic-toc}")  
-
-# toc = time.perf_counter()
-# p4.set_model(mu=0., alpha=alpha, method='highs')
-# tic = time.perf_counter()
-# print(f"highs: time get_port: {tic-toc}")  
-
-
-# toc = time.perf_counter()
-# p4.set_model(mu=0., alpha=alpha, method='highs-ds')
-# tic = time.perf_counter()
-# print(f"highs-ds: time get_port: {tic-toc}")  
-
-# toc = time.perf_counter()
-# p4.set_model(mu=0., alpha=alpha, method='highs-ipm')
-# tic = time.perf_counter()
-# print(f"highs-ipm: time get_port: {tic-toc}")  
-
-# toc = time.perf_counter()
-# p4.set_model(mu=0., alpha=alpha, method='cvxopt')
-# tic = time.perf_counter()
-# print(f"cvxopt: time get_port: {tic-toc}")  
-
-# toc = time.perf_counter()
-# p4.set_model(mu=0., alpha=alpha, method='glpk')
-# tic = time.perf_counter()
-# print(f"glpk: time get_port: {tic-toc}")  
-
-# toc = time.perf_counter()
-# p4.set_model(mu=0., alpha=alpha, method='interior-point')
-# tic = time.perf_counter()
-# print(f"interior-point: time get_port: {tic-toc}")  
+# # must be identical   
+# pp = az.Port_Simple(zts)
+# _ = pp.set_model()
+# _ = pp.port_view_all(componly=True)
 ```
 
 [TOP](#TOP)

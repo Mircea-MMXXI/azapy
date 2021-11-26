@@ -27,7 +27,6 @@ def _lp_scipy(c, G, h, A, b, method):
     
     return rout
 
-
 def _lp_cvxopt(c, G, h, A, b, method):
     c = cx.matrix(c)
     G = cx.spmatrix(G.data, G.row, G.col, size=G.shape)

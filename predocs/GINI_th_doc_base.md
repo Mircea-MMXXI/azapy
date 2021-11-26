@@ -1,5 +1,5 @@
 
-# GINI optimal portfolio <a name="TOP"></a>
+# GINI optimal portfolios <a name="TOP"></a>
 
 GINI index, also called GINI ratio or GINI coefficient, is a measure
 of statistical dispersion introduced by sociologist *Gini Corrado (1884-1965)*.
@@ -18,6 +18,15 @@ where:
 computational time increases quadratic with the number of historical
 observations. It is the main computational inconvenience of this
 dispersion measure.
+
+The following portfolio optimization strategies are available:
+* minimization of dispersion for a give expected rate of return,
+* maximization of Sharpe ratio,
+* minimization of the inverse of Sharpe ratio,
+* minimum dispersion portfolio,
+* Inverse-N risk optimal portfolio (optimal portfolio with the same
+	 dispersion measure as equal weighted portfolio),
+* maximization of expected rate of returns for a given risk aversion.
 
 There are 2 support classes:
 

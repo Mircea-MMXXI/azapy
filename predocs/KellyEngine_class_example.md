@@ -3,6 +3,7 @@
 
 ```
 import pandas as pd
+import time
 
 import azapy as az
 
@@ -30,14 +31,12 @@ rtype2 = 'Order2'
 
 #=============================================================================
 # example: weights evaluation
-import time
 
 cr1 = az.KellyEngine(mktdata, rtype=rtype1, hlength=4)
 toc = time.perf_counter()
 ww1 = cr1.getWeights()
 tic = time.perf_counter()
 print(f"{rtype1}: time {tic-toc}")
-
 
 cr2 = az.KellyEngine(mktdata, rtype=rtype2, hlength=4)
 toc = time.perf_counter()

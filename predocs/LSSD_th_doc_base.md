@@ -2,7 +2,7 @@
 $\def\LSSD{{\rm LSSD}}$
 $\def\cK{{\cal K}}$
 
-# LSSD optimal portfolio <a name="TOP"></a>
+# LSSD optimal portfolios <a name="TOP"></a>
 
 LSSD stands for *Lower Semi-Standard Deviation*.
 *azapy* implements a generalization of LSSD, namely the Mixture LSSD (mLSSD).
@@ -23,6 +23,15 @@ where:
 * $\delta_l$ is the l-th order LSSD measure.
 
 > Note: a typical choice could be $L=3$ and $\cK_l=1/3\ \ \forall l$.
+
+The following portfolio optimization strategies are available:
+* minimization of dispersion for a give expected rate of return,
+* maximization of Sharpe ratio,
+* minimization of the inverse of Sharpe ratio,
+* minimum dispersion portfolio,
+* Inverse-N risk optimal portfolio (optimal portfolio with the same
+	 dispersion measure as equal weighted portfolio),
+* maximization of expected rate of returns for a given risk aversion.
 
 There are 2 support classes:
 

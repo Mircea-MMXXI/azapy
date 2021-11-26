@@ -47,6 +47,22 @@ The default is `[0.6]`.
 The function returns a list with the fractions of
 capital on hands that must be bet in each of the $N$ games.
 
+[Example:](https://github.com/Mircea2004/azapy/blob/main/scripts/util/gamblingKelly_example.py)
+```
+import azapy as az
+
+# 3 independent games - probabilities to get Heads
+p = [0.55, 0.6, 0.65]
+
+ww = az.gamblingKelly(p)
+
+# bet sizes for each game as percentage of capital in hands
+print(f"bet sizes as fraction of capital (in percent)\n{ww}")
+
+# percentage of the total capital invested in each round
+print(f"total fraction of capital invested in all games (in percent): {ww.sum()}")
+```
+
 The Kelly optimal portfolio is a generalization of above Kelly criterion.
 The optimal portfolio weights are the weights that maximize the expectation
 of the portfolio log returns. Mathematically
@@ -277,6 +293,7 @@ set_rtype(rtype)
 
 ```
 import pandas as pd
+import time
 
 import azapy as az
 
@@ -303,12 +320,19 @@ rtype1 = 'Full'
 rtype2 = 'Order2'
 
 #=============================================================================
-# examole: weights evaluation
+# example: weights evaluation
+
 cr1 = az.KellyEngine(mktdata, rtype=rtype1, hlength=4)
+toc = time.perf_counter()
 ww1 = cr1.getWeights()
+tic = time.perf_counter()
+print(f"{rtype1}: time {tic-toc}")
 
 cr2 = az.KellyEngine(mktdata, rtype=rtype2, hlength=4)
+toc = time.perf_counter()
 ww2 = cr2.getWeights()
+tic = time.perf_counter()
+print(f"{rtype2}: time {tic-toc}")
 
 wwcomp = pd.DataFrame({'Full': ww1.round(6), 'Order2': ww2.round(6)})
 print(f"weights comparison\n {wwcomp}")
@@ -793,7 +817,6 @@ get_mktdata()
 
 ```
 import pandas as pd
-import time
 
 import azapy as az
 
@@ -815,6 +838,7 @@ mktdata = az.readMkT(symb, dstart = sdate, dend = edate,
 # Compute optimal portfolio with full Kelly criterion
 p4 = az.Port_Kelly(mktdata, pname='KellyPort')    
 
+import time
 tic = time.perf_counter()
 port4 = p4.set_model()   
 toc = time.perf_counter()
@@ -849,10 +873,7 @@ toc = time.perf_counter()
 print(f"time get_port 2-nd order aprox Kelly criterion: {toc-tic}")
 
 # The results are very close
-
-port_all = port5.merge(port4, how='left', on='date')\
-           .melt(var_name='symbol', value_name='price', ignore_index=False)
-pp = az.Port_Simple(port_all, col='price')
+pp = az.Port_Simple([port4, port5])
 _ = pp.set_model()
 _ = pp.port_view_all(componly=True)
 ```

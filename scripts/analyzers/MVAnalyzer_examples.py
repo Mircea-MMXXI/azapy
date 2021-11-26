@@ -49,7 +49,7 @@ test_risk_res = pd.DataFrame({'risk': [risk], 'test_risk': [test_risk],
 print(f"Test for the risk computation\n {test_risk_res}")
 
 # Test the Sharpe weights by estimating an optimal portfolio with
-# the same rate of returns.
+# the same expectd rate of returns.
 test_ww1 = cr1.getWeights(mu=RR, rtype='Risk')
 ww_comp = pd.DataFrame({"ww1": ww1, "test_ww1": test_ww1,
                         'diff': ww1-test_ww1})
@@ -58,14 +58,14 @@ print(f"Test for weights computation\n {ww_comp}")
 #=============================================================================
 # Frontiers evaluations
 print("\nFrontiers evaluations\n")
-opt ={'title': "MV Port", 'tangent': True}
+opt = {'title': "MV Port", 'tangent': True}
 print("\n rate of returns vs risk representation")
 rft = cr1.viewFrontiers(musharpe=0, randomport=100, options=opt)
 print("\n Sharpe vs rate of returns representation")
 rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR')
 
 #=============================================================================
-# Test Sharpe vs. Sharpe2
+# Sharpe vs. Sharpe2
 # first Sharpe (default rtype)
 cr1 = az.MVAnalyzer(mktdata)
 ww1 = cr1.getWeights(mu=0.)
@@ -82,7 +82,7 @@ risk2 = cr2.risk
 prim2 = cr2.primary_risk_comp
 seco2 = cr2.secondary_risk_comp
 sharpe2 = cr2.sharpe
-# print comparison
+# print comparison - must be very close
 print("\nSharpe vs. Sharpe2\n")
 print(f"status {cr2.status} = {cr1.status}")
 ww_comp = pd.DataFrame({"ww2": ww2, "ww1": ww1, "diff": ww2-ww1})
@@ -107,40 +107,44 @@ print(f"Sharpe comp\n {sharpe_comp}")
 # %timeit cr2.getWeights(mu=0., rtype='Sharpe2')
 
 #=============================================================================
-# Test for InvNrisk
+# Compute InvNrisk optimal portfolio
 cr1 = az.MVAnalyzer(mktdata)
-# compute the risk of a equally weighted portfolio
-ww = np.ones(len(symb))
-ww = ww / np.sum(ww)
-risk = cr1.getRisk(ww)
 # compute the weights of InvNrisk
 ww1 = cr1.getWeights(mu=0., rtype="InvNrisk")
 RR1 = cr1.RR
-# compute the optimal portfolio for RR1 targeted rate of return
+
+# Test - compute the optimal portfolio for RR1 targeted rate of return
 ww2 = cr1.getWeights(mu=RR1, rtype="Risk")
-# print comparison results
+# print comparison results - must be very close
 print("\nInvNrisk\n")
-risk_comp = pd.DataFrame({'1/N': [risk], 'InvNrisk': [cr1.risk],
-                          'diff': [risk - cr1.risk]})
-print(f"risk comp\n {risk_comp}")
 ww_comp = pd.DataFrame({"InvNrisk": ww1, "Optimal": ww2, 'diff': ww1-ww2})
 print(f"weights comp\n {ww_comp}")
 
+# Test - compute the risk of equal weighted portfolio
+ww = np.ones(len(symb))
+ww = ww / np.sum(ww)
+risk = cr1.getRisk(ww)
+# print comparison results - must be identical
+risk_comp = pd.DataFrame({'1/N': [risk], 'InvNrisk': [cr1.risk],
+                          'diff': [risk - cr1.risk]})
+print(f"risk comp\n {risk_comp}")
+
 #=============================================================================
-# Test for MinRisk
+# Compute MinRisk optimal portfolio
 cr1 = az.MVAnalyzer(mktdata)
 # compute the MinRisk portfolio
 ww1 = cr1.getWeights(mu=0., rtype="MinRisk")
-# test
+
+# Test - using rtype='Risk' for expected rate of return 0
+# should default to 'MinRisk' optimal portfolio
 ww2 = cr1.getWeights(mu=0., rtype="Risk")
-# print comparison
+# print comparison - should be identical
 print("\nMinRisk\n")
 ww_comp = pd.DataFrame({"MinRisk": ww1, "Test": ww2, 'diff': ww1-ww2})
 print(f"weights comp\n {ww_comp}")
 
-
 #=============================================================================
-# Test for RiskAverse
+# Compute RiskAverse optimal portfolio
 # first compute the Sharpe portfolio
 cr1 = az.MVAnalyzer(mktdata)
 ww1 = cr1.getWeights(mu=0.)
@@ -151,7 +155,7 @@ Lambda = sharpe
 cr2 = az.MVAnalyzer(mktdata)
 ww2 = cr2.getWeights(mu=Lambda, rtype='RiskAverse')
 
-# comparison - practically they should be identical
+# comparison - they should be very close
 print("\nRiskAverse\n")
 risk_comp = pd.DataFrame({'risk': [cr2.risk], 'test': [cr2.RR / Lambda],
                           'Sharpe risk': [risk]})

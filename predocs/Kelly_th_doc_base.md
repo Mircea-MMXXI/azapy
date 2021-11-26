@@ -47,6 +47,22 @@ The default is `[0.6]`.
 The function returns a list with the fractions of
 capital on hands that must be bet in each of the $N$ games.
 
+[Example:](https://github.com/Mircea2004/azapy/blob/main/scripts/util/gamblingKelly_example.py)
+```
+import azapy as az
+
+# 3 independent games - probabilities to get Heads
+p = [0.55, 0.6, 0.65]
+
+ww = az.gamblingKelly(p)
+
+# bet sizes for each game as percentage of capital in hands
+print(f"bet sizes as fraction of capital (in percent)\n{ww}")
+
+# percentage of the total capital invested in each round
+print(f"total fraction of capital invested in all games (in percent): {ww.sum()}")
+```
+
 The Kelly optimal portfolio is a generalization of above Kelly criterion.
 The optimal portfolio weights are the weights that maximize the expectation
 of the portfolio log returns. Mathematically
