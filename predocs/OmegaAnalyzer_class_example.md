@@ -1,6 +1,6 @@
 <a name="OmegaAnalyzer_class_example"></a>
 
-### Examples
+### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/OmegaAnalyzer_examples.py)
 
 ```
 import numpy as np

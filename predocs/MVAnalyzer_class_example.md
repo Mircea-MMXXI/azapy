@@ -1,6 +1,6 @@
 <a name="MVAnalyzer_class_example"></a>
 
-### Examples
+### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/MVAnalyzer_examples.py)
 
 ```
 import numpy as np

@@ -112,8 +112,8 @@ The default is `'ecos'`.
 >	* `'ecos'` : is SOCP implementation of **ecos** *(Embedded Cone Solver)*
 package.
 > * `'cvxopt'` : is the SOCP implantation from **cvxopt** package.
-
-> In our cases `'ecos'` is faster than `'cvxopt'`.
+>
+> In our cases `'ecos'` is the fastest.
 
 [TOP](#TOP)
 
@@ -433,7 +433,7 @@ value other than 42 :). The default is `42`.
 ---
 <a name="LSSDAnalyzer_class_example"></a>
 
-### Examples
+### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/LSSDAnalyzer_examples.py)
 
 ```
 import numpy as np
@@ -1120,7 +1120,7 @@ get_mktdata()
 
 ---
 
-### Examples
+### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_LSSD_examples.py)
 
 ```
 import numpy as np

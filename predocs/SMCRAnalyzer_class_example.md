@@ -1,6 +1,6 @@
 <a name="SMCRAnalyzer_class_example"></a>
 
-### Examples
+### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/SMCRAnalyzer_examples.py)
 
 ```
 import numpy as np

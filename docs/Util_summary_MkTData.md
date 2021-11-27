@@ -37,7 +37,7 @@ The default is `None`.
 >Note: In general, good market data has `na_total`, `na_b`, `na_e` and `cont`
 equal to `0`.
 
-### Examples:
+### [Examples:](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/util/summary_MkTData_example.py)
 
 ```
 import pandas as pd

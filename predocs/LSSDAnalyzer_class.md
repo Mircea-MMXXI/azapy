@@ -72,8 +72,8 @@ The default is `'ecos'`.
 >	* `'ecos'` : is SOCP implementation of **ecos** *(Embedded Cone Solver)*
 package.
 > * `'cvxopt'` : is the SOCP implantation from **cvxopt** package.
-
-> In our cases `'ecos'` is faster than `'cvxopt'`.
+>
+> In our cases `'ecos'` is the fastest.
 
 [TOP](#TOP)
 

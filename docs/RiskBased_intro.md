@@ -220,8 +220,8 @@ different portfolios all together.
 
 Examples of how to carry out a portfolio out-of-sample analysis are present
 in a collection of
-[Jupyter notebooks](https://github.com/Mircea2004/azapy/tree/main/jpy_scripts)
-and [Python scripts](https://github.com/Mircea2004/azapy/tree/main/scripts/portfolios).
+[Jupyter notebooks](https://github.com/Mircea-MMXXI/azapy/tree/main/jpy_scripts)
+and [Python scripts](https://github.com/Mircea-MMXXI/azapy/tree/main/scripts/portfolios).
 They can be used as a source of inspiration for further research.
 
 Once we have decided for a portfolio composition and optimization strategy,
@@ -229,7 +229,7 @@ Once we have decided for a portfolio composition and optimization strategy,
 information regarding the prevailing portfolio weights, number of shares,
 delta positions and cash flow at rebalancing time.
 An example is provided in a
-[Jupyter notebook](https://github.com/Mircea2004/azapy/blob/main/jpy_scripts/Rebalance_example.ipynb).
+[Jupyter notebook](https://github.com/Mircea-MMXXI/azapy/blob/main/jpy_scripts/Rebalance_example.ipynb).
 
 **azapy** package has its own facility to collect market data from
 **alphavantage** provider[^alphavantage] (see section *Utility functions*).

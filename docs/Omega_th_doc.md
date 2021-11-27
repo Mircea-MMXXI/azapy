@@ -108,19 +108,15 @@ package. For python __ecos__ provides only an interface for SOCP problems.
 However, a LP problem can be viewed as a particular case of a SOCP problem.
 >	* `'highs-ds'`, `'highs-ipm'`, `'highs'` and `'interior-point'` : are LP
 implementations from __SciPy__ package. `'highs-ds'` and `'highs-ipm'` are
-the HiGHS _(high performance software for linear optimization)_ dual simplex
-and interior point methods, respectively, while `'highs'` is only a dispatch
-interface to chose between the two methods based on the computation speed.
+the HiGHS _(high performance software for linear optimization)_ dual revised
+simplex and interior point methods, respectively, while `'highs'` is a
+dispatch interface choosing between the two automatically.
 `'interior-point'` is the default __SciPy__ LP algorithm. In our cases it
 proves to be the slowest.
 > * `'cvxopt'` : is the LP implantation from __cvxopt__ package.
 > * `'glpk'` : is the GLPK LP implementation.
-
+>
 > In our cases `'ecos'` and `'hight-ds'` provides the fastest computations.
-However, we notice that in rear occasions `'hight-ds'` fails to compute with no
-apparent reasons. These cases will be investigate further. Therefore we choose
-`'ecos'` to be the default LP computation engine. Beside `'ecos'` all other
-methods can be used although longer computational times may be encountered.
 
 [TOP](#TOP)
 
@@ -440,7 +436,7 @@ value other than 42 :). The default is `42`.
 ---
 <a name="OmegaAnalyzer_class_example"></a>
 
-### Examples
+### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/OmegaAnalyzer_examples.py)
 
 ```
 import numpy as np
@@ -1127,7 +1123,7 @@ get_mktdata()
 
 ---
 
-### Examples
+### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_Omega_examples.py)
 
 ```
 import pandas as pd

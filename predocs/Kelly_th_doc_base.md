@@ -47,7 +47,7 @@ The default is `[0.6]`.
 The function returns a list with the fractions of
 capital on hands that must be bet in each of the $N$ games.
 
-[Example:](https://github.com/Mircea2004/azapy/blob/main/scripts/util/gamblingKelly_example.py)
+[Example:](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/util/gamblingKelly_example.py)
 ```
 import azapy as az
 
@@ -63,9 +63,12 @@ print(f"bet sizes as fraction of capital (in percent)\n{ww}")
 print(f"total fraction of capital invested in all games (in percent): {ww.sum()}")
 ```
 
-The Kelly optimal portfolio is a generalization of above Kelly criterion.
-The optimal portfolio weights are the weights that maximize the expectation
-of the portfolio log returns. Mathematically
+<br/>
+<br/>
+
+Kelly optimal portfolio is constructed based on the above Kelly criterion.
+The optimal portfolio weights are maximizing the expectation
+of the portfolio log returns. Mathematically,
 the objective function subject to maximization is given by
 
 \begin{equation*}
@@ -77,8 +80,24 @@ where:
 * $\{w_k\}_{k=1,\cdots,M}$ are the weights,
 * $\{r_k\}_{i=1,\cdots,M}$ are the asset rate of returns.
 
+The maximization problem is essentially non-linear, leading to
+intensive numerical computations.
+An approximative solution can be obtained considering the second
+order Taylor expansion of $Z$. In this case the maximization
+is reduced to a quadratic programming (QP) problem that
+can be solved numerically very efficient.
+In general the approximative optimal portfolio weights can be slightly
+different than the weights obtained by solving the "Full" non-liner
+optimization. However, the performances of the two portfolios (based on "Full"
+non-linear optimization and second order, "Order2", approximation) can be
+very close. From a computational point of view, the second order approximation
+is orders of magnitude faster than the full non-linear optimization.
+
+Our implementation supports both methods:
+* non-linear optimization, by setting `rtype='Full'`,
+* second order approximation, by setting `rtype='Order2'`.
+
 **azapy** provides the following 2 classes supporting the Kelly optimal
 portfolio strategy:
-
 * **KellyEngine**  : computes the portfolio weight,
 * **Port_Kelly** : performs portfolio back testing, out-of-sample analyzes.
