@@ -1,8 +1,9 @@
 
-### Examples
+### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_Kelly_examples.py)
 
 ```
 import pandas as pd
+import time
 
 import azapy as az
 
@@ -24,7 +25,6 @@ mktdata = az.readMkT(symb, dstart = sdate, dend = edate,
 # Compute optimal portfolio with full Kelly criterion
 p4 = az.Port_Kelly(mktdata, pname='KellyPort')    
 
-import time
 tic = time.perf_counter()
 port4 = p4.set_model()   
 toc = time.perf_counter()

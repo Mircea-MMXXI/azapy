@@ -66,11 +66,11 @@ It could be ``'ecos'`` or ``'cvxopt'``.
 The default is `'ecos'`.
 
 > Note:
->	* ``'ecos'`` : is SOCP implementation of **ecos** *(Embedded Cone Solver)*
+>	* `'ecos'` : is SOCP implementation of **ecos** *(Embedded Cone Solver)*
 package.
-> * ``'cvxopt'`` : is the SOCP implantation from **cvxopt** package.
-
-> In our cases `'ecos'` is faster than `'cvxopt'`.
+> * `'cvxopt'` : is the SOCP implantation from **cvxopt** package.
+>
+> In our cases `'ecos'` is the fastest.
 
 [TOP](#TOP)
 

@@ -1,6 +1,6 @@
 <a name="SMGINIAnalyzer_class_example"></a>
 
-### Examples
+### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/SMGINIAnalyzer_examples.py)
 
 ```
 import numpy as np

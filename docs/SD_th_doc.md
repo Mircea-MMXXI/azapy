@@ -104,11 +104,15 @@ The default is `None`.
 * `method` : QP and SOCP numerical methods. Could be `'ecos'` or `'cvxopt'`.
 The default is `'ecos'`.
 
-
->Note: **ecos** dose not provide a python explicit interface to a
+> Note:
+>	* `'ecos'` : is SOCP implementation of **ecos** *(Embedded Cone Solver)*
+package. **ecos** dose not provide a python explicit interface to a
 QP *(Quadratic Programming)* solver. However, any QP problem can be transformed
-into a SOCP *(Second Order Cone Programming)* problem. **cvxopt** provides
-its own interface to a QP solver.
+into a SOCP *(Second Order Cone Programming)* problem.
+>
+> * `'cvxopt'` : is the SOCP/QP implantation from **cvxopt** package.
+>
+> In our cases `'ecos'` is the fastest.
 
 [TOP](#TOP)
 
@@ -428,7 +432,7 @@ value other than 42 :). The default is `42`.
 ---
 <a name="SDAnalyzer_class_example"></a>
 
-### Examples
+### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/SDAnalyzer_examples.py)
 
 ```
 import numpy as np
@@ -1106,7 +1110,7 @@ get_mktdata()
 
 ---
 
-### Examples
+### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_SD_examples.py)
 
 ```
 import pandas as pd

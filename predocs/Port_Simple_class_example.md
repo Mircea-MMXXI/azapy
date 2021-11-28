@@ -1,6 +1,7 @@
 
 ### Examples
 
+[script 1](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_Simple_examples.py)
 ```
 ## Set from market data (as returned by azapy.readMkT)
 import pandas as pd
@@ -38,6 +39,7 @@ p1.port_annual_returns()
 p1.port_monthly_returns()
 ```
 
+[script 2](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_Simple_examples2.py)
 ```
 ## Set from a list of pd.DataFrame of time series
 import pandas as pd

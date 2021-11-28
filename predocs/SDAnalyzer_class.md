@@ -62,11 +62,15 @@ The default is `None`.
 * `method` : QP and SOCP numerical methods. Could be `'ecos'` or `'cvxopt'`.
 The default is `'ecos'`.
 
-
->Note: **ecos** dose not provide a python explicit interface to a
+> Note:
+>	* `'ecos'` : is SOCP implementation of **ecos** *(Embedded Cone Solver)*
+package. **ecos** dose not provide a python explicit interface to a
 QP *(Quadratic Programming)* solver. However, any QP problem can be transformed
-into a SOCP *(Second Order Cone Programming)* problem. **cvxopt** provides
-its own interface to a QP solver.
+into a SOCP *(Second Order Cone Programming)* problem.
+>
+> * `'cvxopt'` : is the SOCP/QP implantation from **cvxopt** package.
+>
+> In our cases `'ecos'` is the fastest.
 
 [TOP](#TOP)
 

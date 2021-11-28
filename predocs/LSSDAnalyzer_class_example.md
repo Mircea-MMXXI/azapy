@@ -1,6 +1,6 @@
 <a name="LSSDAnalyzer_class_example"></a>
 
-### Examples
+### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/LSSDAnalyzer_examples.py)
 
 ```
 import numpy as np

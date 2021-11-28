@@ -1,6 +1,6 @@
 <a name="CVaRAnalyzer_class_example"></a>
 
-### Examples
+### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/CVaRAnalyzer_examples.py)
 
 ```
 import numpy as np
