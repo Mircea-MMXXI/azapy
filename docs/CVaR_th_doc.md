@@ -16,7 +16,7 @@ particular case of mCVar.
 The mCVaR dispersion measure is defined as
 
 \begin{equation*}
-	\rho = \sum_{l=1}^L \cK_l \times \CVaR_{\alpha_l},
+	\rho = \sum_{l=1}^L {\cal K}_l \times {\rm CVaR}_{\alpha_l},
 \end{equation*}
 
 where:
