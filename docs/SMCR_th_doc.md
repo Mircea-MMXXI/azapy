@@ -768,7 +768,7 @@ Reference rate. Its meaning depends of the value of `rtype`. For
 * `alpha` :
 List of $\alpha_l$ confidence levels. The default is `[0.975]`.
 * `coef` :
-List of $\cK_l$ mixture coefficients. Note that `len(coef)` must be
+List of ${\cal K}_l$ mixture coefficients. Note that `len(coef)` must be
 equal to `len(alpha)`.
 A value of `None` assumes `coef = [1 / len(alpha)] * len(alpha)`.
 The default is `None`.
