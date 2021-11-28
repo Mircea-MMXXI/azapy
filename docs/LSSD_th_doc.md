@@ -1,6 +1,3 @@
-[//]: <> (Latex definitions:)
-$\def\LSSD{{\rm LSSD}}$
-$\def\cK{{\cal K}}$
 
 # LSSD optimal portfolios <a name="TOP"></a>
 
@@ -13,16 +10,16 @@ The single LSSD measure can be viewed as a particular case of mLSSD.
 The mLSSD dispersion measure is defined as
 
 \begin{equation*}
-	\rho = \sum_{l=1}^L \cK_l \times \delta_l
+	\rho = \sum_{l=1}^L {\cal K}_l \times \delta_l
 \end{equation*}
 
 where:
 
 * $L$ is the number of individual LSSD's,
-* $\cK_l$ are positive coefficients,
+* ${\cal K}$ are positive coefficients,
 * $\delta_l$ is the l-th order LSSD measure.
 
-> Note: a typical choice could be $L=3$ and $\cK_l=1/3\ \ \forall l$.
+> Note: a typical choice could be $L=3$ and ${\cal K}_l=1/3\ \ \forall l$.
 
 The following portfolio optimization strategies are available:
 * minimization of dispersion for a give expected rate of return,

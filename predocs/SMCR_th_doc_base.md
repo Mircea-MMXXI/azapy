@@ -1,6 +1,3 @@
-[//]: <> (Latex definitions:)
-$\def\SMCR{{\rm SMCR}}$
-$\def\cK{{\cal K}}$
 
 # SMCR optimal portfolios <a name="TOP"></a>
 
@@ -14,16 +11,16 @@ as a particular case of mSMCR.
 The mSMCR dispersion measure is defined as
 
 \begin{equation*}
-	\rho = \sum_{l=1}^L \cK_l \times \SMCR_{\alpha_l},
+	\rho = \sum_{l=1}^L {\cal K}_l \times {\rm SMCR}_{\alpha_l},
 \end{equation*}
 
 where:
 
 * $L$ is the number of individual SMCR's,
-* $\cK_l$ are positive coefficients,
+* ${\cal K}$ are positive coefficients,
 * $\alpha_l$ are the SMCR confidence levels.
 
-> Note: a typical choice could be $L=2$, $\cK_l=0.5\ \forall l$, and
+> Note: a typical choice could be $L=2$, ${\cal K}=0.5\ \forall l$, and
 $\alpha=\{0.90, 0.85\}$
 
 The following portfolio optimization strategies are available:
