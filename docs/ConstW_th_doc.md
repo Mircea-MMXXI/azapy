@@ -1,5 +1,5 @@
 
-# Constant weights portfolio <a name="TOP"></a>
+# Constant weighted portfolio <a name="TOP"></a>
 Portfolio with constant weights periodically rebalanced.
 
 A remarkable member of this class is _equal weighted portfolio_.
