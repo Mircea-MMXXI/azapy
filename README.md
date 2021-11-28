@@ -5,6 +5,8 @@ Author: Mircea Marinescu
 
 email: Mircea.Marinescu@outlook.com
 
+[Technical Docs](https://azapy.readthedocs.io/en/latest/index.html)
+
 ![TimeSeries](graphics/Portfolio_1.png)
 
 A. Risk based portfolio optimization algorithms:
