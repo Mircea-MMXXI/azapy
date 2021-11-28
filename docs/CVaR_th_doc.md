@@ -1,7 +1,3 @@
-[//]: <> (Latex definitions:)
-$\def\CVaR{{\rm CVaR}}$
-$\def\cK{{\cal K}}$
-
 
 # CVaR optimal portfolios <a name="TOP"></a>
 
@@ -22,10 +18,10 @@ The mCVaR dispersion measure is defined as
 where:
 
 * $L$ is the number of individual CVaR's,
-* $\cK_l$ are positive coefficients,
+* ${\cal K}_l$ are positive coefficients,
 * $\alpha_l$ are the CVaR confidence levels.
 
-> Note: a typical choice could be $L=3$, $\cK_l=1/3\ \forall l$,
+> Note: a typical choice could be $L=3$, ${\cal K}_l=1/3\ \forall l$,
 and $\alpha=\{0.95, 0.90, 0.85\}$
 
 The following portfolio optimization strategies are available:
