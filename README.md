@@ -1,14 +1,18 @@
 # azapy
 ## Financial Portfolio Optimization Algorithms
 
+![TimeSeries](graphics/Portfolio_1.png)
+
 Author: Mircea Marinescu
 
 email: Mircea.Marinescu@outlook.com
 
-[Technical Docs](https://azapy.readthedocs.io/en/latest/index.html)
+[Package docs](https://azapy.readthedocs.io/en/latest)
 
-![TimeSeries](graphics/Portfolio_1.png)
+[Source code](https://github.com/Mircea-MMXXI/azapy)
 
+
+### Contents
 A. Risk based portfolio optimization algorithms:
   1. Mixture CVaR (Conditional Value at Risk)
   2. Mixture SMCR (Second Moment Coherent Risk)
