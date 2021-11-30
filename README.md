@@ -11,6 +11,9 @@ email: Mircea.Marinescu@outlook.com
 
 [Source code](https://github.com/Mircea-MMXXI/azapy)
 
+Install: `pip install azapy`
+
+
 ### Contents
 A. Risk based portfolio optimization algorithms:
   1. Mixture CVaR (Conditional Value at Risk)
