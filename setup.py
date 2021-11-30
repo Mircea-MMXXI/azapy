@@ -17,6 +17,7 @@ setuptools.setup(
         "Source": "https://github.com/Mircea-MMXXI/azapy",
         "Bug Tracker": "https://github.com/Mircea-MMXXI/azapy/issues",
     },
+    license="GPLv3",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
