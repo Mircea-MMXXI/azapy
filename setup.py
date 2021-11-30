@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as readme:
 
 setuptools.setup(
     name="azapy",
-    version="0.0.1",
+    version="0.0.6",
     author="Mircea Marinescu",
     author_email="mircea.marinescu@outlook.com",
     description="Financial Portfolio Optimization Algorithms",
@@ -20,10 +20,10 @@ setuptools.setup(
     license="GPLv3",
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: GPLv3 License",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
     ],
-    package_dir={"": "azapy"},
-    packages=setuptools.find_packages(where="azapy"),
+    package_dir={"":"."},
+    packages=setuptools.find_packages(),
     python_requires=">=3.8",
 )
