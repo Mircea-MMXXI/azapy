@@ -1,11 +1,10 @@
 
 # Introduction
 
-The "Greedy" class of portfolios consists in portfolios with optimal
-expected rate of returns relative to an investment policy. No considerations
-about the portfolio risk are made.
+A "Greedy" portfolio has the expected rate of return optimized relative to
+an investment policy. No considerations about the portfolio risk are made.
 
-At this point, only one example of Greedy portfolio strategy is implemented
+At this point, only one example of a "Greedy" portfolio strategy is implemented
 in the **azapy** package.
 
 

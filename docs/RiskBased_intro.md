@@ -106,16 +106,16 @@ components. Hence, its name $1/N$*-portfolio* or *inverse-N portfolio*.
 In our plot this portfolio is represented by a green X with label $1/N$.
 
 On the *efficient frontier* there is its correspondent. In our plot
-it is a green X with label *InvNrisk*. This is the efficient portfolio
+it is a green X with label *InvNRisk*. This is the efficient portfolio
 that has the same risk as the
 *inverse-N* portfolio. In-sample both portfolios have the same risk while
-the expected rate of returns is larger for *InvNrisk*  than
+the expected rate of returns is larger for *InvNRisk*  than
 for *inverse-N* portfolio.
 
 It is remarkable that out-of-sample, although not always,
 for certain quite desirable portfolio compositions and
 under rather common market conditions, the *inverse-N* portfolio tends to
-outperform the *InvNrisk*. The reasons behind this odd behavior are still
+outperform the *InvNRisk*. The reasons behind this odd behavior are still
 under debate among the specialists in the field.
 
 Another way to visualize the portfolio frontiers is presented in the following
@@ -136,11 +136,11 @@ expected excess return per unit or risk.
 For all dispersion measures mentioned above, the **azapy** package offers
 the following portfolio optimization strategies:
 
-1. *Minimization of the risk given a fixed expected rate of returns*. This is
+1. *Minimization of the risk given a fixed expected rate of return*. This is
 the most common portfolio optimization strategy.  It requires the user to
-input the desired value of the expected rate of returns. This value must be
-between the expected rate of returns of the efficient portfolio with minimum
-risk and the highest rate of returns among the portfolio components. If
+input the desired value of the expected rate of return. This value must be
+between the expected rate of return of the efficient portfolio with minimum
+risk and the highest rate of return among the portfolio components. If
 the input value is outside of this range than it will automatically default
 to the nearby limit. In the code this strategy is designated by setting
 `rtype='Risk'`.
@@ -168,13 +168,13 @@ For many investor this could be
 the preferred choices since its out-of-sample (back testing) performance
 can be compared directly against *inverse-N* portfolio. In the code this
 strategy is designated by setting `rtype='InvNrisk'`.
-6. *Maximization of the expected rate of returns for a given risk aversion*
+6. *Maximization of the expected rate of return for a given risk aversion*
 *factor*. In this strategy the optimal portfolio weights
 maximize the quantity $R -\lambda \rho$, where $R$ is the portfolio
 expected rate of returns, $\rho$ is the risk, and $\lambda$ is the
 *risk aversion* factor. $\lambda$ takes values between $0$ and
 $+\infty$. For $\lambda=0$ the optimal portfolio will contain only the
-asset with higher expected rate of returns. This is the most right
+asset with higher expected rate of return. This is the most right
 point along the *efficient frontier*. For $\lambda=+\infty$ the optimal
 portfolio is the *minimum risk portfolio*, the most left point on the
 *efficient frontier*. Any other values for $\lambda$ will lead to an
@@ -184,15 +184,16 @@ for the *risk aversion* factor. The same value of $\lambda$ may lead
 to different portfolio compositions under different dispersion
 measures and market conditions. Therefore, a direct engagement of  
 this strategy, by specifying a desired value for $\lambda$, may not
-be advisable. However, this strategy may be useful if it is combined
+be convenient. However, this strategy may be useful if it is combined
 with a strategy to estimate the value of *risk aversion* factor based on
 market conditions (*e.g.* technical analysis, etc.).
 In the code this optimization strategy is designated by setting
 `rtype='RiskAverse'`.
 
 
-**azapy** package covers, 9 risk-based dispersion measures $\times$ 6 optimization
-strategies, in total 54 risk-based portfolio optimization strategies.
+**azapy** package covers, 9 risk-based dispersion measures $\times$ 6
+optimization strategies,
+in total 54 risk-based portfolio optimization strategies.
 
 The natural question that arises is: which one is the best?
 
@@ -209,7 +210,7 @@ _Fig 3. Example of out-of-sample (back testing) portfolio performance._
 An out-of-sample analysis, also called back testing or historical simulation,
 can be performed for any of the implemented portfolio
 strategies. The following information can be extracted:
-1. Portfolio realized rate of returns. It is available monthly, annually
+1. Portfolio realized rate of return. It is available monthly, annually
 and by rolling period. From these reports one can easily gauge the magnitude and
 seasonality of returns.
 2. The realized drawdown events. It is a very important information that can
@@ -237,26 +238,10 @@ An example is provided in a
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-[^sharpe]: The concept of Sharpe ratio was introduced 1966 by William F. Sharpe.
-In the original definition $\rho$ is the portfolio volatility $\sigma$.
+[^sharpe]: The concept of Sharpe ratio was introduced in
+1966 by William F. Sharpe.
+In the original definition $\rho$ is the portfolio volatility $\sigma$
+(standard deviation).
 In our presentation we use a generalization of Sharpe ratio where the
 volatility is replaced by the prevailing dispersion
 measure.

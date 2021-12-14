@@ -1,5 +1,6 @@
-# azapy
+# azapy project
 ## Financial Portfolio Optimization Algorithms
+### An open source python library for everybody
 
 ![TimeSeries](graphics/Portfolio_1.png)
 
@@ -9,7 +10,7 @@ email: Mircea.Marinescu@outlook.com
 
 [Package documentation](https://azapy.readthedocs.io/en/latest)
 
-Install: `pip install azapy`
+Package installation: `pip install azapy`
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/D1D07G22H)
 
