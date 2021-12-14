@@ -16,7 +16,7 @@ is made. Similar observations are valid for all the models in this class.
 
 However, one should not discard this class of portfolios as being less
 sophisticated and therefore less performant. Occasionally they may provide
-significant benefits to the investor.
+significant benefits to an investor.
 
 An important member of this class is the equal weighted portfolio. It is one of
 the most important benchmarks to assess a portfolio performance.

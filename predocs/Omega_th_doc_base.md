@@ -21,13 +21,13 @@ proper dispersion measure. However, the mathematical formalism of risk-based
 optimal portfolio theory can be applied.
 
 The following portfolio optimization strategies are available:
-* minimization of dispersion for a give expected rate of return,
-* maximization of Sharpe ratio,
-* minimization of the inverse of Sharpe ratio,
-* minimum dispersion portfolio,
+* Minimization of dispersion for a give expected rate of return,
+* Maximization of Sharpe ratio,
+* Minimization of the inverse of Sharpe ratio,
+* Minimum dispersion portfolio,
 * Inverse-N risk optimal portfolio (optimal portfolio with the same
 	 dispersion measure as equal weighted portfolio),
-* maximization of expected rate of returns for a given risk aversion.
+* Maximization of expected rate of returns for a given risk aversion.
 
 There are 2 support classes:
 

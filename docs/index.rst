@@ -1,13 +1,23 @@
-.. azapy documentation master file, created by
-   sphinx-quickstart on Sun Aug  1 22:55:33 2021.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. azapy documentation master file
 
-Welcome to **azapy** - Financial Portfolio Optimization Algorithms
-==================================================================
+Welcome to **azapy** project - Financial Portfolio Optimization Algorithms
+==========================================================================
 
-Provides support for a large spectrum of portfolio optimization techniques.
+An open source python library for everyone.
+
+Implements a large spectrum of portfolio optimization techniques.
 Performs *in* and *out-of* sample portfolio analysis.
+
+Package source code: `here <https://github.com/Mircea-MMXXI/azapy>`_
+
+Package installation: *pip install azapy*
+
+.. raw:: html
+
+    <script type='text/javascript'
+    src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script>
+    <script type='text/javascript'>kofiwidget2.init('Support azapy on Ko-fi',
+    '#29abe0', 'D1D07G22H');kofiwidget2.draw();</script>
 
 Risk based portfolio optimizations
 ==================================
