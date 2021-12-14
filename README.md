@@ -7,12 +7,11 @@ Author: Mircea Marinescu
 
 email: Mircea.Marinescu@outlook.com
 
-[Package docs](https://azapy.readthedocs.io/en/latest)
-
-[Source code](https://github.com/Mircea-MMXXI/azapy)
+[Package documentation](https://azapy.readthedocs.io/en/latest)
 
 Install: `pip install azapy`
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/D1D07G22H)
 
 ### Contents
 A. Risk based portfolio optimization algorithms:
@@ -28,13 +27,13 @@ A. Risk based portfolio optimization algorithms:
 
 For each class of portfolios the following optimization strategies are
 available:
-  1. minimization of dispersion for a give expected rate of return
-  2. maximization of generalized Sharpe ratio
-  3. minimization of the inverse of generalized Sharpe ratio
-  4. minimum dispersion portfolio
+  1. Minimization of dispersion for a give expected rate of return
+  2. Maximization of generalized Sharpe ratio
+  3. Minimization of the inverse of generalized Sharpe ratio
+  4. Minimum dispersion portfolio
   5. Inverse-N risk optimal portfolio (optimal portfolio with the same
      dispersion measure as equal weighted portfolio)
-  6. maximization of expected rate of returns for a fixed value of
+  6. Maximization of expected rate of returns for a fixed value of
      risk aversion
 
 B. "Naïve" portfolio strategies:
