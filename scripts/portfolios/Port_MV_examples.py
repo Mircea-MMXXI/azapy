@@ -7,16 +7,16 @@ import azapy as az
 #=============================================================================
 # Collect some market data
 sdate = pd.to_datetime("2012-01-01")
-edate = pd.to_datetime('today')
-symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
+edate = pd.to_datetime("2021-07-27")
+symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 
 mktdir = "../../MkTdata"
 
 # force=True read directly from alphavantage
 # force=False read first from local directory, if data does not exists, 
 #             read from alphavantage
-mktdata = az.readMkT(symb, dstart = sdate, dend = edate, 
-                     dir=mktdir, force=False) 
+mktdata = az.readMkT(symb, sdate=sdate, edate=edate,
+                     file_dir=mktdir, force=False)
 
 #=============================================================================
 # Compute Sharpe optimal portfolio

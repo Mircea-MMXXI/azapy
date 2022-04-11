@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 from collections import defaultdict 
 
-from .readMkTData import NYSEgen
+#from .readMkTData import NYSEgen
+from .MkTcalendar import NYSEgen
 
 def summary_MkTData(mktdata, calendar=None, sdate=None, edate=None):
     """
