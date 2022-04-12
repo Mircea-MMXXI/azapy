@@ -276,6 +276,7 @@ class MkTreader:
             if not 'api_key'     in dsy: dsy['api_key']     = api_key
             if not 'verbose'     in dsy: dsy['verbose']     = verbose
             if not 'param'       in dsy: dsy['param']       = param 
+            dsy['error'] = None
     
         # prep computation
         dft = pd.DataFrame.from_dict(self.dsource, orient='index')
@@ -308,7 +309,7 @@ class MkTreader:
         self.rout = pd.concat(self.rout)
         toc = time.perf_counter()
         self.delta_time = toc - tic
-        
+
         # output
         if verbose:
             self.get_request_status()
@@ -349,6 +350,11 @@ class MkTreader:
                 then the actual list of missing date per symbol can  \
                 be obtained by calling `get_error_log`.
         '''
+        if self.rout is None or self.rout.empty:
+            warnings.warn("Warning: request was returned empty")
+            self.rout_status = pd.DataFrame(self.dsource)
+            return self.rout_status
+        
         self.rout_status = deepcopy(self.dsource)
         for kk in self.rout_status.keys():
             sblock = self.rout.loc[self.rout['symbol'] == kk]
@@ -449,7 +455,10 @@ class MkTreader:
                 timer = 0.
                 counter = 0
                 
-        return pd.concat(rout)
+        if len(rout) == 0:
+            return pd.DataFrame()
+        else:   
+            return pd.concat(rout)
 
 
     def _regular_process(self, data):
@@ -464,7 +473,10 @@ class MkTreader:
             pri = pri.iloc[[self._bday.is_on_offset(x) for x in pri.index]]
             rout.append(pri)
 
-        return pd.concat(rout)   
+        if len(rout) == 0:
+            return pd.DataFrame()
+        else:   
+            return pd.concat(rout) 
     
     
     def _reader_symb(self, symbol, source, 
@@ -557,6 +569,8 @@ class MkTreader:
             price = self._alphavantage(symbol, api_key)
         elif source == 'alphavantage_yahoo':
             price = self._alphavantage_yahoo(symbol, api_key)
+        elif source == 'marketstack':
+            price = self._marketstack(symbol, api_key)
         else:
             warnings.warn(f"Unknown source {source}")
             return pd.DataFrame()
@@ -590,7 +604,6 @@ class MkTreader:
             else:
                warnings.warn(f"Unknown file foramt {file_format} "
                              + "suported are: csv, ft and json")
-               return pd.DataFrame()
         
         return pd.DataFrame()
 

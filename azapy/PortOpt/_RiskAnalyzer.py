@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from collections import defaultdict
 import warnings
 
-from azapy.MkT.readMkTData import NYSEgen
+from azapy.MkT.MkTcalendar import NYSEgen
 
 class _RiskAnalyzer:
     """

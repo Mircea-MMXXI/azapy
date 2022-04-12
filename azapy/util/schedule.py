@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import pandas.tseries.offsets as pt
 
-from azapy.MkT.readMkTData import NYSEgen
+from azapy.MkT.MkTcalendar import NYSEgen
 
 def schedule_simple(sdate=pd.to_datetime("2010-01-01"),
                     edate=pd.to_datetime("today"),

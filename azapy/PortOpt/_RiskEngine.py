@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from azapy.MkT.readMkTData import NYSEgen
+from azapy.MkT.MkTcalendar import NYSEgen
 
 class _RiskEngine():
     """

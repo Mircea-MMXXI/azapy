@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 from .Port_Rebalanced import Port_Rebalanced
-from azapy.MkT.readMkTData import NYSEgen
+from azapy.MkT.MkTcalendar import NYSEgen
 from azapy.util.schedule import schedule_roll
 
 class Port_ConstW(Port_Rebalanced):
