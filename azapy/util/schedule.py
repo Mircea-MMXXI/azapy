@@ -4,8 +4,8 @@ import pandas.tseries.offsets as pt
 
 from azapy.MkT.MkTcalendar import NYSEgen
 
-def schedule_simple(sdate=pd.to_datetime("2010-01-01"),
-                    edate=pd.to_datetime("today"),
+def schedule_simple(sdate='2010-01-01',
+                    edate='today',
                     freq='Q',
                     noffset=-3,
                     fixoffset=-1,
@@ -15,12 +15,12 @@ def schedule_simple(sdate=pd.to_datetime("2010-01-01"),
 
     Parameters
     ----------
-    sdate : datetime, optional
+    sdate : str, optional
         Start date (reference) of the schedule.
-        The default is pd.to_datetime("2010-01-01").
-    edate : datetime, optional
+        The default is '2010-01-01'.
+    edate : str, optional
         End date (reference) of the schedule. 
-        The default is pd.to_datetime("today").
+        The default is 'today'.
     freq : string, optional
         Rolling period. It can take 2 values: 'Q' for quarterly and 'M' for
         monthly rolling periods. The default is 'Q'.
@@ -41,8 +41,9 @@ def schedule_simple(sdate=pd.to_datetime("2010-01-01"),
         Table containing 2 datetime columns: 'Droll' the rolling date and
         'Dfix' the fixing date.
     """
-    if freq == 'Q': edate = edate + pt.QuarterEnd(1)
-    elif freq == 'M': edate = edate + pt.MonthEnd(1)
+    sdate = pd.to_datetime(sdate)
+    if freq == 'Q': edate = pd.to_datetime(edate) + pt.QuarterEnd(1)
+    elif freq == 'M': edate = pd.to_datetime(edate) + pt.MonthEnd(1)
     else: raise ValueError("Wrong freq, Must be 'Q' or 'M'")
     
     if calendar is None:
@@ -56,8 +57,8 @@ def schedule_simple(sdate=pd.to_datetime("2010-01-01"),
                             busdaycal=calendar)
     return pd.DataFrame({'Droll': troll, 'Dfix': tfix})
 
-def schedule_roll(sdate=pd.to_datetime("2010-01-01"),
-                  edate=pd.to_datetime("today"),
+def schedule_roll(sdate='2010-01-01',
+                  edate='today',
                   freq='Q',
                   noffset=-3,
                   fixoffset=-1,
@@ -68,12 +69,12 @@ def schedule_roll(sdate=pd.to_datetime("2010-01-01"),
 
     Parameters
     ----------
-    sdate : datetime, optional
+    sdate : str, optional
         Start date (reference) of the schedule.
-        The default is pd.to_datetime("2010-01-01").
-    edate : datetime, optional
+        The default is '2010-01-01'.
+    edate : str, optional
         End date (reference) of the schedule. 
-        The default is pd.to_datetime("today").
+        The default is 'today'.
     freq : string, optional
         Rolling period. It can take 2 values: 'Q' for quarterly and 'M' for
         monthly rolling periods. The default is 'Q'.
@@ -104,6 +105,8 @@ def schedule_roll(sdate=pd.to_datetime("2010-01-01"),
         Table containing 2 datetime columns: 'Droll' the rolling date,
         'Dfix' the fixing date and 'Dhist' start day for a calibration period.
     """
+    sdate = pd.to_datetime(sdate)
+    edate = pd.to_datetime(edate)
     if calendar is None:
         calendar = NYSEgen()
     sch = schedule_simple(sdate, edate, freq, noffset, fixoffset, calendar)

@@ -72,6 +72,7 @@ class MkTreader:
         self._col = ['open', 'high', 'low', 'close', 'volume', 'adjusted', 
                      'divd', 'split']
         self._out_col = ['symbol'] + self._col + ['source', 'recordDate']
+        self._alphavantage_max_req_per_min = 5
  
         
     def get(self, symbol=[], sdate="2012-01-01", edate='today', source=None, 
@@ -425,7 +426,7 @@ class MkTreader:
         counter = 0
         timer = 0.
         #min req per min is 5
-        max_rqs = max([5] + 
+        max_rqs = max([self._alphavantage_max_req_per_min] + 
                 [x['max_req_per_min'] for x in data['param'] if not x is None])
         
         rout = []

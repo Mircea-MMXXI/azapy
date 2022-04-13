@@ -234,11 +234,11 @@ class Port_Simple:
 
         Parameters
         ----------
-        sdate : datetime, optional
+        sdate : date like, optional
             Start date of plotted time-series. If it is set to None
             then the sdate is set to the earliest date in the time-series.
             The default is None.
-        edate : datetime, optional
+        edate : date like, optional
             End date of plotted time-series. If it set to None then the edate
             is set to the most recent date of the time-series.
             The default is None.
@@ -266,6 +266,9 @@ class Port_Simple:
             sdate = self.sdate
         if edate is None:
             edate = self.edate
+            
+        sdate = pd.to_datetime(sdate)
+        edate = pd.to_datetime(edate)
 
         df = self.mktdata.pivot(columns='symbol', values=self.col)
         df = df.iloc[(df.index >= sdate) & (df.index <= edate)]

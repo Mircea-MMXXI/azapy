@@ -5,16 +5,12 @@ import azapy as az
 
 #=============================================================================
 # Collect some market data
-sdate = pd.to_datetime("2012-01-01")
-edate = pd.to_datetime("2021-07-27")
-symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
-
 mktdir = "../../MkTdata"
+sdate = "2012-01-01"
+edate = "2021-07-27"
+symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 
-# force=True read from alphavantage server
-# force=False read from local directory if data exists
-mktdata = az.readMkT(symb, sdate=sdate, edate=edate,
-                     file_dir=mktdir, force=False)
+mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 # transform mktdata into a list of DataFrame's containing close prices
 lmktdata = []
