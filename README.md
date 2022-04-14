@@ -56,10 +56,10 @@ Utility functions:
   1. Collect historical market data from various providers.
     Supported providers:
 
-    - _yahoo_
-    - _eodhistoricaldata_
-    - _alphavantage_
-    - _marketstack_
+    - yahoo.com
+    - eodhistoricaldata.com
+    - alphavantage.co
+    - marketstack.com
 
   2. Generate business calendars. Aat this point only NYSE business calendar
     is implemented.
