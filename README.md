@@ -53,7 +53,12 @@ C. Greedy portfolio optimization strategies:
      maximization of portfolio log returns
 
 Utility functions:
-  1. Collect historical market data from a data provider (at this point only
-     from *alphavantage*)
-  2. Generate business calendars (at this point only NYSE business calendar)
-  3. Generate rebalancing portfolio schedules
+  1. Collect historical market data from various providers.
+    Supported providers:
+    - _yahoo_
+    - _eodhistoricaldata_
+    - _alphavantage_
+    - _marketstack_
+  2. Generate business calendars. Aat this point only NYSE business calendar
+    is implemented.
+  3. Generate rebalancing portfolio schedule generators.

@@ -1,5 +1,4 @@
 # Example of how to call gambilngKelly function
-
 import azapy as az
 
 # 3 independent games - probabilities to get Heads

@@ -446,23 +446,16 @@ value other than 42 :). The default is `42`.
 ```
 import numpy as np
 import pandas as pd
-
 import azapy as az
 
 #=============================================================================
 # Collect some market data
-sdate = pd.to_datetime("2012-01-01")
-edate = pd.to_datetime('today')
+mktdir = "../../MkTdata"
+sdate = "2012-01-01"
+edate = 'today'
 symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 
-mktdir = "../../MkTdata"
-
-# force=True read directly from alphavantage
-# force=False read first from local directory, if data does not exists,
-#             read from alphavantage
-mktdata = az.readMkT(symb, dstart = sdate, dend = edate,
-                     dir=mktdir, force=False)
-
+mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 #=============================================================================
 # Define mMAD measure parameters coef
 coef = np.ones(3)
@@ -697,10 +690,10 @@ List of symbols of portfolio components. All symbols
 should be present in `mktdata`. If it is `None`, then `symb` will default
 to the full set of symbols present in `mktdata`. The default
 is `None`.
-* `sdate` : `datetime`;
+* `sdate` : date like;
 Start date for historical simulation. If it is `None`, then `sdate` will
 default to the earliest date in `mktdata`. The default is `None`.
-* `edate` : `datetime`;
+* `edate` : date like;
 End date for historical simulation. Must be
 greater than  `sdate`. If it is `None`, then `edate` will default
 to the latest date in `mktdata`. The default is `None`.
@@ -853,11 +846,11 @@ port_view_all(sdate=None, edate=None, componly=False, fancy=False, saveto=None)
 
 *Inputs:*
 
-* `sdate` : `datetime`;
+* `sdate` : date like;
 Start date of plotted time-series. If it is `None`,
 then `sdate` is set to the earliest date in the time-series.
 The default is `None`.
-* `edate` : `datetime`;
+* `edate` : date like;
 End date of plotted time-series. If it is `None`, then `edate`
 is set to the most recent date of the time-series.
 The default is `None`.
@@ -1134,24 +1127,17 @@ get_mktdata()
 
 ```
 import numpy as np
-import pandas as pd
 import time
-
 import azapy as az
 
 #=============================================================================
 # Collect some market data
-sdate = pd.to_datetime("2012-01-01")
-edate = pd.to_datetime('today')
-symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
-
 mktdir = "../../MkTdata"
+sdate = "2012-01-01"
+edate = 'today'
+symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 
-# force=True read directly from alphavantage
-# force=False read first from local directory, if data does not exists,
-#             read from alphavantage
-mktdata = az.readMkT(symb, dstart = sdate, dend = edate,
-                     dir=mktdir, force=False)
+mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
 # Setup mMAD parameters

@@ -3,36 +3,36 @@
 # Read historical market data <a name="TOP"></a>
 
 There are 2 ways to get historical time series. Using:
-- [`readMkT`](#readMkT) function. It is a coinvent wrapper around `MkTreader`
+1. [`readMkT`](#readMkT) function. It is a coinvent wrapper around `MkTreader`
 class,
-- [`MkTreader`](#MkTreader) class.
+2. [`MkTreader`](#MkTreader) class.
 
 In both cases the user has the abilities to:
 * save the collected historical time
   series to a local file repository for later use,
-* read directly from the provider,
+* read directly from the providers,
 * read and update an existing local repository.
 
 The following market providers can be accesses:
 * *yahoo* - free *as is* service,
-* *eodhistoricaldata* - needs a premium account (some test may be accomplished
+* *eodhistoricaldata* - needs a premium account (some tests may be accomplished
   with a free key),
 * *alphavantage* - needs a premium account,
-* *marketstack* - needs a premium account (some test may be accomplished
+* *marketstack* - needs a premium account (some tests may be accomplished
   with a free key),
 * *eodhistoricaldata_yahoo* - hybrid service where the historical raw prices
 are collected from *eodhistoricaldata* provider while the splits
 and dividends are collected from *yahoo*. It may work with a
-_eodhistoricaldata_ free key for limited test purpose.
+_eodhistoricaldata_ free key for limited testing purposes.
 * *alphavantqge_yahoo* - hybrid service where the historical raw prices
 are colleected from *alphavantage* provider while the splits
 and dividends are collected from *yahoo*. It may work with a
-*alphavantage* free key for test purpose.
+_alphavantage_ free key for testing purposes.
 
-Regardless where the historical data is collected the
+Regardless where the historical data is collected, the
 `open`, `high`, `low`, `close`, `volume` `divd` (dividends) are splits adjusted
 while the close adjusted, for short `adjusted` prices, are splits and
-dividend adjusted relative to the most recent date in the time series.
+dividends adjusted relative to the most recent date in the time series.
 
 The following file formats are supported to save data:
 * *csv* - comma separated values format
@@ -40,7 +40,7 @@ The following file formats are supported to save data:
 * *feeder* - portable binary format for storing Arrow tables and data frames in
 Python and R
 
-In addition of the marker information the source and acquisition date and time
+In addition of the marker information, the source and acquisition date and time
 are also saved.
 
 <a name="readMkT">
@@ -48,7 +48,7 @@ are also saved.
 ## **readMkT function**
 It is a convenient wrapper of `MkTreader` class. It returns an object
 (`pandas.DataFrame` or `dict` of `pandas.DataFrames`) containing the
-request historical data for a set of stock symbols.
+requested historical data for a set of stock symbols.
 
 *Call:*
 
@@ -65,19 +65,20 @@ readMkT(symbol=[], sdate="2012-01-01", edate='today', calendar=None,
 A `str` containing a single stock symbol or a list of stock symbols.
 The default is `[]`.
 * `sdate` : `date like`. <br>
-Start date of historical time-series requested.
-The default is
-`'2012-01-01'`. If `sdate` is not an exchange business day then it will
-be adjusted forward to the next business day.  
+Start date of historical time series requested.
+If `sdate` is not a valid exchange business day then it will
+be adjusted forward to the next business day.
+The default is `'2012-01-01'`.   
 * `edate` : `date like`. <br>
 End date of historical time-series requested. This is the date
-relative to which the adjusted data is computed. If `edate` is not an exchange
-business day it will be adjusted backwards to the pervious business day.
+relative to which the adjusted data is computed. If `edate` is not a
+valid exchange business day then it will be adjusted backwards to the
+pervious business day.
 The `edate` must be greater or equal to the `sdate`.
 The default is the current date, `'today'`.
 * `calendar` : `numpy.busdaycalendar`. <br>
 Is the exchange business calendar. If it is set to `None` then the
-NY stock exchange (as returned by **azapy** function `NYSEgen()`) is
+NY stock exchange (as returned by `azapy.NYSEgen()` function) is
 assumed. The default value is `None`.
 * `output_format` : `str`. <br>
 The function output format. It could be
@@ -94,14 +95,15 @@ The function output format. It could be
 If it is a `str` then it indicates a the market data provider (`'yahoo'`,
 `'eodhistoricaldata'`, `'alphavantage'`, `'marketstack'`,
 '`eodhistoricaldata_yahoo'`, `'alphavantage_yahoo'`). A value of `None` will
-  assume *yahoo* service. <br>
+assume *yahoo* service. <br>
 It can be set as a `dict` in order to include specific information for
 each stock symbol. The *keys* of the dictionary are stock symbols, while then
 _values_ are `dict` with additional information. The *keys* for the
-information `dict` are the name of the calling variables except
-`symbol`, `sdate`, `edate` and `calendar`. An absent *key* will be
-filled with the value provided by the corresponding variable in the call of
-the function. The actual set of symbols in the request is the union of
+information `dict` are (same as the names of the calling variables):
+`source`, `force`, `save`, `file_dir`, `file_foramt`, `api_key`,
+`param` and `verbose`. An absent *key* will be
+filled with the value provided by the corresponding variable from the function
+call. The actual set of symbols in the request is the union of
 `symbol` and the *keys* of the `dict source`. <br>
 Example: <br>
 ```
@@ -115,7 +117,7 @@ for `'AAPL'` the flag `force` is set to `True` while for `'SPY'` the
 flag `save` is set to `False`. In each case the rest of the information
 is set to the values of call variables.
 * `force` : Boolean flag. <br>
-  - `True` : market data will be read from directly from the provider.
+  - `True` : market data will be read directly from the provider.
   - `False` : it will try first to read the market data from the local
   saved file. If the saved file is not funded than it will read from
   the provider. If the saved information is too short then the missing data
@@ -133,11 +135,11 @@ not exist then it will be created. <br>
 The default is `'outData'`.
 * `api_key` : `str`. <br>
 The market data provider API key where is necessary. If it is set to
-`None` then the key willl be read from the global environment
+`None` then the key will be read from the global environment
 variables:
-  - `EODHISTORICALDATA_API_KEY` - for *eodhistoricaldata* providers,
-  - `ALPHAVANTAGE_API_KEY` - for *alphavantage* provider,
-  - `MARKETSTACK_API_KEY` - for *marketstack* provider.
+  - `EODHISTORICALDATA_API_KEY` - for *eodhistoricaldata.com* provider,
+  - `ALPHAVANTAGE_API_KEY` - for *alphavantage.co* provider,
+  - `MARKETSTACK_API_KEY` - for *marketstack.com* provider.
 
   The default is `None`.
 * `file_format` : `str`.
@@ -152,9 +154,9 @@ The *alphavantage* provider requires the maximum number of requests
 per minute parameter. Its vale varies with the account (key) level
 of access. The minimum value is 5 for a free key
 and starts at 75 for a premium key. This value is stored under
-`max_req_per_min` dict key. <br>
+`'max_req_per_min'` `dict` key. <br>
 Example: `param = {'max_req_per_min': 5}` <br>
-This is also the default vale for alphavantage, if `param` is set to
+This is also the default vale for *alphavantage*, if `param` is set to
 `None`. <br>
 The default is `None`.
 * `verbose` : Boolean flag. <br>
@@ -165,19 +167,16 @@ The default is `None`.
 
 *Returns:*
 
-A `pd.DataFrame` or a dictionary of `pd.DataFrame` according to the value set
-in the `output_format` variable.
-
+A `pandas.DataFrame` or a dictionary of `pandas.DataFrame` according to
+the value set by the `output_format` variable.
 
 >Hints:
 - use the flag combination `force=True` and `save=True` to overwrite the
-an existing old data file in `file_dir`. The 'file_foramt' cannot be mixed and
-matched.
+an existing old data file in `file_dir`.
 - the combination `force=False` and `save=True` will update an existing
-old data file present in `file_dir`. The previous old data
-(including the 'source' and the acquisition date and time) will be preserved.
-The 'file_foramt' cannot be mixed and matched.
+old data file present in `file_dir`.
 
+[TOP](#TOP)
 
 ### Examples:
 
@@ -198,7 +197,7 @@ mktdata = az.readMkT(symb, sdata=sdate, sdata=edate, file_dir=mktdir)
 mktdata_dict = az.readMkT(symb, sdata=sdate, edata=edate, file_dir=mktdir,
                           output_format='dict')
 
-# complex calls
+# complex call
 source = {'GLD': {'force': True,
                   'save': True,
                   'file_dir': '../../MkTdata_yahoo',
@@ -239,6 +238,8 @@ Process historical market data requests.
 ```
 There are no variables to be passed to the constructor.
 
+[TOP](#TOP)
+
 ### Methods:
 
 <a name="get">
@@ -260,6 +261,8 @@ get(symbol=[], sdate="2012-01-01", edate='today', calendar=None,
 
 The inputs are the same as for [`readMkT` function](#readMkT).
 
+[TOP](#TOP)
+
 <a name="get_request_status">
 
 #### <span style="color:green">get_request_status</span>
@@ -278,18 +281,23 @@ There are no input variables.
 
 *Returns:*
 
-The output is a `pandas.DataFrame` contained, per symbol, the acctual request
+The output is a `pandas.DataFrame` contained, per symbol, the actual request
 parameters (except the API keys if they were read from the global environment
 variables), as well as the `'error'` status. A value of `'No'` it means that
-there are some missing observation dates. A `'Yes'` means that everything is OK.
+there are some missing observation dates.
 The list of missing observation dates can be further explore by calling the
-function member `get_error_log`.
+member function `get_error_log()`.
+A `'Yes'` means that everything is OK.
+A value of `None` occurs if the request was not completed (other warning
+messages may clarify these situations).
+
+[TOP](#TOP)
 
 <a name="get_error_log">
 
 #### <span style="color:green">get_error_log</span>
 
-Return the lists of missing observations dates per symbol.
+Returns the lists of missing observations dates per symbol.
 
 *Call*
 
@@ -304,7 +312,7 @@ There are no input variables.
 *Returns:*
 
 The return is a `dict` where the _keys_ are the names of the symbols with
-missing observation dates. If the `dict` is empty, then there no missing
+missing observation dates. If the `dict` is empty, then there are no missing
 observations for any symbol. The _values_ of the `dict` are also `dict` with
 possible _keys_:
 - `'front'` : the list of missing dates between the most recent observation
@@ -316,6 +324,8 @@ date in the time series,
 - `'mid'` : the list of missing dates between the oldest and the most recent observation dates of the time series.
 
 Only the keys with non-empty lists of missing dates will be present.
+
+[TOP](#TOP)
 
 ### Examples:
 

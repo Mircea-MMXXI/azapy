@@ -1,7 +1,6 @@
 # Examples
 import pandas as pd
 import time
-
 import azapy as az
 
 #=============================================================================

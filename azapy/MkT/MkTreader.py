@@ -16,10 +16,10 @@ from copy import deepcopy
 
 from azapy.MkT.MkTcalendar import NYSEgen
 
-def readMkT(symbol=[], sdate="2012-01-01", edate='today', source=None, 
-            force=False, save=True, file_dir="outDir", file_format='csv',
-            api_key=None, param=None, calendar=None, 
-            output_format='frame', verbose=True):
+def readMkT(symbol=[], sdate="2012-01-01", edate='today', calendar=None,
+            output_format='frame', source=None, force=False, save=True,
+            file_dir="outDir", file_format='csv', api_key=None, param=None,  
+            verbose=True):
     '''
     Gets market data for a set of stock symbols.
     
@@ -27,10 +27,10 @@ def readMkT(symbol=[], sdate="2012-01-01", edate='today', source=None,
     historical time series. The function call variables are the same as for 
     'MkTreader' function 'get' (see its doc).
     '''
-    return MkTreader().get(symbol, sdate, edate, source, 
-                           force, save, file_dir, file_format,
-                           api_key, param, calendar, 
-                           output_format, verbose)
+    return MkTreader().get(symbol, sdate, edate, calendar, 
+                           output_format, source, force, save, 
+                           file_dir, file_format, api_key, param, 
+                           verbose)
 
 
 class MkTreader:
@@ -75,10 +75,10 @@ class MkTreader:
         self._alphavantage_max_req_per_min = 5
  
         
-    def get(self, symbol=[], sdate="2012-01-01", edate='today', source=None, 
-            force=False, save=True, file_dir="outDir", file_format='csv',
-            api_key=None, param=None, calendar=None, 
-            output_format='frame', verbose=True):
+    def get(self, symbol=[], sdate="2012-01-01", edate='today', calendar=None,
+            output_format='frame', source=None, force=False, save=True,
+            file_dir="outDir", file_format='csv', api_key=None, param=None,  
+            verbose=True):
         '''
         Get MkT data for a set of stock symbols.
     
@@ -97,6 +97,19 @@ class MkTreader:
         edate : date, optional
             The end date of historical time series (must: sdate >= edate)
             The default is 'today'.
+        calendar : numpy.busdaycalendar, optional
+            Exchange business day calendar. If set to `None` it will default to 
+            the NY stock exchange business calendar (provided by the azapy 
+            function NYSEgen).
+            The default is `None`.
+        output_format : str, optional
+            The function output format. It can be:
+            
+            - 'frame' - pandas.DataFrame
+            - 'dict' - dict of pandaws.DataFrame where the keys are the \
+                symbols. 
+            
+            The default is 'frame'
         source : str or dict, optional
             If it is a str, then it represents the market data provider for all
             historical prices requests. Possible values are: 'yahoo', 
@@ -185,20 +198,7 @@ class MkTreader:
             This is also the default vale for alphavantage, if param is set to 
             `None`.
             
-            The default is `None`.
-        calendar : numpy.busdaycalendar, optional
-            Exchange business day calendar. If set to `None` it will default to 
-            the NY stock exchange business calendar (provided by the azapy 
-            function NYSEgen).
-            The default is `None`.
-        output_format : str, optional
-            The function output format. It can be:
-            
-            - 'frame' - pandas.DataFrame
-            - 'dict' - dict of pandaws.DataFrame where the keys are the \
-                symbols. 
-            
-            The default is 'frame'
+            The default is `None`.   
         verbose : boolean, optional
             If set to `True`, then additional information will be printed  
             during the loading of historical prices.
@@ -307,6 +307,13 @@ class MkTreader:
 
             self.rout.append(xrout)
 
+        if len(self.rout) == 0:
+            if verbose:
+                warnings.warn("Warning:no mkt data was fund!")
+            if output_format == 'dict':
+                return {}
+            return pd.DataFrame()
+        
         self.rout = pd.concat(self.rout)
         toc = time.perf_counter()
         self.delta_time = toc - tic
