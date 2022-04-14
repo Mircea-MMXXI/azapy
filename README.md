@@ -55,10 +55,12 @@ C. Greedy portfolio optimization strategies:
 Utility functions:
   1. Collect historical market data from various providers.
     Supported providers:
+
     - _yahoo_
     - _eodhistoricaldata_
     - _alphavantage_
     - _marketstack_
+
   2. Generate business calendars. Aat this point only NYSE business calendar
     is implemented.
   3. Generate rebalancing portfolio schedule generators.
