@@ -1,7 +1,7 @@
 """
-Contains 
+Contains:
 
-- NYSEgen : NYSE business calendar
+    - NYSEgen : NYSE business calendar
 """
 
 import numpy as np

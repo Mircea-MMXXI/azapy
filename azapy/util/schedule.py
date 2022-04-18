@@ -1,3 +1,10 @@
+"""
+Contains:
+    
+    - schedule_simple : creates a simple schedule
+    - schedule_roll : creates a rollover schedule
+"""
+
 import pandas as pd
 import numpy as np
 import pandas.tseries.offsets as pt

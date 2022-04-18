@@ -1,3 +1,9 @@
+"""
+Contains:
+    
+    - max_drawdown : returns maximum drawdown
+    - drawdown : returns a list of drawdowns
+"""
 import pandas as pd
 import numpy as np
 from collections import defaultdict

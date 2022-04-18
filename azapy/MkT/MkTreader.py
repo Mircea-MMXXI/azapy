@@ -1,7 +1,8 @@
 """
 Contains:
-- class MkTreader : to collect historical time series
-- function readMkT : a wrapper to MkTreader class
+    
+    - class MkTreader : collects historical time series
+    - function readMkT : a wrapper to MkTreader class
 """
 
 import pandas as pd
@@ -291,7 +292,7 @@ class MkTreader:
 
         if len(self.rout) == 0:
             if verbose:
-                warnings.warn("Warning:no mkt data was fund!")
+                warnings.warn("Warning: no mkt data was fund!")
             if output_format == 'dict':
                 return {}
             return pd.DataFrame()
@@ -523,7 +524,7 @@ class MkTreader:
                 rout['adjusted'] = self._adjustDividend(rout)   
                 sdate_web = rout_disk.index[-1] + self._bday
                 
-            if sdate_web < edate_adj:
+            if sdate_web <= edate_adj:
                 kod_web = True
                 if verbose:
                     print(f"get {symbol} updates from {source}")

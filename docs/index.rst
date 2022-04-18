@@ -71,6 +71,7 @@ Utility functions
   Util_summary_MkTData
   Util_NYSEgen
   Util_add_cash_security
+  Util_update_all_MkTData
 
 
 Indices and tables
