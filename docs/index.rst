@@ -70,6 +70,7 @@ Utility functions
   Util_readMkT
   Util_summary_MkTData
   Util_NYSEgen
+  Util_add_cash_security
 
 
 Indices and tables

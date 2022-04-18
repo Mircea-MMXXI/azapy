@@ -48,11 +48,11 @@ class MkTreader:
         - `delta_time` : execution time of the request in seconds
         - `rout` : pandas.DataFrame contenig historical prices for all \
             symbols. It is created during the call of `get` function.
-        - `rout_status` : requset status information. It is created during \
+        - `rout_status` : request status information. It is created during \
             the call of `get_request_status` function or during the \
             call of function `get` with option `verbose=True`.
         - `error_log` : contains lists of missing historical observation \
-            dates. It is created together with `rout_sstatus`.
+            dates. It is created together with `rout_status`.
     """
     def __init__(self):
         '''
@@ -148,7 +148,7 @@ class MkTreader:
             Similar for symbol 'SPY'. The instructions for the rest of the 
             symbols that may be specified in the 'symbol' variable will be
             set according to the values of the function call variables.
-        force : boolean, optional
+        force : Boolean, optional
             - `True`: will try to collect historical prices exclusive from  \
             the market data providers.
             - `False`: first it will try to load the historical \
@@ -159,7 +159,7 @@ class MkTreader:
             only from the market data provider.
             
             The default is `False`.
-        save : boolean, optional
+        save : Boolean, optional
             - `True`: It will try to save the historical price collected from \
                the providers to a local file.
             - `False`: No attempt to save the data is made.
@@ -199,31 +199,13 @@ class MkTreader:
             `None`.
             
             The default is `None`.   
-        verbose : boolean, optional
+        verbose : Boolean, optional
             If set to `True`, then additional information will be printed  
             during the loading of historical prices.
             The default is `True`.
     
         Returns
-        -------
-        pandas.DataFrame
-            Contains the historical price requested,
-            The Index contains the observation dates.
-            The columns are: 
-                - 'symbol' : stock symbol 
-                - 'open' : open daily price (adjusted for splits)
-                - 'high' : highest daily price (adjusted for splits)
-                - 'low'  : lowest daily price (adjusted for splits)
-                - 'close' : close daily price (adjusted for splits)
-                - 'adjusted' : close adjusted price (adjusted to splits and \
-                                                     divideds)
-                - 'volume' : daily transacted volume (adjusted for splits)
-                - 'divd' : dividend value (on the ex-divided day, \
-                                           adjusted for splits)
-                - 'split' : split coefficients
-        dict of pandas.DataFrame
-            The keys are the symbols. Each DataFrame have the same columns 
-            as above.
+
         '''
         # Process the inputs
         if isinstance(symbol, str):
@@ -652,9 +634,10 @@ class MkTreader:
     
     
     def _eodhistoricaldata(self, symbol, api_key=None):
-        '''returns maximum period adjusted for splits only,
-           test key OeAFFmMliFG5orCUuwAKQ8l4WWFQ67YX for MCA only,
-           needs premium key for anything else.
+        '''
+        returns maximum period adjusted for splits only,
+        test key OeAFFmMliFG5orCUuwAKQ8l4WWFQ67YX for MCA only,
+        needs premium key for anything else.
         '''
         if api_key is None:
             api_key = os.getenv('EODHISTORICALDATA_API_KEY') 
@@ -729,10 +712,11 @@ class MkTreader:
     
     
     def _eodhistoricaldata_yahoo(self, symbol, api_key=None):
-        '''returns maximum period adjusted for splits only,
-           with prices from edohistoricaldata and dividends + splits from yahoo
-           test key OeAFFmMliFG5orCUuwAKQ8l4WWFQ67YX for MCA only,
-           can work with a free key but only for 1y!!
+        '''
+        returns maximum period adjusted for splits only,
+        with prices from edohistoricaldata and dividends + splits from yahoo
+        test key OeAFFmMliFG5orCUuwAKQ8l4WWFQ67YX for MCA only,
+        can work with a free key but only for 1y!!
         '''
         if api_key is None:
             api_key = os.getenv('EODHISTORICALDATA_API_KEY') 
@@ -786,10 +770,11 @@ class MkTreader:
     
     
     def _alphavantage(self, symbol, api_key=None):
-        ''' returns maximum period adjusted for splits only,
-            with data from alphavantage
-            key "demo" works only for"IBM"
-            for anything else a premium key is requierd
+        ''' 
+        returns maximum period adjusted for splits only,
+        with data from alphavantage
+        key "demo" works only for"IBM"
+        for anything else a premium key is requierd
         '''
         if api_key is None:
             api_key = os.getenv('ALPHAVANTAGE_API_KEY')
@@ -832,9 +817,10 @@ class MkTreader:
     
     
     def _alphavantage_yahoo(self, symbol, api_key=None):
-        ''' returns maximum period adjusted for splits only,
-            prices are from alphavantage and dividends + splits are from yahoo
-            works with a free key
+        ''' 
+        returns maximum period adjusted for splits only,
+        prices are from alphavantage and dividends + splits are from yahoo
+        works with a free key
         '''
         if api_key is None:
             api_key = os.getenv('ALPHAVANTAGE_API_KEY')
@@ -885,8 +871,9 @@ class MkTreader:
     
     
     def _marketstack(self, symbol, api_key=None):
-        ''' returns maximum period adjusted for splits only,
-            free key works only for 1y of data
+        ''' 
+        returns maximum period adjusted for splits only,
+        free key works only for 1y of data
         '''
         if api_key is None:
             api_key = os.getenv('MARKETSTACK_API_KEY')

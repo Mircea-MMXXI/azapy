@@ -29,7 +29,6 @@ setuptools.setup(
     install_requires=[
           'numpy',
           'pandas',
-          'pandas_datareader',
           'pandas_market_calendars',
           'scipy',
           'cvxopt',
@@ -37,5 +36,7 @@ setuptools.setup(
           'ta',
           'plotly',
           'matplotlib',
+          'yfinance',
+          'requests',
       ],
 )
