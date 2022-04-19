@@ -60,7 +60,7 @@ class _RiskAnalyzer:
                 ratio.\n
                 "MinRisk" : optimal portfolio with minimum dispersion (risk)
                 value.\n
-                "InvNRisk" : optimal portfolio with the same dispersion (risk)
+                "InvNrisk" : optimal portfolio with the same dispersion (risk)
                 value as equally weighted portfolio. \n
                 "RiskAverse" : optimal portfolio for a fixed risk aversion
                 coefficient.
@@ -109,7 +109,7 @@ class _RiskAnalyzer:
             criterion. For rtype set to\n
                 "Risk" : mu is the targeted portfolio rate of returns.\n
                 "Sharpe" and "Sharpe2" : mu is the risk-free rate.\n
-                "MinRisk" and "InvNRisk": mu is ignored. \n
+                "MinRisk" and "InvNrisk": mu is ignored. \n
                 "RiskAverse" : mu is the Lambda aversion coefficient.
         rrate : pandas.DataFrame, optional
             The portfolio components historical rates of returns.
@@ -130,6 +130,13 @@ class _RiskAnalyzer:
         pandas.Series
             Portfolio weights.
         """
+        self.ww = None
+        self.risk = None
+        self.primary_risk_comp = None
+        self.secondary_risk_comp = None
+        self.sharpe = None
+        self.RR = None
+        
         if rrate is not None:
             self.set_rrate(rrate)
 
@@ -162,19 +169,24 @@ class _RiskAnalyzer:
             else:
                 self.mu = mu
 
-            self._sharpe_inv_min()
+            self._sharpe_inv_min()      
         elif self.rtype == "InvNrisk":
             ww = np.array([1.] * len(self.rrate.columns))
             ww = ww / np.sum(ww)
             self.getRisk(ww)
-            self._rr_max()
+            self._rr_max()      
         elif self.rtype == "RiskAverse":
             self.Lambda = mu
             self._risk_averse()
+            
         else:
             print(f"should not be here!! Unknown rtype {rtype}")
             return np.nan
-
+        
+        if self.status != 0:
+            warnings.warn(f"Warning: status {self.status} for {self.rtype}"
+                          + " is not 0")
+            
         self.ww = pd.Series(self.ww, index=self.rrate.columns)
         return self.ww
 
@@ -244,7 +256,7 @@ class _RiskAnalyzer:
             criterion. For rtype set to\n
                 "Risk" : mu is the targeted portfolio rate of returns.\n
                 "Sharpe" and "Sharpe2" : mu is the risk-free rate.\n
-                "MinRisk" and "InvNRisk": mu is ignored. \n
+                "MinRisk" and "InvNrisk": mu is ignored. \n
                 "RiskAverse" : mu is the Lambda aversion coefficient.
         rtype : string, optional
             Optimization type. If is not None it will overwrite the value
@@ -326,7 +338,7 @@ class _RiskAnalyzer:
         res = pd.DataFrame({'old_nsh': ns,
                             'new_nsh': newns,
                             'diff_nsh': newns - ns,
-                            'weights' : ww.round(6),
+                            'weights': ww.round(6),
                             'prices': pp})
 
         return res
@@ -603,7 +615,7 @@ class _RiskAnalyzer:
             res['inverseN']['risk'] = np.array(risk_n)
             res['inverseN']['rr'] = rr_n
             res['inverseN']['ww'] = ww_n
-            res['inverseN']['label'] = ['1/N', 'InvNRisk']
+            res['inverseN']['label'] = ['1/N', 'InvNrisk']
 
         # Plot
         if fig_type == 'RR_risk':

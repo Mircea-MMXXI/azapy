@@ -4,7 +4,7 @@ import scipy.sparse as sps
 import warnings
 
 from ._RiskAnalyzer import _RiskAnalyzer
-from ._solvers import _socp_solver
+from ._solvers import _socp_solver, _tol_cholesky
 
 class SDAnalyzer(_RiskAnalyzer):
     """
@@ -102,8 +102,13 @@ class SDAnalyzer(_RiskAnalyzer):
         irow = [0] * nn + list(range(1, nn + 1)) + [nn + 1]
         data = list(-self.muk * d) + [-1.] * (nn + 1)
         dd = sps.coo_matrix((data, (irow, icol)), shape=(nn + 2, nn + 1))
-        pp = np.concatenate((-la.cholesky(P, overwrite_a=True), 
-                             np.zeros((nn, 1))), axis=1)
+        
+        if any(np.diag(P) < _tol_cholesky):
+            pp = np.concatenate((-la.sqrtm(P), np.zeros((nn, 1))), axis=1)
+        else:
+            pp = np.concatenate((-la.cholesky(P, overwrite_a=True), 
+                                 np.zeros((nn, 1))), axis=1)
+            
         G = sps.vstack( [dd, pp])
         
         # biuld dims
@@ -155,8 +160,13 @@ class SDAnalyzer(_RiskAnalyzer):
        
         # biuld G
         dd = sps.block_diag((np.diag([-1.] * nn), [0.,-1.]))
-        pp = np.concatenate((-la.cholesky(P, overwrite_a=True), 
-                             np.zeros((nn,2))), axis=1)
+        
+        if any(np.diag(P) < _tol_cholesky):
+            pp = np.concatenate((-la.sqrtm(P), np.zeros((nn,2))), axis=1)
+        else:
+            pp = np.concatenate((-la.cholesky(P, overwrite_a=True), 
+                                 np.zeros((nn,2))), axis=1)
+                
         G = sps.vstack([dd, pp])
         
         # biuld dims
@@ -211,8 +221,13 @@ class SDAnalyzer(_RiskAnalyzer):
 
         # build G
         dd = np.diag([-1.] * nn + [0.])
-        pp = np.concatenate((-la.cholesky(P, overwrite_a=True), 
-                             np.zeros((nn, 1))), axis=1)
+        
+        if any(np.diag(P) < _tol_cholesky):
+            pp = np.concatenate((-la.sqrtm(P), np.zeros((nn, 1))), axis=1)
+        else:
+            pp = np.concatenate((-la.cholesky(P, overwrite_a=True), 
+                                 np.zeros((nn, 1))), axis=1)
+            
         G = sps.vstack([dd, pp])
 
         # build h
@@ -268,7 +283,11 @@ class SDAnalyzer(_RiskAnalyzer):
         dd = np.diag([-1.] * nn)
         # cone
         dd.resize((nn + 1, nn))
-        G = sps.vstack([dd, -la.cholesky(P, overwrite_a=True)])
+        
+        if any(np.diag(P) < _tol_cholesky):
+            G = sps.vstack([dd, -la.sqrtm(P)])
+        else:
+            G = sps.vstack([dd, -la.cholesky(P, overwrite_a=True)])
         
         # build h
         h_data = [0.] * nn + [self.risk] + [0.] * nn
@@ -317,8 +336,13 @@ class SDAnalyzer(_RiskAnalyzer):
         
         # build G
         dd = np.diag([-1.] * (nn + 1))
-        pp = np.concatenate((-la.cholesky(P, overwrite_a=True), 
-                             np.zeros((nn,1))), axis=1)
+        
+        if any(np.diag(P) < _tol_cholesky):
+            pp = np.concatenate((-la.sqrtm(P), np.zeros((nn,1))), axis=1)
+        else:
+            pp = np.concatenate((-la.cholesky(P, overwrite_a=True), 
+                                 np.zeros((nn,1))), axis=1)
+            
         G = sps.vstack([dd, pp])
         
         # build dims

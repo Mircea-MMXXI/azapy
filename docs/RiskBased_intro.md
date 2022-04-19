@@ -106,16 +106,16 @@ components. Hence, its name $1/N$*-portfolio* or *inverse-N portfolio*.
 In our plot this portfolio is represented by a green X with label $1/N$.
 
 On the *efficient frontier* there is its correspondent. In our plot
-it is a green X with label *InvNRisk*. This is the efficient portfolio
+it is a green X with label *InvNrisk*. This is the efficient portfolio
 that has the same risk as the
 *inverse-N* portfolio. In-sample both portfolios have the same risk while
-the expected rate of returns is larger for *InvNRisk*  than
+the expected rate of returns is larger for *InvNrisk*  than
 for *inverse-N* portfolio.
 
 It is remarkable that out-of-sample, although not always,
 for certain quite desirable portfolio compositions and
 under rather common market conditions, the *inverse-N* portfolio tends to
-outperform the *InvNRisk*. The reasons behind this odd behavior are still
+outperform the *InvNrisk*. The reasons behind this odd behavior are still
 under debate among the specialists in the field.
 
 Another way to visualize the portfolio frontiers is presented in the following
@@ -232,8 +232,9 @@ delta positions and cash flow at rebalancing time.
 An example is provided in a
 [Jupyter notebook](https://github.com/Mircea-MMXXI/azapy/blob/main/jpy_scripts/Rebalance_example.ipynb).
 
-**azapy** package has its own facility to collect market data from
-**alphavantage** provider[^alphavantage] (see section *Utility functions*).
+**azapy** package has its own facility to collect historical market data from
+various providers[^apikey]
+(see section [*Read historical market data*](./Util_readMkT.html#HistMkTData)).
 
 
 
@@ -246,4 +247,4 @@ In our presentation we use a generalization of Sharpe ratio where the
 volatility is replaced by the prevailing dispersion
 measure.
 
-[^alphavantage]: Requires a valid API key from *alphavantage.co*
+[^apikey]: Some of the market data providers require a valid API key.
