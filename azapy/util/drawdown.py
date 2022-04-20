@@ -35,11 +35,12 @@ def max_drawdown(mktdata, col=None):
 
     Parameters
     ----------
-    mktdata : pd.Series or pd.DataFram
-        time-series of prices as a pd.Series or as column in a dp.DataFrame
-    col : string, string
-        column name if mktdata is a DataFrame. If is set to None then mktdata
-        is assumed to be a Series. The default is None.
+    mktdata : pandas.Series or pandas.DataFram
+        time-series of prices as a pandas.Series or as column in a 
+        pandas.DataFrame
+    col : str, optional
+        column name if mktdata is a DataFrame. If is set to `None` then 
+        `mktdata` is assumed to be a Series. The default is `None`.
 
     Returns
     -------
@@ -51,8 +52,8 @@ def max_drawdown(mktdata, col=None):
             i_start : pd.Timestamp
                 Date when the drawdown had started.
             i_end : pd.Timestamp
-                Date of the drawdown recovery. A value of `nan` indicates that the
-                drawdown is in progress.
+                Date of the drawdown recovery. A value of `nan` indicates 
+                that the drawdown is in progress.
     """
     rdata = mktdata if  col is None else mktdata[col]
 
@@ -67,23 +68,25 @@ def max_drawdown(mktdata, col=None):
 
 def drawdown(mktdata, col=None, top=10):
     """
-    Computes the largest drawdowns for a price time-series
+    Computes the largest drawdowns for time-series of prices.
 
     Parameters
     ----------
-    mktdata : pd.Series or pd.DataFrame
-        time-series of prices as a pd.Series or as column in a dp.DataFrame
-    col : string, optional
-        Name of the column of price if mktdata is a pd.DataFrame. If its value
-        is set to None then mktdata is assumed to be a pd.Series.
-        The default is None.
+    mktdata : pandas.Series or pandas.DataFrame
+        time-series of prices as a pandas.Series or as column in a 
+        pandas.DataFrame
+    col : str, optional
+        Name of the column of price if mktdata is a pandas.DataFrame. 
+        If its value
+        is set to `None` then `mktdata` is assumed to be a pandas.Series.
+        The default is `None`.
     top : int, optional
-        Maximum number of the largest drawdown to be computed.
+        Maximum number of the largest drawdowns to be computed.
         The default is 10.
 
     Returns
     -------
-    pd.DataFrama
+    pandas.DataFrama
         Table containing the drawdowns ordered from the largest to smallest.
         Table columns are:
 

@@ -1,5 +1,9 @@
 .. azapy documentation master file
 
+.. raw:: html
+
+    <style> .blue {color:blue} </style>
+
 Welcome to **azapy** project - Financial Portfolio Optimization Algorithms
 ==========================================================================
 
@@ -10,7 +14,9 @@ Performs *in* and *out-of* sample portfolio analysis.
 
 Package source code: `here <https://github.com/Mircea-MMXXI/azapy>`_
 
-Package installation: *pip install azapy*
+.. role:: blue
+
+Package installation: :blue:`pip install azapy`
 
 .. raw:: html
 

@@ -18,7 +18,7 @@ def schedule_simple(sdate='2010-01-01',
                     fixoffset=-1,
                     calendar=None):
     """
-    Creates a simple schedule 'Droll', 'Dfix'
+    Creates a simple schedule 'Droll', 'Dfix'.
 
     Parameters
     ----------
@@ -37,14 +37,14 @@ def schedule_simple(sdate='2010-01-01',
     fixoffset : int, optional
         Offset in number of business days for Dfix relative to Droll. It 
         can be zero or negative. The default is -1.
-    calendar : np.busdaycalendar, optional
-        Business days calendar. If is it None then the calendar will be set
+    calendar : numpy.busdaycalendar, optional
+        Business days calendar. If is it `None` then the calendar will be set
         to NYSE business calendar.
-        The default is None.
+        The default is `None`.
 
     Returns
     -------
-    pd.DataFrame
+    pandas.DataFrame
         Table containing 2 datetime columns: 'Droll' the rolling date and
         'Dfix' the fixing date.
     """
@@ -72,7 +72,7 @@ def schedule_roll(sdate='2010-01-01',
                   calendar=None,
                   hlength=1.25):
     """
-    Creates a schedule with rolling history: 'Droll', 'Dfix' and 'Dhist'
+    Creates a schedule with rolling history: 'Droll', 'Dfix' and 'Dhist'.
 
     Parameters
     ----------
@@ -91,14 +91,14 @@ def schedule_roll(sdate='2010-01-01',
     fixoffset : int, optional
         Offset in number of business days for Dfix relative to Droll. It 
         can be zero or negative. The default is -1.
-    calendar : np.busdaycalendar, optional
-        Business days calendar. If is it None then the calendar will be set
+    calendar : numpy.busdaycalendar, optional
+        Business days calendar. If is it `None` then the calendar will be set
         to NYSE business calendar.
-        The default is None.
+        The default is `None`.
     hlength : float, optional
         Offset in number of years for 'Dhist' relative to 'Dfix'. A fractional 
         value will be rounded to an integer number of months via
-        round(hlength * 12, 0). hlength must be non negative.
+        `round(hlength * 12, 0)`. `hlength` must be non negative.
         The default is 1.25 years.
 
     Raises
@@ -108,7 +108,7 @@ def schedule_roll(sdate='2010-01-01',
 
     Returns
     -------
-    pd.DataFrame
+    pandas.DataFrame
         Table containing 2 datetime columns: 'Droll' the rolling date,
         'Dfix' the fixing date and 'Dhist' start day for a calibration period.
     """

@@ -26,7 +26,7 @@ def readMkT(symbol=[], sdate="2012-01-01", edate='today', calendar=None,
     
     It is a wrapper for MkTreader class returning directly the requested
     historical time series. The function call variables are the same as for 
-    'MkTreader' function 'get' (see its doc).
+    'MkTreader' member function 'get' (see its doc).
     '''
     return MkTreader().get(symbol, sdate, edate, calendar, 
                            output_format, source, force, save, 

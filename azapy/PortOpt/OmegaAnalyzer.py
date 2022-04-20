@@ -30,24 +30,24 @@ class OmegaAnalyzer(_RiskAnalyzer):
         ----------
         mu0 : float, optional
             Omega threshold. The default is 0.
-        mktdata : pd.DataFrame, optional
+        mktdata : pandas.DataFrame, optional
             Historic daily market data for portfolio components in the format
             returned by azapy.mktData function. The default is None.
-        colname : string, optional
+        colname : str, optional
             Name of the price column from mktdata used in the weights 
             calibration. The default is 'adjusted'.
-        freq : string, optional
+        freq : str, optional
             Rate of returns horizon in number of business day. it could be 
             'Q' for quarter or 'M' for month. The default is 'Q'.
         hlength : float, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
             The default is 3.25 years.
-        calendar : np.busdaycalendar, optional
-            Business days calendar. If is it None then the calendar will be set
+        calendar : numpy.busdaycalendar, optional
+            Business days calendar. If is it `None` then the calendar will be set
             to NYSE business calendar.
-            The default is None.
-        rtype : string, optional
+            The default is `None`.
+        rtype : str, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure for a fixed 
                 vale of expected rate of return. \n
@@ -57,13 +57,13 @@ class OmegaAnalyzer(_RiskAnalyzer):
                 "MinRisk" : optimal portfolio with minimum dispersion (risk) 
                 value.\n
                 "InvNRisk" : optimal portfolio with the same dispersion (risk)
-                value as equal weighted portfolio. 
+                value as equal weighted portfolio. \n
                 "RiskAverse" : optimal portfolio for a fixed value of risk 
                 aversion coefficient.
             The default is "Sharpe". 
         method : string, optional
             Linear programming numerical method. 
-            Could be one of 'ecos', 'highs-ds', 'highs-ipm', 'highs', 
+            Could be: 'ecos', 'highs-ds', 'highs-ipm', 'highs', 
             'interior-point', 'glpk' and 'cvxopt'.
             The defualt is 'ecos'.
 
@@ -98,38 +98,38 @@ class OmegaAnalyzer(_RiskAnalyzer):
         musharpe : float, optional
             Value for the risk-free rate of return used in the evaluation of
             generalized Sharpe ratio. The default is 0.
-        component : boolean, optional
+        component : Boolean, optional
             If True the portfolios containing a single component are evaluated 
             and added to the plot for references. The default is True.
         randomport : int, optional
             The number of portfolios with random weights (inefficient) to be 
             evaluate and added to the plot for reference. The default is 20.
-        inverseN : boolean, optional
-            If True the equally weighted portfolio and the optimal portfolio 
+        inverseN : Boolean, optional
+            If `True` the equally weighted portfolio and the optimal portfolio 
             with the same dispersion (risk) value are evaluated and added to 
-            the plot. The default is True.
+            the plot. The default is `True`.
         fig_type : string, optional
             Graphical representation format.
             If it is set to "RR_risk" the data is plotted in the rate of return 
             vs dispersion representation, otherwise the Sharpe vs rate of 
             return will be used. The default is 'RR_risk'.
-        options : dictionary, optional
+        options : dict, optional
             Additional graphical setups (keys): \n
             "title", "xlabel", "ylabel" : strings overwriting the default 
             values. \n
-            "tangent" : boolean. If set to True it will print
-            the Sharpe tangent. The default is True.
-        save : string, optional
+            "tangent" : boolean. If set to `True` it will print
+            the Sharpe tangent. The default is `True`.
+        save : str, optional
             File name to save the plot. The default is None.
-        data : dictionary, optional
-            Numerical data to construct the plot. If it is not None it 
+        data : dict, optional
+            Numerical data to construct the plot. If it is not `None` it 
             will take precedence and no other numerical evaluation will be 
             performed. It is meant to produce different plot representations
-            without recomputation. The default is None.
+            without recomputation. The default is `None`.
 
         Returns
         -------
-        dictionary
+        dict
             Numerical data used to make the plots. 
         """
         if musharpe is not None:
@@ -144,7 +144,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
         
     def set_rrate(self, rrate):
         """
-        Sets ortfolio components historical rates of returns in the format 
+        Sets portfolio components historical rates of returns in the format 
         "date", "symbol1", "symbol2", etc. 
 
         Parameters
@@ -210,7 +210,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"warning {res['infostring']}")
+            warnings.warn(f"Warning {res['infostring']}")
             return np.array([np.nan] * mm)
             
         # delta-risk
@@ -271,7 +271,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         # Omega
@@ -334,7 +334,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         t = res['x'][-1]
@@ -394,7 +394,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         # rate of return
@@ -449,7 +449,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         # optimal weights

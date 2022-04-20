@@ -27,12 +27,13 @@ class Port_SMGINI(Port_CVaR):
         Parameters
         ----------
         mu : float
-            Reference rate. Its meaning depends of the value of rtype. For
-            rtype equal to: \n
-                "Sharpe" : mu is the risk-free rate \n
-                "Risk" : mu is the targeted expected rate of returns \n
-                "MinRisk" and "InvNrisk" : mu is ignored
-        rtype : string, optional
+            Reference rate. Its meaning depends on the value of `rtype`. For
+            `rtype` equal to: \n
+                "Sharpe" : mu is the risk-free rate, \n
+                "Risk" : mu is the targeted expected rate of returns, \n
+                "MinRisk" and "InvNrisk" : mu is ignored,
+                "RiskAverse" : `mu` is the Lambda risk aversion coefficient.
+        rtype : str, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure for a fixed 
                 vale of expected rate of return. \n
@@ -42,22 +43,22 @@ class Port_SMGINI(Port_CVaR):
                 "MinRisk" : optimal portfolio with minimum dispersion (risk) 
                 value.\n
                 "InvNRisk" : optimal portfolio with the same dispersion (risk)
-                value as equal weighted portfolio. 
+                value as equal weighted portfolio. \n
                 "RiskAverse" : optimal portfolio for a fixed value of risk 
                 aversion coefficient.
             The default is "Sharpe". 
         hlength : float, optional
             The length in year of the historical calibration period relative 
             to 'Dfix'. A fractional number will be rounded to an integer number 
-            of months. The default is 1. 
-        method : string, optional
+            of months. The default is 1.25. 
+        method : str, optional
             Linear programming numerical method. 
-            Could be one of 'ecos' and 'cvxopt'.
+            Could be 'ecos' or 'cvxopt'.
             The defualt is 'ecos'.
 
         Returns
         -------
-        pd.DataFrame
+        pandas.DataFrame
             The portfolio time-series in the format "date", "pcolname".
 
         """

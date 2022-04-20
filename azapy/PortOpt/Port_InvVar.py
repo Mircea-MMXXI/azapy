@@ -2,8 +2,8 @@ from .Port_InvVol import Port_InvVol
 
 class Port_InvVar(Port_InvVol):
     """
-    Back testing portfolio with weights proportional to the inverse of component 
-    variances, periodically rebalanced.
+    Back testing portfolio with weights proportional to the inverse of 
+    component variances, periodically rebalanced.
     
     Methods:
         * set_model

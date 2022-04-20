@@ -12,7 +12,7 @@ from azapy.MkT.MkTreader import MkTreader
 
 def add_cash_security(data, name='_CASH_', value=1.):
     '''
-    Add a cash like security to the MkT data
+    Add a cash like security to the MkT data.
 
     Parameters
     ----------
@@ -57,7 +57,7 @@ def add_cash_security(data, name='_CASH_', value=1.):
 def update_all_MkTData(mktdir, source=None, api_key=None, param=None,
                        except_file=[], verbose=True):
     '''
-    Updates all mkt data saved in a directory
+    Updates all mkt data saved in a directory.
 
     Parameters
     ----------
@@ -65,15 +65,15 @@ def update_all_MkTData(mktdir, source=None, api_key=None, param=None,
         Mkt data directory.
     source : str, optional
         Mkt data provider. 
-        For more details see the azapy.MkTreader.get function doc. 
+        For more details see the `azapy.MkTreader.get` function doc. 
         The default is `None`.
     api_key : str, optional
         Mkt data provider API key.
-        For more details see the azapy.MkTreader.get function doc. 
+        For more details see the `azapy.MkTreader.get` function doc. 
         The default is `None`
     param : dict, optional
         Additional parameters required by mkt data provider.
-        For more details see the azapy.MkTreader.get function doc. 
+        For more details see the `azapy.MkTreader.get` function doc. 
         The default is `None`.
     except_file : list, optional
         List of symbols to be omitted from the update. The default is [].
@@ -93,7 +93,7 @@ def update_all_MkTData(mktdir, source=None, api_key=None, param=None,
         - 102 : unsupported mkt data sources
             
     Note that files with unsupported extensions 
-    (`see azapy.MkTreader.get` function)
+    (see `azapy.MkTreader.get` function)
     are silently omitted from the update.
     '''
     

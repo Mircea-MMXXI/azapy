@@ -27,11 +27,12 @@ class Port_MV(Port_CVaR):
         Parameters
         ----------
         mu : float
-            Reference rate. Its meaning depends of the value of rtype. For
-            rtype equal to: \n
-                "Sharpe" : mu is the risk-free rate \n
-                "Risk" : mu is the targeted expected rate of returns \n
-                "MinRisk" and "InvNrisk" : mu is ignored
+            Reference rate. Its meaning depends on the value of `rtype`. For
+            `rtype` equal to: \n
+                "Sharpe" : `mu` is the risk-free rate, \n
+                "Risk" : `mu` is the targeted expected rate of returns, \n
+                "MinRisk" and "InvNrisk" : `mu` is ignored, \n
+                "RiskAverse" : `mu` is the Lambda risk aversion coefficient.
         rtype : string, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure for a fixed 
@@ -42,7 +43,7 @@ class Port_MV(Port_CVaR):
                 "MinRisk" : optimal portfolio with minimum dispersion (risk) 
                 value.\n
                 "InvNRisk" : optimal portfolio with the same dispersion (risk)
-                value as equal weighted portfolio. 
+                value as equal weighted portfolio. \n
                 "RiskAverse" : optimal portfolio for a fixed value of risk 
                 aversion coefficient.
             The default is "Sharpe". 
@@ -50,13 +51,13 @@ class Port_MV(Port_CVaR):
             The length in year of the historical calibration period relative
             to 'Dfix'. A fractional number will be rounded to an integer number
             of months. The default is 3.25 years.
-        method : string, optional
-            Numerical method to solve the SOCP and QP. Can take one of the
-            values 'ecos' and 'cvxopt'. The default is 'ecos'.
+        method : str, optional
+            Numerical method to solve the SOCP and QP. Can be 'ecos' or 
+            'cvxopt'. The default is 'ecos'.
 
         Returns
         -------
-        pd.DataFrame
+        pandas.DataFrame
             The portfolio time-series in the format "date", "pcolname".
         """
         return super().set_model(mu=mu, rtype=rtype, hlength=hlength,

@@ -5,7 +5,7 @@ import warnings
 
 def gamblingKelly(pp=[0.6]):
     """
-    Compute the Kelly allocation for multiple binary games
+    Compute the Kelly allocation for multiple binary games.
 
     Parameters
     ----------
@@ -14,8 +14,8 @@ def gamblingKelly(pp=[0.6]):
 
     Returns
     -------
-    pd.Series
-        Bet sizes as percentage of the capital.
+    pandas.Series
+        Bet sizes as percentage of the capital=1.
     """
     pp = np.array(pp)
     assert all((pp > 0) & (pp < 1)), "all pp must by in (0,1)"
