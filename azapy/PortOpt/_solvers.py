@@ -10,6 +10,8 @@ import warnings
 import cvxopt as cx
 import ecos
 
+_tol_cholesky = 1.e-10
+
 def _lp_scipy(c, G, h, A, b, method):
     # compute - suppress warning {'sparse': True}
     with warnings.catch_warnings():
@@ -161,7 +163,12 @@ def _qp_ecos(P, q, G, h, A, b):
     pr, pc = P.shape
     
     gg = sps.block_diag((G, [-1.]))
-    #pp = sps.block_diag((-la.cholesky(P, overwrite_a=True), [1.]))
+    
+    if any(np.diag(P) < _tol_cholesky):
+        pp = sps.block_diag((-la.sqrtm(P), [1.]))
+    else:
+        pp = sps.block_diag((-la.cholesky(P, overwrite_a=True), [1.]))
+        
     pp = sps.block_diag((-la.sqrtm(P), [1.]))
     GG = sps.vstack([gg, pp], format='csc')
   

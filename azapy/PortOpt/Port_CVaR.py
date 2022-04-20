@@ -31,19 +31,19 @@ class Port_CVaR(Port_InvVol):
         Parameters
         ----------
         mu : float
-            Reference rate. Its meaning depends of the value of rtype. For
+            Reference rate. Its meaning depends on the value of rtype. For
             rtype equal to: \n
-                'Sharpe' : mu is the risk-free rate. \n
-                'Ris' : mu is the targeted expected rate of returns. \n
-                'MinRisk' and 'InvNrisk' : mu is ignored. \n
-                'RiskAverse' : mu is the Lambda risk aversion coefficient.
+                'Sharpe' : `mu` is the risk-free rate. \n
+                'Ris' : `mu` is the targeted expected rate of returns. \n
+                'MinRisk' and 'InvNrisk' : `mu` is ignored. \n
+                'RiskAverse' : `mu` is the Lambda risk aversion coefficient.
         alpha : list, optional
             List of alpha confidence levels. The default is [0.975].
         coef : list, optional
             List of mixture coefficients values. Note that `len(coef)`
             must be equal to `len(alpha)`. A value of `None` assumes
             `coef = [1 / len(alpha)] * len(alpha)`.
-       rtype : string, optional
+       rtype : str, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure for a fixed 
                 vale of expected rate of return. \n
@@ -53,7 +53,7 @@ class Port_CVaR(Port_InvVol):
                 "MinRisk" : optimal portfolio with minimum dispersion (risk) 
                 value.\n
                 "InvNRisk" : optimal portfolio with the same dispersion (risk)
-                value as equal weighted portfolio. 
+                value as equal weighted portfolio. \n
                 "RiskAverse" : optimal portfolio for a fixed value of risk 
                 aversion coefficient.
             The default is "Sharpe".
@@ -61,15 +61,15 @@ class Port_CVaR(Port_InvVol):
             The length in year of the historical calibration period relative
             to 'Dfix'. A fractional number will be rounded to an integer number
             of months. The default is 3.25 years.
-        method : string, optional
+        method : str, optional
             Linear programming numerical method.
-            Could be one of 'ecos', 'highs-ds', 'highs-ipm', 'highs',
+            Could be: 'ecos', 'highs-ds', 'highs-ipm', 'highs',
             'interior-point', 'glpk' and 'cvxopt'.
             The default is 'ecos'.
 
         Returns
         -------
-        pd.DataFrame
+        pandas.DataFrame
             The portfolio time-series in the format 'date', 'pcolname'.
         """
         self._set_alpha(alpha, coef)

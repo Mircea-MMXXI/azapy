@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as readme:
 
 setuptools.setup(
     name="azapy",
-    version="0.0.8",
+    version="0.1.0",
     author="Mircea Marinescu",
     author_email="mircea.marinescu@outlook.com",
     description="Financial Portfolio Optimization Algorithms",
@@ -29,7 +29,6 @@ setuptools.setup(
     install_requires=[
           'numpy',
           'pandas',
-          'pandas_datareader',
           'pandas_market_calendars',
           'scipy',
           'cvxopt',
@@ -37,5 +36,7 @@ setuptools.setup(
           'ta',
           'plotly',
           'matplotlib',
+          'yfinance',
+          'requests',
       ],
 )

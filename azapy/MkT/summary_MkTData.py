@@ -2,32 +2,33 @@ import pandas as pd
 import numpy as np
 from collections import defaultdict 
 
-from .readMkTData import NYSEgen
+#from .readMkTData import NYSEgen
+from .MkTcalendar import NYSEgen
 
 def summary_MkTData(mktdata, calendar=None, sdate=None, edate=None):
     """
-    Summary of MkT data time-series length and quality (cheks for missing
+    Summary of MkT data time-series length and quality (checks for missing
     records).
 
     Parameters
     ----------
-    mktdata :pd.DataFrame or a dictonary of pd.DataFrame's
+    mktdata :pandas.DataFrame or a dictonary of pd.DataFrame's
         Market Data in the format returned by azapy.readMkT function.
-    calendar : np.busdaycalendar, optional
+    calendar : numpy.busdaycalendar, optional
         Business days calendar. If is set to None it will 
         default to NYSE business calendar.
-    sdate : pd.Timestamp, optional
+    sdate : pandas.Timestamp, optional
         Time-series start date. If it is None then sdate will be set to the 
         earliest date in mktdata.
         The default is None.
-    edate : pd.Timestamp, optional
+    edate : pandas.Timestamp, optional
         Time-series end date. If it is None then edate will be set to the most 
         recent date in mktdata.
         The default is None.
 
     Returns
     -------
-    pd.DataFrame: a table with columns:
+    pandas.DataFrame: a table with columns:
         - symbol : time-series symbol
         - begin : start date
         - end : end date
@@ -37,7 +38,7 @@ def summary_MkTData(mktdata, calendar=None, sdate=None, edate=None):
         - na_e : number of missing records at the end
         - cont : total number of missing records
             
-    Comment: the main application is to asses the missing data in the 
+    Comment: the main application is to assess the missing data in the 
     time-series extracted with azapy.readMkT function.
     """
     if isinstance(mktdata, dict):

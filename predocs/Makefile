@@ -68,6 +68,7 @@ $(foreach ff, $(F_NAIVE), $(eval $(ff)_out=$(call f_out_gen,$(ff))) )
 
 F_SINGLES = RiskBased_intro.md Naive_intro.md Greedy_intro.md \
 Util_readMkT.md Util_summary_MkTData.md Util_NYSEgen.md \
+Util_add_cash_security.md Util_update_all_MkTData.md \
 
 $(foreach ff, $(F_SINGLES), $(eval $(ff)_in=$(INDIR)/$(ff)))
 $(foreach ff, $(F_SINGLES), $(eval $(ff)_out=$(OUTDIR)/$(ff)))

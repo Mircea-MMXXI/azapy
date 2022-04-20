@@ -36,21 +36,21 @@ class CVaRAnalyzer(_RiskAnalyzer):
         mktdata : pandas.DataFrame, optional
             Historic daily market data for portfolio components in the format
             returned by azapy.mktData function. The default is None.
-        colname : string, optional
+        colname : str, optional
             Name of the price column from mktdata used in the weights 
             calibration. The default is 'adjusted'.
-        freq : string, optional
+        freq : str, optional
             Rate of returns horizon. It could be 
             'Q' for quarter or 'M' for month. The default is 'Q'.
         hlength : float, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
             The default is 3.25 years.
-        calendar : np.busdaycalendar, optional
+        calendar : numpy.busdaycalendar, optional
             Business days calendar. If is it None then the calendar will be set
             to NYSE business calendar. 
             The default is None.
-        rtype : string, optional
+        rtype : str, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure for a fixed 
                 vale of expected rate of return. \n
@@ -60,13 +60,13 @@ class CVaRAnalyzer(_RiskAnalyzer):
                 "MinRisk" : optimal portfolio with minimum dispersion (risk) 
                 value.\n
                 "InvNRisk" : optimal portfolio with the same dispersion (risk)
-                value as equal weighted portfolio. 
+                value as equal weighted portfolio. \n
                 "RiskAverse" : optimal portfolio for a fixed value of risk 
                 aversion coefficient.
             The default is "Sharpe".
-        method : string, optional
+        method : str, optional
             Linear programming numerical method. 
-            Could be one of 'ecos', 'highs-ds', 'highs-ipm', 'highs', 
+            Could be: 'ecos', 'highs-ds', 'highs-ipm', 'highs', 
             'interior-point', 'glpk' and 'cvxopt'.
             The default is 'ecos'.
             
@@ -192,7 +192,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         # VaR (u)
@@ -271,7 +271,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
        
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * mm)
 
         # average CVaR (1/t)
@@ -354,7 +354,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
        
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * mm)
 
         t = res['x'][-1]
@@ -432,7 +432,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
        
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * mm)
 
         # VaR (u)
@@ -504,7 +504,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
        
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * mm)
 
         # optimal weights

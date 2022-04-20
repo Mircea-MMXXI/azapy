@@ -1,16 +1,14 @@
 # Portfolio fig 
-import pandas as pd
-
 import azapy as az
 
-sdate = pd.to_datetime("2012-01-01")
-edate = pd.to_datetime('today')
 symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
+
+sdate = "2012-01-01"
+edate = "2021-07-27"
 
 mktdir = "../MkTdata"
 
-mktdata = az.readMkT(symb, dstart = sdate, dend = edate, 
-                     dir=mktdir, force=False) 
+mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 
 p5 = az.Port_InvVol(mktdata, pname='Portfolio')    

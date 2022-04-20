@@ -1,21 +1,14 @@
 # Examples
-import pandas as pd
-
 import azapy as az
 
 #=============================================================================
 # Collect some market data
-sdate = pd.to_datetime("2012-01-01")
-edate = pd.to_datetime('today')
-symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
-
 mktdir = "../../MkTdata"
+sdate = "2012-01-01"
+edate = "2021-07-27"
+symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 
-# force=True read directly from alphavantage
-# force=False read first from local directory, if data does not exists, 
-#             read from alphavantage
-mktdata = az.readMkT(symb, dstart = sdate, dend = edate, 
-                     dir=mktdir, force=False) 
+mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
 # Compute optimal portfolio with full Kelly criterion
@@ -35,7 +28,7 @@ p4.port_drawdown(fancy=True)
 p4.port_perf(fancy=True)
 p4.port_annual_returns()
 p4.port_monthly_returns()
-p4.port_period_returns()
+p4.port_period_returns().round(3)
 p4.get_nshares()
 p4.get_account(fancy=True)
 

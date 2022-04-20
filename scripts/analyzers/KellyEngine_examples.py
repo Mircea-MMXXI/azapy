@@ -1,22 +1,18 @@
 # Examples
 import pandas as pd
 import time
-
 import azapy as az
 
 #=============================================================================
 # Collect some market data
-sdate = pd.to_datetime("2012-01-01")
-edate = pd.to_datetime('today')
+mktdir = "../../MkTdata"
+sdate = "2012-01-01"
+edate = "2021-07-27"
 symb = ['PSJ', 'SPY', 'XLV', 'VGT', 'ONEQ']
 
 mktdir = "../../MkTdata"
 
-# force=True read directly from alphavantage
-# force=False read first from local directory, if data does not exists, 
-#             read from alphavantage
-mktdata = az.readMkT(symb, dstart = sdate, dend = edate, 
-                     dir=mktdir, force=False) 
+mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
 # set approximation level

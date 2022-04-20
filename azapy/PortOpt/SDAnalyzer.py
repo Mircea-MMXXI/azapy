@@ -4,7 +4,7 @@ import scipy.sparse as sps
 import warnings
 
 from ._RiskAnalyzer import _RiskAnalyzer
-from ._solvers import _socp_solver
+from ._solvers import _socp_solver, _tol_cholesky
 
 class SDAnalyzer(_RiskAnalyzer):
     """
@@ -32,20 +32,20 @@ class SDAnalyzer(_RiskAnalyzer):
         mktdata : pandas.DataFrame, optional
             Historic daily market data for portfolio components in the format
             returned by azapy.mktData function. The default is None.
-        colname : string, optional
+        colname : str, optional
             Name of the price column from mktdata used in the weights 
             calibration. The default is 'adjusted'.
-        freq : string, optional
+        freq : str, optional
             Rate of returns horizon in number of business day. it could be 
             'Q' for quarter or 'M' for month. The default is 'Q'.
         hlength : float, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
             The default is 3.25 years.
-        calendar : np.busdaycalendar, optional
-            Business days calendar. If is it None then the calendar will be set
-            to NYSE business calendar. 
-            The default is None.
+        calendar : numpy.busdaycalendar, optional
+            Business days calendar. If is it `None` then the calendar will 
+            be set to NYSE business calendar. 
+            The default is `None`.
         rtype : string, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure for a fixed 
@@ -56,11 +56,11 @@ class SDAnalyzer(_RiskAnalyzer):
                 "MinRisk" : optimal portfolio with minimum dispersion (risk) 
                 value.\n
                 "InvNRisk" : optimal portfolio with the same dispersion (risk)
-                value as equal weighted portfolio. 
+                value as equal weighted portfolio. \n
                 "RiskAverse" : optimal portfolio for a fixed value of risk 
                 aversion coefficient.
             The default is "Sharpe". 
-        method : string, optional
+        method : str, optional
             Quadratic programming numerical method. Could be 'ecos' or
             'cvxopt'. The default is 'ecos'.
             
@@ -102,8 +102,13 @@ class SDAnalyzer(_RiskAnalyzer):
         irow = [0] * nn + list(range(1, nn + 1)) + [nn + 1]
         data = list(-self.muk * d) + [-1.] * (nn + 1)
         dd = sps.coo_matrix((data, (irow, icol)), shape=(nn + 2, nn + 1))
-        pp = np.concatenate((-la.cholesky(P, overwrite_a=True), 
-                             np.zeros((nn, 1))), axis=1)
+        
+        if any(np.diag(P) < _tol_cholesky):
+            pp = np.concatenate((-la.sqrtm(P), np.zeros((nn, 1))), axis=1)
+        else:
+            pp = np.concatenate((-la.cholesky(P, overwrite_a=True), 
+                                 np.zeros((nn, 1))), axis=1)
+            
         G = sps.vstack( [dd, pp])
         
         # biuld dims
@@ -123,7 +128,7 @@ class SDAnalyzer(_RiskAnalyzer):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * nn)
 
         # Optimal weights
@@ -155,8 +160,13 @@ class SDAnalyzer(_RiskAnalyzer):
        
         # biuld G
         dd = sps.block_diag((np.diag([-1.] * nn), [0.,-1.]))
-        pp = np.concatenate((-la.cholesky(P, overwrite_a=True), 
-                             np.zeros((nn,2))), axis=1)
+        
+        if any(np.diag(P) < _tol_cholesky):
+            pp = np.concatenate((-la.sqrtm(P), np.zeros((nn,2))), axis=1)
+        else:
+            pp = np.concatenate((-la.cholesky(P, overwrite_a=True), 
+                                 np.zeros((nn,2))), axis=1)
+                
         G = sps.vstack([dd, pp])
         
         # biuld dims
@@ -177,7 +187,7 @@ class SDAnalyzer(_RiskAnalyzer):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * nn)
 
         t = res['x'][-2]
@@ -211,8 +221,13 @@ class SDAnalyzer(_RiskAnalyzer):
 
         # build G
         dd = np.diag([-1.] * nn + [0.])
-        pp = np.concatenate((-la.cholesky(P, overwrite_a=True), 
-                             np.zeros((nn, 1))), axis=1)
+        
+        if any(np.diag(P) < _tol_cholesky):
+            pp = np.concatenate((-la.sqrtm(P), np.zeros((nn, 1))), axis=1)
+        else:
+            pp = np.concatenate((-la.cholesky(P, overwrite_a=True), 
+                                 np.zeros((nn, 1))), axis=1)
+            
         G = sps.vstack([dd, pp])
 
         # build h
@@ -232,7 +247,7 @@ class SDAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * nn)
  
         t = res['x'][-1]
@@ -268,7 +283,11 @@ class SDAnalyzer(_RiskAnalyzer):
         dd = np.diag([-1.] * nn)
         # cone
         dd.resize((nn + 1, nn))
-        G = sps.vstack([dd, -la.cholesky(P, overwrite_a=True)])
+        
+        if any(np.diag(P) < _tol_cholesky):
+            G = sps.vstack([dd, -la.sqrtm(P)])
+        else:
+            G = sps.vstack([dd, -la.cholesky(P, overwrite_a=True)])
         
         # build h
         h_data = [0.] * nn + [self.risk] + [0.] * nn
@@ -287,7 +306,7 @@ class SDAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * nn)
 
         # optimal weights
@@ -317,8 +336,13 @@ class SDAnalyzer(_RiskAnalyzer):
         
         # build G
         dd = np.diag([-1.] * (nn + 1))
-        pp = np.concatenate((-la.cholesky(P, overwrite_a=True), 
-                             np.zeros((nn,1))), axis=1)
+        
+        if any(np.diag(P) < _tol_cholesky):
+            pp = np.concatenate((-la.sqrtm(P), np.zeros((nn,1))), axis=1)
+        else:
+            pp = np.concatenate((-la.cholesky(P, overwrite_a=True), 
+                                 np.zeros((nn,1))), axis=1)
+            
         G = sps.vstack([dd, pp])
         
         # build dims
@@ -338,7 +362,7 @@ class SDAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * nn)
         
         # Optimal weights

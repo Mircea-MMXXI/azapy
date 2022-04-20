@@ -4,7 +4,8 @@ import scipy.sparse as sps
 import warnings
 
 from ._RiskAnalyzer import _RiskAnalyzer
-from ._solvers import _socp_solver, _qp_solver
+from ._solvers import _socp_solver, _qp_solver, _tol_cholesky
+
 
 class MVAnalyzer(_RiskAnalyzer):
     """
@@ -32,21 +33,21 @@ class MVAnalyzer(_RiskAnalyzer):
         mktdata : pandas.DataFrame, optional
             Historic daily market data for portfolio components in the format
             returned by azapy.mktData function. The default is None.
-        colname : string, optional
+        colname : str, optional
             Name of the price column from mktdata used in the weights 
             calibration. The default is 'adjusted'.
-        freq : string, optional
+        freq : str, optional
             Rate of returns horizon in number of business day. it could be 
             'Q' for quarter or 'M' for month. The default is 'Q'.
         hlength : float, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
             The default is 3.25 years.
-        calendar : np.busdaycalendar, optional
-            Business days calendar. If is it None then the calendar will be set
-            to NYSE business calendar.
-            The default is None.
-        rtype : string, optional
+        calendar : numpy.busdaycalendar, optional
+            Business days calendar. If is it `None` then the calendar will be 
+            set to NYSE business calendar.
+            The default is `None`.
+        rtype : str, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure for a fixed 
                 vale of expected rate of return. \n
@@ -56,7 +57,7 @@ class MVAnalyzer(_RiskAnalyzer):
                 "MinRisk" : optimal portfolio with minimum dispersion (risk) 
                 value.\n
                 "InvNRisk" : optimal portfolio with the same dispersion (risk)
-                value as equal weighted portfolio. 
+                value as equal weighted portfolio. \n
                 "RiskAverse" : optimal portfolio for a fixed value of risk 
                 aversion coefficient.
             The default is "Sharpe". 
@@ -115,7 +116,7 @@ class MVAnalyzer(_RiskAnalyzer):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * nn)
  
         # Optimal weights
@@ -126,7 +127,7 @@ class MVAnalyzer(_RiskAnalyzer):
         # min variance
         self.primary_risk_comp = np.array([self.risk])
         # min volatility
-        self.secondary_risk_comp = np.array([np.sqrt(self.risk)])
+        self.secondary_risk_comp = np.array([np.sqrt(np.abs(self.risk))])
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
         
@@ -149,7 +150,12 @@ class MVAnalyzer(_RiskAnalyzer):
         dd = np.diag([-1.] * (nn + 1))
         # cone
         xx = sps.coo_matrix(([-1.], ([0], [nn])), shape=(1, nn + 1))
-        pp = sps.block_diag((-la.cholesky(P, overwrite_a=True), [-1.]))
+        
+        if any(np.diag(P) < _tol_cholesky):
+            pp = sps.block_diag((-la.sqrtm(P), [-1.]))
+        else:
+            pp = sps.block_diag((-la.cholesky(P, overwrite_a=True), [-1.]))
+            
         G = sps.vstack([dd, xx, pp])
         
         # biuld dims
@@ -169,7 +175,7 @@ class MVAnalyzer(_RiskAnalyzer):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * nn)
  
         t = res['x'][-1]
@@ -210,8 +216,13 @@ class MVAnalyzer(_RiskAnalyzer):
         # cone
         xx = sps.coo_matrix(([sq2, sq2], ([0, 0], [nn, nn + 1])), 
                             shape=(1, nn + 2))
-        pp = sps.block_diag((-la.cholesky(P, overwrite_a=True), 
-                             np.diag([sq2, sq2])))
+        
+        if any(np.diag(P) < _tol_cholesky):
+            pp = sps.block_diag((-la.sqrtm(P), np.diag([sq2, sq2])))
+        else:
+            pp = sps.block_diag((-la.cholesky(P, overwrite_a=True), 
+                                  np.diag([sq2, sq2])))
+            
         G = sps.vstack([dd, xx, pp])
         
         # build h
@@ -232,7 +243,7 @@ class MVAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * nn)
   
         t = res['x'][-1]
@@ -269,7 +280,11 @@ class MVAnalyzer(_RiskAnalyzer):
         dd = np.diag([-1.] * nn)
         # cone
         dd.resize((nn + 1, nn))
-        G = sps.vstack([dd, -la.cholesky(P, overwrite_a=True)])
+        
+        if any(np.diag(P) < _tol_cholesky):
+            G = sps.vstack([dd, -la.sqrtm(P)])
+        else:
+            G = sps.vstack([dd, -la.cholesky(P, overwrite_a=True)])
         
         # build h
         h_data = [0.] * nn + [np.sqrt(self.risk)] + [0.] * nn
@@ -288,7 +303,7 @@ class MVAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * nn)
         
         # optimal weights
@@ -332,7 +347,7 @@ class MVAnalyzer(_RiskAnalyzer):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * nn)
         
         # Optimal weights

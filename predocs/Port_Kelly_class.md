@@ -42,10 +42,10 @@ List of symbols of portfolio components. All symbols
 should be present in `mktdata`. If set to `None` the `symb` will be
 set to the full set of symbols present in `mktdata`. The default
 is `None`.
-* `sdate` : `datetime`;
+* `sdate` : date like;
 Start date for historical simulation. If set to `None` the `sdate` will
 be set to the earliest date in `mktdata`. The default is `None`.
-* `edate` : `datetime`;
+* `edate` : date like;
 End date for historical simulation. Must be
 greater than  `sdate`. If it is `None` then `edate` will be set
 to the latest date in `mktdata`. The default is `None`.

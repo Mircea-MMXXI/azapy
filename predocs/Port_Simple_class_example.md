@@ -5,22 +5,16 @@
 ```
 ## Set from market data (as returned by azapy.readMkT)
 import pandas as pd
-
 import azapy as az
 
 #=============================================================================
 # Collect some market data
-sdate = pd.to_datetime("2012-01-01")
-edate = pd.to_datetime('today')
-symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
-
 mktdir = "../../MkTdata"
+sdate = "2012-01-01"
+edate = 'today'
+symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 
-# force=True read directly from alphavantage
-# force=False read first from local directory, if data does not exists,
-#             read from alphavantage
-mktdata = az.readMkT(symb, dstart = sdate, dend = edate,
-                     dir=mktdir, force=False)
+mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
 # define some weights
@@ -43,21 +37,16 @@ p1.port_monthly_returns()
 ```
 ## Set from a list of pd.DataFrame of time series
 import pandas as pd
-
 import azapy as az
 
 #=============================================================================
 # Collect some market data
-sdate = pd.to_datetime("2012-01-01")
-edate = pd.to_datetime('today')
+mktdir = "../../MkTdata"
+sdate = "2012-01-01"
+edate = 'today'
 symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
 
-mktdir = "../../MkTdata"
-
-# force=True read from alphavantage server
-# force=False read from local directory if data exists
-mktdata = az.readMkT(symb, dstart = sdate, dend = edate,
-                     dir=mktdir, force=False)
+mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 # transform mktdata into a list of DataFrame's containing close prices
 lmktdata = []
@@ -65,7 +54,7 @@ for k, v in mktdata.groupby(by='symbol'):
     lmktdata.append(v.pivot(columns='symbol', values='close'))
 
 #=============================================================================
-# defines some weights
+# define some weights
 ww = pd.Series(1./len(symb), index=symb)
 
 #=============================================================================
