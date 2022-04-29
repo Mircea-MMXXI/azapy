@@ -495,6 +495,9 @@ class _RiskAnalyzer:
         """
         if data is not None:
             data['saveto'] = saveto
+            
+            data['options'] = options
+                
             if fig_type == 'RR_risk':
                 self._plot_f1(data)
             else:
