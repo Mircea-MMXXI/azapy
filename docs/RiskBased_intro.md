@@ -30,13 +30,14 @@ strategies based on the following dispersion measures:
 (mixture of SMCR's),
 * MAD - Mean Absolute Deviation and its generalization mMAD
 (mixture of high order MAD's),
-* MV - Mean Variance,
-* SD - Standard Deviation,
 * LSSD - Lower Semi-Standard Deviation and its generalization mLSSD
 (mixture of high order LSSD'm),
+* MV - Mean Variance,
+* SD - Standard Deviation,
 * GINI - Gini ratio,
 * SMGINI - Second Moment Gini dispersion measure,
 * Omega - Omega ratio.
+* BTSD - Below Target Standard Deviation
 
 In each case several optimization strategies are implemented. To
 understand them better, let's look at a generic example of portfolio frontiers
@@ -191,9 +192,9 @@ In the code this optimization strategy is designated by setting
 `rtype='RiskAverse'`.
 
 
-**azapy** package covers, 9 risk-based dispersion measures $\times$ 6
+**azapy** package covers, 10 risk-based dispersion measures $\times$ 6
 optimization strategies,
-in total 54 risk-based portfolio optimization strategies.
+in total 60 risk-based portfolio optimization strategies.[^strat]
 
 The natural question that arises is: which one is the best?
 
@@ -246,5 +247,10 @@ In the original definition $\rho$ is the portfolio volatility $\sigma$
 In our presentation we use a generalization of Sharpe ratio where the
 volatility is replaced by the prevailing dispersion
 measure.
+
+[^strat]: Not all strategies are independent. For example `'Sharpe'` and
+`'Sharpe2'` produce identical result (up to numerical precision) although
+they have different numerical implementations. Also there are overlaps between
+`MV` and `SD` based strategies, *etc.*. 
 
 [^apikey]: Some of the market data providers require a valid API key.

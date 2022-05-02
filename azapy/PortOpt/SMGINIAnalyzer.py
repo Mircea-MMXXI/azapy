@@ -2,10 +2,10 @@ import numpy as np
 import scipy.sparse as sps
 import warnings
 
-from ._RiskAnalyzer import _RiskAnalyzer
+from .GINIAnalyzer import GINIAnalyzer
 from ._solvers import _socp_solver
 
-class SMGINIAnalyzer(_RiskAnalyzer):
+class SMGINIAnalyzer(GINIAnalyzer):
     """
     SMGINI dispersion measure based portfolio optimization.
 
@@ -67,14 +67,12 @@ class SMGINIAnalyzer(_RiskAnalyzer):
         -------
         The object.
         """
-        self.drate = None
-        self.nn2 = None
-        super().__init__(mktdata, colname, freq, hlength, calendar, rtype)
-
-        socp_methods = ['ecos', 'cvxopt']
-        if not method in socp_methods:
-            raise ValueError(f"method must be one of {socp_methods}")
-        self.method = method
+        super().__init__(mktdata, colname, freq, hlength, calendar, rtype, 
+                         method)
+        
+    
+    def _set_method(self, method):
+        self._set_socp_method(method)
 
 
     def _risk_calc(self, prate, alpha):
@@ -85,32 +83,6 @@ class SMGINIAnalyzer(_RiskAnalyzer):
         # status, GINI^2, GINI^2
         return 0, gini2, gini2
 
-
-    def set_rrate(self, rrate):
-        """
-        Sets the MkT Data.
-
-        Parameters
-        ----------
-        rrate : pandas.DataFrame
-            Portfolio components historical rates of returns, where the
-            columns are "date", "symbol1", "symbol2", etc.
-        Returns
-        -------
-        None.
-        """
-        self.nn, self.mm = rrate.shape
-        self.muk = rrate.mean()
-        self.rrate = rrate.copy()
-
-        self.nn2 = int(self.nn * (self.nn - 1) / 2)
-        yy = []
-        for m in range(self.mm):
-            x = self.rrate.iloc[:,m]
-            yy.append([x[i] - x[j] \
-                       for i in range(self.nn - 1) \
-                       for j in range(i + 1, self.nn)])
-        self.drate = np.concatenate(yy)
 
     def _risk_min(self, d=1):
         # Order of variables (mm - no of symb, nn - no of observations)
@@ -414,6 +386,7 @@ class SMGINIAnalyzer(_RiskAnalyzer):
         self.secondary_risk_comp = np.array([self.risk])
 
         return self.ww
+
 
     def _risk_averse(self):
         # Order of variables (mm - no of symb, nn - no of observations)

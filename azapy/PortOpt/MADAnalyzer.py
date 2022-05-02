@@ -76,11 +76,7 @@ class MADAnalyzer(_RiskAnalyzer):
         """
         super().__init__(mktdata, colname, freq, hlength, calendar, rtype)
 
-        lp_methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs',
-                       'interior-point', 'glpk', 'cvxopt']
-        if not method in lp_methods:
-            raise ValueError(f"method must be one of {lp_methods}")
-        self.method = method
+        self._set_method(method)
 
         self.coef = np.array(coef)
         if any(self.coef <= 0.):
@@ -91,6 +87,11 @@ class MADAnalyzer(_RiskAnalyzer):
         self.coef = self.coef / np.sum(self.coef)
 
         self.alpha = np.full(self.ll, self.ll)
+        
+        
+    def _set_method(self, method):
+        self._set_lp_method(method)
+
 
     def getRisk(self, ww, rrate=None):
         """
@@ -125,6 +126,7 @@ class MADAnalyzer(_RiskAnalyzer):
         self.ww = w
 
         return self.risk
+
 
     def _risk_calc_(self, prate):
         # mu = np.mean(prate)
@@ -232,6 +234,7 @@ class MADAnalyzer(_RiskAnalyzer):
 
         return self.ww
 
+
     def _sharpe_max(self):
         # Order of variables:
         # w <- [0:mm]
@@ -279,6 +282,7 @@ class MADAnalyzer(_RiskAnalyzer):
         A_icol += [mm + l * (nn + 1) for l in range(ll)]
         A_irow += [ll] * ll
         A_data += list(self.coef)
+        
         A_icol += list(range(mm)) + [mm + ll * (nn + 1)]
         A_irow += [ll + 1] * (mm + 1)
         A_data += [1.] * mm + [-1.]
@@ -315,6 +319,7 @@ class MADAnalyzer(_RiskAnalyzer):
         self.RR = -res['pcost'] / t + self.mu
 
         return self.ww
+
 
     def _sharpe_inv_min(self):
         # Order of variables:
@@ -403,6 +408,7 @@ class MADAnalyzer(_RiskAnalyzer):
 
         return self.ww
 
+
     def _rr_max(self):
         # Order of variables:
         # w <- [0:mm]
@@ -480,6 +486,7 @@ class MADAnalyzer(_RiskAnalyzer):
         self.RR = -res['pcost']
 
         return self.ww
+
 
     def _risk_averse(self):
         # Order of variables:

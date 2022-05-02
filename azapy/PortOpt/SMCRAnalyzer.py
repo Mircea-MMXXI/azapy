@@ -74,13 +74,12 @@ class SMCRAnalyzer(CVaRAnalyzer):
         The object.
 
         """
-        super().__init__(alpha, coef, 
-                         mktdata, colname, freq, hlength, calendar, rtype)
+        super().__init__(alpha, coef, mktdata, 
+                         colname, freq, hlength, calendar, rtype, method)
         
-        socp_methods = ['ecos', 'cvxopt']
-        if not method in socp_methods:
-            raise ValueError(f"method must be one of {socp_methods}")
-        self.method = method
+        
+    def _set_method(self, method):
+        self._set_socp_method(method)
 
 
     def _risk_calc(self, prate, alpha):
@@ -126,6 +125,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         HMCR = res['pcost']
         
         return self.status, HMVaR, HMCR
+    
     
     def _risk_min(self, d=1):
         # Order of variables:
@@ -224,6 +224,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
 
         return self.ww
     
+    
     def _sharpe_max(self):
         # Order of variables:
         # w <- [0:mm] 
@@ -321,6 +322,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
              for l in range(ll)]
         
         return self.ww
+    
     
     def _sharpe_inv_min(self):
         # Order of variables:
@@ -424,6 +426,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         
         return self.ww
     
+    
     def _rr_max(self):
         # Order of variables:
         # w <- [0:mm] 
@@ -516,6 +519,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         self.ww.shape = mm
 
         return self.ww
+
 
     def _risk_averse(self):
         # Order of variables:

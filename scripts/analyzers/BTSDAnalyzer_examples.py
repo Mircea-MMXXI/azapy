@@ -1,8 +1,3 @@
-<a name="OmegaAnalyzer_class_example"></a>
-
-### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/OmegaAnalyzer_examples.py)
-
-```
 import numpy as np
 import pandas as pd
 import azapy as az
@@ -17,20 +12,20 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Set the Omega parameter alpha0
+# Set the BTSD parameter alpha0
 alpha0 = 0.01
 
 #=============================================================================
 # Compute Sharpe optimal portfolio
 # build the analyzer object
-cr1 = az.OmegaAnalyzer(alpha0, mktdata)
+cr1 = az.BTSDAnalyzer(alpha0, mktdata)
 # computes Sharpe weights for 0 risk-free rate
 ww1 = cr1.getWeights(mu=0.)
 # print portfolio characteristics
 # primary risk = [Delta-risk] (redundant)
 # secondary risk = [Delta-risk] (redundant)
 # risk = Delta-risk
-# Share = Omega ratio
+# Share = BTSD-Sharpe ratio
 RR = cr1.RR
 risk = cr1.risk
 prim = cr1.primary_risk_comp.copy()
@@ -61,7 +56,7 @@ print(f"Test for weights computation\n {ww_comp}")
 #=============================================================================
 # Frontiers evaluations
 print("\nFrontiers evaluations\n")
-opt = {'title': "Omega Port", 'tangent': True}
+opt = {'title': "BTSD Port", 'tangent': True}
 print("\n rate of returns vs risk representation")
 rft = cr1.viewFrontiers(musharpe=0, randomport=100, options=opt)
 print("\n Sharpe vs rate of returns representation")
@@ -70,7 +65,7 @@ rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR')
 #=============================================================================
 # Sharpe vs. Sharpe2
 # first Sharpe (default rtype)
-cr1 = az.OmegaAnalyzer(alpha0, mktdata)
+cr1 = az.BTSDAnalyzer(alpha0, mktdata)
 ww1 = cr1.getWeights(mu=0.)
 RR1 = cr1.RR
 risk1 = cr1.risk
@@ -78,7 +73,7 @@ prim1 = cr1.primary_risk_comp.copy()
 seco1 = cr1.secondary_risk_comp.copy()
 sharpe1 = cr1.sharpe
 # second Sharpe2
-cr2 = az.OmegaAnalyzer(alpha0, mktdata)
+cr2 = az.BTSDAnalyzer(alpha0, mktdata)
 ww2 = cr2.getWeights(mu=0., rtype="Sharpe2")
 RR2 = cr2.RR
 risk2 = cr2.risk
@@ -110,8 +105,9 @@ print(f"Sharpe comp\n {sharpe_comp}")
 # %timeit cr2.getWeights(mu=0., rtype='Sharpe2')
 
 #=============================================================================
+
 # Compute InvNrisk optimal portfolio
-cr1 = az.OmegaAnalyzer(alpha0, mktdata)
+cr1 = az.BTSDAnalyzer(alpha0, mktdata)
 # compute the weights of InvNrisk
 ww1 = cr1.getWeights(mu=0., rtype="InvNrisk")
 RR1 = cr1.RR
@@ -134,7 +130,7 @@ print(f"risk comp\n {risk_comp}")
 
 #=============================================================================
 # Compute MinRisk optimal portfolio
-cr1 = az.OmegaAnalyzer(alpha0, mktdata)
+cr1 = az.BTSDAnalyzer(alpha0, mktdata)
 # compute the MinRisk portfolio
 ww1 = cr1.getWeights(mu=0., rtype="MinRisk")
 
@@ -149,14 +145,14 @@ print(f"weights comp\n {ww_comp}")
 #=============================================================================
 # Compute RiskAverse optimal portfolio
 # first compute the Sharpe portfolio
-cr1 = az.OmegaAnalyzer(alpha0, mktdata)
+cr1 = az.BTSDAnalyzer(alpha0, mktdata)
 ww1 = cr1.getWeights(mu=0.)
 sharpe = cr1.sharpe
 risk = cr1.risk
 
 # compute RiskAverse portfolio for Lambda=sharpe
 Lambda = sharpe
-cr2 = az.OmegaAnalyzer(alpha0, mktdata)
+cr2 = az.BTSDAnalyzer(alpha0, mktdata)
 ww2 = cr2.getWeights(mu=Lambda, rtype='RiskAverse')
 
 # comparison - they should be very close
@@ -167,16 +163,16 @@ print(f"risk comp\n {risk_comp}")
 ww_comp = pd.DataFrame({'ww1': ww1, 'ww2': ww2, 'diff': ww1-ww2})
 print(f"weigths:\n {ww_comp}")
 
+
 #=============================================================================
-# # speed comparisons for different LP methods
+# # speed comparisons for different SOCP methods
 # # may take some time to complete
 # # please uncomment the lines below
 # import time
-# methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 'glpk', 'cvxopt',  
-#             'interior-point' ]
+# methods = ['ecos', 'cvxopt']
 # xta = {}
 # for method in methods:
-#     crrx = az.OmegaAnalyzer(alpha0, mktdata, method=method)
+#     crrx = az.BTSDAnalyzer(alpha0, mktdata, method=method)
 #     toc = time.perf_counter()
 #     wwx = crrx.getWeights(mu=0.)
 #     tic = time.perf_counter() - toc
@@ -188,7 +184,7 @@ print(f"weigths:\n {ww_comp}")
 
 #=============================================================================
 # Example of rebalancing positions
-cr1 = az.OmegaAnalyzer(alpha0, mktdata)
+cr1 = az.BTSDAnalyzer(alpha0, mktdata)
 
 # existing positions and cash
 ns = pd.Series(100, index=symb)
@@ -197,8 +193,3 @@ cash = 0.
 # new positions and rolling info
 pos = cr1.getPositions(mu=0., rtype='Sharpe', nshares=ns, cash=0.)
 print(f" New position report\n {pos}")
-```
-
-[TOP](#TOP)
-
----

@@ -1,7 +1,7 @@
 
-## Port_Omega class
+## Port_BTSD class
 
-Out-of-Sample (back testing) simulation of Omega optimal portfolio periodically
+Out-of-Sample (back testing) simulation of BTSD optimal portfolio periodically
 rebalanced.
 
 
@@ -27,8 +27,8 @@ other method.
 ### Constructor
 
 ```
-Port_Omega(mktdata, symb=None, sdate=None, edate=None, col_price='close',
-           col_divd='divd', col_ref='adjusted', col_calib='adjusted',
-           pname='Port', pcolname=None, capital=100000, schedule=None,
-           freq='Q', noffset=-3, fixoffset=-1, calendar=None)
+Port_BTSD(mktdata, symb=None, sdate=None, edate=None, col_price='close',
+          col_divd='divd', col_ref='adjusted', col_calib='adjusted',
+          pname='Port', pcolname=None, capital=100000, schedule=None,
+          freq='Q', noffset=-3, fixoffset=-1, calendar=None)
 ```

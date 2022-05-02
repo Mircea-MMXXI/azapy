@@ -19,7 +19,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
         * set_rtype
         * set_random_seed
     """
-    def __init__(self, mu0 = 0., 
+    def __init__(self, alpha=0., 
                  mktdata=None, colname='adjusted', freq='Q', 
                  hlength=3.25, calendar=None, 
                  rtype='Sharpe', method='ecos'):
@@ -28,7 +28,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
 
         Parameters
         ----------
-        mu0 : float, optional
+        alpha : float, optional
             Omega threshold. The default is 0.
         mktdata : pandas.DataFrame, optional
             Historic daily market data for portfolio components in the format
@@ -73,13 +73,13 @@ class OmegaAnalyzer(_RiskAnalyzer):
         """
         super().__init__(mktdata, colname, freq, hlength, calendar, rtype)
         
-        lp_methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 
-                       'interior-point', 'glpk', 'cvxopt']
-        if not method in lp_methods:
-            raise ValueError(f"method must be one of {lp_methods}")
-        self.method = method
+        self._set_method(method)
+        self.alpha = [alpha]  
         
-        self.alpha = [mu0]
+        
+    def _set_method(self, method):
+        self._set_lp_method(method)
+        
         
     def viewFrontiers(self, efficient=20, inefficient=20, musharpe=None,
                       component=True, randomport=20, fig_type='RR_risk',
@@ -142,24 +142,6 @@ class OmegaAnalyzer(_RiskAnalyzer):
                               fig_type=fig_type, options=options, 
                               saveto=saveto, data=data)
         
-    def set_rrate(self, rrate):
-        """
-        Sets portfolio components historical rates of returns in the format 
-        "date", "symbol1", "symbol2", etc. 
-
-        Parameters
-        ----------
-        rrate : pandas.DataFrame
-            Portfolio components historical rates of returns in the format 
-           "date", "symbol1", "symbol2", etc.
-            It will overwrite the values set by the constructor.
-        Returns
-        -------
-        None.
-        """
-        self.nn, self.mm = rrate.shape
-        self.muk = rrate.mean()
-        self.rrate = rrate
         
     def _risk_calc(self, prate, alpha):
         rr = alpha - prate
@@ -167,6 +149,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
         rho = np.mean(rr)
         # status, rho, rho
         return 0, rho, rho
+    
     
     def _risk_min(self, d=1):
         # Order of variables
@@ -227,7 +210,8 @@ class OmegaAnalyzer(_RiskAnalyzer):
         
         return self.ww
     
-    def _sharpe_inv_min(self):
+    
+    def _sharpe_max(self):
         # Order of variables:
         # w <- [0:mm] 
         # s <- [mm : mm + nn]
@@ -245,7 +229,8 @@ class OmegaAnalyzer(_RiskAnalyzer):
         G_irow = [k  for k in range(nn) for _ in range(mm)] \
             + list(range(nn)) * 2 
         G_data = list(np.ravel(-self.rrate)) + [-1.] * nn \
-            + [self.mu] * nn 
+            + [self.alpha[0]] * nn 
+            
         G_icol += list(range(mm + nn + 1))   
         G_irow += list(range(nn, nn + mm + nn + 1))
         G_data += [-1.] * (mm + nn + 1)
@@ -290,7 +275,8 @@ class OmegaAnalyzer(_RiskAnalyzer):
         
         return self.ww
         
-    def _sharpe_max(self):
+    
+    def _sharpe_inv_min(self):
         # Order of variables:
         # w <- [0:mm] 
         # s <- [mm : mm + nn]
@@ -308,7 +294,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
         G_irow = [k  for k in range(nn) for _ in range(mm)] \
             + list(range(nn)) * 2 
         G_data = list(np.ravel(-self.rrate)) + [-1.] * nn \
-            + [self.mu] * nn 
+            + [self.alpha[0]] * nn
         G_icol += list(range(mm + nn + 1))   
         G_irow += list(range(nn, nn + mm + nn + 1))
         G_data += [-1.] * (mm + nn + 1)
@@ -353,6 +339,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
         self.secondary_risk_comp = np.array([self.risk])
         
         return self.ww
+    
     
     def _rr_max(self):
         # Order of variables:
@@ -408,6 +395,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
         self.secondary_risk_comp = np.array([self.risk])
         
         return self.ww
+    
     
     def _risk_averse(self):
         # Order of variables

@@ -1,17 +1,18 @@
 
-# Omega optimal portfolios <a name="TOP"></a>
+# BTSD optimal portfolios <a name="TOP"></a>
 
-Omega ratio was introduced as an alternative to Sharpe ratio. It can be
-defined as the generalized Sharpe ratio
-relative to Delta-risk measure:
+BTSD stands for Below target Standard Deviation. It is inspired by the
+Omega ratio model where  Delta-risk measure is defined in
+terms of $L_2$ norm rather than $L_1$,*i.e.*,
 
 \begin{equation*}
-  \delta_{\alpha_0} = \frac{1}{N} \sum_{i=1}^N \left( \alpha_0 - r_i \right)^+,
+  \delta_{\alpha_0} =
+  \left(\frac{1}{N} \sum_{i=1}^N \left[ \left( \alpha_0 - r_i \right)^+\right]^2\right)^{1/2},
 \end{equation*}
 
 where:
 
-* $\alpha_0$ is the Omega threshold (it may be interpreted as a risk-free rate),
+* $\alpha_0$ is the BTSD threshold (it may be interpreted as a risk-free rate),
 * $N$ is the number of historical observations,
 * $r_i$ is the i-th observation of portfolio historical rate of returns.
 * $(\cdot)^+$ stands for positive part (*i.e.* $\max\{0, \cdot\}$).
@@ -31,6 +32,6 @@ The following portfolio optimization strategies are available:
 
 There are 2 support classes:
 
-* **OmegaAnalyzer** : computes the portfolio weights and performs in-sample
+* **BTSDAnalyzer** : computes the portfolio weights and performs in-sample
 analysis,
-* **Port_Omega** : performs portfolio back testing, out-of-sample analysis.
+* **Port_BTSD** : performs portfolio back testing, out-of-sample analysis.

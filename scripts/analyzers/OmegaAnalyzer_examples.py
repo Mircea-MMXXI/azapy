@@ -13,13 +13,13 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Set the Omega parameter mu0
-mu0 = 0
+# Set the Omega parameter alpha0
+alpha0 = 0.01
 
 #=============================================================================
 # Compute Sharpe optimal portfolio
 # build the analyzer object
-cr1 = az.OmegaAnalyzer(mu0, mktdata)
+cr1 = az.OmegaAnalyzer(alpha0, mktdata)
 # computes Sharpe weights for 0 risk-free rate
 ww1 = cr1.getWeights(mu=0.)
 # print portfolio characteristics
@@ -66,7 +66,7 @@ rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR')
 #=============================================================================
 # Sharpe vs. Sharpe2
 # first Sharpe (default rtype)
-cr1 = az.OmegaAnalyzer(mu0, mktdata)
+cr1 = az.OmegaAnalyzer(alpha0, mktdata)
 ww1 = cr1.getWeights(mu=0.)
 RR1 = cr1.RR
 risk1 = cr1.risk
@@ -74,7 +74,7 @@ prim1 = cr1.primary_risk_comp.copy()
 seco1 = cr1.secondary_risk_comp.copy()
 sharpe1 = cr1.sharpe
 # second Sharpe2
-cr2 = az.OmegaAnalyzer(mu0, mktdata)
+cr2 = az.OmegaAnalyzer(alpha0, mktdata)
 ww2 = cr2.getWeights(mu=0., rtype="Sharpe2")
 RR2 = cr2.RR
 risk2 = cr2.risk
@@ -107,7 +107,7 @@ print(f"Sharpe comp\n {sharpe_comp}")
 
 #=============================================================================
 # Compute InvNrisk optimal portfolio
-cr1 = az.OmegaAnalyzer(mu0, mktdata)
+cr1 = az.OmegaAnalyzer(alpha0, mktdata)
 # compute the weights of InvNrisk
 ww1 = cr1.getWeights(mu=0., rtype="InvNrisk")
 RR1 = cr1.RR
@@ -130,7 +130,7 @@ print(f"risk comp\n {risk_comp}")
 
 #=============================================================================
 # Compute MinRisk optimal portfolio
-cr1 = az.OmegaAnalyzer(mu0, mktdata)
+cr1 = az.OmegaAnalyzer(alpha0, mktdata)
 # compute the MinRisk portfolio
 ww1 = cr1.getWeights(mu=0., rtype="MinRisk")
 
@@ -145,14 +145,14 @@ print(f"weights comp\n {ww_comp}")
 #=============================================================================
 # Compute RiskAverse optimal portfolio
 # first compute the Sharpe portfolio
-cr1 = az.OmegaAnalyzer(mu0, mktdata)
+cr1 = az.OmegaAnalyzer(alpha0, mktdata)
 ww1 = cr1.getWeights(mu=0.)
 sharpe = cr1.sharpe
 risk = cr1.risk
 
 # compute RiskAverse portfolio for Lambda=sharpe
 Lambda = sharpe
-cr2 = az.OmegaAnalyzer(mu0, mktdata)
+cr2 = az.OmegaAnalyzer(alpha0, mktdata)
 ww2 = cr2.getWeights(mu=Lambda, rtype='RiskAverse')
 
 # comparison - they should be very close
@@ -172,7 +172,7 @@ print(f"weigths:\n {ww_comp}")
 #             'interior-point' ]
 # xta = {}
 # for method in methods:
-#     crrx = az.OmegaAnalyzer(mu0, mktdata, method=method)
+#     crrx = az.OmegaAnalyzer(alpha0, mktdata, method=method)
 #     toc = time.perf_counter()
 #     wwx = crrx.getWeights(mu=0.)
 #     tic = time.perf_counter() - toc
@@ -184,7 +184,7 @@ print(f"weigths:\n {ww_comp}")
 
 #=============================================================================
 # Example of rebalancing positions
-cr1 = az.OmegaAnalyzer(mu0, mktdata)
+cr1 = az.OmegaAnalyzer(alpha0, mktdata)
 
 # existing positions and cash
 ns = pd.Series(100, index=symb)

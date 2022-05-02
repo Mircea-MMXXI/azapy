@@ -41,6 +41,7 @@ Risk based portfolio optimizations
    MV_th_doc
    SD_th_doc
    Omega_th_doc
+   BTSD_th_doc
 
 
 Naïve portfolios

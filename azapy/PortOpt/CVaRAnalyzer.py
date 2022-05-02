@@ -76,11 +76,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         """
         super().__init__(mktdata, colname, freq, hlength, calendar, rtype)
         
-        lp_methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 
-                      'interior-point', 'glpk', 'cvxopt']
-        if not method in lp_methods:
-            raise ValueError(f"method must be one of {lp_methods}")
-        self.method = method
+        self._set_method(method)
 
         if len(alpha) != len(coef):
             raise ValueError("alpha and coef must have the same length")
@@ -95,7 +91,11 @@ class CVaRAnalyzer(_RiskAnalyzer):
         self.coef = self.coef / self.coef.sum()
         self.ll = len(alpha)
 
-    
+
+    def _set_method(self, method):
+        self._set_lp_method(method)
+        
+        
     def _risk_calc_lp(self, prate, alpha):
         # lp formulation of CVaR & VaR
         # Order of variables:
@@ -128,6 +128,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
   
         return 0, VaR, CVaR
     
+    
     def _risk_calc(self, prate, alpha):
         # Analytic formulation of CVaR & VaR
         ws = np.sort(prate)
@@ -136,6 +137,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         CVaR = VaR - (ws[ws <= -VaR] + VaR).sum() / nnl
         
         return 0, VaR, CVaR
+    
     
     def _risk_min(self, d=1):
         # Order of variables:
@@ -213,6 +215,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         self.RR = np.dot(self.ww, self.muk)
         
         return self.ww
+    
     
     def _sharpe_max(self):
         # Order of variables:
@@ -295,6 +298,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
             * self.risk for l in range(ll)])
         
         return self.ww
+    
     
     def _sharpe_inv_min(self):
         # Order of variables:
@@ -379,6 +383,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         
         return self.ww
     
+    
     def _rr_max(self):
         # Order of variables:
         # w <- [0:mm] 
@@ -452,6 +457,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         
         return self.ww 
  
+    
     def _risk_averse(self):
         # Order of variables:
         # w <- [0:mm] 

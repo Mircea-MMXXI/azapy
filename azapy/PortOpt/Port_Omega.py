@@ -20,7 +20,7 @@ class Port_Omega(Port_CVaR):
         * port_monthly_returns
         * port_period_returns
     """
-    def set_model(self, mu, mu0=0., rtype='Sharpe', hlength=3.25,
+    def set_model(self, mu, alpha0=0., rtype='Sharpe', hlength=3.25,
                   method='ecos'):
         """
         Sets model parameters and evaluates portfolio time-series.
@@ -34,7 +34,7 @@ class Port_Omega(Port_CVaR):
                 "Risk" : `mu` is the targeted expected rate of returns \n
                 "MinRisk" and "InvNrisk" : `mu` is ignored \n
                 "RiskAverse" : `mu` is the Lambda risk aversion coefficient.
-        mu0 : float, optional
+        alpha0 : float, optional
             Omega threshold rate (e.g. risk-free rate). The default is 0.
         rtype : str, optional
             Optimization type. Possible values \n
@@ -66,12 +66,9 @@ class Port_Omega(Port_CVaR):
             The portfolio time-series in the format "date", "pcolname".
         """
         self._set_rtype(rtype)
-        self.alpha = [mu0]
+        self.alpha = [alpha0]
         self.coef = [1.]
-        if self.rtype == 'Sharpe':
-            self.mu = mu0
-        else:
-            self.mu = mu
+        self.mu = mu
         self.hlength = hlength
         self._set_method(method)
 

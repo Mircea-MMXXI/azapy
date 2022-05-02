@@ -72,12 +72,11 @@ class LSSDAnalyzer(MADAnalyzer):
         The object.
         """
         super().__init__(coef, mktdata, colname, freq, hlength, calendar,
-                         rtype)
+                         rtype, method)
         
-        socp_methods = ['ecos', 'cvxopt']
-        if not method in socp_methods:
-            raise ValueError(f"method must be one of {socp_methods}")
-        self.method = method
+        
+    def _set_method(self, method):
+        self._set_socp_method(method)
         
         
     def _risk_calc_(self, prate):

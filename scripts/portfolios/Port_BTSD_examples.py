@@ -1,7 +1,4 @@
-
-### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_Omega_examples.py)
-
-```
+# Examples
 import time
 import azapy as az
 
@@ -15,10 +12,10 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Compute Omega-Sharpe optimal portfolio
+# Compute BTSD-Sharpe optimal portfolio
 alpha0 = 0.01
 
-p4 = az.Port_Omega(mktdata, pname='OmegaPort')
+p4 = az.Port_BTSD(mktdata, pname='BTSDPort') 
 
 tic = time.perf_counter()
 port4 = p4.set_model(mu=0., alpha0=alpha0)   
@@ -36,7 +33,7 @@ p4.port_monthly_returns()
 p4.port_period_returns()
 p4.get_nshares()
 p4.get_account(fancy=True)
-
+        
 # Use rtype='Sharpe2' - should be the same results
 tic = time.perf_counter()
 port4_2 = p4.set_model(mu=0., alpha0=alpha0, rtype='Sharpe2')   
@@ -51,7 +48,7 @@ _ = pp.set_model()
 _ = pp.port_view_all(componly=(True))
 
 #=============================================================================
-# Compute Omega optimal portfolio
+# Compute BTSD optimal portfolio
 port4 = p4.set_model(mu=0.1, alpha0=alpha0, rtype="Risk")   
 ww = p4.get_weights()
 p4.port_view()
@@ -66,7 +63,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute minimum Omega optimal portfolio
+# Compute minimum BTSD optimal portfolio
 port4 = p4.set_model(mu=0.1, alpha0=alpha0, rtype="MinRisk")   
 ww = p4.get_weights()
 p4.port_view()
@@ -81,7 +78,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute optimal portfolio with Omega of equal weighted portfolio
+# Compute optimal portfolio with BTSD of equal weighted portfolio
 port4 = p4.set_model(mu=0.1, alpha0=alpha0, rtype="InvNrisk")   
 ww = p4.get_weights()
 p4.port_view()
@@ -129,6 +126,4 @@ p4.get_account(fancy=True)
 # pp = az.Port_Simple(zts)
 # _ = pp.set_model()
 # _ = pp.port_view_all(componly=True)
-```
 
-[TOP](#TOP)

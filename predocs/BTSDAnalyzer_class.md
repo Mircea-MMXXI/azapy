@@ -1,5 +1,5 @@
 
-## OmegaAnalyzer class
+## BTSDAnalyzer class
 
 Computes the portfolio weights and performs in-sample portfolio analysis.
 
@@ -32,13 +32,13 @@ During its computations the following class members are also set:
 ### Constructor
 
 ```
-OmegaAnalyzer(alpha0=0., mktdata=None, colname='adjusted', freq='Q',
-              hlength=3.25, calendar=None, rtype='Sharpe', method='ecos')
+BTSDAnalyzer(alpha0=0., mktdata=None, colname='adjusted', freq='Q',
+             hlength=3.25, calendar=None, rtype='Sharpe', method='ecos')
 ```
 
 where:
 
-* `alpha0` : Omega threshold. The default is `0`.
+* `alpha0` : BTSD threshold. The default is `0`.
 * `mktdata` : `pd.DataFrame` containing the market data in the format returned by
 the function `azapy.readMkT`. The default is `None`. `mktdata` could be loaded
 latter.
@@ -61,26 +61,16 @@ The default is `None`.
     - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
 		as equal weighted portfolio,
     - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
-* `method` : Designates the linear programming numerical method.
-It could be: `'ecos',
-'highs-ds', 'highs-ipm', 'highs', 'interior-point', 'glpk'` and `'cvxopt'`.
+* `method` : Designates the SOCP numerical method.
+It could be ``'ecos'`` or ``'cvxopt'``.
 The default is `'ecos'`.
 
 > Note:
->	* `'ecos'` : is the LP implementation from __ecos__ _(Embedded Cone Solver)_
-package. For python __ecos__ provides only an interface for SOCP problems.
-However, a LP problem can be viewed as a particular case of a SOCP problem.
->	* `'highs-ds'`, `'highs-ipm'`, `'highs'` and `'interior-point'` : are LP
-implementations from __SciPy__ package. `'highs-ds'` and `'highs-ipm'` are
-the HiGHS _(high performance software for linear optimization)_ dual revised
-simplex and interior point methods, respectively, while `'highs'` is a
-dispatch interface choosing between the two automatically.
-`'interior-point'` is the default __SciPy__ LP algorithm. In our cases it
-proves to be the slowest.
-> * `'cvxopt'` : is the LP implantation from __cvxopt__ package.
-> * `'glpk'` : is the GLPK LP implementation.
+>	* `'ecos'` : is SOCP implementation of **ecos** *(Embedded Cone Solver)*
+package.
+> * `'cvxopt'` : is the SOCP implantation from **cvxopt** package.
 >
-> In our cases `'ecos'` and `'hight-ds'` provides the fastest computations.
+> In our cases `'ecos'` is the fastest.
 
 [TOP](#TOP)
 

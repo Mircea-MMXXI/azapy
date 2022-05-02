@@ -72,21 +72,12 @@ class GINIAnalyzer(_RiskAnalyzer):
         self.nn2 = None
         super().__init__(mktdata, colname, freq, hlength, calendar, rtype)
         
-        lp_methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 
-                       'interior-point', 'glpk', 'cvxopt']
-        if not method in lp_methods:
-            raise ValueError(f"method must be one of {lp_methods}")
-        self.method = method
+        self._set_method(method)
         
         
-    def _risk_calc(self, prate, alpha):
-        nn = len(prate)
-        gini = np.sum(np.fabs([prate[i] - prate[j] \
-                                for i in range(nn - 1) \
-                                for j in range(i + 1, nn)])) / nn / (nn - 1)
-        # status, gini, gini
-        return 0, gini, gini
-            
+    def _set_method(self, method):
+        self._set_lp_method(method)
+        
     
     def set_rrate(self, rrate):
         """
@@ -114,6 +105,15 @@ class GINIAnalyzer(_RiskAnalyzer):
         self.drate = np.concatenate(yy)
         
         
+    def _risk_calc(self, prate, alpha):
+        nn = len(prate)
+        gini = np.sum(np.fabs([prate[i] - prate[j] \
+                                for i in range(nn - 1) \
+                                for j in range(i + 1, nn)])) / nn / (nn - 1)
+        # status, gini, gini
+        return 0, gini, gini
+    
+    
     def _risk_min(self, d=1):
         # Order of variables (mm - no of symb, nn - no of observations)
         # w <- [0 : mm]

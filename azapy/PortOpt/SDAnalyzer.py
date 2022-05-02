@@ -71,16 +71,19 @@ class SDAnalyzer(_RiskAnalyzer):
         """
         super().__init__(mktdata, colname, freq, hlength, calendar, rtype)
         
-        qp_methods = ['ecos', 'cvxopt']
-        if not method in qp_methods:
-            raise ValueError(f"method must one of {qp_methods}")
-        self.method = method
+        self._set_method(method)
+        
+        
+    def _set_method(self, method):
+        self._set_qp_method(method)
+        
         
     def _risk_calc(self, prate, alpha):
         var = np.var(prate)
         
         # status, variance, volatility
         return 0, var, np.sqrt(var)
+    
     
     def _risk_min(self, d=1):
         # Computes the minimization of volatility
@@ -145,6 +148,7 @@ class SDAnalyzer(_RiskAnalyzer):
         
         return self.ww
     
+    
     def _sharpe_inv_min(self):
         # Computes the minimization of the inverse of Sharpe
         # Order of variables
@@ -207,6 +211,7 @@ class SDAnalyzer(_RiskAnalyzer):
         
         return self.ww
     
+    
     def _sharpe_max(self):
         # Computes the maximization of Sharpe
         # Order of variables
@@ -267,6 +272,7 @@ class SDAnalyzer(_RiskAnalyzer):
         
         return self.ww   
     
+    
     def _rr_max(self):
         # Computes the maximization of returns (for fixed volatility)
         # Order of variables
@@ -320,6 +326,7 @@ class SDAnalyzer(_RiskAnalyzer):
         self.secondary_risk_comp = np.array([self.risk**2])
         
         return self.ww   
+    
     
     def _risk_averse(self):
         # Order of variables

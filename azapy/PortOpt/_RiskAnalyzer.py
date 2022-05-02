@@ -97,6 +97,9 @@ class _RiskAnalyzer:
 
         self.rng = None
         self.set_random_seed()
+        
+        self.method = None
+
 
     def getWeights(self, mu, rrate=None, rtype=None, d=1):
         """
@@ -190,6 +193,7 @@ class _RiskAnalyzer:
         self.ww = pd.Series(self.ww, index=self.rrate.columns)
         return self.ww
 
+
     def getRisk(self, ww, rrate=None):
         """
         Returns the value of the dispersion (risk) measure for a give 
@@ -245,6 +249,7 @@ class _RiskAnalyzer:
         self.ww = w
 
         return self.risk
+
 
     def getPositions(self, mu, rtype=None, nshares=None, cash=0, ww=None):
         """
@@ -363,6 +368,7 @@ class _RiskAnalyzer:
         self.muk = rrate.mean()
         self.rrate = rrate - self.muk
 
+
     def set_mktdata(self, mktdata, colname='adjusted',
                     freq='Q', hlength=3.25, calendar=None):
         """
@@ -412,6 +418,7 @@ class _RiskAnalyzer:
         rrate = rrate.pct_change(periods=periods).dropna()
 
         self.set_rrate(rrate)
+
 
     def set_rtype(self, rtype):
         """
@@ -629,6 +636,7 @@ class _RiskAnalyzer:
             self._plot_f2(res)
         return res
 
+
     def _plot_f1(self, res):
         fig = plt.figure()
         ax = fig.add_subplot(111)
@@ -709,6 +717,7 @@ class _RiskAnalyzer:
             plt.savefig(res['saveto'])
         plt.show()
 
+
     def _plot_f2(self, res):
         fig = plt.figure()
         ax = fig.add_subplot(111)
@@ -782,6 +791,7 @@ class _RiskAnalyzer:
             plt.savefig(res['saveto'])
         plt.show()
 
+
     def set_random_seed(self, seed = 42):
         """
         Sets the seed for Dirichlet random generator used in viewFrontiers.
@@ -798,8 +808,35 @@ class _RiskAnalyzer:
         """
         self.rng = np.random.RandomState(seed)
 
+
     def _ww_gen(self):
         return self.rng.dirichlet([0.5] * self.mm)
+    
+    
+    def _set_lp_method(self, method):
+        lp_methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs',
+                       'interior-point', 'glpk', 'cvxopt']
+        if not method in lp_methods:
+            raise ValueError("unknown method {method} - "
+                             + f"must be one of {lp_methods}")
+        self.method = method
+        
+        
+    def _set_qp_method(self, method):
+        qp_methods = ['ecos', 'cvxopt']
+        if not method in qp_methods:
+            raise ValueError("unknown method {method} - "
+                             + f"must be one of {qp_methods}")
+        self.method = method
+        
+        
+    def _set_socp_method(self, method):
+        socp_methods = ['ecos', 'cvxopt']
+        if not method in socp_methods:
+            raise ValueError("unknown method {method} - "
+                             + f"must be one of {socp_methods}")
+        self.method = method
+        
 
     # to be implemented in the deriv class
     def _risk_calc(self, prate, alpha):

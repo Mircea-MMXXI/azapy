@@ -1,17 +1,18 @@
 
-# Omega optimal portfolios <a name="TOP"></a>
+# BTSD optimal portfolios <a name="TOP"></a>
 
-Omega ratio was introduced as an alternative to Sharpe ratio. It can be
-defined as the generalized Sharpe ratio
-relative to Delta-risk measure:
+BTSD stands for Below target Standard Deviation. It is inspired by the
+Omega ratio model where  Delta-risk measure is defined in
+terms of $L_2$ norm rather than $L_1$,*i.e.*,
 
 \begin{equation*}
-  \delta_{\alpha_0} = \frac{1}{N} \sum_{i=1}^N \left( \alpha_0 - r_i \right)^+,
+  \delta_{\alpha_0} =
+  \left(\frac{1}{N} \sum_{i=1}^N \left[ \left( \alpha_0 - r_i \right)^+\right]^2\right)^{1/2},
 \end{equation*}
 
 where:
 
-* $\alpha_0$ is the Omega threshold (it may be interpreted as a risk-free rate),
+* $\alpha_0$ is the BTSD threshold (it may be interpreted as a risk-free rate),
 * $N$ is the number of historical observations,
 * $r_i$ is the i-th observation of portfolio historical rate of returns.
 * $(\cdot)^+$ stands for positive part (*i.e.* $\max\{0, \cdot\}$).
@@ -31,11 +32,11 @@ The following portfolio optimization strategies are available:
 
 There are 2 support classes:
 
-* **OmegaAnalyzer** : computes the portfolio weights and performs in-sample
+* **BTSDAnalyzer** : computes the portfolio weights and performs in-sample
 analysis,
-* **Port_Omega** : performs portfolio back testing, out-of-sample analysis.
+* **Port_BTSD** : performs portfolio back testing, out-of-sample analysis.
 
-## OmegaAnalyzer class
+## BTSDAnalyzer class
 
 Computes the portfolio weights and performs in-sample portfolio analysis.
 
@@ -68,13 +69,13 @@ During its computations the following class members are also set:
 ### Constructor
 
 ```
-OmegaAnalyzer(alpha0=0., mktdata=None, colname='adjusted', freq='Q',
-              hlength=3.25, calendar=None, rtype='Sharpe', method='ecos')
+BTSDAnalyzer(alpha0=0., mktdata=None, colname='adjusted', freq='Q',
+             hlength=3.25, calendar=None, rtype='Sharpe', method='ecos')
 ```
 
 where:
 
-* `alpha0` : Omega threshold. The default is `0`.
+* `alpha0` : BTSD threshold. The default is `0`.
 * `mktdata` : `pd.DataFrame` containing the market data in the format returned by
 the function `azapy.readMkT`. The default is `None`. `mktdata` could be loaded
 latter.
@@ -97,26 +98,16 @@ The default is `None`.
     - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
 		as equal weighted portfolio,
     - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
-* `method` : Designates the linear programming numerical method.
-It could be: `'ecos',
-'highs-ds', 'highs-ipm', 'highs', 'interior-point', 'glpk'` and `'cvxopt'`.
+* `method` : Designates the SOCP numerical method.
+It could be ``'ecos'`` or ``'cvxopt'``.
 The default is `'ecos'`.
 
 > Note:
->	* `'ecos'` : is the LP implementation from __ecos__ _(Embedded Cone Solver)_
-package. For python __ecos__ provides only an interface for SOCP problems.
-However, a LP problem can be viewed as a particular case of a SOCP problem.
->	* `'highs-ds'`, `'highs-ipm'`, `'highs'` and `'interior-point'` : are LP
-implementations from __SciPy__ package. `'highs-ds'` and `'highs-ipm'` are
-the HiGHS _(high performance software for linear optimization)_ dual revised
-simplex and interior point methods, respectively, while `'highs'` is a
-dispatch interface choosing between the two automatically.
-`'interior-point'` is the default __SciPy__ LP algorithm. In our cases it
-proves to be the slowest.
-> * `'cvxopt'` : is the LP implantation from __cvxopt__ package.
-> * `'glpk'` : is the GLPK LP implementation.
+>	* `'ecos'` : is SOCP implementation of **ecos** *(Embedded Cone Solver)*
+package.
+> * `'cvxopt'` : is the SOCP implantation from **cvxopt** package.
 >
-> In our cases `'ecos'` and `'hight-ds'` provides the fastest computations.
+> In our cases `'ecos'` is the fastest.
 
 [TOP](#TOP)
 
@@ -436,7 +427,7 @@ value other than 42 :). The default is `42`.
 ---
 <a name="OmegaAnalyzer_class_example"></a>
 
-### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/OmegaAnalyzer_examples.py)
+### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/BTSDAnalyzer_examples.py)
 
 ```
 import numpy as np
@@ -453,20 +444,20 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Set the Omega parameter alpha0
+# Set the BTSD parameter alpha0
 alpha0 = 0.01
 
 #=============================================================================
 # Compute Sharpe optimal portfolio
 # build the analyzer object
-cr1 = az.OmegaAnalyzer(alpha0, mktdata)
+cr1 = az.BTSDAnalyzer(alpha0, mktdata)
 # computes Sharpe weights for 0 risk-free rate
 ww1 = cr1.getWeights(mu=0.)
 # print portfolio characteristics
 # primary risk = [Delta-risk] (redundant)
 # secondary risk = [Delta-risk] (redundant)
 # risk = Delta-risk
-# Share = Omega ratio
+# Share = BTSD-Sharpe ratio
 RR = cr1.RR
 risk = cr1.risk
 prim = cr1.primary_risk_comp.copy()
@@ -497,7 +488,7 @@ print(f"Test for weights computation\n {ww_comp}")
 #=============================================================================
 # Frontiers evaluations
 print("\nFrontiers evaluations\n")
-opt = {'title': "Omega Port", 'tangent': True}
+opt = {'title': "BTSD Port", 'tangent': True}
 print("\n rate of returns vs risk representation")
 rft = cr1.viewFrontiers(musharpe=0, randomport=100, options=opt)
 print("\n Sharpe vs rate of returns representation")
@@ -506,7 +497,7 @@ rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR')
 #=============================================================================
 # Sharpe vs. Sharpe2
 # first Sharpe (default rtype)
-cr1 = az.OmegaAnalyzer(alpha0, mktdata)
+cr1 = az.BTSDAnalyzer(alpha0, mktdata)
 ww1 = cr1.getWeights(mu=0.)
 RR1 = cr1.RR
 risk1 = cr1.risk
@@ -514,7 +505,7 @@ prim1 = cr1.primary_risk_comp.copy()
 seco1 = cr1.secondary_risk_comp.copy()
 sharpe1 = cr1.sharpe
 # second Sharpe2
-cr2 = az.OmegaAnalyzer(alpha0, mktdata)
+cr2 = az.BTSDAnalyzer(alpha0, mktdata)
 ww2 = cr2.getWeights(mu=0., rtype="Sharpe2")
 RR2 = cr2.RR
 risk2 = cr2.risk
@@ -546,8 +537,9 @@ print(f"Sharpe comp\n {sharpe_comp}")
 # %timeit cr2.getWeights(mu=0., rtype='Sharpe2')
 
 #=============================================================================
+
 # Compute InvNrisk optimal portfolio
-cr1 = az.OmegaAnalyzer(alpha0, mktdata)
+cr1 = az.BTSDAnalyzer(alpha0, mktdata)
 # compute the weights of InvNrisk
 ww1 = cr1.getWeights(mu=0., rtype="InvNrisk")
 RR1 = cr1.RR
@@ -570,7 +562,7 @@ print(f"risk comp\n {risk_comp}")
 
 #=============================================================================
 # Compute MinRisk optimal portfolio
-cr1 = az.OmegaAnalyzer(alpha0, mktdata)
+cr1 = az.BTSDAnalyzer(alpha0, mktdata)
 # compute the MinRisk portfolio
 ww1 = cr1.getWeights(mu=0., rtype="MinRisk")
 
@@ -585,14 +577,14 @@ print(f"weights comp\n {ww_comp}")
 #=============================================================================
 # Compute RiskAverse optimal portfolio
 # first compute the Sharpe portfolio
-cr1 = az.OmegaAnalyzer(alpha0, mktdata)
+cr1 = az.BTSDAnalyzer(alpha0, mktdata)
 ww1 = cr1.getWeights(mu=0.)
 sharpe = cr1.sharpe
 risk = cr1.risk
 
 # compute RiskAverse portfolio for Lambda=sharpe
 Lambda = sharpe
-cr2 = az.OmegaAnalyzer(alpha0, mktdata)
+cr2 = az.BTSDAnalyzer(alpha0, mktdata)
 ww2 = cr2.getWeights(mu=Lambda, rtype='RiskAverse')
 
 # comparison - they should be very close
@@ -603,16 +595,16 @@ print(f"risk comp\n {risk_comp}")
 ww_comp = pd.DataFrame({'ww1': ww1, 'ww2': ww2, 'diff': ww1-ww2})
 print(f"weigths:\n {ww_comp}")
 
+
 #=============================================================================
-# # speed comparisons for different LP methods
+# # speed comparisons for different SOCP methods
 # # may take some time to complete
 # # please uncomment the lines below
 # import time
-# methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 'glpk', 'cvxopt',  
-#             'interior-point' ]
+# methods = ['ecos', 'cvxopt']
 # xta = {}
 # for method in methods:
-#     crrx = az.OmegaAnalyzer(alpha0, mktdata, method=method)
+#     crrx = az.BTSDAnalyzer(alpha0, mktdata, method=method)
 #     toc = time.perf_counter()
 #     wwx = crrx.getWeights(mu=0.)
 #     tic = time.perf_counter() - toc
@@ -624,7 +616,7 @@ print(f"weigths:\n {ww_comp}")
 
 #=============================================================================
 # Example of rebalancing positions
-cr1 = az.OmegaAnalyzer(alpha0, mktdata)
+cr1 = az.BTSDAnalyzer(alpha0, mktdata)
 
 # existing positions and cash
 ns = pd.Series(100, index=symb)
@@ -639,9 +631,9 @@ print(f" New position report\n {pos}")
 
 ---
 
-## Port_Omega class
+## Port_BTSD class
 
-Out-of-Sample (back testing) simulation of Omega optimal portfolio periodically
+Out-of-Sample (back testing) simulation of BTSD optimal portfolio periodically
 rebalanced.
 
 
@@ -667,10 +659,10 @@ other method.
 ### Constructor
 
 ```
-Port_Omega(mktdata, symb=None, sdate=None, edate=None, col_price='close',
-           col_divd='divd', col_ref='adjusted', col_calib='adjusted',
-           pname='Port', pcolname=None, capital=100000, schedule=None,
-           freq='Q', noffset=-3, fixoffset=-1, calendar=None)
+Port_BTSD(mktdata, symb=None, sdate=None, edate=None, col_price='close',
+          col_divd='divd', col_ref='adjusted', col_calib='adjusted',
+          pname='Port', pcolname=None, capital=100000, schedule=None,
+          freq='Q', noffset=-3, fixoffset=-1, calendar=None)
 ```
 
 
@@ -762,7 +754,7 @@ Reference rate. Its meaning depends of the value of `rtype`. For
     - `'Sharpe'` and `'Sharpe2'`: `mu` is the risk-free rate,
     - `'MinRisk'` and `'InvNrisk'` : `mu` is ignored,
     - `'RiskAverse'` : `mu` is the risk aversion coefficient $\lambda$.
-* `alphau0` : Omega threshold rate (*e.g.* risk-free rate). The default is `0`.
+* `alphau0` : BTSD threshold rate (*e.g.* risk-free rate). The default is `0`.
 * `rtype` :
 Optimization type. The default is `'Sharpe'`. Possible values are:
     - `'Risk'` : minimization of dispersion (risk) measure for a fixed values
@@ -778,9 +770,8 @@ The length in years of historical calibration period relative
 to `'Dfix'`. A fractional number will be rounded to an integer number
 of months. The default is `3.25` years.
 * `method` :
-Designates the LP numerical method.
-It ould be: `'ecos'`, `'highs-ds'`, `'highs-ipm'`, `'highs'`,
-`'interior-point'`, `'glpk'` and `'cvxopt'`.
+Designates the SOCP method.
+It could be `'ecos'` or `'cvxopt'`.
 The default is `'ecos'`.
 
 *Returns:* `pd.DataFrame` containing the portfolio time-series in the format
@@ -1117,7 +1108,7 @@ get_mktdata()
 
 ---
 
-### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_Omega_examples.py)
+### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_BTSD_examples.py)
 
 ```
 import time
@@ -1133,10 +1124,10 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Compute Omega-Sharpe optimal portfolio
+# Compute BTSD-Sharpe optimal portfolio
 alpha0 = 0.01
 
-p4 = az.Port_Omega(mktdata, pname='OmegaPort')
+p4 = az.Port_BTSD(mktdata, pname='BTSDPort')
 
 tic = time.perf_counter()
 port4 = p4.set_model(mu=0., alpha0=alpha0)   
@@ -1169,7 +1160,7 @@ _ = pp.set_model()
 _ = pp.port_view_all(componly=(True))
 
 #=============================================================================
-# Compute Omega optimal portfolio
+# Compute BTSD optimal portfolio
 port4 = p4.set_model(mu=0.1, alpha0=alpha0, rtype="Risk")   
 ww = p4.get_weights()
 p4.port_view()
@@ -1184,7 +1175,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute minimum Omega optimal portfolio
+# Compute minimum BTSD optimal portfolio
 port4 = p4.set_model(mu=0.1, alpha0=alpha0, rtype="MinRisk")   
 ww = p4.get_weights()
 p4.port_view()
@@ -1199,7 +1190,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute optimal portfolio with Omega of equal weighted portfolio
+# Compute optimal portfolio with BTSD of equal weighted portfolio
 port4 = p4.set_model(mu=0.1, alpha0=alpha0, rtype="InvNrisk")   
 ww = p4.get_weights()
 p4.port_view()

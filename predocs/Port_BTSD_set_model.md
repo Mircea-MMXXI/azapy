@@ -22,7 +22,7 @@ Reference rate. Its meaning depends of the value of `rtype`. For
     - `'Sharpe'` and `'Sharpe2'`: `mu` is the risk-free rate,
     - `'MinRisk'` and `'InvNrisk'` : `mu` is ignored,
     - `'RiskAverse'` : `mu` is the risk aversion coefficient $\lambda$.
-* `alphau0` : Omega threshold rate (*e.g.* risk-free rate). The default is `0`.
+* `alphau0` : BTSD threshold rate (*e.g.* risk-free rate). The default is `0`.
 * `rtype` :
 Optimization type. The default is `'Sharpe'`. Possible values are:
     - `'Risk'` : minimization of dispersion (risk) measure for a fixed values
@@ -38,9 +38,8 @@ The length in years of historical calibration period relative
 to `'Dfix'`. A fractional number will be rounded to an integer number
 of months. The default is `3.25` years.
 * `method` :
-Designates the LP numerical method.
-It ould be: `'ecos'`, `'highs-ds'`, `'highs-ipm'`, `'highs'`,
-`'interior-point'`, `'glpk'` and `'cvxopt'`.
+Designates the SOCP method.
+It could be `'ecos'` or `'cvxopt'`.
 The default is `'ecos'`.
 
 *Returns:* `pd.DataFrame` containing the portfolio time-series in the format
