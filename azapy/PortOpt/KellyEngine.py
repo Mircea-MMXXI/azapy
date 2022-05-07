@@ -143,8 +143,11 @@ class KellyEngine(_RiskEngine):
         icol = list(range(mm)) * 2
         irow = list(range(mm)) + [mm] * mm
         data = [-1.] * mm + [1.] * mm
+        
         G = cx.spmatrix(data, irow, icol, (mm + 1, mm))
+        
         h = cx.matrix([0.] * mm + [1.])
+        
         dims = {'l': mm + 1, 'q': [], 's': []}
         
         res = cx.solvers.cp(F, G=G, h=h, dims=dims, 
@@ -173,6 +176,7 @@ class KellyEngine(_RiskEngine):
         icol = list(range(mm)) * 2
         irow = list(range(mm)) + [mm] * mm
         data = [-1.] * mm + [1.] * mm
+        
         G = sps.coo_matrix((data, (irow, icol)), shape=(mm + 1, mm))
         
         h_data = [0.] * mm + [1.]

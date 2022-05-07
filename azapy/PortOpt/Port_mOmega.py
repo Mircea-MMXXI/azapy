@@ -1,9 +1,10 @@
-from .Port_Omega import Port_Omega
-from .BTSDAnalyzer import BTSDAnalyzer
+import numpy as np
+from .Port_CVaR import Port_CVaR
+from .mOmegaAnalyzer import mOmegaAnalyzer
 
-class Port_BTSD(Port_Omega):
+class Port_mOmega(Port_CVaR):
     """
-    Back testing the BTSD optimal portfolio weights, periodically rebalanced.
+    Back testing the Omega optimal portfolio weights, periodically rebalanced.
 
     Methods:
         * set_model
@@ -20,8 +21,8 @@ class Port_BTSD(Port_Omega):
         * port_monthly_returns
         * port_period_returns
     """
-    def set_model(self, mu, alpha0=0., rtype='Sharpe', hlength=3.25,
-                  method='ecos'):
+    def set_model(self, mu, alpha=[0.], coef=[1.], rtype='Sharpe', 
+                  hlength=3.25, method='ecos'):
         """
         Sets model parameters and evaluates portfolio time-series.
 
@@ -34,8 +35,13 @@ class Port_BTSD(Port_Omega):
                 "Risk" : `mu` is the targeted expected rate of returns \n
                 "MinRisk" and "InvNrisk" : `mu` is ignored \n
                 "RiskAverse" : `mu` is the Lambda risk aversion coefficient.
-        alpha0 : float, optional
-            BTSD threshold rate (e.g. risk-free rate). The default is 0.
+        alpha : list, optional
+            Omega threshold levels. The default is [0.].
+        coef : list, optional
+            List of mixture coefficients values. Note that `len(coef)`
+            must be equal to `len(alpha)`. A value of `None` assumes
+            equal weights,
+            `coef = [1 / len(alpha)] * len(alpha)`.
         rtype : str, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure for a fixed 
@@ -55,8 +61,9 @@ class Port_BTSD(Port_Omega):
             to 'Dfix'. A fractional number will be rounded to an integer number
             of months. The default is 3.25 years.
         method : str, optional
-            SOCP numerical method.
-            Could be: 'ecos' or 'cvxopt'.
+            Linear programming numerical method.
+            Could be: 'ecos', 'highs-ds', 'highs-ipm', 'highs',
+            'interior-point', 'glpk' and 'cvxopt'.
             The defualt is 'ecos'.
 
         Returns
@@ -64,9 +71,31 @@ class Port_BTSD(Port_Omega):
         pandas.DataFrame
             The portfolio time-series in the format "date", "pcolname".
         """
-        return super().set_model(mu, alpha0, rtype, hlength, method)
- 
+        return super().set_model(mu, alpha, coef, rtype, hlength, method)
+
     
+    def _set_alpha(self, alpha, coef):
+        # alpha
+        if len(alpha) <= 0:
+            raise ValueError("alpha is an empty list")
+            
+        self.alpha = np.array(alpha)
+
+        # coef
+        if coef is None:
+            self.coef = np.ones(len(self.alpha))
+        else:
+            if len(coef) != len(self.alpha):
+                raise ValueError("coef must have same length as alpha")
+            self.coef = np.array(coef)
+
+        if np.any(self.coef <= 0.):
+            raise ValueError("coef must be > 0")
+
+        scoef = self.coef.sum()
+        self.coef = self.coef / scoef
+
+
     def _wwgen(self):
-        return BTSDAnalyzer(self.alpha[0], rtype=self.rtype,
-                            method=self.method)
+        return mOmegaAnalyzer(self.alpha, self.coef, rtype=self.rtype,
+                             method=self.method)

@@ -1,5 +1,6 @@
 # Compare Omega for alpha0=0 with MAD first order
-import numpy as np
+# they should be identical up to machine precision 
+import pandas as pd
 import azapy as az
 
 #=============================================================================
@@ -12,65 +13,36 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Set the Omega parameter alpha0
-alpha0 = 0.00
-
-#=============================================================================
-# Compute Sharpe optimal portfolio
-# build the analyzer object
-cr1 = az.OmegaAnalyzer(alpha0, mktdata)
-# computes Sharpe weights for 0 risk-free rate
-ww1 = cr1.getWeights(mu=0.)
-# print portfolio characteristics
-# primary risk = [Delta-risk] (redundant)
-# secondary risk = [Delta-risk] (redundant)
-# risk = Delta-risk
-# Share = Omega ratio
-RR1 = cr1.RR
-risk1 = cr1.risk
-prim1 = cr1.primary_risk_comp.copy()
-seco1 = cr1.secondary_risk_comp.copy()
-sharpe1 = cr1.sharpe
-print("Omega alpha0=0")
-print("\nSharpe optimal portfolio\n")
-print(f"status {cr1.status}")
-print(f"coef {ww1}")
-print(f"Secondary risk {seco1}")
-print(f"Primary risk {prim1}")
-print(f"Sharpe {sharpe1}")
-print(f"RR {RR1}")
-print(f"risk {risk1}")
-
-#=============================================================================
-# Define mMAD measure parameters coef
+# set Omega for alpha0=0 (default)
+alpha = [0.]
+coef = [1.]
+cr1 = az.mOmegaAnalyzer(alpha, coef, mktdata)
+# set MAD first order (default)
 coef = [1]
-
-#=============================================================================
-# Compute Sharpe optimal portfolio
-# build the analyzer object
 cr2 = az.MADAnalyzer(coef, mktdata)
-# computes Sharpe weights for 0 risk-free rate
-ww2 = cr2.getWeights(mu=0.)
-# print portfolio characteristics
-# primary risk = set of MAD's
-# secondary risk = set of cumulative MAD's
-# risk = mMAD value
-RR2 = cr2.RR
-risk2 = cr2.risk
-prim2 = cr2.primary_risk_comp.copy()
-seco2 = cr2.secondary_risk_comp.copy()
-sharpe2 = cr2.sharpe
-print("MAD first order")
-print("\nSharpe optimal portfolio\n")
-print(f"status {cr2.status}")
-print(f"coef {ww2}")
-print(f"Secondary risk {seco2}")
-print(f"Primary risk {prim2}")
-print(f"Sharpe {sharpe2}")
-print(f"RR {RR2}")
-print(f"risk {risk2} evaluation test {np.dot(prim2, coef)}")
 
+# collect reference data 
+_ = cr1.getWeights(mu=0.)
+RR_ = cr1.RR
+sharpe_ = cr1.sharpe
 
-#=============================================================================
-# comparison
-print(f"risk: Omega {risk1} MAD {risk2} diff {risk1-risk2}")
+# dict rtype: mu 
+mus = {'Risk': RR_, 'MinRisk': 0., 'Sharpe': 0., 'Sharpe2': 0., 'InvNrisk': 0.,
+       'RiskAverse': sharpe_}
+
+# loop over all rtype's
+for rtype in mus.keys():
+    ww1 = cr1.getWeights(mu=mus[rtype], rtype=rtype)
+    RR1 = cr1.RR
+    risk1 = cr1.risk
+    
+    ww2 = cr2.getWeights(mu=mus[rtype], rtype=rtype)
+    RR2 = cr2.RR
+    risk2 = cr2.risk
+    
+    print("\nComparisons: Omega (alpha0=0) vs. MAD (first order) "
+          + f"rtype = {rtype} \n")
+    print(f"risk: Omega {risk1} MAD {risk2} Diff {risk1-risk2}")
+    print(f"RR: Omega {RR1} MAD {RR2} Diff {RR1 - RR2}")
+    ww = pd.DataFrame({'Omega': ww1, 'MAD': ww2, 'Diff': ww1 - ww2})
+    print(f"weights:\n{ww}")

@@ -29,8 +29,8 @@ class MADAnalyzer(_RiskAnalyzer):
         Parameters
         ----------
         coef : list, optional
-            List of coefficients (the list size defines the MAD
-            order).The default is [1.].
+            Positive non-increasing list of  coefficients. 
+            The default is [1.].
         mktdata : pandas.DataFrame, optional
             Historic daily market data for portfolio components in the format
             returned by azapy.mktData function. The default is None.
@@ -81,9 +81,12 @@ class MADAnalyzer(_RiskAnalyzer):
         self.coef = np.array(coef)
         if any(self.coef <= 0.):
             raise ValueError("All coef must be positive")
+        if any(i < j for i, j in zip(self.coef, self.coef[1:])):
+            raise ValueError("coef list should not be increasing")
         self.ll = self.coef.size
         if self.ll <= 0:
             raise ValueError("coef must contain at least one element")
+            
         self.coef = self.coef / np.sum(self.coef)
 
         self.alpha = np.full(self.ll, self.ll)
@@ -132,7 +135,7 @@ class MADAnalyzer(_RiskAnalyzer):
         # mu = np.mean(prate)
         # prate = prate - mu
         # nn = len(prate)
-
+ 
         delta = []
         mu = 0.
         for _ in range(self.ll):
@@ -143,13 +146,13 @@ class MADAnalyzer(_RiskAnalyzer):
             mu -= dd
 
         self.primary_risk_comp = np.array(delta)
-        self.secondary_risk_comp = np.cumsum(self.primary_risk_comp) \
-            -self.primary_risk_comp[0]
+        self.secondary_risk_comp = \
+            np.cumsum(np.insert(self.primary_risk_comp, 0, 0))[:-1]
         self.risk = np.dot(self.primary_risk_comp, self.coef)
 
         return self.risk
 
-
+    
     def _risk_min(self, d=1):
         # Order of variables:
         # w <- [0:mm]
@@ -173,14 +176,15 @@ class MADAnalyzer(_RiskAnalyzer):
         for l in range(ll):
             G_icol += [mm + k * (nn + 1) for k in range(l)] * nn \
                   + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
-            #irow += list(range(l * nn, (l + 1) * nn)) * (l + 1)
             G_irow += [k for k in range(l * nn, (l + 1) * nn) \
                        for _ in range(l)]\
                     + list(range(l * nn, (l + 1) * nn))
             G_data += [-1.] * ((l + 1) * nn)
+            
         G_icol += list(range(mm))
         G_irow += [ll * nn] * mm
         G_data += list(-self.muk * d)
+        
         G_icol += list(range(mm + ll * (nn + 1)))
         G_irow += list(range(ll * nn + 1, ll * nn + 1 + mm + ll * (nn + 1)))
         G_data += [-1.] * (mm + ll * (nn + 1))
@@ -193,22 +197,19 @@ class MADAnalyzer(_RiskAnalyzer):
                + [0.] * (mm + ll * (nn + 1))
 
         # build A
-        A_icol = []
-        A_irow = []
-        A_data = []
+        A_icol = list(range(mm))
+        A_irow = [0] * mm
+        A_data = [1.] * mm
         for l in range(ll):
             A_icol += list(range(mm + l * (nn + 1), mm + (l + 1) * (nn + 1)))
-            A_irow += [l] * (nn + 1)
-            A_data += [-1.] + [1. / nn] * nn
-        A_icol += list(range(mm))
-        A_irow += [ll] * mm
-        A_data += [1.] * mm
+            A_irow += [l + 1] * (nn + 1)
+            A_data += [-1.] + [1./nn] * nn
 
         A_shape = (ll + 1, mm + (nn + 1) * ll)
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
 
         # build b
-        b_data = [0.] * ll + [1.]
+        b_data = [1.] + [0.] * ll
 
         # calc
         res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
@@ -224,8 +225,8 @@ class MADAnalyzer(_RiskAnalyzer):
         self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
                                            for l in range(ll)])
         # tMAD
-        self.secondary_risk_comp = np.cumsum(self.primary_risk_comp) \
-            - self.primary_risk_comp[0]
+        self.secondary_risk_comp = \
+            np.cumsum(np.insert(self.primary_risk_comp, 0, 0))[:-1]
         # optimal weights
         self.ww = np.array(res['x'][:mm])
         self.ww.shape = mm
@@ -258,9 +259,8 @@ class MADAnalyzer(_RiskAnalyzer):
             G_icol += [mm + k * (nn + 1) for k in range(l)] * nn \
                   + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
             G_irow += list(range(l * nn, (l + 1) * nn)) * (l + 1)
-            # irow += [k for k in range(l * nn, (l + 1) * nn) for _ in range(l)]\
-            #     + list(range(l * nn, (l + 1) * nn))
             G_data += [-1.] * ((l + 1) * nn)
+            
         G_icol += list(range(mm + ll * (nn + 1) + 1))
         G_irow += list(range(ll * nn, ll * nn + mm + ll * (nn + 1) + 1))
         G_data += [-1.] * (mm + ll * (nn + 1) + 1)
@@ -272,16 +272,13 @@ class MADAnalyzer(_RiskAnalyzer):
         h_data = [0.] * (nn * ll + mm + ll * (nn + 1) + 1)
 
         # build A
-        A_icol = []
-        A_irow = []
-        A_data = []
+        A_icol = [mm + l * (nn + 1) for l in range(ll)]
+        A_irow = [0] * ll
+        A_data = list(self.coef)
         for l in range(ll):
             A_icol += list(range(mm + l * (nn + 1), mm + (l + 1) * (nn + 1)))
-            A_irow += [l] * (nn + 1)
+            A_irow += [l + 1] * (nn + 1)
             A_data += [-1.] + [1. / nn] * nn
-        A_icol += [mm + l * (nn + 1) for l in range(ll)]
-        A_irow += [ll] * ll
-        A_data += list(self.coef)
         
         A_icol += list(range(mm)) + [mm + ll * (nn + 1)]
         A_irow += [ll + 1] * (mm + 1)
@@ -291,7 +288,7 @@ class MADAnalyzer(_RiskAnalyzer):
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
 
         # build b
-        b_data = [0.] * ll + [1., 0.]
+        b_data = [1.] + [0.] * (ll + 1)
 
         # calc
         res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
@@ -310,8 +307,8 @@ class MADAnalyzer(_RiskAnalyzer):
         self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] / t \
                                            for l in range(ll)])
         # tMAD
-        self.secondary_risk_comp = np.cumsum(self.primary_risk_comp) \
-            - self.primary_risk_comp[0]
+        self.secondary_risk_comp = \
+            np.cumsum(np.insert(self.primary_risk_comp, 0, 0))[:-1]
         # optimal weights
         self.ww = np.array(res['x'][:mm] / t)
         self.ww.shape = mm
@@ -346,10 +343,10 @@ class MADAnalyzer(_RiskAnalyzer):
         for l in range(ll):
             G_icol += [mm + k * (nn + 1) for k in range(l)] * nn \
                   + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
-            # irow += list(range(l * nn, (l + 1) * nn)) * (l + 1)
             G_irow += [k for k in range(l * nn, (l + 1) * nn) for _ in range(l)]\
                 + list(range(l * nn, (l + 1) * nn))
             G_data += [-1.] * ((l + 1) * nn)
+            
         G_icol += list(range(mm + ll * (nn + 1) + 1))
         G_irow += list(range(ll * nn, ll * nn + mm + ll * (nn + 1) + 1))
         G_data += [-1.] * (mm + ll * (nn + 1) + 1)
@@ -361,16 +358,14 @@ class MADAnalyzer(_RiskAnalyzer):
         h_data = [0.] * (nn * ll + mm + ll * (nn + 1) + 1)
 
         # build A
-        A_icol = []
-        A_irow = []
-        A_data = []
+        A_icol = list(range(mm)) + [mm + ll * (nn + 1)]
+        A_irow = [0] * (mm + 1)
+        A_data = list(self.muk) + [-self.mu]
         for l in range(ll):
             A_icol += list(range(mm + l * (nn + 1), mm + (l + 1) * (nn + 1)))
-            A_irow += [l] * (nn + 1)
+            A_irow += [l + 1] * (nn + 1)
             A_data += [-1.] + [1. / nn] * nn
-        A_icol += list(range(mm)) + [mm + ll * (nn + 1)]
-        A_irow += [ll] * (mm + 1)
-        A_data += list(self.muk) + [-self.mu]
+        
         A_icol += list(range(mm)) + [mm + ll * (nn + 1)]
         A_irow += [ll + 1] * (mm + 1)
         A_data += [1.] * mm + [-1.]
@@ -379,7 +374,7 @@ class MADAnalyzer(_RiskAnalyzer):
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
 
         # build b
-        b_data = [0.] * ll + [1., 0.]
+        b_data = [1.] + [0.] * (ll + 1)
 
         # calc
         res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
@@ -398,8 +393,8 @@ class MADAnalyzer(_RiskAnalyzer):
         self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] / t \
                                            for l in range(ll)])
         # tMAD
-        self.secondary_risk_comp = np.cumsum(self.primary_risk_comp) \
-            - self.primary_risk_comp[0]
+        self.secondary_risk_comp = \
+            np.cumsum(np.insert(self.primary_risk_comp, 0, 0))[:-1]
         # optimal weights
         self.ww = np.array(res['x'][:mm] / t)
         self.ww.shape = mm
@@ -430,10 +425,10 @@ class MADAnalyzer(_RiskAnalyzer):
         for l in range(ll):
             G_icol += [mm + k * (nn + 1) for k in range(l)] * nn \
                   + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
-            # irow += list(range(l * nn, (l + 1) * nn)) * (l + 1)
             G_irow += [k for k in range(l * nn, (l + 1) * nn) for _ in range(l)]\
                   + list(range(l * nn, (l + 1) * nn))
             G_data += [-1.] * ((l + 1) * nn)
+            
         G_icol += list(range(mm + ll * (nn + 1)))
         G_irow += list(range(ll * nn, ll * nn + mm + ll * (nn + 1)))
         G_data += [-1.] * (mm + ll * (nn + 1))
@@ -445,25 +440,23 @@ class MADAnalyzer(_RiskAnalyzer):
         h_data = [0.] * (nn * ll + mm + ll * (nn + 1))
 
         # build A
-        A_icol = []
-        A_irow = []
-        A_data = []
+        A_icol = [mm + l * (nn + 1) for l in range(ll)]
+        A_irow = [0] * ll
+        A_data = list(self.coef)
+        
+        A_icol += list(range(mm))
+        A_irow += [1] * mm
+        A_data += [1.] * mm
         for l in range(ll):
             A_icol += list(range(mm + l * (nn + 1), mm + (l + 1) * (nn + 1)))
-            A_irow += [l] * (nn + 1)
+            A_irow += [l + 2] * (nn + 1)
             A_data += [-1.] + [1. / nn] * nn
-        A_icol += [mm + l * (nn + 1) for l in range(ll)]
-        A_irow += [ll] * ll
-        A_data += list(self.coef)
-        A_icol += list(range(mm))
-        A_irow += [ll + 1] * mm
-        A_data += [1.] * mm
 
         A_shape = (ll + 2, mm + (nn + 1) * ll)
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
 
         # build b
-        b_data = [0.] * ll + [self.risk, 1.]
+        b_data = [self.risk, 1.]  + [0.] * ll
 
         # calc
         res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
@@ -477,8 +470,8 @@ class MADAnalyzer(_RiskAnalyzer):
         self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
                                            for l in range(ll)])
         # tMAD
-        self.secondary_risk_comp = np.cumsum(self.primary_risk_comp) \
-            - self.primary_risk_comp[0]
+        self.secondary_risk_comp = \
+            np.cumsum(np.insert(self.primary_risk_comp, 0, 0))[:-1]
         # optimal weights
         self.ww = np.array(res['x'][:mm])
         self.ww.shape = mm
@@ -511,10 +504,10 @@ class MADAnalyzer(_RiskAnalyzer):
         for l in range(ll):
             G_icol += [mm + k * (nn + 1) for k in range(l)] * nn \
                   + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
-            #irow += list(range(l * nn, (l + 1) * nn)) * (l + 1)
             G_irow += [k for k in range(l * nn, (l + 1) * nn) \
                        for _ in range(l)] + list(range(l * nn, (l + 1) * nn))
             G_data += [-1.] * ((l + 1) * nn)
+            
         G_icol += list(range(mm + ll * (nn + 1)))
         G_irow += list(range(ll * nn, ll * nn + mm + ll * (nn + 1)))
         G_data += [-1.] * (mm + ll * (nn + 1))
@@ -526,22 +519,19 @@ class MADAnalyzer(_RiskAnalyzer):
         h_data = [0.] * (nn * ll + mm + ll * (nn + 1))
 
         # build A
-        A_icol = []
-        A_irow = []
-        A_data = []
+        A_icol = list(range(mm))
+        A_irow = [0] * mm
+        A_data = [1.] * mm
         for l in range(ll):
             A_icol += list(range(mm + l * (nn + 1), mm + (l + 1) * (nn + 1)))
-            A_irow += [l] * (nn + 1)
+            A_irow += [l + 1] * (nn + 1)
             A_data += [-1.] + [1. / nn] * nn
-        A_icol += list(range(mm))
-        A_irow += [ll] * mm
-        A_data += [1.] * mm
-
+        
         A_shape = (ll + 1, mm + (nn + 1) * ll)
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
 
         # build b
-        b_data = [0.] * ll + [1.]
+        b_data = [1.] + [0.] * ll
 
         # calc
         res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
@@ -562,7 +552,7 @@ class MADAnalyzer(_RiskAnalyzer):
         self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
                                            for l in range(ll)])
         # tMAD
-        self.secondary_risk_comp = np.cumsum(self.primary_risk_comp) \
-            - self.primary_risk_comp[0]
+        self.secondary_risk_comp = \
+            np.cumsum(np.insert(self.primary_risk_comp, 0, 0))[:-1]
 
         return self.ww

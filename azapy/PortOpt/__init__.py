@@ -6,7 +6,9 @@ from .MADAnalyzer import *
 from .MVAnalyzer import *
 from .SDAnalyzer import *
 from .OmegaAnalyzer import *
+from .mOmegaAnalyzer import *
 from .BTSDAnalyzer import *
+from .mBTSDAnalyzer import *
 from .LSSDAnalyzer import *
 from .KellyEngine import *
 
@@ -23,7 +25,9 @@ from .Port_MAD import *
 from .Port_MV import *
 from .Port_SD import *
 from .Port_Omega import *
+from .Port_mOmega import *
 from .Port_BTSD import *
+from .Port_mBTSD import *
 from .Port_SMCR import *
 from .Port_LSSD import *
 from .Port_Kelly import *

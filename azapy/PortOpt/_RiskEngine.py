@@ -203,5 +203,6 @@ class _RiskEngine():
 
         return res
 
+    # need to be implemented by the derive classes
     def getWeights(self):
         pass

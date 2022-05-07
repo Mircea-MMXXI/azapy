@@ -96,7 +96,7 @@ class BTSDAnalyzer(OmegaAnalyzer):
         mm = self.mm
 
         # build c
-        c_data = [0.] * mm + [1./np.sqrt(nn)] + [0.] * nn
+        c_data = [0.] * mm + [1.] + [0.] * nn
         
         # build G
         # linear
@@ -118,7 +118,7 @@ class BTSDAnalyzer(OmegaAnalyzer):
         # cone
         G_icol += list(range(mm, mm + 1 + nn))
         G_irow += list(range(mm + 2 + 2 * nn, mm + 3 + 3 * nn))
-        G_data += [-1.] * (nn + 1)
+        G_data += [-np.sqrt(nn)] + [-1.] * nn
         
         G_shape = (mm + 3 + 3 * nn, mm + 1 + nn)
         G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
@@ -134,6 +134,7 @@ class BTSDAnalyzer(OmegaAnalyzer):
         A_icol = list(range(mm))
         A_irow = [0] * mm
         A_data = [1.] * mm
+        
         A_shape = (1, mm + nn + 1)
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         
@@ -164,10 +165,96 @@ class BTSDAnalyzer(OmegaAnalyzer):
     
     
     def _sharpe_max(self):
+        # add slack varaible, u (=1), to be compatible with LSSD
         # Order of variables:
         # w <- [0:mm] 
-        # s_l <- [mm:mm + nn]
-        # t <- [mm + nn + 1]
+        # u <- mm
+        # s_l <- [mm + 1 : mm + 1 + nn]
+        # t <- mm + 1 + nn 
+        # in total dim = mm + nn + 2
+        nn = self.nn
+        mm = self.mm
+        
+        # build c
+        c_data = list(-self.muk) + [0.] * (nn + 1) + [self.mu]
+        
+        # build G
+        # linear
+        G_icol = list(range(mm)) * nn
+        G_irow = [k  for k in range(nn) for _ in range(mm)]
+        G_data = list(np.ravel(-self.rrate))
+        
+        G_icol += list(range(mm + 1, mm + 1 + nn))
+        G_irow += list(range(nn))
+        G_data += [-1.] * nn
+        
+        G_icol += [mm + nn + 1] * nn
+        G_irow += list(range(nn))
+        G_data += [self.alpha[0]] * nn
+        
+        G_icol += list(range(mm + 2 + nn))
+        G_irow += list(range(nn, mm + 2 + 2 * nn))
+        G_data += [-1.] * (mm + 2 + nn)
+        # cone
+        G_icol += list(range(mm, mm + nn + 1))
+        G_irow += list(range(mm + 2 + 2 * nn, mm + 3 + 3 * nn))
+        G_data += [-np.sqrt(nn)] + [-1.] * nn
+        
+        G_shape = (mm + 3 + 3 * nn, mm + 2 + nn)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
+        
+        # build h
+        h_data = [0.] * (mm + 3 + 3 * nn) 
+        
+        # build dims
+        dims = {'l': (mm + 2 + 2 * nn), 'q': [nn + 1]}
+        
+        # build A
+        A_icol = list(range(mm)) + [mm + nn + 1]
+        A_irow = [0] * (mm + 1)
+        A_data = [1.] * mm + [-1.]
+        
+        A_icol += [mm]
+        A_irow += [1]
+        A_data += [1]
+        
+        A_shape = (2, mm + nn + 2)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
+        
+        # build b
+        b_data = [0., 1.]
+        
+        # calc
+        res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            return np.array([np.nan] * mm)
+            
+        # Omega
+        self.sharpe = -res['pcost']
+        # risk
+        self.risk = 1. / res['x'][-1]
+        # optimal weights
+        self.ww = np.array(res['x'][:mm] * self.risk)
+        self.ww.shape = mm
+        # rate of return
+        self.RR = self.sharpe * self.risk + self.mu
+        # primary risk components - default to risk
+        self.primary_risk_comp = np.array([self.risk])
+        # secondary risk components - default to risk
+        self.secondary_risk_comp = np.array([self.risk])
+        
+        return self.ww
+        
+    
+    def _sharpe_max2(self):
+        # same as _sharpe_max but without slack vraible u
+        # Order of variables:
+        # w <- [0:mm] 
+        # s_l <- [mm : mm + nn]
+        # t <- mm + nn 
         # in total dim = mm + nn + 1
         nn = self.nn
         mm = self.mm
@@ -239,7 +326,6 @@ class BTSDAnalyzer(OmegaAnalyzer):
         self.secondary_risk_comp = np.array([self.risk])
         
         return self.ww
-        
     
     def _sharpe_inv_min(self):
         # Order of variables:
@@ -252,7 +338,7 @@ class BTSDAnalyzer(OmegaAnalyzer):
         mm = self.mm
         
         # build c
-        c_data = [0.] * mm + [1./np.sqrt(nn)] + [0.] * (nn + 1)
+        c_data = [0.] * mm + [1.] + [0.] * (nn + 1)
         
           # build G
         # linear
@@ -274,7 +360,7 @@ class BTSDAnalyzer(OmegaAnalyzer):
         # cone
         G_icol += list(range(mm, mm + 1 + nn))
         G_irow += list(range(mm + 2 + 2 * nn, mm + 3 + 3 * nn))
-        G_data += [-1.] * (nn + 1)
+        G_data += [-np.sqrt(nn)] + [-1.] * nn
         
         G_shape = (mm + 3 + 3 * nn, mm + 2 + nn)
         G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
@@ -326,7 +412,8 @@ class BTSDAnalyzer(OmegaAnalyzer):
         return self.ww
         
     
-    def _rr_max(self):
+    def _rr_max2(self):
+        # same as _rr_max2 but without slack varaible u
         # Order of variables:
         # w <- [0:mm] 
         # s <- [mm : mm + nn]
@@ -396,6 +483,77 @@ class BTSDAnalyzer(OmegaAnalyzer):
         return self.ww
     
     
+    def _rr_max(self):
+        # add slack varaible, u (=1), to be compatible with LSSD
+        # Order of variables:
+        # w <- [0:mm] 
+        # u <- mm
+        # s <- [mm + 1: mm + 1 + nn]
+        # in total dim = mm + nn + 1
+        nn = self.nn
+        mm = self.mm
+        
+        # build c
+        c_data = list(-self.muk) + [0.] * (nn + 1)
+        
+        # build G
+        # linear
+        G_icol = list(range(mm)) * nn
+        G_irow = [k  for k in range(nn) for _ in range(mm)]
+        G_data = list(np.ravel(-self.rrate))
+        
+        G_icol += list(range(mm + 1, mm + 1 + nn))
+        G_irow += list(range(nn))
+        G_data += [-1.] * nn
+
+        G_icol += list(range(mm + nn + 1))
+        G_irow += list(range(nn, mm + 2 * nn + 1))
+        G_data += [-1.] * (mm + nn + 1)
+        # cone
+        G_icol += list(range(mm, mm + nn + 1))
+        G_irow += list(range(mm + 1 + 2 * nn, mm + 2 + 3 * nn))
+        G_data += [-np.sqrt(nn)] + [-1.] * nn
+        
+        G_shape = (mm + 2 + 3 * nn, mm + nn + 1)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
+        
+        # build h
+        h_data = [-self.alpha[0]] * nn + [0.] * (mm + 2 * nn + 2)
+               
+        # build dims
+        dims = {'l': (mm + 2 * nn + 1), 'q': [nn + 1]}
+        
+        # build A
+        A_icol = list(range(mm + 1))
+        A_irow = [0] * mm + [1]
+        A_data = [1.] * (mm + 1)
+        
+        A_shape = (2, mm + nn + 1)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
+        
+        # build b
+        b_data = [1., self.risk]
+        
+        # calc
+        res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            return np.array([np.nan] * mm)
+            
+        # rate of return
+        self.RR = -res['pcost']
+        # optimal weights
+        self.ww = np.array(res['x'][:mm])
+        self.ww.shape = mm
+        # primary risk components - default to risk
+        self.primary_risk_comp = np.array([self.risk])
+        # secondary risk components - default to risk
+        self.secondary_risk_comp = np.array([self.risk])
+        
+        return self.ww
+    
     def _risk_averse(self):
         # Order of variables
         # w <- [0 : mm]
@@ -406,13 +564,14 @@ class BTSDAnalyzer(OmegaAnalyzer):
         mm = self.mm
         
         # build c
-        c_data = list(-self.muk) + [self.Lambda / np.sqrt(nn)] + [0.] * nn 
+        c_data = list(-self.muk) + [self.Lambda] + [0.] * nn 
         
         # build G
         # linear
         G_icol = list(range(mm)) * nn
         G_irow = [k  for k in range(nn) for _ in range(mm)]
         G_data = list(np.ravel(-self.rrate))
+        
         G_icol += list(range(mm + 1, mm + 1 + nn))
         G_irow += list(range(nn))
         G_data += [-1.] * nn
@@ -423,7 +582,7 @@ class BTSDAnalyzer(OmegaAnalyzer):
         # cone
         G_icol += list(range(mm, mm + 1 + nn))
         G_irow += list(range(mm + 1 + 2 * nn, mm + 2 + 3 * nn))
-        G_data += [-1.] * (nn + 1)
+        G_data += [-np.sqrt(nn)] + [-1.] * nn
         
         G_shape = (mm + 2 + 3 * nn, mm + 1 + nn)
         G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
@@ -460,8 +619,7 @@ class BTSDAnalyzer(OmegaAnalyzer):
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
         # delta-risk
-        #self.risk = (res['pcost'] + self.RR) / self.Lambda
-        self.risk = res['x'][mm] / np.sqrt(nn)
+        self.risk = res['x'][mm] 
         # primary risk components - default to risk
         self.primary_risk_comp = np.array([self.risk])
         # secondary risk components - default to risk

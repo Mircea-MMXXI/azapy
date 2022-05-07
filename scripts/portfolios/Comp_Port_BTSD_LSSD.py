@@ -1,4 +1,5 @@
 # Comparison between BTSD with alpha0=0 and first order LSSD
+# should be the same
 import time
 import azapy as az
 
@@ -13,7 +14,7 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
 # Compute BTSD-Sharpe optimal portfolio for alpha0=0
-p1 = az.Port_BTSD(mktdata, pname='BTSDPort') 
+p1 = az.Port_mBTSD(mktdata, pname='BTSDPort') 
 
 tic = time.perf_counter()
 port1 = p1.set_model(mu=0.)   

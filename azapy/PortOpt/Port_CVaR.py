@@ -83,6 +83,7 @@ class Port_CVaR(Port_InvVol):
         self._port_calc()
         return self.port
 
+
     def _set_alpha(self, alpha, coef):
         # alpha
         self.alpha = np.array(alpha)
@@ -97,7 +98,7 @@ class Port_CVaR(Port_InvVol):
                 raise ValueError("coef must have same length as alpha")
             self.coef = np.array(coef)
 
-        if np.any(self.alpha < 0.):
+        if np.any(self.coef < 0.):
             raise ValueError("coef must be >= 0")
 
         scoef = self.coef.sum()
@@ -105,6 +106,7 @@ class Port_CVaR(Port_InvVol):
             raise ValueError("at leas one coef must be > 0")
 
         self.coef = self.coef / scoef
+
 
     def _set_rtype(self, rtype):
         rtype_values = ['Sharpe', 'Risk', 'MinRisk', 'InvNrisk', 'RiskAverse',
@@ -114,16 +116,15 @@ class Port_CVaR(Port_InvVol):
 
         self.rtype = rtype
 
+
     def _set_method(self, method):
-        method_values = ['ecos', 'highs-ds', 'highs-ipm', 'highs',
-                         'interior-point', 'glpk', 'cvxopt']
-        if not method in method_values:
-            raise ValueError(f"mehtod must be one of {method_values}")
         self.method = method
+
 
     def _wwgen(self):
         return CVaRAnalyzer(self.alpha, self.coef, rtype=self.rtype,
                             method=self.method)
+
 
     def _ww_calc(self, data):
         return self._wwgen().getWeights(mu=self.mu, rrate=data)

@@ -1,3 +1,4 @@
+import numpy as np
 from .Port_CVaR import Port_CVaR
 from .OmegaAnalyzer import OmegaAnalyzer
 
@@ -65,17 +66,13 @@ class Port_Omega(Port_CVaR):
         pandas.DataFrame
             The portfolio time-series in the format "date", "pcolname".
         """
-        self._set_rtype(rtype)
-        self.alpha = [alpha0]
-        self.coef = [1.]
-        self.mu = mu
-        self.hlength = hlength
-        self._set_method(method)
+        return super().set_model(mu, alpha0, 1., rtype, hlength, method)
 
-        self._set_schedule()
-        self._set_weights()
-        self._port_calc()
-        return self.port
+    
+    def _set_alpha(self, alpha, coef):
+        self.alpha = np.array([alpha])
+        self.coef = np.array([coef])
+
 
     def _wwgen(self):
         return OmegaAnalyzer(self.alpha[0], rtype=self.rtype,

@@ -157,9 +157,11 @@ class SMCRAnalyzer(CVaRAnalyzer):
             G_irow += list(range(l * nn, (l + 1) * nn)) \
                 + list(range(l * nn, (l + 1) * nn))
             G_data += [-1.] * nn + [-1.] * nn
+            
         G_icol += list(range(mm))
         G_irow += [nn * ll] * mm
         G_data += list(-self.muk * d)
+        
         G_icol += list(range(mm))
         G_irow += list(range(nn * ll + 1, mm + nn * ll + 1))
         G_data += [-1.] * mm
@@ -191,6 +193,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         A_icol = list(range(mm))
         A_irow = [0] * mm
         A_data = [1.] * mm
+        
         A_shape = (1, mm + ll * (nn + 2))
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
        
@@ -252,6 +255,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
             G_irow += list(range(l * nn, (l + 1) * nn)) \
                 + list(range(l * nn, (l + 1) * nn))
             G_data += [-1] * nn + [-1] * nn
+            
         G_icol += list(range(mm))
         G_irow += list(range(nn * ll, mm + nn * ll))
         G_data += [-1.] * mm
@@ -356,6 +360,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
             G_irow += list(range(l * nn, (l + 1) * nn)) \
                 + list(range(l * nn, (l + 1) * nn))
             G_data += [-1] * nn + [-1] * nn
+            
         G_icol += list(range(mm))
         G_irow += list(range(nn * ll, mm + nn * ll))
         G_data += [-1.] * mm
@@ -386,6 +391,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         A_icol = list(range(mm)) + [mm + ll * (nn + 2)]
         A_irow = [0] * (mm + 1)
         A_data = [1.] * mm + [-1.]
+        
         A_icol += list(range(mm)) + [mm + ll * (nn + 2)]
         A_irow += [1] * (mm + 1)
         A_data += list(self.muk) + [-self.mu]
@@ -453,6 +459,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
             G_irow += list(range(l * nn, (l + 1) * nn)) \
                   + list(range(l * nn, (l + 1) * nn))
             G_data += [-1.] * nn + [-1.] * nn
+            
         G_icol += list(range(mm))
         G_irow += list(range(nn * ll, mm + nn * ll))
         G_data += [-1.] * mm
@@ -552,6 +559,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
             G_irow += list(range(l * nn, (l + 1) * nn)) \
                 + list(range(l * nn, (l + 1) * nn))
             G_data += [-1.] * nn + [-1.] * nn
+            
         G_icol += list(range(mm))
         G_irow += list(range(nn * ll, mm + nn * ll))
         G_data += [-1.] * mm
@@ -583,6 +591,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         A_icol = list(range(mm))
         A_irow = [0] * mm
         A_data = [1.] * mm
+        
         A_shape = (1, mm + ll * (nn + 2))
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         

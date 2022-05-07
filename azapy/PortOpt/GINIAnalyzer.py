@@ -217,6 +217,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         A_icol = list(range(mm, mm + nn2)) + list(range(mm)) + [mm + nn2] 
         A_irow = [0] * nn2 + [1] * (mm + 1)
         A_data = [0.5 / nn2] * nn2 + [1.] * mm + [-1.]
+        
         A_shape = (2, mm + nn2 + 1)
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         
@@ -284,6 +285,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         A_icol = (list(range(mm)) + [mm + nn2]) * 2
         A_irow = [0] * (mm + 1) + [1] * (mm + 1)
         A_data = list(self.muk) + [-self.mu] + [1.] * mm + [-1.]
+        
         A_shape = (2, mm + nn2 + 1)
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         
@@ -350,6 +352,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         A_icol = list(range(mm)) + list(range(mm, mm + nn2))
         A_irow = [0] * mm + [1] * nn2
         A_data = [1.] * mm + [0.5 / nn2] * nn2
+        
         A_shape = (2, mm + nn2)
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         
@@ -411,6 +414,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         A_icol = list(range(mm))
         A_irow = [0] * mm
         A_data = [1.] * mm
+        
         A_shape = (1, mm + nn2)
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         

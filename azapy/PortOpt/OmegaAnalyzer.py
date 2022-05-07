@@ -168,6 +168,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
         G_irow = [k  for k in range(nn) for _ in range(mm)] \
             + list(range(nn)) + [nn] * mm
         G_data = list(np.ravel(-self.rrate)) + [-1.] * nn + list(-self.muk * d)
+        
         G_icol += list(range(mm + nn))
         G_irow += list(range(nn + 1, nn + 1 + mm + nn))
         G_data += [-1.] *(mm + nn)
@@ -182,6 +183,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
         A_icol = list(range(mm))
         A_irow = [0] * mm
         A_data = [1.] * mm
+        
         A_shape = (1, mm + nn)
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
        
@@ -245,6 +247,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
         A_icol = list(range(mm, mm + nn)) + list(range(mm)) + [mm + nn]
         A_irow = [0] * nn + [1] * (mm + 1)
         A_data = [1. / nn] * nn + [1.] * mm + [-1.]
+        
         A_shape = (2, mm + nn + 1)
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         
@@ -309,6 +312,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
         A_icol = list(range(mm)) + [mm + nn] + list(range(mm)) + [mm + nn]
         A_irow = [0] * (mm + 1) + [1] * (mm + 1)
         A_data = list(self.muk) +[-self.mu] + [1.] * mm + [-1.]
+        
         A_shape = (2, mm + nn + 1)
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         
@@ -370,6 +374,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
         A_icol = list(range(mm, mm + nn)) + list(range(mm))
         A_irow = [0] * nn + [1] * mm
         A_data = [1. / nn] * nn + [1.] * mm 
+        
         A_shape = (2, mm + nn)
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
  
@@ -412,6 +417,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
         G_icol = list(range(mm)) * nn + list(range(mm, mm + nn)) 
         G_irow = [k  for k in range(nn) for _ in range(mm)] + list(range(nn)) 
         G_data = list(np.ravel(-self.rrate)) + [-1.] * nn 
+        
         G_icol += list(range(mm + nn))   
         G_irow += list(range(nn, nn + mm + nn))
         G_data += [-1.] * (mm + nn)
@@ -426,6 +432,7 @@ class OmegaAnalyzer(_RiskAnalyzer):
         A_icol = list(range(mm))
         A_irow = [0] * mm
         A_data = [1.] * mm
+        
         A_shape = (1, mm + nn)
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
 

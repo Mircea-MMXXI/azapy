@@ -1,4 +1,5 @@
 # Comparison between Omega with alpha0=0 and first order MAD
+# should be the same
 import time
 import azapy as az
 
@@ -13,7 +14,7 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
 # Compute Omega-Sharpe optimal portfolio for alpha0=0 (deafult)
-p1 = az.Port_Omega(mktdata, pname='OmegaPort') 
+p1 = az.Port_mOmega(mktdata, pname='OmegaPort') 
 
 tic = time.perf_counter()
 port1 = p1.set_model(mu=0.)   

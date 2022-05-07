@@ -67,8 +67,9 @@ class Port_MAD(Port_CVaR):
         pandas.DataFrame
             The portfolio time-series in the format "date", "pcolname".
         """
-        return super().set_model(mu=mu, coef=coef, rtype=rtype,
+        return super().set_model(mu=mu, coef=coef, rtype=rtype, 
                                  hlength=hlength, method=method)
+
 
     def _set_alpha(self, alpha, coef):
         # ignore alpha
@@ -79,6 +80,7 @@ class Port_MAD(Port_CVaR):
         if ssc <= 0.:
             raise ValueError("at least one coef must be > 0")
         self.coef = coef / ssc
+
 
     def _wwgen(self):
         return MADAnalyzer(coef=self.coef, rtype=self.rtype,

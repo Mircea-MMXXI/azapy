@@ -52,7 +52,7 @@ class Port_MV(Port_CVaR):
             to 'Dfix'. A fractional number will be rounded to an integer number
             of months. The default is 3.25 years.
         method : str, optional
-            Numerical method to solve the SOCP and QP. Can be 'ecos' or 
+            Numerical method to solve the SOCP and QP. It can be 'ecos' or 
             'cvxopt'. The default is 'ecos'.
 
         Returns
@@ -63,11 +63,6 @@ class Port_MV(Port_CVaR):
         return super().set_model(mu=mu, rtype=rtype, hlength=hlength,
                                  method=method)
 
-    def _set_method(self, method):
-        methods = ['ecos', 'cvxopt']
-        if not method in methods:
-            raise ValueError(f"mehtod must be one of {methods}")
-        self.method = method
 
     def _wwgen(self):
         return MVAnalyzer(rtype=self.rtype, method=self.method)

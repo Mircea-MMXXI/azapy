@@ -31,7 +31,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         alpha : list, optional
             List of alpha values. The default is [0.975].
         coef : list, optional
-            List of coefficients. Must be the same size with 
+            List of coefficients. Must have the same size with 
             alpha. The default is [1.].
         mktdata : pandas.DataFrame, optional
             Historic daily market data for portfolio components in the format
@@ -111,6 +111,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         G_icol = [0] * nn + list(range(1, nn + 1)) + list(range(nn+1))
         G_irow = list(range(nn)) * 2 + list(range(nn, 2 * nn + 1))
         G_data = [-1.] * (3 * nn + 1)
+        
         G_shape = (2 * nn + 1, nn + 1)
         G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
 
@@ -166,9 +167,11 @@ class CVaRAnalyzer(_RiskAnalyzer):
             G_irow += list(range(l * nn, (l + 1) * nn)) \
                 + list(range(l * nn, (l + 1) * nn))
             G_data += [-1] * nn + [-1] * nn
+            
         G_icol += list(range(mm))
         G_irow += [nn * ll] * mm
         G_data += list(-self.muk * d)
+        
         G_icol += list(range(mm + ll * (nn + 1)))
         G_irow += list(range(ll * nn + 1, ll * nn + 1 + mm + ll * (nn + 1)))
         G_data += [-1.] * (mm + ll * (nn + 1) )
@@ -183,6 +186,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         A_icol = list(range(mm))
         A_irow = [0] * mm
         A_data = [1.] * mm
+        
         A_shape = (1, mm + ll * (nn + 1))
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
 
@@ -242,6 +246,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
             G_irow += list(range(l * nn, (l + 1) * nn)) \
                 + list(range(l * nn, (l + 1) * nn))
             G_data += [-1] * nn + [-1] * nn
+            
         G_icol += list(range(mm + ll * (nn + 1) + 1))
         G_irow += list(range(ll * nn, ll * nn + mm + ll * (nn + 1) + 1))
         G_data += [-1.] * (mm + ll * (nn + 1) + 1)
@@ -329,6 +334,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
             G_irow += list(range(l * nn, (l + 1) * nn)) \
                 + list(range(l * nn, (l + 1) * nn))
             G_data += [-1.] * nn + [-1.] * nn
+            
         G_icol += list(range(mm + ll * (nn + 1) + 1))
         G_irow += list(range(ll * nn, ll * nn + mm + ll * (nn + 1) + 1))
         G_data += [-1.] * (mm + ll * (nn + 1) + 1)
@@ -343,6 +349,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         A_icol = list(range(mm)) + [mm + ll * (nn + 1)]
         A_irow = [0] * (mm + 1)
         A_data = [1.] * mm + [-1.]
+        
         A_icol += list(range(mm)) + [mm + ll * (nn + 1)]
         A_irow += [1] * (mm + 1)
         A_data += list(self.muk) + [-self.mu]
@@ -408,6 +415,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
             G_irow += list(range(l * nn, (l + 1) * nn)) \
                 + list(range(l * nn, (l + 1) * nn))
             G_data += [-1.] * nn + [-1.] * nn
+            
         G_icol += list(range(mm + ll * (nn + 1)))
         G_irow += list(range(ll * nn, ll * nn + mm + ll * (nn + 1)))
         G_data += [-1.] * (mm + ll * (nn + 1))
@@ -485,6 +493,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
             G_irow += list(range(l * nn, (l + 1) * nn)) \
                 + list(range(l * nn, (l + 1) * nn))
             G_data += [-1] * nn + [-1] * nn
+            
         G_icol += list(range(mm + ll * (nn + 1)))
         G_irow += list(range(ll * nn, ll * nn + mm + ll * (nn + 1)))
         G_data += [-1.] * (mm + ll * (nn + 1))
@@ -499,6 +508,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         A_icol = list(range(mm))
         A_irow = [0] * mm
         A_data = [1.] * mm
+        
         A_shape = (1, mm + ll * (nn + 1))
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
 
