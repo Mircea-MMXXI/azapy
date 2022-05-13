@@ -2,12 +2,11 @@
 # MAD optimal portfolios <a name="TOP"></a>
 
 MAD stands for _Mean Absolute Deviation_.
-**azapy** implements a generalization of MAD, namely the Mixture MAD (mMAD).
 
-mMAD is a superposition of recursive high order MAD measures.
-The single MAD measure can be viewed as a particular case of mMAD.
+**azapy** implements a generalization of MAD, namely the **Mixture MAD (mMAD)**.
 
-The mMAD dispersion measure is defined as
+mMAD dispersion measure is a superposition of recursive high order MAD measures,
+*i.e.*,
 
 \begin{equation*}
 	\rho = \sum_{l=1}^L {\cal K}_l \times \delta_l
@@ -15,11 +14,19 @@ The mMAD dispersion measure is defined as
 
 where:
 
-* $L$ is the number of individual MAD's,
-* ${\cal K}_l$ are positive coefficients,
-* $\delta_l$ is the l-th order MAD measure.
+* $L$ is the highest MAD order,
+* $\{{\cal K}_l\}_{l=1,\cdots,L}$ is a set of non-increasing positive
+coefficients,
+* $\delta_l$ is the l-th order MAD measure, defined recursively as
 
-> Note: a typical choice could be $L=3$ and ${\cal K}_l=1/3\ \ \forall l$.
+\begin{align*}
+	\delta_l(r) &= E\left[\left(-{\bar r} - \sum_{j=1}^{l-1} \delta_j(r)\right)^+\right], \\
+	&\cdots \\
+	\delta_1(r) &= E\left[\left(-{\bar r}\right)^+\right],
+\end{align*}
+where $\bar r$ is the detrended rate of return, ${\bar r} = r - E[r]$.
+
+> Note: a possible choice could be $L=3$ and ${\cal K}_l=1/3\ \ \forall l$.
 
 The following portfolio optimization strategies are available:
 * Minimization of dispersion for a give expected rate of return,
@@ -77,9 +84,8 @@ MADAnalyzer(coef=[1.], mktdata=None, colname='adjusted', freq='Q',
 
 where:
 
-* `coef` : List of non-negative (`>=0`) coefficients with at least one
-element positive (`>0`). The highest order non zero element defines the
-highest MAD order in mMAD. The default is `[1.]`.
+* `coef` : Positive, non-increasing list of mixture coefficients.
+The default is [1.]. 
 * `mktdata` : `pd.DataFrame` containing the market data in the format returned by
 the function `azapy.readMkT`. The default is `None`. `mktdata` could be loaded
 latter.
@@ -452,14 +458,14 @@ import azapy as az
 # Collect some market data
 mktdir = "../../MkTdata"
 sdate = "2012-01-01"
-edate = 'today'
+edate = "2021-07-27"
 symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
+
 #=============================================================================
-# Define mMAD measure parameters coef
-coef = np.ones(3)
-coef = coef / coef.sum()
+# Define mMAD coef (equal weighted mixture for max MAD order 3)
+coef = np.full(3, 1/3)
 
 #=============================================================================
 # Compute Sharpe optimal portfolio
@@ -637,6 +643,7 @@ cash = 0.
 # new positions and rolling info
 pos = cr1.getPositions(mu=0., rtype='Sharpe', nshares=ns, cash=0.)
 print(f" New position report\n {pos}")
+
 ```
 
 [TOP](#TOP)
@@ -768,7 +775,8 @@ Reference rate. Its meaning depends of the value of `rtype`. For
     - `'MinRisk'` and `'InvNrisk'` : `mu` is ignored,
     - `'RiskAverse'` : `mu` is the risk aversion coefficient $\lambda$.
 * `coef` :
-List of ${\cal K}_l$ mixture coefficients. The default is `[1.]`.
+Positive, non-increasing list of mixture coefficients.
+The default is [1.]. 
 * `rtype` :
 Optimization type. The default is `'Sharpe'`. Possible values are:
     - `'Risk'` : minimization of dispersion (risk) measure for a fixed values
@@ -1134,19 +1142,18 @@ import azapy as az
 # Collect some market data
 mktdir = "../../MkTdata"
 sdate = "2012-01-01"
-edate = 'today'
+edate = "2021-07-27"
 symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Setup mMAD parameters
-coef = np.ones(3)
-coef = coef / coef.sum()
+# Setup mLSSD mixture coef (equal weighted for max LSSD order 3)
+coef = np.full(3, 1/3)
 
 #=============================================================================
-# Compute MAD-Sharpe optimal portfolio
-p4 = az.Port_MAD(mktdata, pname='MADPort')
+# Compute LSSD-Sharpe optimal portfolio
+p4 = az.Port_LSSD(mktdata, pname='LSSDPort')
 
 tic = time.perf_counter()
 port4 = p4.set_model(mu=0., coef=coef)   
@@ -1179,7 +1186,7 @@ _ = pp.set_model()
 _ = pp.port_view_all(componly=(True))
 
 #=============================================================================
-# Compute mMAD optimal portfolio
+# Compute mLSSD optimal portfolio
 port4 = p4.set_model(mu=0.1, coef=coef, rtype="Risk")   
 ww = p4.get_weights()
 p4.port_view()
@@ -1194,7 +1201,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute minimum mMAD optimal portfolio
+# Compute minimum mLSSD optimal portfolio
 port4 = p4.set_model(mu=0.1, coef=coef, rtype="MinRisk")   
 ww = p4.get_weights()
 p4.port_view()
@@ -1209,7 +1216,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute optimal portfolio with mMAD of equal weighted portfolio
+# Compute optimal portfolio with mLSSD of equally weighted portfolio
 port4 = p4.set_model(mu=0.1, coef=coef, rtype="InvNrisk")   
 ww = p4.get_weights()
 p4.port_view()
@@ -1239,11 +1246,10 @@ p4.get_nshares()
 p4.get_account(fancy=True)  
 
 #=============================================================================
-# # speed comparisons for different LP methods
+# # speed comparisons for different SOCP methods
 # # may take some time to complete
 # # please uncomment the lines below
-# methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 'glpk', 'cvxopt',  
-#            'interior-point' ]
+# methods = ['ecos', 'cvxopt']
 # zts = []
 # for method in methods:
 #     toc = time.perf_counter()

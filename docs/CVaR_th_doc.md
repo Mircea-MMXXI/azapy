@@ -2,8 +2,17 @@
 # CVaR optimal portfolios <a name="TOP"></a>
 
 CVaR stands for *Conditional Value at Risk*. It is one of the most popular risk
-measures in finance.
-**azapy** implements a generalization of CVaR, namely the Mixture CVaR (mCVaR).
+measures in finance. The CVaR dispersion measure can be defined as
+
+\begin{equation*}
+	{\rm CVaR}_\alpha(r) = \min_u \left( u + \frac{1}{1-\alpha}E\left[\left(-u-{\bar r}\right)^+\right]\right),
+\end{equation*}
+
+where $\alpha$ is the confidence level and
+$\bar r$ is the detrended rate of return, ${\bar r} = r - E[r]$.
+
+**azapy** implements a generalization of CVaR,
+namely the **Mixture CVaR (mCVaR)**.
 
 mCVaR is a superposition of CVaR
 measures for different confidence levels. The single CVaR measure is a
@@ -19,10 +28,10 @@ where:
 
 * $L$ is the number of individual CVaR's,
 * ${\cal K}_l$ are positive coefficients,
-* $\alpha_l$ are the CVaR confidence levels.
+* $\alpha_l$ are distinct CVaR confidence levels.
 
 > Note: a typical choice could be $L=3$, ${\cal K}_l=1/3\ \forall l$,
-and $\alpha=\{0.95, 0.90, 0.85\}$
+and $\alpha=\{0.975, 0.95, 0.9\}$
 
 The following portfolio optimization strategies are available:
 * Minimization of dispersion for a give expected rate of return,
@@ -72,15 +81,17 @@ rebalancing delta positions and costs.
 ### Constructor
 
 ```
-CVaRAnalyzer(alpha=[0.975], coef=[1.], mktdata=None, colname='adjusted',
+CVaRAnalyzer(alpha=[0.975], coef=None, mktdata=None, colname='adjusted',
              freq='Q', hlength=3.25, calendar=None, rtype='Sharpe', method='ecos')
 ```
 
 where:
 
-* `alpha` : List of confidence levels. The default is `[0.975]`.
-* `coef` : List of positive (`>0`) coefficients. `len(coef)` must be equal to
-`len(alpha)`. The default is `[1.]`.
+* `alpha` : List of distinct confidence levels. The default is `[0.975]`.
+* `coef` : List of positive mixture coefficients. Must have the same size as
+`alpha`. A `None` value assumes an equal weighted risk mixture. The vector
+of coefficients will be normalized to unit.
+The default is `None`.
 * `mktdata` : `pd.DataFrame` containing the market data in the format returned by
 the function `azapy.readMkT`. The default is `None`. `mktdata` could be loaded
 latter.
@@ -454,7 +465,7 @@ import azapy as az
 # Collect some market data
 mktdir = "../../MkTdata"
 sdate = "2012-01-01"
-edate = 'today'
+edate = "2021-07-27"
 symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
@@ -462,8 +473,8 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 #=============================================================================
 # Define mCVaR measure parameters alpha and coef
 alpha = np.array([0.99, 0.975, 0.95])
-coef = np.ones(len(alpha))
-coef = coef / coef.sum()
+# equal weighted risk mixture
+coef = np.full(len(alpha), 1/len(alpha))
 
 #=============================================================================
 # Compute Sharpe optimal portfolio
@@ -772,11 +783,11 @@ Reference rate. Its meaning depends of the value of `rtype`. For
     - `'MinRisk'` and `'InvNrisk'` : `mu` is ignored,
     - `'RiskAverse'` : `mu` is the risk aversion coefficient $\lambda$.
 * `alpha` :
-List of $\alpha_l$ confidence levels. The default is `[0.975]`.
+List of distinct $\alpha_l$  confidence levels. The default is `[0.975]`.
 * `coef` :
-List of ${\cal K}_l$ mixture coefficients. Note that `len(coef)` must be
-equal to `len(alpha)`.
-A value of `None` assumes `coef = [1 / len(alpha)] * len(alpha)`.
+List of positive ${\cal K}_l$ mixture coefficients. Must have the same length as
+`alpha`. A `None` value assumes an equal weighted
+mixture. The vector of coefficients will be normalized to unit.
 The default is `None`.
 * `rtype` :
 Optimization type. The default is `'Sharpe'`. Possible values are:
@@ -1142,7 +1153,7 @@ import azapy as az
 # Collect some market data
 mktdir = "../../MkTdata"
 sdate = "2012-01-01"
-edate = 'today'
+edate = "2021-07-27"
 symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
@@ -1150,7 +1161,7 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 #=============================================================================
 # Setup mCVaR parameters
 alpha = [0.99, 0.975, 0.95]
-# assume equal weighted coef - default
+# assume equal weighted mixture - default
 
 #=============================================================================
 # Compute C-Sharpe optimal portfolio

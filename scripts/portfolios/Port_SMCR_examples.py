@@ -14,7 +14,7 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 #=============================================================================
 # Setup mSMCR parameters
 alpha = [0.9, 0.85]
-# assume equal weighted coef - default
+# assume equal weighted risk mixture - default
 
 #=============================================================================
 # Compute SMCR-Sharpe optimal portfolio

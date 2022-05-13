@@ -11,14 +11,14 @@ import azapy as az
 # Collect some market data
 mktdir = "../../MkTdata"
 sdate = "2012-01-01"
-edate = 'today'
+edate = "2021-07-27"
 symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
+
 #=============================================================================
-# Define mMAD measure parameters coef
-coef = np.ones(3)
-coef = coef / coef.sum()
+# Define mMAD coef (equal weighted mixture for max MAD order 3)
+coef = np.full(3, 1/3)
 
 #=============================================================================
 # Compute Sharpe optimal portfolio
@@ -196,6 +196,7 @@ cash = 0.
 # new positions and rolling info
 pos = cr1.getPositions(mu=0., rtype='Sharpe', nshares=ns, cash=0.)
 print(f" New position report\n {pos}")
+
 ```
 
 [TOP](#TOP)

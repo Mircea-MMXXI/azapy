@@ -1,5 +1,5 @@
-# Comparison between Omega with alpha0=0 and first order MAD
-# should be the same
+# Compar Omega with L=1, alpha1=0 and detrended RR with first order mMAD
+# they should be the same
 import time
 import azapy as az
 
@@ -13,11 +13,11 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Compute Omega-Sharpe optimal portfolio for alpha0=0 (deafult)
-p1 = az.Port_mOmega(mktdata, pname='OmegaPort') 
+# Compute Omega-Sharpe optimal portfolio for alpha=0 (deafult) detrended
+p1 = az.Port_Omega(mktdata, pname='OmegaPort') 
 
 tic = time.perf_counter()
-port1 = p1.set_model(mu=0.)   
+port1 = p1.set_model(mu=0., detrended=True)   
 toc = time.perf_counter()
 print(f"time Sharpe: {toc-tic}")
 

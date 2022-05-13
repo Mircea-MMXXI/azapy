@@ -27,24 +27,24 @@ class SMGINIAnalyzer(GINIAnalyzer):
 
         Parameters
         ----------
-        mktdata : pandas.DataFrame, optional
+        `mktdata` : pandas.DataFrame, optional
             Historic daily market data for portfolio components in the format
             returned by azapy.mktData function. The default is None.
-        colname : str, optional
+        `colname` : str, optional
             Name of the price column from mktdata used in the weights
             calibration. The default is 'adjusted'.
-        freq : str, optional
+        `freq` : str, optional
             Rate of returns horizon in number of business day. it could be
             'Q' for quarter or 'M' for month. The default is 'Q'.
-        hlength : float, optional
+        `hlength` : float, optional
             History length in number of years used for calibration. A
             fractional number will be rounded to an integer number of months.
             The default is 1.25 years.
-        calendar : numpy.busdaycalendar, optional
+        `calendar` : numpy.busdaycalendar, optional
             Business days calendar. If is it `None` then the calendar will 
             be set to NYSE business calendar.
             The default is `None`.
-        rtype : str, optional
+        `rtype` : str, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure for a fixed 
                 vale of expected rate of return. \n
@@ -58,7 +58,7 @@ class SMGINIAnalyzer(GINIAnalyzer):
                 "RiskAverse" : optimal portfolio for a fixed value of risk 
                 aversion coefficient.
             The default is "Sharpe". 
-        method : str, optional
+        `method` : str, optional
             Linear programming numerical method.
             Could be 'ecos' or 'cvxopt'.
             The defualt is 'ecos'.
@@ -77,11 +77,11 @@ class SMGINIAnalyzer(GINIAnalyzer):
 
     def _risk_calc(self, prate, alpha):
         nn = len(prate)
-        gini2 = np.sqrt(np.mean([(prate[i] - prate[j])**2 \
+        smgini = np.sqrt(np.mean([(prate[i] - prate[j])**2 \
                             for i in range(nn - 1) \
                             for j in range(i + 1, nn)]) * 0.5)
-        # status, GINI^2, GINI^2
-        return 0, gini2, gini2
+        # status, SMGINI, SMGINI
+        return 0, smgini, smgini
 
 
     def _risk_min(self, d=1):

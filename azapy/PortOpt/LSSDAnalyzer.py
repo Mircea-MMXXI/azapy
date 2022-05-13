@@ -7,7 +7,7 @@ from ._solvers import _socp_solver
 
 class LSSDAnalyzer(MADAnalyzer):
     """
-    LSSD dispersion measure based portfolio optimization.
+    Mixture LSSD dispersion measure based portfolio optimization.
     
     Methods:
         * getWeights
@@ -28,27 +28,27 @@ class LSSDAnalyzer(MADAnalyzer):
 
         Parameters
         ----------
-        coef : coef : list, optional
-            Positive non-increasing list of  coefficients. 
+        `coef` : coef : list, optional
+            Positive, non-increasing list of mixture coefficients. 
             The default is [1.].
-        mktdata : pandas.DataFrame, optional
+        `mktdata` : pandas.DataFrame, optional
             Historic daily market data for portfolio components in the format
             returned by azapy.mktData function. The default is None.
-        colname : str, optional
+        `colname` : str, optional
             Name of the price column from mktdata used in the weights 
             calibration. The default is 'adjusted'.
-        freq : str, optional
+        `freq` : str, optional
             Rate of returns horizon in number of business day. it could be 
             'Q' for quarter or 'M' for month. The default is 'Q'.
-        hlength : float, optional
+        `hlength` : float, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
             The default is 3.25 years.
-        calendar : numpy.busdaycalendar, optional
-            Business days calendar. If is it `None` then the calendar will be set
-            to NYSE business calendar.
+        `calendar` : numpy.busdaycalendar, optional
+            Business days calendar. If is it `None` then the calendar will 
+            be set to NYSE business calendar.
             The default is `None`.
-        rtype : str, optional
+        `rtype` : str, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure for a fixed 
                 vale of expected rate of return. \n
@@ -62,7 +62,7 @@ class LSSDAnalyzer(MADAnalyzer):
                 "RiskAverse" : optimal portfolio for a fixed value of risk 
                 aversion coefficient.
             The default is "Sharpe". 
-        method : string, optional
+        `method` : string, optional
             SOCP numerical method. 
             Could be: 'ecos' or 'cvxopt'.
             The defualt is 'ecos'.
@@ -319,7 +319,7 @@ class LSSDAnalyzer(MADAnalyzer):
             G_icol += list(range((nn + 1) * l + mm , 
                                  (nn + 1) * l + mm + 1 + nn))
             G_irow += list(range(mm + 2 * nn * ll + ll + 1 + l * (nn + 1), 
-                                 mm + 2 * nn * ll + ll + 1 + (l + 1) * (nn + 1)))
+                           mm + 2 * nn * ll + ll + 1 + (l + 1) * (nn + 1)))
             G_data += [-np.sqrt(nn)] + [-1.] * nn
             
         G_shape = (3 * nn * ll + mm + 2 * ll + 1, mm + ll * (nn + 1) + 1)

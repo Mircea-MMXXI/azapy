@@ -1,24 +1,64 @@
 
 # Omega optimal portfolios <a name="TOP"></a>
 
-Omega ratio was introduced as an alternative to Sharpe ratio. It can be
-defined as the generalized Sharpe ratio
-relative to Delta-risk measure:
+Historically, Omega ratio was introduced as an alternative to Sharpe ratio.
+It can be defined as
 
 \begin{equation*}
-  \delta_{\alpha_0} = \frac{1}{N} \sum_{i=1}^N \left( \alpha_0 - r_i \right)^+,
+  \Omega_{\mu_0} =
+  \frac{\int_{\mu_0}^{+\infty} [1 - F(r)] dr}{\int_{-\infty}^{\mu_0} F(r) dr} - 1 =
+  \frac{E[r] - \mu_0}{E[(\mu_0 - r)^+]},
+\end{equation*}
+
+where $\mu_0$ is the Omega threshold and $F(\cdot)$ is the rate of return cdf.
+It is common to associate
+$\mu_0$ with the risk-free rate accessible to the investor.
+The above expression suggests that $\Omega_{\mu_0}$ ratio is the Sharpe
+ratio for Delta-risk measure,
+
+\begin{equation*}
+  \delta_{\mu_0} = E[(\mu_0 - r)^+].
+\end{equation*}
+
+The Omega based portfolio constructions are popular among the
+professional investors.
+
+**azapy** implements a generalization of Delta-risk measure,
+namely the **Mixture Delta-risk**.
+
+The mixture is defined as a superposition of regular Delta-risk measures
+for different Omega thresholds, *i.e*,
+
+\begin{equation*}
+  \rho = \sum_{l=1}^L \delta_{\alpha_l},
 \end{equation*}
 
 where:
 
-* $\alpha_0$ is the Omega threshold (it may be interpreted as a risk-free rate),
-* $N$ is the number of historical observations,
-* $r_i$ is the i-th observation of portfolio historical rate of returns.
-* $(\cdot)^+$ stands for positive part (*i.e.* $\max\{0, \cdot\}$).
+* $L$ is the size of the mixture,
+* $\{\alpha_l\}_{l=1,\cdots,L}$ is a set of distinct Omega thresholds.
 
-> Note: The Delta-risk measure is not a coherent risk measure nor a
-proper dispersion measure. However, the mathematical formalism of risk-based
-optimal portfolio theory can be applied.
+> Note: a possible choice could be $L=3$ and $\alpha=[0.01, 0.0, -0.01]$
+
+The Delta-risk, $\delta_\alpha$, can be evaluated either in terms of
+standard or detrended rate of returns (where $r$ is replaced with
+${\bar r} = r - E[r]$).
+
+> Note: The Delta-risk Sharpe ratio, for $L=1$, $\alpha_1=\mu_0$
+(the risk-free rate) and standard rate of returns,
+is the initial Omega ratio, $\Omega_{\mu_0}$.
+
+> Note: Omega optimal portfolio models with $L=1$, $\alpha_1=0$ and detrended
+rate of returns are the same as MAD first order models.
+
+> Note: Mixture Delta-risk measures (except for $L=1$ and $\alpha_1=0$ with
+detrended rate of returns) are not proper dispersion measures. They violate the
+positive homogeneity axiom and in the case of standard rate of return
+they also violate the location invariance axiom.
+However, the mathematical formalism of risk-based
+optimal portfolio constructions can be applied.
+
+
 
 The following portfolio optimization strategies are available:
 * Minimization of dispersion for a give expected rate of return,

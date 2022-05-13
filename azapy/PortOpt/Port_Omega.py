@@ -1,4 +1,3 @@
-import numpy as np
 from .Port_CVaR import Port_CVaR
 from .OmegaAnalyzer import OmegaAnalyzer
 
@@ -21,23 +20,29 @@ class Port_Omega(Port_CVaR):
         * port_monthly_returns
         * port_period_returns
     """
-    def set_model(self, mu, alpha0=0., rtype='Sharpe', hlength=3.25,
-                  method='ecos'):
+    def set_model(self, mu, alpha=[0.], coef=None, rtype='Sharpe', 
+                  detrended=False, hlength=3.25, method='ecos'):
         """
         Sets model parameters and evaluates portfolio time-series.
 
         Parameters
         ----------
-        mu : float
+        `mu` : float
             Reference rate. Its meaning depends on the value of `rtype`. For
             `rtype` equal to: \n
-                "Sharpe" : `mu` is the risk-free rate \n
+                "Sharpe" and "Sharpe2": `mu` is the risk-free rate \n
                 "Risk" : `mu` is the targeted expected rate of returns \n
                 "MinRisk" and "InvNrisk" : `mu` is ignored \n
                 "RiskAverse" : `mu` is the Lambda risk aversion coefficient.
-        alpha0 : float, optional
-            Omega threshold rate (e.g. risk-free rate). The default is 0.
-        rtype : str, optional
+        `alpha` : list, optional
+            List of Omega thresholds. The default is [0.].
+        `coef` : list, optional
+            List of positive mixture 
+            coefficients. Must have the same size as `alpha`. 
+            A `None` value assumes an equal weighted risk mixture.
+            The vector of coefficients will be normalized to unit.
+            The default is `None`.
+        `rtype` : str, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure for a fixed 
                 vale of expected rate of return. \n
@@ -51,11 +56,16 @@ class Port_Omega(Port_CVaR):
                 "RiskAverse" : optimal portfolio for a fixed value of risk 
                 aversion coefficient.
             The default is "Sharpe". 
-        hlength : float, optional
+        `detrended` : Boolean, optional
+            In the Delta-risk expression use: \n
+                `True` : detrended rate of return, i.e. r - E(r), \n
+                `False` : standard rate of return. 
+            The default is `False`.
+        `hlength` : float, optional
             The length in year of the historical calibration period relative
             to 'Dfix'. A fractional number will be rounded to an integer number
             of months. The default is 3.25 years.
-        method : str, optional
+        `method` : str, optional
             Linear programming numerical method.
             Could be: 'ecos', 'highs-ds', 'highs-ipm', 'highs',
             'interior-point', 'glpk' and 'cvxopt'.
@@ -66,14 +76,10 @@ class Port_Omega(Port_CVaR):
         pandas.DataFrame
             The portfolio time-series in the format "date", "pcolname".
         """
-        return super().set_model(mu, alpha0, 1., rtype, hlength, method)
-
-    
-    def _set_alpha(self, alpha, coef):
-        self.alpha = np.array([alpha])
-        self.coef = np.array([coef])
+        self.detrended = detrended
+        return super().set_model(mu, alpha, coef, rtype, hlength, method)
 
 
     def _wwgen(self):
-        return OmegaAnalyzer(self.alpha[0], rtype=self.rtype,
-                             method=self.method)
+        return OmegaAnalyzer(self.alpha, self.coef, rtype=self.rtype,
+                             detrended=self.detrended, method=self.method)

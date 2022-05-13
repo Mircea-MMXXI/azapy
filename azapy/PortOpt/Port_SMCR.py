@@ -20,27 +20,28 @@ class Port_SMCR(Port_CVaR):
         * port_monthly_returns
         * port_period_returns
     """
-    def set_model(self, mu, alpha=[0.975], coef=None, rtype='Sharpe',
+    def set_model(self, mu, alpha=[0.9], coef=None, rtype='Sharpe',
                   hlength=3.25, method='ecos'):
         """
         Sets model parameters and evaluates portfolio time-series.
 
         Parameters
         ----------
-        mu : float
+        `mu` : float
             Reference rate. Its meaning depends on the value of rtype. For
             rtype equal to: \n
-                'Sharpe' : `mu` is the risk-free rate. \n
+                'Sharpe' and 'Sharpe2': `mu` is the risk-free rate. \n
                 'Ris' : `mu` is the targeted expected rate of returns. \n
                 'MinRisk' and 'InvNrisk' : `mu` is ignored. \n
                 'RiskAverse' : `mu` is the Lambda risk aversion coefficient.
-        alpha : list, optional
-            List of alpha confidence levels. The default is [0.975].
-        coef : list, optional
-            List of mixture coefficients values. Note that `len(coef)`
-            must be equal to `len(alpha)`. A value of `None` assumes
-            `coef = [1 / len(alpha)] * len(alpha)`.
-       rtype : str, optional
+        `alpha` : list, optional
+            List of distinct alpha confidence levels. The default is [0.9].
+        `coef` : list, optional
+            List of positive mixture coefficients. Must have the same size with 
+            `alpha`. A `None` value assumes an equal weighted risk mixture.
+            The vector of coefficients will be normalized to unit.
+            The default is `None`.
+       `rtype` : str, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure for a fixed 
                 vale of expected rate of return. \n
@@ -54,11 +55,11 @@ class Port_SMCR(Port_CVaR):
                 "RiskAverse" : optimal portfolio for a fixed value of risk 
                 aversion coefficient.
             The default is "Sharpe".
-        hlength : float, optional
+        `hlength` : float, optional
             The length in year of the historical calibration period relative
             to 'Dfix'. A fractional number will be rounded to an integer number
             of months. The default is 3.25 years.
-        method : str, optional
+        `method` : str, optional
             SOCP numerical method.
             It could be 'ecos' or 'cvxopt'.
             The default is 'ecos'.

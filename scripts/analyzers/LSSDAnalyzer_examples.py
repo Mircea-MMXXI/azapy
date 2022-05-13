@@ -13,9 +13,8 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Define mLSSD measure parameters coef
-coef = np.ones(3)
-coef = coef / coef.sum()
+# Define mLSSD measure mixture coef (equal weighted for max LSSD order 3)
+coef = np.full(3, 1/3)
 
 #=============================================================================
 # Compute Sharpe optimal portfolio

@@ -24,11 +24,11 @@ Reference rate. Its meaning depends of the value of `rtype`. For
     - `'MinRisk'` and `'InvNrisk'` : `mu` is ignored,
     - `'RiskAverse'` : `mu` is the risk aversion coefficient $\lambda$.
 * `alpha` :
-List of $\alpha_l$ confidence levels. The default is `[0.975]`.
+List of distinct $\alpha_l$  confidence levels. The default is `[0.975]`.
 * `coef` :
-List of ${\cal K}_l$ mixture coefficients. Note that `len(coef)` must be
-equal to `len(alpha)`.
-A value of `None` assumes `coef = [1 / len(alpha)] * len(alpha)`.
+List of positive ${\cal K}_l$ mixture coefficients. Must have the same length as
+`alpha`. A `None` value assumes an equal weighted
+mixture. The vector of coefficients will be normalized to unit.
 The default is `None`.
 * `rtype` :
 Optimization type. The default is `'Sharpe'`. Possible values are:

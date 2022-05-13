@@ -20,23 +20,28 @@ class Port_BTSD(Port_Omega):
         * port_monthly_returns
         * port_period_returns
     """
-    def set_model(self, mu, alpha0=0., rtype='Sharpe', hlength=3.25,
-                  method='ecos'):
+    def set_model(self, mu, alpha=[0.], coef=None, rtype='Sharpe', 
+                  detrended=False, hlength=3.25, method='ecos'):
         """
         Sets model parameters and evaluates portfolio time-series.
 
         Parameters
         ----------
-        mu : float
+        `mu` : float
             Reference rate. Its meaning depends on the value of `rtype`. For
             `rtype` equal to: \n
-                "Sharpe" : `mu` is the risk-free rate \n
+                "Sharpe" and "Sharpe2": `mu` is the risk-free rate \n
                 "Risk" : `mu` is the targeted expected rate of returns \n
                 "MinRisk" and "InvNrisk" : `mu` is ignored \n
                 "RiskAverse" : `mu` is the Lambda risk aversion coefficient.
-        alpha0 : float, optional
-            BTSD threshold rate (e.g. risk-free rate). The default is 0.
-        rtype : str, optional
+        `alpha` : list, optional
+            List of BTSD thresholds. The default is [0.].
+        `coef` : list, optional
+            List of mixture coefficients. Must have the same size with 
+            alpha. A `None` value assumes an equal weighted risk mixture,
+            `coef = [1 / len(alpha)] * len(alpha)`.
+            The default is `None`.
+        `rtype` : str, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure for a fixed 
                 vale of expected rate of return. \n
@@ -50,11 +55,16 @@ class Port_BTSD(Port_Omega):
                 "RiskAverse" : optimal portfolio for a fixed value of risk 
                 aversion coefficient.
             The default is "Sharpe". 
-        hlength : float, optional
+        `detrended` : Boolean, optional
+            In the Delta-risk expression use: \n
+                `True` : detrended rate of return, i.e. r - E(r), \n
+                `False` : standard rate of return. 
+            The default is `False`.
+        `hlength` : float, optional
             The length in year of the historical calibration period relative
             to 'Dfix'. A fractional number will be rounded to an integer number
             of months. The default is 3.25 years.
-        method : str, optional
+        `method` : str, optional
             SOCP numerical method.
             Could be: 'ecos' or 'cvxopt'.
             The defualt is 'ecos'.
@@ -64,9 +74,10 @@ class Port_BTSD(Port_Omega):
         pandas.DataFrame
             The portfolio time-series in the format "date", "pcolname".
         """
-        return super().set_model(mu, alpha0, rtype, hlength, method)
+        return super().set_model(mu, alpha, coef, rtype, detrended, 
+                                 hlength, method)
  
     
     def _wwgen(self):
-        return BTSDAnalyzer(self.alpha[0], rtype=self.rtype,
-                            method=self.method)
+        return BTSDAnalyzer(self.alpha, self.coef, rtype=self.rtype,
+                            detrended=self.detrended, method=self.method)

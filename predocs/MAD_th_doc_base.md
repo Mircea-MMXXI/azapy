@@ -2,12 +2,11 @@
 # MAD optimal portfolios <a name="TOP"></a>
 
 MAD stands for _Mean Absolute Deviation_.
-**azapy** implements a generalization of MAD, namely the Mixture MAD (mMAD).
 
-mMAD is a superposition of recursive high order MAD measures.
-The single MAD measure can be viewed as a particular case of mMAD.
+**azapy** implements a generalization of MAD, namely the **Mixture MAD (mMAD)**.
 
-The mMAD dispersion measure is defined as
+mMAD dispersion measure is a superposition of recursive high order MAD measures,
+*i.e.*,
 
 \begin{equation*}
 	\rho = \sum_{l=1}^L {\cal K}_l \times \delta_l
@@ -15,11 +14,19 @@ The mMAD dispersion measure is defined as
 
 where:
 
-* $L$ is the number of individual MAD's,
-* ${\cal K}_l$ are positive coefficients,
-* $\delta_l$ is the l-th order MAD measure.
+* $L$ is the highest MAD order,
+* $\{{\cal K}_l\}_{l=1,\cdots,L}$ is a set of non-increasing positive
+coefficients,
+* $\delta_l$ is the l-th order MAD measure, defined recursively as
 
-> Note: a typical choice could be $L=3$ and ${\cal K}_l=1/3\ \ \forall l$.
+\begin{align*}
+	\delta_l(r) &= E\left[\left(-{\bar r} - \sum_{j=1}^{l-1} \delta_j(r)\right)^+\right], \\
+	&\cdots \\
+	\delta_1(r) &= E\left[\left(-{\bar r}\right)^+\right],
+\end{align*}
+where $\bar r$ is the detrended rate of return, ${\bar r} = r - E[r]$.
+
+> Note: a possible choice could be $L=3$ and ${\cal K}_l=1/3\ \ \forall l$.
 
 The following portfolio optimization strategies are available:
 * Minimization of dispersion for a give expected rate of return,

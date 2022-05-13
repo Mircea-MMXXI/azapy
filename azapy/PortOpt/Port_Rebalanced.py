@@ -35,12 +35,13 @@ class Port_Rebalanced(Port_Simple):
             by `azapy.readMkT` function).
         symb : list, optional
             List of symbols for the basket components. All symbols MkT data
-            should be included in `mktdata`. If set to `None` the `symb` will be 
-            set to the full set of symbols included in `mktdata`. The default 
-            is `None`.
+            should be included in `mktdata`. If set to `None` the `symb` will  
+            be set to the full set of symbols included in `mktdata`. 
+            The default is `None`.
         sdate : date like, optional
-            Start date for historical data. If set to `None` then the `sdate` will 
-            be set to the earliest date in mktdata. The default is `None`.
+            Start date for historical data. If set to `None` then the `sdate` 
+            will  be set to the earliest date in mktdata. 
+            The default is `None`.
         edate : date like, optional
             End date for historical dates and so the simulation. Must be 
             greater than  `sdate`. If it is `None` then `edate` will be set

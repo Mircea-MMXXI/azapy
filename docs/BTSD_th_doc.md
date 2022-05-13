@@ -1,25 +1,54 @@
 
 # BTSD optimal portfolios <a name="TOP"></a>
 
-BTSD stands for Below target Standard Deviation. It is inspired by the
-Omega ratio model where  Delta-risk measure is defined in
+BTSD stands for Below target Standard Deviation. It is similar
+to Delta-risk measure from Omega optimal portfolio but defined in
 terms of $L_2$ norm rather than $L_1$,*i.e.*,
 
 \begin{equation*}
-  \delta_{\alpha_0} =
-  \left(\frac{1}{N} \sum_{i=1}^N \left[ \left( \alpha_0 - r_i \right)^+\right]^2\right)^{1/2},
+  {\rm BTSD}_{\alpha} = \left\| \left( \alpha - r \right)^+ \right\|_2
 \end{equation*}
 
 where:
 
-* $\alpha_0$ is the BTSD threshold (it may be interpreted as a risk-free rate),
-* $N$ is the number of historical observations,
-* $r_i$ is the i-th observation of portfolio historical rate of returns.
-* $(\cdot)^+$ stands for positive part (*i.e.* $\max\{0, \cdot\}$).
+* $\|x\| = ( E[|x|^2])^{1/2}$ is the $L_2$ norm,
+* $\alpha$ is the BTSD threshold (it may be interpreted as a risk-free rate),
 
-> Note: The Delta-risk measure is not a coherent risk measure nor a
-proper dispersion measure. However, the mathematical formalism of risk-based
-optimal portfolio theory can be applied.
+The BTSD measure can be computed in terms of either standard  or
+detrended rate of returns (*i.e.* ${\bar r} = r - E[r]$).
+
+> Note: the BTSD Sharpe ratio for $\alpha=\mu_0$ (the risk-free rate
+of return accessible to investor) and standard rate of returns is also known
+as Sortino ratio, *i.e.* ${\rm Sortino} = (E[r] - \mu_0)/{\rm BTSD}$.
+
+> Note: BTSD optimal portfolio models with detrended
+rate of returns are the same as LSSD first order models.
+
+**azapy** implements a generalization of BTSD measure,
+namely the **Mixture BTSD (mBTSD)**.
+
+The mixture is defined as a superposition of regular BTSD measures
+for different thresholds, *i.e*,
+
+\begin{equation*}
+  \rho = \sum_{l=1}^L {\rm BTSD}_{\alpha_l},
+\end{equation*}
+
+where:
+
+* $L$ is the size of the mixture,
+* $\{\alpha_l\}_{l=1,\cdots,L}$ is a set of distinct BTSD thresholds.
+
+> Note: a possible choice could be $L=3$ and $\alpha=[0.01, 0.0, -0.01]$
+
+The single BTSD measure is a particular case of mBTSD.
+
+> Note: The mBTSD measures (except for $L=1$, $\alpha_1=0$ and detrended rate
+of return) are not proper dispersion measure. They violate the
+positive homogeneity axiom and in the case of standard rate of return
+they also violate the location invariance axiom.
+However, the mathematical formalism of risk-based
+optimal portfolio constructions can be applied.
 
 The following portfolio optimization strategies are available:
 * Minimization of dispersion for a give expected rate of return,
@@ -69,16 +98,20 @@ During its computations the following class members are also set:
 ### Constructor
 
 ```
-BTSDAnalyzer(alpha0=0., mktdata=None, colname='adjusted', freq='Q',
-             hlength=3.25, calendar=None, rtype='Sharpe', method='ecos')
+BTSDAnalyzer(alpha=[0.], coef=None, mktdata=None, colname='adjusted', freq='Q',
+             hlength=3.25, calendar=None, rtype='Sharpe', detrended=False,
+             method='ecos')
 ```
 
 where:
 
-* `alpha0` : BTSD threshold. The default is `0`.
-* `mktdata` : `pd.DataFrame` containing the market data in the format returned by
-the function `azapy.readMkT`. The default is `None`. `mktdata` could be loaded
-latter.
+* `alpha` : List of distinct BTSD thresholds. The default is `[0.]`.
+* `coef` : List of mixture coefficients. Must have the same size as
+`alpha`. A `None` value assumes an equal weighted risk mixture.
+The default is `None`.
+* `mktdata` : `pandas.DataFrame` containing the market data in the format
+returned by the function `azapy.readMkT`. The default is `None`.
+`mktdata` could be loaded latter.
 * `colname` : Name of the price column from `mktdata` used in the weights
 calibration. The default is `'adjusted'`.
 * `freq` : Rate of returns horizon (portfolio rebalancing period).
@@ -98,8 +131,13 @@ The default is `None`.
     - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
 		as equal weighted portfolio,
     - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
+* `detrended` : Boolean flag.
+In the BTSD expression use:
+    - `True` : detrended rate of return, *i.e.* ${\bar r} = r - E[r]$,
+    - `False` : standard rate of return.
+The default is `False`.
 * `method` : Designates the SOCP numerical method.
-It could be ``'ecos'`` or ``'cvxopt'``.
+It could be `'ecos'` or `'cvxopt'`.
 The default is `'ecos'`.
 
 > Note:
@@ -444,13 +482,14 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Set the BTSD parameter alpha0
-alpha0 = 0.01
+# Set the BTSD mixture parameter
+alpha = [0.01, 0, -0.01]
+coef = [1, 1, 2]
 
 #=============================================================================
 # Compute Sharpe optimal portfolio
 # build the analyzer object
-cr1 = az.BTSDAnalyzer(alpha0, mktdata)
+cr1 = az.BTSDAnalyzer(alpha, coef, mktdata)
 # computes Sharpe weights for 0 risk-free rate
 ww1 = cr1.getWeights(mu=0.)
 # print portfolio characteristics
@@ -497,7 +536,7 @@ rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR')
 #=============================================================================
 # Sharpe vs. Sharpe2
 # first Sharpe (default rtype)
-cr1 = az.BTSDAnalyzer(alpha0, mktdata)
+cr1 = az.BTSDAnalyzer(alpha, coef, mktdata)
 ww1 = cr1.getWeights(mu=0.)
 RR1 = cr1.RR
 risk1 = cr1.risk
@@ -505,7 +544,7 @@ prim1 = cr1.primary_risk_comp.copy()
 seco1 = cr1.secondary_risk_comp.copy()
 sharpe1 = cr1.sharpe
 # second Sharpe2
-cr2 = az.BTSDAnalyzer(alpha0, mktdata)
+cr2 = az.BTSDAnalyzer(alpha, coef, mktdata)
 ww2 = cr2.getWeights(mu=0., rtype="Sharpe2")
 RR2 = cr2.RR
 risk2 = cr2.risk
@@ -539,7 +578,7 @@ print(f"Sharpe comp\n {sharpe_comp}")
 #=============================================================================
 
 # Compute InvNrisk optimal portfolio
-cr1 = az.BTSDAnalyzer(alpha0, mktdata)
+cr1 = az.BTSDAnalyzer(alpha, coef, mktdata)
 # compute the weights of InvNrisk
 ww1 = cr1.getWeights(mu=0., rtype="InvNrisk")
 RR1 = cr1.RR
@@ -562,7 +601,7 @@ print(f"risk comp\n {risk_comp}")
 
 #=============================================================================
 # Compute MinRisk optimal portfolio
-cr1 = az.BTSDAnalyzer(alpha0, mktdata)
+cr1 = az.BTSDAnalyzer(alpha, coef, mktdata)
 # compute the MinRisk portfolio
 ww1 = cr1.getWeights(mu=0., rtype="MinRisk")
 
@@ -577,14 +616,14 @@ print(f"weights comp\n {ww_comp}")
 #=============================================================================
 # Compute RiskAverse optimal portfolio
 # first compute the Sharpe portfolio
-cr1 = az.BTSDAnalyzer(alpha0, mktdata)
+cr1 = az.BTSDAnalyzer(alpha, coef, mktdata)
 ww1 = cr1.getWeights(mu=0.)
 sharpe = cr1.sharpe
 risk = cr1.risk
 
 # compute RiskAverse portfolio for Lambda=sharpe
 Lambda = sharpe
-cr2 = az.BTSDAnalyzer(alpha0, mktdata)
+cr2 = az.BTSDAnalyzer(alpha, coef, mktdata)
 ww2 = cr2.getWeights(mu=Lambda, rtype='RiskAverse')
 
 # comparison - they should be very close
@@ -595,7 +634,6 @@ print(f"risk comp\n {risk_comp}")
 ww_comp = pd.DataFrame({'ww1': ww1, 'ww2': ww2, 'diff': ww1-ww2})
 print(f"weigths:\n {ww_comp}")
 
-
 #=============================================================================
 # # speed comparisons for different SOCP methods
 # # may take some time to complete
@@ -604,7 +642,7 @@ print(f"weigths:\n {ww_comp}")
 # methods = ['ecos', 'cvxopt']
 # xta = {}
 # for method in methods:
-#     crrx = az.BTSDAnalyzer(alpha0, mktdata, method=method)
+#     crrx = az.BTSDAnalyzer(alpha, coef, mktdata, method=method)
 #     toc = time.perf_counter()
 #     wwx = crrx.getWeights(mu=0.)
 #     tic = time.perf_counter() - toc
@@ -616,7 +654,7 @@ print(f"weigths:\n {ww_comp}")
 
 #=============================================================================
 # Example of rebalancing positions
-cr1 = az.BTSDAnalyzer(alpha0, mktdata)
+cr1 = az.BTSDAnalyzer(alpha, coef, mktdata)
 
 # existing positions and cash
 ns = pd.Series(100, index=symb)
@@ -633,7 +671,7 @@ print(f" New position report\n {pos}")
 
 ## Port_BTSD class
 
-Out-of-Sample (back testing) simulation of BTSD optimal portfolio periodically
+Out-of-Sample (back testing) simulation of mBTSD optimal portfolio periodically
 rebalanced.
 
 
@@ -742,7 +780,8 @@ It must be called before any other class method.
 *Call:*
 
 ```
-set_model(mu, alpha0=0., rtype='Sharpe', hlength=3.25, method='ecos'):
+set_model(mu, alpha=[0.], coef=None, rtype='Sharpe', detrended=False,
+          hlength=3.25, method='ecos'):
 ```
 
 *Inputs:*
@@ -754,7 +793,10 @@ Reference rate. Its meaning depends of the value of `rtype`. For
     - `'Sharpe'` and `'Sharpe2'`: `mu` is the risk-free rate,
     - `'MinRisk'` and `'InvNrisk'` : `mu` is ignored,
     - `'RiskAverse'` : `mu` is the risk aversion coefficient $\lambda$.
-* `alphau0` : BTSD threshold rate (*e.g.* risk-free rate). The default is `0`.
+* `alpha` : List of distinct BTSD thresholds. The default is `[0.]`.
+* `coef` : List of mixture coefficients. Must have the same size as
+`alpha`. A `None` value assumes an equal weighted risk mixture.
+The default is `None`.
 * `rtype` :
 Optimization type. The default is `'Sharpe'`. Possible values are:
     - `'Risk'` : minimization of dispersion (risk) measure for a fixed values
@@ -765,6 +807,11 @@ Optimization type. The default is `'Sharpe'`. Possible values are:
     - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
 		as equal weighted portfolio,
     - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
+* `detrended` : Boolean flag.
+In the BTSD expression use:
+    - `True` : detrended rate of return, *i.e.* ${\bar r} = r - E[r]$,
+    - `False` : standard rate of return.
+The default is `False`.
 * `hlength` :
 The length in years of historical calibration period relative
 to `'Dfix'`. A fractional number will be rounded to an integer number
@@ -1125,12 +1172,13 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
 # Compute BTSD-Sharpe optimal portfolio
-alpha0 = 0.01
+alpha = [0.01, 0., -0.01]
+coef = [1, 2, 3]
 
 p4 = az.Port_BTSD(mktdata, pname='BTSDPort')
 
 tic = time.perf_counter()
-port4 = p4.set_model(mu=0., alpha0=alpha0)   
+port4 = p4.set_model(mu=0., alpha=alpha, coef=coef)   
 toc = time.perf_counter()
 print(f"time Sharpe: {toc-tic}")
 
@@ -1148,7 +1196,7 @@ p4.get_account(fancy=True)
 
 # Use rtype='Sharpe2' - should be the same results
 tic = time.perf_counter()
-port4_2 = p4.set_model(mu=0., alpha0=alpha0, rtype='Sharpe2')   
+port4_2 = p4.set_model(mu=0., alpha=alpha, coef=coef, rtype='Sharpe2')   
 toc = time.perf_counter()
 print(f"time Sharpe2: {toc-tic}")
 
@@ -1161,7 +1209,7 @@ _ = pp.port_view_all(componly=(True))
 
 #=============================================================================
 # Compute BTSD optimal portfolio
-port4 = p4.set_model(mu=0.1, alpha0=alpha0, rtype="Risk")   
+port4 = p4.set_model(mu=0.1, alpha=alpha, coef=coef, rtype="Risk")   
 ww = p4.get_weights()
 p4.port_view()
 p4.port_view_all()
@@ -1176,7 +1224,7 @@ p4.get_account(fancy=True)
 
 #=============================================================================
 # Compute minimum BTSD optimal portfolio
-port4 = p4.set_model(mu=0.1, alpha0=alpha0, rtype="MinRisk")   
+port4 = p4.set_model(mu=0.1, alpha=alpha, coef=coef, rtype="MinRisk")   
 ww = p4.get_weights()
 p4.port_view()
 p4.port_view_all()
@@ -1191,7 +1239,7 @@ p4.get_account(fancy=True)
 
 #=============================================================================
 # Compute optimal portfolio with BTSD of equal weighted portfolio
-port4 = p4.set_model(mu=0.1, alpha0=alpha0, rtype="InvNrisk")   
+port4 = p4.set_model(mu=0.1, alpha=alpha, coef=coef, rtype="InvNrisk")   
 ww = p4.get_weights()
 p4.port_view()
 p4.port_view_all()
@@ -1206,7 +1254,7 @@ p4.get_account(fancy=True)
 
 #=============================================================================
 # Compute optimal portfolio for fixed risk aversion
-port4 = p4.set_model(mu=0.5, alpha0=alpha0, rtype="RiskAverse")  
+port4 = p4.set_model(mu=0.5, alpha=alpha, coef=coef, rtype="RiskAverse")  
 ww = p4.get_weights()
 p4.port_view()
 p4.port_view_all()
@@ -1224,11 +1272,11 @@ p4.get_account(fancy=True)
 # # may take some time to complete
 # # please uncomment the lines below
 # methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 'glpk', 'cvxopt',  
-#             'interior-point' ]
+#            'interior-point' ]
 # zts = []
 # for method in methods:
 #     toc = time.perf_counter()
-#     zz = p4.set_model(mu=0., alpha0=alpha0, method=method)  
+#     zz = p4.set_model(mu=0., alpha=alpha, coef=coef, method=method)  
 #     tic = time.perf_counter()
 #     print(f"{method} time: {tic-toc}")  
 #     zz.columns = [method]

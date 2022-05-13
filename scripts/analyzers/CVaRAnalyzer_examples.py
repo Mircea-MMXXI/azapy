@@ -15,8 +15,8 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 #=============================================================================
 # Define mCVaR measure parameters alpha and coef
 alpha = np.array([0.99, 0.975, 0.95])
-coef = np.ones(len(alpha))
-coef = coef / coef.sum()
+# equal weighted risk mixture
+coef = np.full(len(alpha), 1/len(alpha))
 
 #=============================================================================
 # Compute Sharpe optimal portfolio

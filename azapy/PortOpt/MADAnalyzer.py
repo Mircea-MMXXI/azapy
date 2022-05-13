@@ -7,7 +7,7 @@ from ._solvers import _lp_solver
 
 class MADAnalyzer(_RiskAnalyzer):
     """
-    MAD risk measure based portfolio optimization.
+    Mixture MAD dispersion measure based portfolio optimization.
 
     Methods:
         * getWeights
@@ -19,17 +19,15 @@ class MADAnalyzer(_RiskAnalyzer):
         * set_rtype
         * set_random_seed
     """
-    def __init__(self, coef=[1.],
-                 mktdata=None, colname='adjusted', freq='Q',
-                 hlength=3.25, calendar=None,
-                 rtype='Sharpe', method='ecos'):
+    def __init__(self, coef=[1.], mktdata=None, colname='adjusted', freq='Q',
+                 hlength=3.25, calendar=None, rtype='Sharpe', method='ecos'):
         """
         Constructor
 
         Parameters
         ----------
         coef : list, optional
-            Positive non-increasing list of  coefficients. 
+            Positive, non-increasing list of mixture coefficients. 
             The default is [1.].
         mktdata : pandas.DataFrame, optional
             Historic daily market data for portfolio components in the format
@@ -45,8 +43,8 @@ class MADAnalyzer(_RiskAnalyzer):
             fractional number will be rounded to an integer number of months.
             The default is 3.25 years.
         calendar : numpy.busdaycalendar, optional
-            Business days calendar. If is it `None` then the calendar will be set
-            to NYSE business calendar.
+            Business days calendar. If is it `None` then the calendar will
+            be set to NYSE business calendar.
             The default is `None`.
         rtype : str, optional
             Optimization type. Possible values \n
@@ -83,13 +81,13 @@ class MADAnalyzer(_RiskAnalyzer):
             raise ValueError("All coef must be positive")
         if any(i < j for i, j in zip(self.coef, self.coef[1:])):
             raise ValueError("coef list should not be increasing")
+            
         self.ll = self.coef.size
+        
         if self.ll <= 0:
             raise ValueError("coef must contain at least one element")
             
         self.coef = self.coef / np.sum(self.coef)
-
-        self.alpha = np.full(self.ll, self.ll)
         
         
     def _set_method(self, method):
@@ -343,7 +341,8 @@ class MADAnalyzer(_RiskAnalyzer):
         for l in range(ll):
             G_icol += [mm + k * (nn + 1) for k in range(l)] * nn \
                   + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
-            G_irow += [k for k in range(l * nn, (l + 1) * nn) for _ in range(l)]\
+            G_irow += \
+                [k for k in range(l * nn, (l + 1) * nn) for _ in range(l)] \
                 + list(range(l * nn, (l + 1) * nn))
             G_data += [-1.] * ((l + 1) * nn)
             
@@ -425,7 +424,8 @@ class MADAnalyzer(_RiskAnalyzer):
         for l in range(ll):
             G_icol += [mm + k * (nn + 1) for k in range(l)] * nn \
                   + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
-            G_irow += [k for k in range(l * nn, (l + 1) * nn) for _ in range(l)]\
+            G_irow += \
+                  [k for k in range(l * nn, (l + 1) * nn) for _ in range(l)] \
                   + list(range(l * nn, (l + 1) * nn))
             G_data += [-1.] * ((l + 1) * nn)
             

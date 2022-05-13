@@ -7,7 +7,7 @@ from ._solvers import _lp_solver
 
 class CVaRAnalyzer(_RiskAnalyzer):
     """
-    CVaR risk measure based portfolio optimizer.
+    Mixture CVaR dispersion measure based portfolio optimizer.
         
     Methods:
         * getWeights
@@ -19,7 +19,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         * set_rtype
         * set_random_seed
     """
-    def __init__(self, alpha=[0.975], coef=[1.], 
+    def __init__(self, alpha=[0.975], coef=None, 
                  mktdata=None, colname='adjusted', freq='Q', 
                  hlength=3.25, calendar=None,
                  rtype='Sharpe', method='ecos'):
@@ -28,29 +28,31 @@ class CVaRAnalyzer(_RiskAnalyzer):
 
         Parameters
         ----------
-        alpha : list, optional
-            List of alpha values. The default is [0.975].
-        coef : list, optional
-            List of coefficients. Must have the same size with 
-            alpha. The default is [1.].
-        mktdata : pandas.DataFrame, optional
+        `alpha` : list, optional
+            List of distinct confidence levels. The default is [0.975].
+        `coef` : list, optional
+            List of positive mixture coefficients. Must have the same size with 
+            `alpha`. A `None` value assumes an equal weighted risk mixture.
+            The vector of coefficients will be normalized to unit.
+            The default is `None`.
+        `mktdata` : pandas.DataFrame, optional
             Historic daily market data for portfolio components in the format
             returned by azapy.mktData function. The default is None.
-        colname : str, optional
+        `colname` : str, optional
             Name of the price column from mktdata used in the weights 
             calibration. The default is 'adjusted'.
-        freq : str, optional
+        `freq` : str, optional
             Rate of returns horizon. It could be 
             'Q' for quarter or 'M' for month. The default is 'Q'.
-        hlength : float, optional
+        `hlength` : float, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
             The default is 3.25 years.
-        calendar : numpy.busdaycalendar, optional
-            Business days calendar. If is it None then the calendar will be set
-            to NYSE business calendar. 
+        `calendar` : numpy.busdaycalendar, optional
+            Business days calendar. If is it `None` then the calendar will 
+            be set to NYSE business calendar. 
             The default is None.
-        rtype : str, optional
+        `rtype` : str, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure for a fixed 
                 vale of expected rate of return. \n
@@ -64,7 +66,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
                 "RiskAverse" : optimal portfolio for a fixed value of risk 
                 aversion coefficient.
             The default is "Sharpe".
-        method : str, optional
+        `method` : str, optional
             Linear programming numerical method. 
             Could be: 'ecos', 'highs-ds', 'highs-ipm', 'highs', 
             'interior-point', 'glpk' and 'cvxopt'.
@@ -78,18 +80,26 @@ class CVaRAnalyzer(_RiskAnalyzer):
         
         self._set_method(method)
 
-        if len(alpha) != len(coef):
-            raise ValueError("alpha and coef must have the same length")
         self.alpha = np.array(alpha)
-        self.coef = np.array(coef)
-        if any(self.coef <= 0.):
-            raise ValueError("All coef must be positive")
         if any((self.alpha <= 0.) | (1. <= self.alpha)):
             raise ValueError("All alpha coefficients must be in (0,1)")
-        
-        
-        self.coef = self.coef / self.coef.sum()
+        if len(np.unique(self.alpha)) != len(self.alpha):
+            raise ValueError("alpha values are not unique")
+            
         self.ll = len(alpha)
+            
+        if coef is None:
+            self.coef = np.full(self.ll, 1/self.ll)
+        else:
+            self.coef = np.array(coef)
+        
+            if len(self.coef) != len(self.alpha):
+                raise ValueError("alpha and coef must have the same length")
+            if any(self.coef <= 0.):
+                raise ValueError("All coef must be positive")
+        
+            self.coef = self.coef / self.coef.sum()
+        
 
 
     def _set_method(self, method):

@@ -1,8 +1,20 @@
 
 # SMCR optimal portfolios <a name="TOP"></a>
 
-SMCR stands for *Second Moment Coherent Risk*.
-**azapy** implements a generalization of SMCR, namely the Mixture SMCR (mSMCR).
+SMCR stands for *Second Moment Coherent Risk*. SMCR dispersion measure can be
+defined as
+
+\begin{equation*}
+ 	{\rm SMCR}_\alpha(r) = \min_u\left( u + \frac{1}{1-\alpha}\left\|\left(-u-{\bar r}\right)^+\right\|_2\right),
+\end{equation*}
+
+where
+$\left\| x \right\|_2 = \left( E\left[\left| x \right|^2\right]\right)^{1/2}$,
+is the $L_2$ norm, $\alpha$ is the confidence level and
+$\bar r$ is the detrended rate of return, ${\bar r} = r - E[r]$.
+
+**azapy** implements a generalization of SMCR,
+namely the **Mixture SMCR (mSMCR)**.
 
 mSMCR is a superposition of SMCR
 measures for different confidence levels. The single SMCR measure can be viewed
@@ -18,10 +30,10 @@ where:
 
 * $L$ is the number of individual SMCR's,
 * ${\cal K}$ are positive coefficients,
-* $\alpha_l$ are the SMCR confidence levels.
+* $\alpha_l$ are distinct SMCR confidence levels.
 
-> Note: a typical choice could be $L=2$, ${\cal K}=0.5\ \forall l$, and
-$\alpha=\{0.90, 0.85\}$
+> Note: a possible choice could be $L=2$,
+$\alpha=\{0.90, 0.85\}$ and ${\cal K}=\{0.5, 0.5\}$
 
 The following portfolio optimization strategies are available:
 * Minimization of dispersion for a give expected rate of return,
@@ -72,13 +84,15 @@ During its computations the following class members are also set:
 ### Constructor
 
 ```
-SMCRAnalyzer(alpha=[0.9], coef=[1.], mktdata=None, colname='adjusted',
+SMCRAnalyzer(alpha=[0.9], coef=None, mktdata=None, colname='adjusted',
              freq='Q', hlength=3.25, calendar=None, rtype='Sharpe', method='ecos')
 ```
 where:
-* `alpha` : List of confidence levels. The default is `[0.9]`.
-* `coef` : List of positive (`>0`) coefficients. `len(coef)` must be equal to
-`len(alpha)`. The default is `[1.]`.
+* `alpha` : List of distinct confidence levels. The default is `[0.9]`.
+* `coef` :  List of positive mixture coefficients. Must have the same size as
+`alpha`. A `None` value assumes an equal weighted risk mixture.
+The vector of coefficients will be normalized to unit.
+The default is `None`.
 * `mktdata` : `pd.DataFrame` containing the market data in the format returned by
 the function `azapy.readMkT`. The default is `None`. `mktdata` could be loaded
 latter.
@@ -442,7 +456,7 @@ import azapy as az
 # Collect some market data
 mktdir = "../../MkTdata"
 sdate = "2012-01-01"
-edate = 'today'
+edate = "2021-07-27"
 symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
@@ -760,11 +774,11 @@ Reference rate. Its meaning depends of the value of `rtype`. For
     - `'MinRisk'` and `'InvNrisk'` : `mu` is ignored,
     - `'RiskAverse'` : `mu` is the risk aversion coefficient $\lambda$.
 * `alpha` :
-List of $\alpha_l$ confidence levels. The default is `[0.975]`.
+List of distinct $\alpha_l$  confidence levels. The default is `[0.9]`.
 * `coef` :
-List of ${\cal K}_l$ mixture coefficients. Note that `len(coef)` must be
-equal to `len(alpha)`.
-A value of `None` assumes `coef = [1 / len(alpha)] * len(alpha)`.
+List of positive ${\cal K}_l$ mixture coefficients. Must have the same length as
+`alpha`. A `None` value assumes an equal weighted
+mixture. The vector of coefficients will be normalized to unit.
 The default is `None`.
 * `rtype` :
 Optimization type. The default is `'Sharpe'`. Possible values are:

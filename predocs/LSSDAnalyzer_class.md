@@ -39,9 +39,8 @@ LSSDAnalyzer(coef=[1.], mktdata=None, colname='adjusted', freq='Q',
 
 where:
 
-* `coef` : List of non-negative (`>=0`) coefficients with at least one
-element positive (`>0`). The highest order non zero element defines the
-highest mMAD order. The default is `[1.]`.
+* `coef` : Positive, non-increasing list of mixture coefficients.
+The default is [1.].
 * `mktdata` : `pd.DataFrame` containing the market data in the format returned by
 the function `azapy.readMkT`. The default is `None`. `mktdata` could be loaded
 latter.

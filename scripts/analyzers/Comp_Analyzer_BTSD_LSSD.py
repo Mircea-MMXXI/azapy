@@ -1,4 +1,4 @@
-# Compare BTSD for alpha0=0 with LSSD first order
+# Compare BTSD for L=1, alpha1=0 and detrended RR with first order mLSSD
 # they should be identical up to machine precision 
 import pandas as pd
 import azapy as az
@@ -13,10 +13,10 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# set BTSD for alpha0=0 (default)
+# set BTSD for alpha=0 (default) detrended
 alpha = [0.]
 coef = [1.]
-cr1 = az.mBTSDAnalyzer(alpha, coef, mktdata)
+cr1 = az.BTSDAnalyzer(alpha, coef, mktdata, detrended=True)
 # set LSSD first order (default)
 coef = [1]
 cr2 = az.LSSDAnalyzer(coef, mktdata)

@@ -1,5 +1,5 @@
-# Comparison between BTSD with alpha0=0 and first order LSSD
-# should be the same
+# Compar mBTSD with L=1, alpha1=0 and detrended RR with first order mLSSD
+# they should be the same
 import time
 import azapy as az
 
@@ -13,11 +13,11 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Compute BTSD-Sharpe optimal portfolio for alpha0=0
-p1 = az.Port_mBTSD(mktdata, pname='BTSDPort') 
+# Compute BTSD-Sharpe optimal portfolio for alpha=0 (default) detrended
+p1 = az.Port_BTSD(mktdata, pname='BTSDPort') 
 
 tic = time.perf_counter()
-port1 = p1.set_model(mu=0.)   
+port1 = p1.set_model(mu=0., detrended=True)   
 toc = time.perf_counter()
 print(f"time Sharpe: {toc-tic}")
 

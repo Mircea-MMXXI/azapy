@@ -2,12 +2,12 @@
 # LSSD optimal portfolios <a name="TOP"></a>
 
 LSSD stands for *Lower Semi-Standard Deviation*.
-*azapy* implements a generalization of LSSD, namely the Mixture LSSD (mLSSD).
 
-mLSSD is a superposition of recursive high order LSSD measures.
-The single LSSD measure can be viewed as a particular case of mLSSD.
+**azapy** implements a generalization of LSSD,
+namely the **Mixture LSSD (mLSSD)**.
 
-The mLSSD dispersion measure is defined as
+mLSSD dispersion measure is a superposition of recursive high order
+LSSD measures,*i.e.*,
 
 \begin{equation*}
 	\rho = \sum_{l=1}^L {\cal K}_l \times \delta_l
@@ -15,11 +15,21 @@ The mLSSD dispersion measure is defined as
 
 where:
 
-* $L$ is the number of individual LSSD's,
-* ${\cal K}$ are positive coefficients,
-* $\delta_l$ is the l-th order LSSD measure.
+* $L$ is the highest LSSD order,
+* $\{{\cal K}_l\}_{l=1,\cdots,L}$ is a set of positive, non-increasing
+coefficients,
+* $\delta_l$ is the l-th order LSSD measure, defined recursively as
 
-> Note: a typical choice could be $L=3$ and ${\cal K}_l=1/3\ \ \forall l$.
+\begin{align*}
+	\delta_l(r) &= \left\|\left( -{\bar r} -\sum_{j=1}^{l-1}\delta_j(r)\right)^+\right\|_2, \\
+	&\cdots \\
+	\delta_1(r) & = \left\|\left( -{\bar r} \right)^+\right\|_2,
+\end{align*}
+where $\left\| x \right\|_2 = \left( E\left[\left| x \right|^2\right]\right)^{1/2}$,
+is the $L_2$ norm and $\bar r$ is the detrended rate of return,
+${\bar r} = r - E[r]$.
+
+> Note: a possible choice could be $L=3$ and ${\cal K}_l=1/3\ \ \forall l$.
 
 The following portfolio optimization strategies are available:
 * Minimization of dispersion for a give expected rate of return,
@@ -76,9 +86,8 @@ LSSDAnalyzer(coef=[1.], mktdata=None, colname='adjusted', freq='Q',
 
 where:
 
-* `coef` : List of non-negative (`>=0`) coefficients with at least one
-element positive (`>0`). The highest order non zero element defines the
-highest mMAD order. The default is `[1.]`.
+* `coef` : Positive, non-increasing list of mixture coefficients.
+The default is [1.].
 * `mktdata` : `pd.DataFrame` containing the market data in the format returned by
 the function `azapy.readMkT`. The default is `None`. `mktdata` could be loaded
 latter.
@@ -441,15 +450,14 @@ import azapy as az
 # Collect some market data
 mktdir = "../../MkTdata"
 sdate = "2012-01-01"
-edate = 'today'
+edate = "2021-07-27"
 symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Define mLSSD measure parameters coef
-coef = np.ones(3)
-coef = coef / coef.sum()
+# Define mLSSD measure mixture coef (equal weighted for max LSSD order 3)
+coef = np.full(3, 1/3)
 
 #=============================================================================
 # Compute Sharpe optimal portfolio
@@ -757,7 +765,8 @@ Reference rate. Its meaning depends of the value of `rtype`. For
     - `'MinRisk'` and `'InvNrisk'` : `mu` is ignored,
     - `'RiskAverse'` : `mu` is the risk aversion coefficient $\lambda$.
 * `coef` :
-List of ${\cal K}_l$ mixture coefficients. The default is `[1.]`.
+Positive, non-increasing list of mixture coefficients.
+The default is [1.].
 * `rtype` :
 Optimization type. The default is `'Sharpe'`. Possible values are:
     - `'Risk'` : minimization of dispersion (risk) measure for a fixed values

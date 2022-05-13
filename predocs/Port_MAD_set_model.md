@@ -23,7 +23,8 @@ Reference rate. Its meaning depends of the value of `rtype`. For
     - `'MinRisk'` and `'InvNrisk'` : `mu` is ignored,
     - `'RiskAverse'` : `mu` is the risk aversion coefficient $\lambda$.
 * `coef` :
-List of ${\cal K}_l$ mixture coefficients. The default is `[1.]`.
+Positive, non-increasing list of mixture coefficients.
+The default is [1.]. 
 * `rtype` :
 Optimization type. The default is `'Sharpe'`. Possible values are:
     - `'Risk'` : minimization of dispersion (risk) measure for a fixed values

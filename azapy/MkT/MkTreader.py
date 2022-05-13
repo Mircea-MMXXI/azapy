@@ -304,20 +304,17 @@ class MkTreader:
         # output
         if verbose:
             self.get_request_status()
-            pd.set_option('max_columns', None)
-            print("\nRequest between "
-                  + f"{self.sdate.date()} : {self.edate.date()}\n"
-                  + f"{self.rout_status}\n"
-                  + f"extraction time {round(self.delta_time, 3)} s")
-            pd.reset_option('max_columns')
+            #_ncol_default_ = pd.options.display.max_columns
+            #pd.options.display.max_columns = None
+            with pd.option_context("display.max_columns", None):
+                print("\nRequest between "
+                      + f"{self.sdate.date()} : {self.edate.date()}\n"
+                      + f"{self.rout_status}\n"
+                      + f"extraction time {round(self.delta_time, 3)} s")
+            #pd.options.display.max_columns = _ncol_default_
             
         if output_format == 'dict':
-            rout = {}
-            for k, v in self.rout.groupby('symbol'):
-                rout[k] = v
-                #rout[k] = v.drop('symbol', axis=1)
-            
-            return rout
+            return dict(tuple(self.rout.groupby('symbol')))
     
         return self.rout
   

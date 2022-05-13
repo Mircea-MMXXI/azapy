@@ -2,12 +2,12 @@
 # LSSD optimal portfolios <a name="TOP"></a>
 
 LSSD stands for *Lower Semi-Standard Deviation*.
-*azapy* implements a generalization of LSSD, namely the Mixture LSSD (mLSSD).
 
-mLSSD is a superposition of recursive high order LSSD measures.
-The single LSSD measure can be viewed as a particular case of mLSSD.
+**azapy** implements a generalization of LSSD,
+namely the **Mixture LSSD (mLSSD)**.
 
-The mLSSD dispersion measure is defined as
+mLSSD dispersion measure is a superposition of recursive high order
+LSSD measures,*i.e.*,
 
 \begin{equation*}
 	\rho = \sum_{l=1}^L {\cal K}_l \times \delta_l
@@ -15,11 +15,21 @@ The mLSSD dispersion measure is defined as
 
 where:
 
-* $L$ is the number of individual LSSD's,
-* ${\cal K}$ are positive coefficients,
-* $\delta_l$ is the l-th order LSSD measure.
+* $L$ is the highest LSSD order,
+* $\{{\cal K}_l\}_{l=1,\cdots,L}$ is a set of positive, non-increasing
+coefficients,
+* $\delta_l$ is the l-th order LSSD measure, defined recursively as
 
-> Note: a typical choice could be $L=3$ and ${\cal K}_l=1/3\ \ \forall l$.
+\begin{align*}
+	\delta_l(r) &= \left\|\left( -{\bar r} -\sum_{j=1}^{l-1}\delta_j(r)\right)^+\right\|_2, \\
+	&\cdots \\
+	\delta_1(r) & = \left\|\left( -{\bar r} \right)^+\right\|_2,
+\end{align*}
+where $\left\| x \right\|_2 = \left( E\left[\left| x \right|^2\right]\right)^{1/2}$,
+is the $L_2$ norm and $\bar r$ is the detrended rate of return,
+${\bar r} = r - E[r]$.
+
+> Note: a possible choice could be $L=3$ and ${\cal K}_l=1/3\ \ \forall l$.
 
 The following portfolio optimization strategies are available:
 * Minimization of dispersion for a give expected rate of return,

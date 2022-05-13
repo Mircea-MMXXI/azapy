@@ -35,10 +35,9 @@ for provider in providers:
 call_time = pd.Series(ex_time)
 req_status = pd.concat(rstatus, axis=1)
 
-pd.set_option('max_columns', None)
-print(f"\nrequests status: (pay attention to the error field)\n{req_status}")
-print(f"\ncompare requests speed:\n{call_time.round(3)}")
-pd.reset_option('max_columns')
+with pd.option_context("display.max_columns", None):
+    print(f"requests status: (pay attention to the error field)\n{req_status}")
+    print(f"compare requests speed:\n{call_time.round(3)}")
 
 # plot the close prices form all providers
 pd.concat(ts_close, axis=1).plot()

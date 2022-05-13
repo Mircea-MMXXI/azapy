@@ -7,7 +7,7 @@ from ._solvers import _socp_solver
 
 class SMCRAnalyzer(CVaRAnalyzer):
     """
-    SMCR - Second Momentum Coherent Risk based portfolio optimizations.
+    Mixture SMCR dispersion measure based portfolio optimizations.
     
     Methods:
         * getWeights
@@ -19,7 +19,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         * set_rtype
         * set_random_seed
     """
-    def __init__(self, alpha=[0.9], coef=[1.], 
+    def __init__(self, alpha=[0.9], coef=None, 
                  mktdata=None, colname='adjusted', freq='Q', 
                  hlength=3.25, calendar=None,
                  rtype='Sharpe', method='ecos'):
@@ -28,29 +28,31 @@ class SMCRAnalyzer(CVaRAnalyzer):
 
         Parameters
         ----------
-        alpha : list, optional
-            List of alpha values. The default is [0.9].
-        coef : list, optional
-            List of coefficients. Must be the same size with 
-            alpha. The default is [1.].
-        mktdata : pandas.DataFrame, optional
+        `alpha` : list, optional
+            List of distinct alpha confidence levels. The default is [0.9].
+        `coef` : list, optional
+            List of positive mixture coefficients. Must have the same size with 
+            `alpha`. A `None` value assumes an equal weighted risk mixture.
+            The vector of coefficients will be normalized to unit.
+            The default is `None`.
+        `mktdata` : pandas.DataFrame, optional
             Historic daily market data for portfolio components in the format
             returned by azapy.mktData function. The default is None.
-        colname : str, optional
+        `colname` : str, optional
             Name of the price column from mktdata used in the weights 
             calibration. The default is 'adjusted'.
-        freq : str, optional
-            Rate of returns horizon in number of business day. it could be 
+        `freq` : str, optional
+            Rate of returns horizon. It could be 
             'Q' for quarter or 'M' for month. The default is 'Q'.
-        hlength : float, optional
+        `hlength` : float, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
             The default is 3.25 years.
-        calendar : numpy.busdaycalendar, optional
+        `calendar` : numpy.busdaycalendar, optional
             Business days calendar. If is it `None` then the calendar will 
             be set to NYSE business calendar. 
-            The default is `None`.
-        rtype : str, optional
+            The default is None.
+        `rtype` : str, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure for a fixed 
                 vale of expected rate of return. \n

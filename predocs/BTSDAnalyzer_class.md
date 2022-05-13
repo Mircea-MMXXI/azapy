@@ -32,16 +32,20 @@ During its computations the following class members are also set:
 ### Constructor
 
 ```
-BTSDAnalyzer(alpha0=0., mktdata=None, colname='adjusted', freq='Q',
-             hlength=3.25, calendar=None, rtype='Sharpe', method='ecos')
+BTSDAnalyzer(alpha=[0.], coef=None, mktdata=None, colname='adjusted', freq='Q',
+             hlength=3.25, calendar=None, rtype='Sharpe', detrended=False,
+             method='ecos')
 ```
 
 where:
 
-* `alpha0` : BTSD threshold. The default is `0`.
-* `mktdata` : `pd.DataFrame` containing the market data in the format returned by
-the function `azapy.readMkT`. The default is `None`. `mktdata` could be loaded
-latter.
+* `alpha` : List of distinct BTSD thresholds. The default is `[0.]`.
+* `coef` : List of mixture coefficients. Must have the same size as
+`alpha`. A `None` value assumes an equal weighted risk mixture.
+The default is `None`.
+* `mktdata` : `pandas.DataFrame` containing the market data in the format
+returned by the function `azapy.readMkT`. The default is `None`.
+`mktdata` could be loaded latter.
 * `colname` : Name of the price column from `mktdata` used in the weights
 calibration. The default is `'adjusted'`.
 * `freq` : Rate of returns horizon (portfolio rebalancing period).
@@ -61,8 +65,13 @@ The default is `None`.
     - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
 		as equal weighted portfolio,
     - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
+* `detrended` : Boolean flag.
+In the BTSD expression use:
+    - `True` : detrended rate of return, *i.e.* ${\bar r} = r - E[r]$,
+    - `False` : standard rate of return.
+The default is `False`.
 * `method` : Designates the SOCP numerical method.
-It could be ``'ecos'`` or ``'cvxopt'``.
+It could be `'ecos'` or `'cvxopt'`.
 The default is `'ecos'`.
 
 > Note:

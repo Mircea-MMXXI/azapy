@@ -21,6 +21,9 @@ where:
 > Note: In our case $C$ is estimated from historical observations of
 portfolio components rate of returns.
 
+> Note: SD is a proper dispersion measure while MV is not (violates 
+the positive homogeneity axiom).
+
 > Note: the Sharpe ratio defined as $\beta = (E(r)- \mu) / \sigma$ is
 different than MV-Sharpe ratio defined as $\beta_{MV} = (E(r)- \mu) / \sigma^2$.
 Therefore the Sharpe and MV-Sharpe optimal portfolios have different

@@ -1,4 +1,4 @@
-# Compare Omega for alpha0=0 with MAD first order
+# Compare Omega for L=1, alpha1=0 and detrended RR with first order mMAD
 # they should be identical up to machine precision 
 import pandas as pd
 import azapy as az
@@ -13,10 +13,10 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# set Omega for alpha0=0 (default)
+# set Omega for alpha0=0 (default) detrended
 alpha = [0.]
 coef = [1.]
-cr1 = az.mOmegaAnalyzer(alpha, coef, mktdata)
+cr1 = az.OmegaAnalyzer(alpha, coef, mktdata, detrended=True)
 # set MAD first order (default)
 coef = [1]
 cr2 = az.MADAnalyzer(coef, mktdata)

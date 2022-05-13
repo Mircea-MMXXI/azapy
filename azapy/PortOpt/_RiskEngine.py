@@ -21,20 +21,20 @@ class _RiskEngine():
 
         Parameters
         ----------
-        mktdata : pandas.DataFrame, optional
+        `mktdata` : pandas.DataFrame, optional
             Historic daily market data for portfolio components in the format
             returned by azapy.mktData function. The default is `None`.
-        colname : string, optional
+        `colname` : string, optional
             Name of the price column from mktdata used in the weights
             calibration. The default is 'adjusted'.
-        freq : str, optional
+        `freq` : str, optional
             Rate of returns horizon in number of business day. it could be
             'Q' for quarter or 'M' for month. The default is 'Q'.
-        hlength : float, optional
+        `hlength` : float, optional
             History length in number of years used for calibration. A
             fractional number will be rounded to an integer number of months.
             The default is 3.25
-        calendar : numpy.busdaycalendar, optional
+        `calendar` : numpy.busdaycalendar, optional
             Business days calendar. If is it None then the calendar will be set
             to NYSE business calendar.
             The default is `None`.
@@ -53,7 +53,7 @@ class _RiskEngine():
 
         Parameters
         ----------
-        rrate : pandas.DataFrame
+        `rrate` : pandas.DataFrame
             The portfolio components historical rates of returns.
             If it is not None, it will overwrite the rrate computed in the
             constructor from mktdata. The default is None.
@@ -73,20 +73,20 @@ class _RiskEngine():
 
         Parameters
         ----------
-        mktdata : pandas.DataFrame
+        `mktdata` : pandas.DataFrame
             Historic daily market data for portfolio components in the format
             returned by azapy.mktData function.
-        colname : str, optional
+        `colname` : str, optional
             Name of the price column from mktdata used in the weights
             calibration. The default is 'adjusted'.
-        freq : string, optional
+        `freq` : string, optional
             Rate of returns horizon in number of business day. it could be
             'Q' for quarter or 'M' for month. The default is 'Q'.
-        hlength : float, optional
+        `hlength` : float, optional
             History length in number of years used for calibration. A
             fractional number will be rounded to an integer number of months.
             The default is 3.25
-        calendar : numpy.busdaycalendar, optional
+        `calendar` : numpy.busdaycalendar, optional
             Business days calendar. If is it None then the calendar will be set
             to NYSE business calendar.
             The default is `None`.
@@ -121,16 +121,16 @@ class _RiskEngine():
 
         Parameters
         ----------
-        nshares : pandas.Series, optional
+        `nshares` : pandas.Series, optional
             Number of shares per portfolio component. A missing component
             entry will be considered 0. A `None` value assumes that all
             components entries are 0. The name of the components must be
             present in the mrkdata. The default is `None`.
-        cash : float, optional
+        `cash` : float, optional
             Additional cash to be considered in the overall capital. A
             negative entry assumes a reduction in the total capital
             available for rebalance. The default is 0.
-        ww : pandas.Series, optional
+        `ww` : pandas.Series, optional
             External portfolio weights. If it not set to `None` these
             weights will overwrite the calibrated weights.
             The default is `None`.

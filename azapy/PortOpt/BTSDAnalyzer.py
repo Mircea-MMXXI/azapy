@@ -7,7 +7,7 @@ from ._solvers import _socp_solver
 
 class BTSDAnalyzer(OmegaAnalyzer):
     """
-    BTSD measure/ratio based portfolio optimization.
+    Mixture BTSD measure (Sortino ratio) based portfolio optimization.
     
     Methods:
         * getWeights
@@ -19,35 +19,38 @@ class BTSDAnalyzer(OmegaAnalyzer):
         * set_rtype
         * set_random_seed
     """
-    def __init__(self, alpha=0., 
-                 mktdata=None, colname='adjusted', freq='Q', 
-                 hlength=3.25, calendar=None, 
-                 rtype='Sharpe', method='ecos'):
+    def __init__(self, alpha=[0.], coef=None, mktdata=None, 
+                 colname='adjusted', freq='Q', hlength=3.25, calendar=None, 
+                 rtype='Sharpe', detrended=False, method='ecos'):
         """
         Constructor
 
         Parameters
         ----------
-        alpha : float, optional
-            BTSD threshold. The default is 0.
-        mktdata : pandas.DataFrame, optional
+        `alpha` : list, optional
+            List of distinct BTSD thresholds. The default is [0.].
+        `coef` : list, optional
+            List of mixture coefficients. Must have the same size as
+            `alpha`. A `None` value assumes an equal weighted risk mixture.
+            The default is `None`.
+        `mktdata` : pandas.DataFrame, optional
             Historic daily market data for portfolio components in the format
             returned by azapy.mktData function. The default is None.
-        colname : str, optional
+        `colname` : str, optional
             Name of the price column from mktdata used in the weights 
             calibration. The default is 'adjusted'.
-        freq : str, optional
+        `freq` : str, optional
             Rate of returns horizon in number of business day. it could be 
             'Q' for quarter or 'M' for month. The default is 'Q'.
-        hlength : float, optional
+        `hlength` : float, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
             The default is 3.25 years.
-        calendar : numpy.busdaycalendar, optional
-            Business days calendar. If is it `None` then the calendar will be set
-            to NYSE business calendar.
+        `calendar` : numpy.busdaycalendar, optional
+            Business days calendar. If is it `None` then the calendar will 
+            be set to NYSE business calendar.
             The default is `None`.
-        rtype : str, optional
+        `rtype` : str, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure for a fixed 
                 vale of expected rate of return. \n
@@ -60,8 +63,13 @@ class BTSDAnalyzer(OmegaAnalyzer):
                 value as equal weighted portfolio. \n
                 "RiskAverse" : optimal portfolio for a fixed value of risk 
                 aversion coefficient.
-            The default is "Sharpe". 
-        method : string, optional
+            The default is "Sharpe".
+        `detrended` : Boolean, optional
+            In the Delta-risk expression use: \n
+                `True` : detrended rate of return, i.e. r - E(r), \n
+                `False` : standard rate of return. 
+            The default is `False`.
+        `method` : string, optional
             SOCP numerical method. 
             Could be: 'ecos', or 'cvxopt'.
             The defualt is 'ecos'.
@@ -70,8 +78,8 @@ class BTSDAnalyzer(OmegaAnalyzer):
         -------
         The object.
         """
-        super().__init__(alpha, mktdata, colname, freq, hlength, calendar, 
-                         rtype, method)
+        super().__init__(alpha, coef, mktdata, colname, freq, hlength,  
+                         calendar, rtype, detrended, method)
         
         
     def _set_method(self, method):
@@ -82,60 +90,69 @@ class BTSDAnalyzer(OmegaAnalyzer):
         rr = alpha - prate
         rr[rr < 0] = 0.
         rho = np.mean(rr ** 2) ** 0.5
-        # status, rho, rho
-        return 0, rho, rho
+        # status, alpha, rho
+        return 0, alpha, rho
     
     
     def _risk_min(self, d=1):
-        # Order of variables:
-        # w <- [0:mm] 
-        # u <- mm
-        # s_l <- [mm+1: mm + 1 + nn]
-        # in total dim = mm + 1 + nn
+        # w <- [0 : mm]
+        # then for l <- [0:ll]
+        #   u_l <- mm + l(nn+1), 
+        #   s_l <- [mm + l(nn + 1) + 1: mm + (l + 1)(nn + 1)]
+        # in total dim = mm + ll(nn + 1)
         nn = self.nn
         mm = self.mm
-
+        ll = self.ll
+        
         # build c
-        c_data = [0.] * mm + [1.] + [0.] * nn
+        c_data = [0.] * mm 
+        for l in range(ll):
+            c_data += [self.coef[l]] + [0.] * nn
         
         # build G
         # linear
-        G_icol = list(range(mm)) * nn
-        G_irow = [k  for k in range(nn) for _ in range(mm)]
-        G_data = list(np.ravel(-self.rrate))
-        
-        G_icol += list(range(mm + 1, mm + 1 + nn))
-        G_irow += list(range(nn))
-        G_data += [-1.] * nn
-        
+        G_icol = list(range(mm)) * (nn * ll)
+        G_irow = [k  for k in range(nn * ll) for _ in range(mm)]
+        G_data = list(np.ravel(-self.rrate)) * ll
+        for l in range(ll):
+            G_icol += \
+                   list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
+            G_irow += list(range(l * nn, (l + 1) * nn))
+            G_data += [-1.] * nn 
+            
         G_icol += list(range(mm))
-        G_irow += [nn] * mm
+        G_irow += [nn * ll] * mm
         G_data += list(-self.muk * d)
         
-        G_icol += list(range(mm + 1 + nn))
-        G_irow += list(range(1 + nn, mm + 2 + 2 * nn))
-        G_data += [-1.] * (mm + 1 + nn)
+        G_icol += list(range(mm + ll * (nn + 1)))
+        G_irow += list(range(nn * ll + 1, nn * ll + 1 + mm + ll * (nn + 1)))
+        G_data += [-1.] * (mm + ll * (nn + 1))
         # cone
-        G_icol += list(range(mm, mm + 1 + nn))
-        G_irow += list(range(mm + 2 + 2 * nn, mm + 3 + 3 * nn))
-        G_data += [-np.sqrt(nn)] + [-1.] * nn
-        
-        G_shape = (mm + 3 + 3 * nn, mm + 1 + nn)
+        for l in range(ll):
+            G_icol += list(range(mm + l * (nn + 1), mm + (l + 1) * (nn + 1)))
+            G_irow += \
+                list(range(1 + mm + ll * (2 * nn + 1) + l * (nn + 1), 
+                     1 + mm + ll * (2 * nn + 1) + (l + 1) * (nn + 1)))
+            G_data += [-np.sqrt(nn)] + [-1.] * nn
+            
+        G_shape = (1 + mm + ll * (3 * nn + 2), mm + ll * (nn + 1))
         G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
         
         # build h
-        h_data = [-self.alpha[0]] * nn + [-self.mu * d] \
-               + [0.] * (mm + 2 + 2 * nn)
+        h_data = []
+        for l in range(ll):
+            h_data += [-self.alpha[l]] * nn
+        h_data += [-self.mu * d] + [0.] * (mm + 2 * ll * (nn + 1))
                
         # build dims
-        dims = {'l': (mm + 2 + 2 * nn), 'q': [nn + 1]}
+        dims = {'l': (mm + 1 + ll * (2 * nn + 1)), 'q': [nn + 1] * ll}
         
         # build A
         A_icol = list(range(mm))
         A_irow = [0] * mm
         A_data = [1.] * mm
         
-        A_shape = (1, mm + nn + 1)
+        A_shape = (1, mm + ll * (nn + 1))
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         
         # build b
@@ -157,68 +174,70 @@ class BTSDAnalyzer(OmegaAnalyzer):
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
         # primary risk components - default to risk
-        self.primary_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
+                                           for l in range(ll)])
         # secondary risk components - default to risk
-        self.secondary_risk_comp = np.array([self.risk])
+        self.secondary_risk_comp = self.alpha.copy()
         
         return self.ww
     
     
     def _sharpe_max(self):
-        # add slack varaible, u (=1), to be compatible with LSSD
         # Order of variables:
-        # w <- [0:mm] 
-        # u <- mm
-        # s_l <- [mm + 1 : mm + 1 + nn]
-        # t <- mm + 1 + nn 
-        # in total dim = mm + nn + 2
+        # w <- [0 : mm]
+        # then for l <- [0:ll]
+        #   u_l <- mm + l(nn+1), 
+        #   s_l <- [mm + l(nn + 1) + 1: mm + (l + 1)(nn + 1)]
+        # t <- mm + ll * (nn + 1)
+        # in total dim = mm + ll(nn + 1) + 1
         nn = self.nn
         mm = self.mm
+        ll = self.ll
         
         # build c
-        c_data = list(-self.muk) + [0.] * (nn + 1) + [self.mu]
-        
+        c_data = list(-self.muk) + [0.] * (ll * (nn + 1)) + [self.mu]
+            
         # build G
         # linear
-        G_icol = list(range(mm)) * nn
-        G_irow = [k  for k in range(nn) for _ in range(mm)]
-        G_data = list(np.ravel(-self.rrate))
-        
-        G_icol += list(range(mm + 1, mm + 1 + nn))
-        G_irow += list(range(nn))
-        G_data += [-1.] * nn
-        
-        G_icol += [mm + nn + 1] * nn
-        G_irow += list(range(nn))
-        G_data += [self.alpha[0]] * nn
-        
-        G_icol += list(range(mm + 2 + nn))
-        G_irow += list(range(nn, mm + 2 + 2 * nn))
-        G_data += [-1.] * (mm + 2 + nn)
+        G_icol = list(range(mm)) * (nn * ll)
+        G_irow = [k  for k in range(nn * ll) for _ in range(mm)]
+        G_data = list(np.ravel(-self.rrate)) * ll
+        for l in range(ll):
+            G_icol += [mm + ll * (nn + 1)] * nn \
+                  + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
+            G_irow += list(range(l * nn, (l + 1) * nn)) * 2
+            G_data += [self.alpha[l]] * nn + [-1.] * nn 
+            
+        G_icol += list(range(mm + ll * (nn + 1) + 1))
+        G_irow += list(range(nn * ll, 1 + mm + ll * (2 * nn + 1)))
+        G_data += [-1.] * (mm + ll * (nn + 1) + 1)
         # cone
-        G_icol += list(range(mm, mm + nn + 1))
-        G_irow += list(range(mm + 2 + 2 * nn, mm + 3 + 3 * nn))
-        G_data += [-np.sqrt(nn)] + [-1.] * nn
-        
-        G_shape = (mm + 3 + 3 * nn, mm + 2 + nn)
+        for l in range(ll):
+            G_icol += list(range(mm + l * (nn + 1), mm + (l + 1) * (nn + 1)))
+            G_irow += \
+                list(range(1 + mm + ll * (2 * nn + 1) + l * (nn + 1), 
+                     1 + mm + ll * (2 * nn + 1) + (l + 1) * (nn + 1)))
+            G_data += [-np.sqrt(nn)] + [-1.] * nn
+            
+        G_shape = (1 + mm + ll * (3* nn + 2), mm + ll * (nn + 1) + 1)
         G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
         
         # build h
-        h_data = [0.] * (mm + 3 + 3 * nn) 
+        h_data = [0.] * (1 + mm + ll * (3 * nn + 2))
         
         # build dims
-        dims = {'l': (mm + 2 + 2 * nn), 'q': [nn + 1]}
+        dims = {'l': (1 + mm + ll * (2 * nn + 1)), 'q': [nn + 1] * ll}
         
         # build A
-        A_icol = list(range(mm)) + [mm + nn + 1]
+        A_icol = list(range(mm)) + [mm + ll * (nn + 1)]
         A_irow = [0] * (mm + 1)
         A_data = [1.] * mm + [-1.]
         
-        A_icol += [mm]
-        A_irow += [1]
-        A_data += [1]
+        A_icol += [mm + l * (nn + 1) for l in range(ll)]
+        A_irow += [1] * ll
+        A_data += list(self.coef)
         
-        A_shape = (2, mm + nn + 2)
+        A_shape = (2, mm + ll * (nn + 1) + 1)
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         
         # build b
@@ -232,155 +251,85 @@ class BTSDAnalyzer(OmegaAnalyzer):
             warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * mm)
             
+        t = res['x'][-1]
         # Omega
         self.sharpe = -res['pcost']
         # risk
-        self.risk = 1. / res['x'][-1]
+        self.risk = 1. / t
         # optimal weights
-        self.ww = np.array(res['x'][:mm] * self.risk)
+        self.ww = np.array(res['x'][:mm] / t)
         self.ww.shape = mm
         # rate of return
-        self.RR = self.sharpe * self.risk + self.mu
+        self.RR = self.sharpe / t + self.mu
         # primary risk components - default to risk
-        self.primary_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = \
+            np.array([res['x'][mm + l * (nn + 1)] / t for l in range(ll)])
         # secondary risk components - default to risk
-        self.secondary_risk_comp = np.array([self.risk])
+        self.secondary_risk_comp = self.alpha.copy()
         
         return self.ww
         
-    
-    def _sharpe_max2(self):
-        # same as _sharpe_max but without slack vraible u
-        # Order of variables:
-        # w <- [0:mm] 
-        # s_l <- [mm : mm + nn]
-        # t <- mm + nn 
-        # in total dim = mm + nn + 1
-        nn = self.nn
-        mm = self.mm
-        
-        # build c
-        c_data = list(-self.muk) + [0.] * nn + [self.mu]
-        
-        # build G
-        # linear
-        G_icol = list(range(mm)) * nn
-        G_irow = [k  for k in range(nn) for _ in range(mm)]
-        G_data = list(np.ravel(-self.rrate))
-        
-        G_icol += list(range(mm, mm + nn))
-        G_irow += list(range(nn))
-        G_data += [-1.] * nn
-        
-        G_icol += [mm + nn] * nn
-        G_irow += list(range(nn))
-        G_data += [self.alpha[0]] * nn
-        
-        G_icol += list(range(mm + 1 + nn))
-        G_irow += list(range(nn, mm + 1 + 2 * nn))
-        G_data += [-1.] * (mm + 1 + nn)
-        # cone
-        G_icol += list(range(mm, mm + nn))
-        G_irow += list(range(mm + 2 + 2 * nn, mm + 2 + 3 * nn))
-        G_data += [-1.] * nn
-        
-        G_shape = (mm + 2 + 3 * nn, mm + 1 + nn)
-        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
-        
-        # build h
-        h_data = [0.] * (mm + 1 + 2 * nn) + [np.sqrt(nn)] + [0.] * nn
-        
-        # build dims
-        dims = {'l': (mm + 1 + 2 * nn), 'q': [nn + 1]}
-        
-        # build A
-        A_icol = list(range(mm)) + [mm + nn]
-        A_irow = [0] * (mm + 1)
-        A_data = [1.] * mm + [-1.]
-        A_shape = (1, mm + nn + 1)
-        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
-        
-        # build b
-        b_data = [0.]
-        
-        # calc
-        res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
-        
-        self.status = res['status']
-        if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            return np.array([np.nan] * mm)
-            
-        # Omega
-        self.sharpe = -res['pcost']
-        # risk
-        self.risk = 1. / res['x'][-1]
-        # optimal weights
-        self.ww = np.array(res['x'][:mm] * self.risk)
-        self.ww.shape = mm
-        # rate of return
-        self.RR = -res['pcost'] * self.risk + self.mu
-        # primary risk components - default to risk
-        self.primary_risk_comp = np.array([self.risk])
-        # secondary risk components - default to risk
-        self.secondary_risk_comp = np.array([self.risk])
-        
-        return self.ww
     
     def _sharpe_inv_min(self):
         # Order of variables:
-        # w <- [0:mm] 
-        # u <- mm
-        # s_l <- [mm + 1: mm + 1 + nn]
-        # t <- mm + 1 + nn
-        # in total dim = mm + 2 + nn
+        # w <- [0 : mm]
+        # then for l <- [0:ll]
+        #   u_l <- mm + l(nn+1), 
+        #   s_l <- [mm + l(nn + 1) + 1: mm + (l + 1)(nn + 1)]
+        # t <- mm + ll * (nn + 1)
+        # in total dim = mm + ll(nn + 1) + 1
         nn = self.nn
         mm = self.mm
+        ll = self.ll
         
         # build c
-        c_data = [0.] * mm + [1.] + [0.] * (nn + 1)
+        c_data = [0.] * mm 
+        for l in range(ll):
+            c_data += [self.coef[l]] + [0.] * nn
+        c_data += [0.]
         
-          # build G
+        
+        # build G
         # linear
-        G_icol = list(range(mm)) * nn
-        G_irow = [k  for k in range(nn) for _ in range(mm)]
-        G_data = list(np.ravel(-self.rrate))
-        
-        G_icol += list(range(mm + 1, mm + 1 + nn))
-        G_irow += list(range(nn))
-        G_data += [-1.] * nn
-        
-        G_icol += [mm + 1 + nn] * nn
-        G_irow += list(range(nn))
-        G_data += [self.alpha[0]] * nn
-        
-        G_icol += list(range(mm + 2 + nn))
-        G_irow += list(range(nn, mm + 2 + 2 * nn))
-        G_data += [-1.] * (mm + 2 + nn)
+        G_icol = list(range(mm)) * (nn * ll)
+        G_irow = [k  for k in range(nn * ll) for _ in range(mm)]
+        G_data = list(np.ravel(-self.rrate)) * ll
+        for l in range(ll):
+            G_icol += [mm + ll * (nn + 1)] * nn \
+                  + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
+            G_irow += list(range(l * nn, (l + 1) * nn)) * 2
+            G_data += [self.alpha[l]] * nn + [-1.] * nn 
+            
+        G_icol += list(range(mm + ll * (nn + 1) + 1))
+        G_irow += list(range(nn * ll, 1 + mm + ll * (2 * nn + 1)))
+        G_data += [-1.] * (mm + ll * (nn + 1) + 1)
         # cone
-        G_icol += list(range(mm, mm + 1 + nn))
-        G_irow += list(range(mm + 2 + 2 * nn, mm + 3 + 3 * nn))
-        G_data += [-np.sqrt(nn)] + [-1.] * nn
-        
-        G_shape = (mm + 3 + 3 * nn, mm + 2 + nn)
+        for l in range(ll):
+            G_icol += list(range(mm + l * (nn + 1), mm + (l + 1) * (nn + 1)))
+            G_irow += \
+                list(range(1 + mm + ll * (2 * nn + 1) + l * (nn + 1), 
+                     1 + mm + ll * (2 * nn + 1) + (l + 1) * (nn + 1)))
+            G_data += [-np.sqrt(nn)] + [-1.] * nn
+            
+        G_shape = (1 + mm + ll * (3* nn + 2), mm + ll * (nn + 1) + 1)
         G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
         
         # build h
-        h_data = [0.] * (mm + 3 + 3 * nn)
+        h_data = [0.] * (1 + mm + ll * (3 * nn + 2))
         
         # build dims
-        dims = {'l': (mm + 2 + 2 * nn), 'q': [nn + 1]}
+        dims = {'l': (1 + mm + ll * (2 * nn + 1)), 'q': [nn + 1] * ll}
         
         # build A
-        A_icol = list(range(mm)) + [mm + 1 + nn]
+        A_icol = list(range(mm)) + [mm + ll * (nn + 1)]
         A_irow = [0] * (mm + 1)
         A_data = [1.] * mm + [-1.]
         
-        A_icol += list(range(mm)) + [mm + 1 + nn]
+        A_icol += list(range(mm)) + [mm + ll * (nn + 1)]
         A_irow += [1] * (mm + 1)
         A_data += list(self.muk) + [-self.mu]
 
-        A_shape = (2, mm + nn + 2)
+        A_shape = (2, mm + ll * (nn + 1) + 1)
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         
         # build b
@@ -405,134 +354,76 @@ class BTSDAnalyzer(OmegaAnalyzer):
         # rate of return
         self.RR = 1. / t + self.mu
         # primary risk components - default to risk
-        self.primary_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = \
+            np.array([res['x'][mm + l * (nn + 1)] / t for l in range(ll)])
         # secondary risk components - default to risk
-        self.secondary_risk_comp = np.array([self.risk])
+        self.secondary_risk_comp = self.alpha.copy()
         
         return self.ww
         
-    
-    def _rr_max2(self):
-        # same as _rr_max2 but without slack varaible u
-        # Order of variables:
-        # w <- [0:mm] 
-        # s <- [mm : mm + nn]
-        # in total dim = mm + nn
-        nn = self.nn
-        mm = self.mm
-        
-        # build c
-        c_data = list(-self.muk) + [0.] * nn 
-        
-        # build G
-        # linear
-        G_icol = list(range(mm)) * nn
-        G_irow = [k  for k in range(nn) for _ in range(mm)]
-        G_data = list(np.ravel(-self.rrate))
-        G_icol += list(range(mm, mm + nn))
-        G_irow += list(range(nn))
-        G_data += [-1.] * nn
-
-        G_icol += list(range(mm + nn))
-        G_irow += list(range(nn, mm + 2 * nn))
-        G_data += [-1.] * (mm + nn)
-        # cone
-        G_icol += list(range(mm, mm + nn))
-        G_irow += list(range(mm + 1 + 2 * nn, mm + 1 + 3 * nn))
-        G_data += [-1.] * nn
-        
-        G_shape = (mm + 1 + 3 * nn, mm + nn)
-        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
-        
-        # build h
-        h_data = [-self.alpha[0]] * nn + [0.] * (mm + nn) \
-               + [np.sqrt(nn) * self.risk] + [0.] * nn
-               
-        # build dims
-        dims = {'l': (mm + 2 * nn), 'q': [nn + 1]}
-        
-        # build A
-        A_icol = list(range(mm))
-        A_irow = [0] * mm
-        A_data = [1.] * mm
-        
-        A_shape = (1, mm + nn)
-        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
-        
-        # build b
-        b_data = [1.]
-        
-        # calc
-        res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
-        
-        self.status = res['status']
-        if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            return np.array([np.nan] * mm)
-            
-        # rate of return
-        self.RR = -res['pcost']
-        # optimal weights
-        self.ww = np.array(res['x'][:mm])
-        self.ww.shape = mm
-        # primary risk components - default to risk
-        self.primary_risk_comp = np.array([self.risk])
-        # secondary risk components - default to risk
-        self.secondary_risk_comp = np.array([self.risk])
-        
-        return self.ww
-    
     
     def _rr_max(self):
-        # add slack varaible, u (=1), to be compatible with LSSD
         # Order of variables:
-        # w <- [0:mm] 
-        # u <- mm
-        # s <- [mm + 1: mm + 1 + nn]
-        # in total dim = mm + nn + 1
+        # w <- [0 : mm]
+        # then for l <- [0:ll]
+        #   u_l <- mm + l(nn+1), 
+        #   s_l <- [mm + l(nn + 1) + 1: mm + (l + 1)(nn + 1)]
+        # in total dim = mm + ll(nn + 1)
         nn = self.nn
         mm = self.mm
+        ll = self.ll
         
         # build c
-        c_data = list(-self.muk) + [0.] * (nn + 1)
+        c_data = list(-self.muk) + [0.] * (ll * (nn + 1))
         
         # build G
         # linear
-        G_icol = list(range(mm)) * nn
-        G_irow = [k  for k in range(nn) for _ in range(mm)]
-        G_data = list(np.ravel(-self.rrate))
-        
-        G_icol += list(range(mm + 1, mm + 1 + nn))
-        G_irow += list(range(nn))
-        G_data += [-1.] * nn
+        G_icol = list(range(mm)) * (nn * ll)
+        G_irow = [k  for k in range(nn * ll) for _ in range(mm)]
+        G_data = list(np.ravel(-self.rrate)) * ll
+        for l in range(ll):
+            G_icol += \
+                   list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
+            G_irow += list(range(l * nn, (l + 1) * nn))
+            G_data += [-1.] * nn 
 
-        G_icol += list(range(mm + nn + 1))
-        G_irow += list(range(nn, mm + 2 * nn + 1))
-        G_data += [-1.] * (mm + nn + 1)
+        G_icol += list(range(mm + ll * (nn + 1)))
+        G_irow += list(range(nn * ll, nn * ll + mm + ll * (nn + 1)))
+        G_data += [-1.] * (mm + ll * (nn + 1))
         # cone
-        G_icol += list(range(mm, mm + nn + 1))
-        G_irow += list(range(mm + 1 + 2 * nn, mm + 2 + 3 * nn))
-        G_data += [-np.sqrt(nn)] + [-1.] * nn
-        
-        G_shape = (mm + 2 + 3 * nn, mm + nn + 1)
+        for l in range(ll):
+            G_icol += list(range(mm + l * (nn + 1), mm + (l + 1) * (nn + 1)))
+            G_irow += \
+                list(range(nn * ll + mm + ll * (nn + 1) + l * (nn + 1), 
+                     nn * ll + mm + ll * (nn + 1) + (l + 1) * (nn + 1)))
+            G_data += [-np.sqrt(nn)] + [-1.] * nn
+            
+        G_shape = (nn * ll + mm + 2 * ll * (nn + 1), mm + ll * (nn + 1))
         G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
         
         # build h
-        h_data = [-self.alpha[0]] * nn + [0.] * (mm + 2 * nn + 2)
+        h_data = []
+        for l in range(ll):
+            h_data += [-self.alpha[l]] * nn
+        h_data += [0.] * (mm + 2 * ll * (nn + 1))
                
         # build dims
-        dims = {'l': (mm + 2 * nn + 1), 'q': [nn + 1]}
+        dims = {'l': (mm + ll * (2 * nn + 1)), 'q': [nn + 1] * ll}
         
         # build A
-        A_icol = list(range(mm + 1))
-        A_irow = [0] * mm + [1]
-        A_data = [1.] * (mm + 1)
+        A_icol = [mm + l * (nn + 1) for l in range(ll)]
+        A_irow = [0] * ll
+        A_data = list(self.coef)
         
-        A_shape = (2, mm + nn + 1)
+        A_icol += list(range(mm))
+        A_irow += [1] * mm
+        A_data += [1.] * mm
+
+        A_shape = (2, mm + ll * (nn + 1))
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         
         # build b
-        b_data = [1., self.risk]
+        b_data = [self.risk, 1.]
         
         # calc
         res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
@@ -548,58 +439,69 @@ class BTSDAnalyzer(OmegaAnalyzer):
         self.ww = np.array(res['x'][:mm])
         self.ww.shape = mm
         # primary risk components - default to risk
-        self.primary_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = \
+            np.array([res['x'][mm + l * (nn + 1)] for l in range(ll)])
         # secondary risk components - default to risk
-        self.secondary_risk_comp = np.array([self.risk])
+        self.secondary_risk_comp = self.alpha.copy()
         
         return self.ww
     
     def _risk_averse(self):
         # Order of variables
         # w <- [0 : mm]
-        # u <- mm
-        # s <- [mm + 1: mm + + 1nn]
-        # in total dim = mm + nn + 1
+        # then for l <- [0:ll]
+        #   u_l <- mm + l(nn+1), 
+        #   s_l <- [mm + l(nn + 1) + 1: mm + (l + 1)(nn + 1)]
+        # in total dim = mm + ll(nn + 1)
         nn = self.nn
         mm = self.mm
+        ll = self.ll
         
         # build c
-        c_data = list(-self.muk) + [self.Lambda] + [0.] * nn 
+        c_data = list(-self.muk) 
+        for l in range(ll):
+            c_data += [self.Lambda * self.coef[l]] + [0.] * nn
         
         # build G
         # linear
-        G_icol = list(range(mm)) * nn
-        G_irow = [k  for k in range(nn) for _ in range(mm)]
-        G_data = list(np.ravel(-self.rrate))
-        
-        G_icol += list(range(mm + 1, mm + 1 + nn))
-        G_irow += list(range(nn))
-        G_data += [-1.] * nn
+        G_icol = list(range(mm)) * (nn * ll)
+        G_irow = [k  for k in range(nn * ll) for _ in range(mm)]
+        G_data = list(np.ravel(-self.rrate)) * ll
+        for l in range(ll):
+            G_icol += \
+                   list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
+            G_irow += list(range(l * nn, (l + 1) * nn))
+            G_data += [-1.] * nn 
 
-        G_icol += list(range(mm + 1 + nn))
-        G_irow += list(range(nn, mm + 1 + 2 * nn))
-        G_data += [-1.] * (mm + 1 + nn)
+        G_icol += list(range(mm + ll * (nn + 1)))
+        G_irow += list(range(nn * ll, nn * ll + mm + ll * (nn + 1)))
+        G_data += [-1.] * (mm + ll * (nn + 1))
         # cone
-        G_icol += list(range(mm, mm + 1 + nn))
-        G_irow += list(range(mm + 1 + 2 * nn, mm + 2 + 3 * nn))
-        G_data += [-np.sqrt(nn)] + [-1.] * nn
-        
-        G_shape = (mm + 2 + 3 * nn, mm + 1 + nn)
+        for l in range(ll):
+            G_icol += list(range(mm + l * (nn + 1), mm + (l + 1) * (nn + 1)))
+            G_irow += \
+                list(range(nn * ll + mm + ll * (nn + 1) + l * (nn + 1), 
+                     nn * ll + mm + ll * (nn + 1) + (l + 1) * (nn + 1)))
+            G_data += [-np.sqrt(nn)] + [-1.] * nn
+            
+        G_shape = (nn * ll + mm + 2 * ll * (nn + 1), mm + ll * (nn + 1))
         G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
         
         # build h
-        h_data = [-self.alpha[0]] * nn + [0.] * (mm + 1 + nn) \
-               + [0.] * (nn + 1)
+        h_data = []
+        for l in range(ll):
+            h_data += [-self.alpha[l]] * nn
+        h_data += [0.] * (mm + 2 * ll * (nn + 1))
                
         # build dims
-        dims = {'l': (mm + 1 + 2 * nn), 'q': [nn + 1]}
+        dims = {'l': (mm + ll * (2 * nn + 1)), 'q': [nn + 1] * ll}
         
         # build A
         A_icol = list(range(mm))
         A_irow = [0] * mm
         A_data = [1.] * mm
         
-        A_shape = (1, mm + 1 + nn)
+        A_shape = (1, mm + ll * (nn + 1))
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         
         # build b
@@ -621,10 +523,10 @@ class BTSDAnalyzer(OmegaAnalyzer):
         # delta-risk
         self.risk = res['x'][mm] 
         # primary risk components - default to risk
-        self.primary_risk_comp = np.array([self.risk])
+        self.primary_risk_comp = \
+            np.array([res['x'][mm + l * (nn + 1)] for l in range(ll)])
         # secondary risk components - default to risk
-        self.secondary_risk_comp = np.array([self.risk])
+        self.secondary_risk_comp = self.alpha.copy()
         
         return self.ww
     
-        

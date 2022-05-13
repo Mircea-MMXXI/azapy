@@ -1,24 +1,64 @@
 
 # Omega optimal portfolios <a name="TOP"></a>
 
-Omega ratio was introduced as an alternative to Sharpe ratio. It can be
-defined as the generalized Sharpe ratio
-relative to Delta-risk measure:
+Historically, Omega ratio was introduced as an alternative to Sharpe ratio.
+It can be defined as
 
 \begin{equation*}
-  \delta_{\alpha_0} = \frac{1}{N} \sum_{i=1}^N \left( \alpha_0 - r_i \right)^+,
+  \Omega_{\mu_0} =
+  \frac{\int_{\mu_0}^{+\infty} [1 - F(r)] dr}{\int_{-\infty}^{\mu_0} F(r) dr} - 1 =
+  \frac{E[r] - \mu_0}{E[(\mu_0 - r)^+]},
+\end{equation*}
+
+where $\mu_0$ is the Omega threshold and $F(\cdot)$ is the rate of return cdf.
+It is common to associate
+$\mu_0$ with the risk-free rate accessible to the investor.
+The above expression suggests that $\Omega_{\mu_0}$ ratio is the Sharpe
+ratio for Delta-risk measure,
+
+\begin{equation*}
+  \delta_{\mu_0} = E[(\mu_0 - r)^+].
+\end{equation*}
+
+The Omega based portfolio constructions are popular among the
+professional investors.
+
+**azapy** implements a generalization of Delta-risk measure,
+namely the **Mixture Delta-risk**.
+
+The mixture is defined as a superposition of regular Delta-risk measures
+for different Omega thresholds, *i.e*,
+
+\begin{equation*}
+  \rho = \sum_{l=1}^L \delta_{\alpha_l},
 \end{equation*}
 
 where:
 
-* $\alpha_0$ is the Omega threshold (it may be interpreted as a risk-free rate),
-* $N$ is the number of historical observations,
-* $r_i$ is the i-th observation of portfolio historical rate of returns.
-* $(\cdot)^+$ stands for positive part (*i.e.* $\max\{0, \cdot\}$).
+* $L$ is the size of the mixture,
+* $\{\alpha_l\}_{l=1,\cdots,L}$ is a set of distinct Omega thresholds.
 
-> Note: The Delta-risk measure is not a coherent risk measure nor a
-proper dispersion measure. However, the mathematical formalism of risk-based
-optimal portfolio theory can be applied.
+> Note: a possible choice could be $L=3$ and $\alpha=[0.01, 0.0, -0.01]$
+
+The Delta-risk, $\delta_\alpha$, can be evaluated either in terms of
+standard or detrended rate of returns (where $r$ is replaced with
+${\bar r} = r - E[r]$).
+
+> Note: The Delta-risk Sharpe ratio, for $L=1$, $\alpha_1=\mu_0$
+(the risk-free rate) and standard rate of returns,
+is the initial Omega ratio, $\Omega_{\mu_0}$.
+
+> Note: Omega optimal portfolio models with $L=1$, $\alpha_1=0$ and detrended
+rate of returns are the same with MAD first order models.
+
+> Note: Mixture Delta-risk measures (except for $L=1$ and $\alpha_1=0$ with
+detrended rate of returns) are not proper dispersion measures. They violate the
+positive homogeneity axiom and in the case of standard rate of return
+they also violate the location invariance axiom.
+However, the mathematical formalism of risk-based
+optimal portfolio constructions can be applied.
+
+
 
 The following portfolio optimization strategies are available:
 * Minimization of dispersion for a give expected rate of return,
@@ -68,13 +108,19 @@ During its computations the following class members are also set:
 ### Constructor
 
 ```
-OmegaAnalyzer(alpha0=0., mktdata=None, colname='adjusted', freq='Q',
-              hlength=3.25, calendar=None, rtype='Sharpe', method='ecos')
+OmegaAnalyzer(alpha=[0.], coef=None, mktdata=None, colname='adjusted',
+              freq='Q', hlength=3.25, calendar=None, rtype='Sharpe',
+              detrended=False, method='ecos')
 ```
 
 where:
 
-* `alpha0` : Omega threshold. The default is `0`.
+* `alpha` : List of distinct Omega thresholds. The default is `[0.]`.
+* `coef` : List of positive mixture
+coefficients. Must have the same size as `alpha`.
+A `None` value assumes an equal weighted risk mixture.
+The vector of coefficients will be normalized to unit.
+The default is `None`.
 * `mktdata` : `pd.DataFrame` containing the market data in the format returned by
 the function `azapy.readMkT`. The default is `None`. `mktdata` could be loaded
 latter.
@@ -97,6 +143,12 @@ The default is `None`.
     - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
 		as equal weighted portfolio,
     - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
+* `detrended` : Boolean flag:
+  - `True` : detrended rate of return
+  is used in the evaluation of Delta-risk, *i.e.* $r$ is replaced by $r-E[r]$,
+  - `False` : standard rate of return is used in the evaluation of Delta-risk.
+
+  The default is `False`.
 * `method` : Designates the linear programming numerical method.
 It could be: `'ecos',
 'highs-ds', 'highs-ipm', 'highs', 'interior-point', 'glpk'` and `'cvxopt'`.
@@ -454,14 +506,15 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
 # Set the Omega parameter alpha0
-alpha0 = 0.01
+alpha = [0.01, 0, -0.01]
+coef = [1, 1, 2]
 
 #=============================================================================
 # Compute Sharpe optimal portfolio
 # build the analyzer object
-cr1 = az.OmegaAnalyzer(alpha0, mktdata)
+cr1 = az.OmegaAnalyzer(alpha, coef, mktdata)
 # computes Sharpe weights for 0 risk-free rate
-ww1 = cr1.getWeights(mu=0.)
+ww1 = cr1.getWeights(mu=0.03)
 # print portfolio characteristics
 # primary risk = [Delta-risk] (redundant)
 # secondary risk = [Delta-risk] (redundant)
@@ -506,7 +559,7 @@ rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR')
 #=============================================================================
 # Sharpe vs. Sharpe2
 # first Sharpe (default rtype)
-cr1 = az.OmegaAnalyzer(alpha0, mktdata)
+cr1 = az.OmegaAnalyzer(alpha, coef, mktdata)
 ww1 = cr1.getWeights(mu=0.)
 RR1 = cr1.RR
 risk1 = cr1.risk
@@ -514,7 +567,7 @@ prim1 = cr1.primary_risk_comp.copy()
 seco1 = cr1.secondary_risk_comp.copy()
 sharpe1 = cr1.sharpe
 # second Sharpe2
-cr2 = az.OmegaAnalyzer(alpha0, mktdata)
+cr2 = az.OmegaAnalyzer(alpha, coef, mktdata)
 ww2 = cr2.getWeights(mu=0., rtype="Sharpe2")
 RR2 = cr2.RR
 risk2 = cr2.risk
@@ -547,7 +600,7 @@ print(f"Sharpe comp\n {sharpe_comp}")
 
 #=============================================================================
 # Compute InvNrisk optimal portfolio
-cr1 = az.OmegaAnalyzer(alpha0, mktdata)
+cr1 = az.OmegaAnalyzer(alpha, coef, mktdata)
 # compute the weights of InvNrisk
 ww1 = cr1.getWeights(mu=0., rtype="InvNrisk")
 RR1 = cr1.RR
@@ -570,7 +623,7 @@ print(f"risk comp\n {risk_comp}")
 
 #=============================================================================
 # Compute MinRisk optimal portfolio
-cr1 = az.OmegaAnalyzer(alpha0, mktdata)
+cr1 = az.OmegaAnalyzer(alpha, coef, mktdata)
 # compute the MinRisk portfolio
 ww1 = cr1.getWeights(mu=0., rtype="MinRisk")
 
@@ -585,14 +638,14 @@ print(f"weights comp\n {ww_comp}")
 #=============================================================================
 # Compute RiskAverse optimal portfolio
 # first compute the Sharpe portfolio
-cr1 = az.OmegaAnalyzer(alpha0, mktdata)
+cr1 = az.OmegaAnalyzer(alpha, coef,  mktdata)
 ww1 = cr1.getWeights(mu=0.)
 sharpe = cr1.sharpe
 risk = cr1.risk
 
 # compute RiskAverse portfolio for Lambda=sharpe
 Lambda = sharpe
-cr2 = az.OmegaAnalyzer(alpha0, mktdata)
+cr2 = az.OmegaAnalyzer(alpha, coef, mktdata)
 ww2 = cr2.getWeights(mu=Lambda, rtype='RiskAverse')
 
 # comparison - they should be very close
@@ -612,7 +665,7 @@ print(f"weigths:\n {ww_comp}")
 #             'interior-point' ]
 # xta = {}
 # for method in methods:
-#     crrx = az.OmegaAnalyzer(alpha0, mktdata, method=method)
+#     crrx = az.OmegaAnalyzer(alpha, coef, mktdata, method=method)
 #     toc = time.perf_counter()
 #     wwx = crrx.getWeights(mu=0.)
 #     tic = time.perf_counter() - toc
@@ -624,7 +677,7 @@ print(f"weigths:\n {ww_comp}")
 
 #=============================================================================
 # Example of rebalancing positions
-cr1 = az.OmegaAnalyzer(alpha0, mktdata)
+cr1 = az.OmegaAnalyzer(alpha, coef, mktdata)
 
 # existing positions and cash
 ns = pd.Series(100, index=symb)
@@ -750,7 +803,8 @@ It must be called before any other class method.
 *Call:*
 
 ```
-set_model(mu, alpha0=0., rtype='Sharpe', hlength=3.25, method='ecos'):
+set_model(mu, alpha=[0.], coef=None, rtype='Sharpe', detrended=False,
+          hlength=3.25, method='ecos'):
 ```
 
 *Inputs:*
@@ -762,7 +816,12 @@ Reference rate. Its meaning depends of the value of `rtype`. For
     - `'Sharpe'` and `'Sharpe2'`: `mu` is the risk-free rate,
     - `'MinRisk'` and `'InvNrisk'` : `mu` is ignored,
     - `'RiskAverse'` : `mu` is the risk aversion coefficient $\lambda$.
-* `alphau0` : Omega threshold rate (*e.g.* risk-free rate). The default is `0`.
+* `alpha` : List of distinct Omega thresholds. The default is `[0.]`.
+* `coef` : List of positive mixture
+coefficients. Must have the same size as `alpha`.
+A `None` value assumes an equal weighted risk mixture.
+The vector of coefficients will be normalized to unit.
+The default is `None`.
 * `rtype` :
 Optimization type. The default is `'Sharpe'`. Possible values are:
     - `'Risk'` : minimization of dispersion (risk) measure for a fixed values
@@ -773,6 +832,12 @@ Optimization type. The default is `'Sharpe'`. Possible values are:
     - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
 		as equal weighted portfolio,
     - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
+* `detrended` : Boolean flag:
+  - `True` : detrended rate of return
+  is used in the evaluation of Delta-risk, *i.e.* $r$ is replaced by $r-E[r]$,
+  - `False` : standard rate of return is used in the evaluation of Delta-risk.
+
+  The default is `False`.
 * `hlength` :
 The length in years of historical calibration period relative
 to `'Dfix'`. A fractional number will be rounded to an integer number
@@ -1134,12 +1199,13 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
 # Compute Omega-Sharpe optimal portfolio
-alpha0 = 0.01
+alpha = [0.01, 0., -0.01]
+coef = [1, 2, 3]
 
 p4 = az.Port_Omega(mktdata, pname='OmegaPort')
 
 tic = time.perf_counter()
-port4 = p4.set_model(mu=0., alpha0=alpha0)   
+port4 = p4.set_model(mu=0., alpha=alpha, coef=coef)   
 toc = time.perf_counter()
 print(f"time Sharpe: {toc-tic}")
 
@@ -1157,7 +1223,7 @@ p4.get_account(fancy=True)
 
 # Use rtype='Sharpe2' - should be the same results
 tic = time.perf_counter()
-port4_2 = p4.set_model(mu=0., alpha0=alpha0, rtype='Sharpe2')   
+port4_2 = p4.set_model(mu=0., alpha=alpha, coef=coef, rtype='Sharpe2')   
 toc = time.perf_counter()
 print(f"time Sharpe2: {toc-tic}")
 
@@ -1170,7 +1236,7 @@ _ = pp.port_view_all(componly=(True))
 
 #=============================================================================
 # Compute Omega optimal portfolio
-port4 = p4.set_model(mu=0.1, alpha0=alpha0, rtype="Risk")   
+port4 = p4.set_model(mu=0.1, alpha=alpha, coef=coef, rtype="Risk")   
 ww = p4.get_weights()
 p4.port_view()
 p4.port_view_all()
@@ -1185,7 +1251,7 @@ p4.get_account(fancy=True)
 
 #=============================================================================
 # Compute minimum Omega optimal portfolio
-port4 = p4.set_model(mu=0.1, alpha0=alpha0, rtype="MinRisk")   
+port4 = p4.set_model(mu=0.1, alpha=alpha, coef=coef, rtype="MinRisk")   
 ww = p4.get_weights()
 p4.port_view()
 p4.port_view_all()
@@ -1200,7 +1266,7 @@ p4.get_account(fancy=True)
 
 #=============================================================================
 # Compute optimal portfolio with Omega of equal weighted portfolio
-port4 = p4.set_model(mu=0.1, alpha0=alpha0, rtype="InvNrisk")   
+port4 = p4.set_model(mu=0.1, alpha=alpha, coef=coef, rtype="InvNrisk")   
 ww = p4.get_weights()
 p4.port_view()
 p4.port_view_all()
@@ -1215,7 +1281,7 @@ p4.get_account(fancy=True)
 
 #=============================================================================
 # Compute optimal portfolio for fixed risk aversion
-port4 = p4.set_model(mu=0.5, alpha0=alpha0, rtype="RiskAverse")  
+port4 = p4.set_model(mu=0.5, alpha=alpha, coef=coef, rtype="RiskAverse")  
 ww = p4.get_weights()
 p4.port_view()
 p4.port_view_all()
@@ -1237,7 +1303,7 @@ p4.get_account(fancy=True)
 # zts = []
 # for method in methods:
 #     toc = time.perf_counter()
-#     zz = p4.set_model(mu=0., alpha0=alpha0, method=method)  
+#     zz = p4.set_model(mu=0., alpha=alpha, coef=coef, method=method)  
 #     tic = time.perf_counter()
 #     print(f"{method} time: {tic-toc}")  
 #     zz.columns = [method]

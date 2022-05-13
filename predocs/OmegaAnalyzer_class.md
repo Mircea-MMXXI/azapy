@@ -32,13 +32,19 @@ During its computations the following class members are also set:
 ### Constructor
 
 ```
-OmegaAnalyzer(alpha0=0., mktdata=None, colname='adjusted', freq='Q',
-              hlength=3.25, calendar=None, rtype='Sharpe', method='ecos')
+OmegaAnalyzer(alpha=[0.], coef=None, mktdata=None, colname='adjusted',
+              freq='Q', hlength=3.25, calendar=None, rtype='Sharpe',
+              detrended=False, method='ecos')
 ```
 
 where:
 
-* `alpha0` : Omega threshold. The default is `0`.
+* `alpha` : List of distinct Omega thresholds. The default is `[0.]`.
+* `coef` : List of positive mixture
+coefficients. Must have the same size as `alpha`.
+A `None` value assumes an equal weighted risk mixture.
+The vector of coefficients will be normalized to unit.
+The default is `None`.
 * `mktdata` : `pd.DataFrame` containing the market data in the format returned by
 the function `azapy.readMkT`. The default is `None`. `mktdata` could be loaded
 latter.
@@ -61,6 +67,12 @@ The default is `None`.
     - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
 		as equal weighted portfolio,
     - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
+* `detrended` : Boolean flag:
+  - `True` : detrended rate of return
+  is used in the evaluation of Delta-risk, *i.e.* $r$ is replaced by $r-E[r]$,
+  - `False` : standard rate of return is used in the evaluation of Delta-risk.
+
+  The default is `False`.
 * `method` : Designates the linear programming numerical method.
 It could be: `'ecos',
 'highs-ds', 'highs-ipm', 'highs', 'interior-point', 'glpk'` and `'cvxopt'`.

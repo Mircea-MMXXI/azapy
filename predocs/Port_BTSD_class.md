@@ -1,7 +1,7 @@
 
 ## Port_BTSD class
 
-Out-of-Sample (back testing) simulation of BTSD optimal portfolio periodically
+Out-of-Sample (back testing) simulation of mBTSD optimal portfolio periodically
 rebalanced.
 
 

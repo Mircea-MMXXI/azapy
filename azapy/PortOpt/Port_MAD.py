@@ -1,7 +1,6 @@
-import numpy as np
-
 from .Port_CVaR import Port_CVaR
 from .MADAnalyzer import MADAnalyzer
+
 
 class Port_MAD(Port_CVaR):
     """
@@ -29,16 +28,17 @@ class Port_MAD(Port_CVaR):
 
         Parameters
         ----------
-        mu : float
+        `mu` : float
             Reference rate. Its meaning depends on the value of `rtype`. For
             `rtype` equal to: \n
-                "Sharpe" : `mu` is the risk-free rate, \n
+                "Sharpe" and "Sharpe2": `mu` is the risk-free rate, \n
                 "Risk" : `mu` is the targeted expected rate of returns, \n
                 "MinRisk" and "InvNrisk" : `mu` is ignored,\n
                 "RiskAverse" : `mu` is the Lambda risk aversion coefficient.
-        coef : list, optional
-            The coefficients value. The default is [1.].
-        rtype : str, optional
+        `coef` : list, optional
+            Positive non-increasing list of mixture coefficients. 
+            The default is [1.].
+        `rtype` : str, optional
             Optimization type. Possible values \n
                 "Risk" : minimization of dispersion (risk) measure for a fixed 
                 vale of expected rate of return. \n
@@ -52,11 +52,11 @@ class Port_MAD(Port_CVaR):
                 "RiskAverse" : optimal portfolio for a fixed value of risk 
                 aversion coefficient.
             The default is "Sharpe". 
-        hlength : float, optional
+        `hlength` : float, optional
             The length in year of the historical calibration period relative
             to 'Dfix'. A fractional number will be rounded to an integer number
             of months. The default is 3.25 years.
-        method : str, optional
+        `method` : str, optional
             Linear programming numerical method.
             Could be: 'ecos', 'highs-ds', 'highs-ipm', 'highs',
             'interior-point', 'glpk' and 'cvxopt'.
@@ -69,17 +69,6 @@ class Port_MAD(Port_CVaR):
         """
         return super().set_model(mu=mu, coef=coef, rtype=rtype, 
                                  hlength=hlength, method=method)
-
-
-    def _set_alpha(self, alpha, coef):
-        # ignore alpha
-        coef = np.trim_zeros(np.array(coef), trim='b')
-        if np.any(coef < 0.):
-            raise ValueError("all coef must be non-negative")
-        ssc = np.sum(coef)
-        if ssc <= 0.:
-            raise ValueError("at least one coef must be > 0")
-        self.coef = coef / ssc
 
 
     def _wwgen(self):

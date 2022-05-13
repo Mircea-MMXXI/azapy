@@ -33,13 +33,15 @@ During its computations the following class members are also set:
 ### Constructor
 
 ```
-SMCRAnalyzer(alpha=[0.9], coef=[1.], mktdata=None, colname='adjusted',
+SMCRAnalyzer(alpha=[0.9], coef=None, mktdata=None, colname='adjusted',
              freq='Q', hlength=3.25, calendar=None, rtype='Sharpe', method='ecos')
 ```
 where:
-* `alpha` : List of confidence levels. The default is `[0.9]`.
-* `coef` : List of positive (`>0`) coefficients. `len(coef)` must be equal to
-`len(alpha)`. The default is `[1.]`.
+* `alpha` : List of distinct confidence levels. The default is `[0.9]`.
+* `coef` :  List of positive mixture coefficients. Must have the same size as
+`alpha`. A `None` value assumes an equal weighted risk mixture.
+The vector of coefficients will be normalized to unit.
+The default is `None`.
 * `mktdata` : `pd.DataFrame` containing the market data in the format returned by
 the function `azapy.readMkT`. The default is `None`. `mktdata` could be loaded
 latter.

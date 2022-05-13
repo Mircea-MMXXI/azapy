@@ -10,7 +10,8 @@ It must be called before any other class method.
 *Call:*
 
 ```
-set_model(mu, alpha0=0., rtype='Sharpe', hlength=3.25, method='ecos'):
+set_model(mu, alpha=[0.], coef=None, rtype='Sharpe', detrended=False,
+          hlength=3.25, method='ecos'):
 ```
 
 *Inputs:*
@@ -22,7 +23,10 @@ Reference rate. Its meaning depends of the value of `rtype`. For
     - `'Sharpe'` and `'Sharpe2'`: `mu` is the risk-free rate,
     - `'MinRisk'` and `'InvNrisk'` : `mu` is ignored,
     - `'RiskAverse'` : `mu` is the risk aversion coefficient $\lambda$.
-* `alphau0` : BTSD threshold rate (*e.g.* risk-free rate). The default is `0`.
+* `alpha` : List of distinct BTSD thresholds. The default is `[0.]`.
+* `coef` : List of mixture coefficients. Must have the same size as
+`alpha`. A `None` value assumes an equal weighted risk mixture.
+The default is `None`.
 * `rtype` :
 Optimization type. The default is `'Sharpe'`. Possible values are:
     - `'Risk'` : minimization of dispersion (risk) measure for a fixed values
@@ -33,6 +37,11 @@ Optimization type. The default is `'Sharpe'`. Possible values are:
     - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
 		as equal weighted portfolio,
     - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
+* `detrended` : Boolean flag.
+In the BTSD expression use:
+    - `True` : detrended rate of return, *i.e.* ${\bar r} = r - E[r]$,
+    - `False` : standard rate of return.
+The default is `False`.
 * `hlength` :
 The length in years of historical calibration period relative
 to `'Dfix'`. A fractional number will be rounded to an integer number

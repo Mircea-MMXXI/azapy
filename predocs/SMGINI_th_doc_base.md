@@ -1,8 +1,8 @@
 
 # SMGINI optimal portfolios <a name="TOP"></a>
 
-SMGINI stands for Second Moment GINI dispersion measure. It is a
-generalization of GINI dispersion measure, where
+SMGINI stands for Second Moment GINI dispersion measure. It is similar to
+GINI dispersion measure, where
 L1 is replaced by L2 norm. SMGINI dispersion measure is defined as,
 
 

@@ -14,7 +14,7 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 #=============================================================================
 # Setup mCVaR parameters
 alpha = [0.99, 0.975, 0.95]
-# assume equal weighted coef - default
+# assume equal weighted mixture - default
 
 #=============================================================================
 # Compute C-Sharpe optimal portfolio

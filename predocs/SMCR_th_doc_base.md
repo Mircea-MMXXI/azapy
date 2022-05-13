@@ -1,8 +1,20 @@
 
 # SMCR optimal portfolios <a name="TOP"></a>
 
-SMCR stands for *Second Moment Coherent Risk*.
-**azapy** implements a generalization of SMCR, namely the Mixture SMCR (mSMCR).
+SMCR stands for *Second Moment Coherent Risk*. SMCR dispersion measure can be
+defined as
+
+\begin{equation*}
+ 	{\rm SMCR}_\alpha(r) = \min_u\left( u + \frac{1}{1-\alpha}\left\|\left(-u-{\bar r}\right)^+\right\|_2\right),
+\end{equation*}
+
+where
+$\left\| x \right\|_2 = \left( E\left[\left| x \right|^2\right]\right)^{1/2}$,
+is the $L_2$ norm, $\alpha$ is the confidence level and
+$\bar r$ is the detrended rate of return, ${\bar r} = r - E[r]$.
+
+**azapy** implements a generalization of SMCR,
+namely the **Mixture SMCR (mSMCR)**.
 
 mSMCR is a superposition of SMCR
 measures for different confidence levels. The single SMCR measure can be viewed
@@ -18,10 +30,10 @@ where:
 
 * $L$ is the number of individual SMCR's,
 * ${\cal K}$ are positive coefficients,
-* $\alpha_l$ are the SMCR confidence levels.
+* $\alpha_l$ are distinct SMCR confidence levels.
 
-> Note: a typical choice could be $L=2$, ${\cal K}=0.5\ \forall l$, and
-$\alpha=\{0.90, 0.85\}$
+> Note: a possible choice could be $L=2$,
+$\alpha=\{0.90, 0.85\}$ and ${\cal K}=\{0.5, 0.5\}$
 
 The following portfolio optimization strategies are available:
 * Minimization of dispersion for a give expected rate of return,
