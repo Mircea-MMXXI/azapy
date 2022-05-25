@@ -5,7 +5,7 @@ from .SMGINIAnalyzer import *
 from .MADAnalyzer import *
 from .MVAnalyzer import *
 from .SDAnalyzer import *
-from .OmegaAnalyzer import *
+from .BTADAnalyzer import *
 from .BTSDAnalyzer import *
 from .LSSDAnalyzer import *
 from .KellyEngine import *
@@ -22,7 +22,7 @@ from .Port_SMGINI import *
 from .Port_MAD import *
 from .Port_MV import *
 from .Port_SD import *
-from .Port_Omega import *
+from .Port_BTAD import *
 from .Port_BTSD import *
 from .Port_SMCR import *
 from .Port_LSSD import *

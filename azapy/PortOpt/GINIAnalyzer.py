@@ -107,9 +107,9 @@ class GINIAnalyzer(_RiskAnalyzer):
         
     def _risk_calc(self, prate, alpha):
         nn = len(prate)
-        gini = np.sum(np.fabs([prate[i] - prate[j] \
-                                for i in range(nn - 1) \
-                                for j in range(i + 1, nn)])) / nn / (nn - 1)
+ 
+        y = np.sort(prate, kind='heapsort')
+        gini = np.sum([y[i] * ( 2 * i - nn + 1) for i in range(nn)]) / nn / nn
         # status, gini, gini
         return 0, gini, gini
     
@@ -122,9 +122,10 @@ class GINIAnalyzer(_RiskAnalyzer):
         # where nn2 = nn * (nn - 1) / 2
         mm = self.mm
         nn2 = self.nn2
+        norm = 1 / self.nn ** 2
         
         # build c
-        c_data = [0.] * mm + [0.5 / nn2] * nn2
+        c_data = [0.] * mm + [norm] * nn2
         
         # bild G
         G_icol = [m for m in range(mm) for _ in range(nn2)] * 2
@@ -190,6 +191,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         # where nn2 = nn * (nn - 1) / 2
         mm = self.mm
         nn2 = self.nn2
+        norm = 1 / self.nn ** 2
         
         # build c
         c_data = list(-self.muk) + [0.] * nn2 + [self.mu]
@@ -216,7 +218,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         # build A
         A_icol = list(range(mm, mm + nn2)) + list(range(mm)) + [mm + nn2] 
         A_irow = [0] * nn2 + [1] * (mm + 1)
-        A_data = [0.5 / nn2] * nn2 + [1.] * mm + [-1.]
+        A_data = [norm] * nn2 + [1.] * mm + [-1.]
         
         A_shape = (2, mm + nn2 + 1)
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
@@ -258,9 +260,10 @@ class GINIAnalyzer(_RiskAnalyzer):
         # where nn2 = nn * (nn - 1) / 2
         mm = self.mm
         nn2 = self.nn2
+        norm = 1 / self.nn ** 2
         
         # build c
-        c_data = [0.] * mm + [0.5 / nn2] * nn2 + [0.]
+        c_data = [0.] * mm + [norm] * nn2 + [0.]
         
         # build G
         G_icol = [m for m in range(mm) for _ in range(nn2)] * 2
@@ -325,6 +328,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         # where nn2 = nn * (nn - 1) / 2
         mm = self.mm
         nn2 = self.nn2
+        norm = 1 / self.nn ** 2
         
         # build c
         c_data = list(-self.muk) + [0.] * nn2
@@ -351,7 +355,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         # build A
         A_icol = list(range(mm)) + list(range(mm, mm + nn2))
         A_irow = [0] * mm + [1] * nn2
-        A_data = [1.] * mm + [0.5 / nn2] * nn2
+        A_data = [1.] * mm + [norm] * nn2
         
         A_shape = (2, mm + nn2)
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
@@ -387,9 +391,10 @@ class GINIAnalyzer(_RiskAnalyzer):
         # where nn2 = nn * (nn - 1) / 2
         mm = self.mm
         nn2 = self.nn2
+        norm = 1 / self.nn ** 2
         
         # build c
-        c_data = list(-self.muk) + [0.5 * self.Lambda / nn2] * nn2
+        c_data = list(-self.muk) + [self.Lambda * norm] * nn2
         
         # bild G
         G_icol = [m for m in range(mm) for _ in range(nn2)] * 2

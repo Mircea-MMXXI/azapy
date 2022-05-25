@@ -1,4 +1,4 @@
-# Compare Omega for L=1, alpha1=0 and detrended RR with first order mMAD
+# Compare BTAD for L=1, alpha1=0 and detrended RR with first order mMAD 
 # they should be identical up to machine precision 
 import pandas as pd
 import azapy as az
@@ -13,10 +13,10 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# set Omega for alpha0=0 (default) detrended
+# set BTAD for alpha1=0 (default) detrended
 alpha = [0.]
 coef = [1.]
-cr1 = az.OmegaAnalyzer(alpha, coef, mktdata, detrended=True)
+cr1 = az.BTADAnalyzer(alpha, coef, mktdata, detrended=True)
 # set MAD first order (default)
 coef = [1]
 cr2 = az.MADAnalyzer(coef, mktdata)
@@ -40,9 +40,9 @@ for rtype in mus.keys():
     RR2 = cr2.RR
     risk2 = cr2.risk
     
-    print("\nComparisons: Omega (alpha0=0) vs. MAD (first order) "
+    print("\nComparisons: BTAD (alpha0=0) vs. MAD (first order) "
           + f"rtype = {rtype} \n")
-    print(f"risk: Omega {risk1} MAD {risk2} Diff {risk1-risk2}")
-    print(f"RR: Omega {RR1} MAD {RR2} Diff {RR1 - RR2}")
-    ww = pd.DataFrame({'Omega': ww1, 'MAD': ww2, 'Diff': ww1 - ww2})
+    print(f"risk: BTAD {risk1} MAD {risk2} Diff {risk1-risk2}")
+    print(f"RR: BTAD {RR1} MAD {RR2} Diff {RR1 - RR2}")
+    ww = pd.DataFrame({'BTAD': ww1, 'MAD': ww2, 'Diff': ww1 - ww2})
     print(f"weights:\n{ww}")

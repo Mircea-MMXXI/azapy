@@ -24,7 +24,8 @@ A. Risk based portfolio optimization algorithms:
   6. Mixture LSSD (Lower Semi-Standard Deviation)
   7. GINI (as in Corrado Gini - statistician 1884-1965)
   8. MSGINI (Second Moment Gini dispersion measure)
-  9. Omega ratio (introduced by Con Keating and William F. Shadwick - 2002)
+  9. Mixture Omega ratio (introduced by Con Keating and William F. Shadwick - 2002)
+  10. Mixture BTSD (Below Threshold Standard Deviation)
 
 For each class of portfolios the following optimization strategies are
 available:

@@ -1,9 +1,9 @@
-from .Port_BTAD import Port_BTAD
-from .BTSDAnalyzer import BTSDAnalyzer
+from .Port_CVaR import Port_CVaR
+from .BTADAnalyzer import BTADAnalyzer
 
-class Port_BTSD(Port_BTAD):
+class Port_BTAD(Port_CVaR):
     """
-    Backtesting the BTSD optimal portfolio strategies, periodically rebalanced.
+    Backtesting the BTAD optimal portfolio strategies, periodically rebalanced.
 
     Methods:
         * set_model
@@ -35,11 +35,12 @@ class Port_BTSD(Port_BTAD):
                 "MinRisk" and "InvNrisk" : `mu` is ignored \n
                 "RiskAverse" : `mu` is the Lambda risk aversion coefficient.
         `alpha` : list, optional
-            List of BTSD thresholds. The default is [0.].
+            List of Omega thresholds. The default is [0.].
         `coef` : list, optional
-            List of mixture coefficients. Must have the same size with 
-            alpha. A `None` value assumes an equal weighted risk mixture,
-            `coef = [1 / len(alpha)] * len(alpha)`.
+            List of positive mixture 
+            coefficients. Must have the same size as `alpha`. 
+            A `None` value assumes an equal weighted risk mixture.
+            The vector of coefficients will be normalized to unit.
             The default is `None`.
         `rtype` : str, optional
             Optimization type. Possible values \n
@@ -65,8 +66,9 @@ class Port_BTSD(Port_BTAD):
             to 'Dfix'. A fractional number will be rounded to an integer number
             of months. The default is 3.25 years.
         `method` : str, optional
-            SOCP numerical method.
-            Could be: 'ecos' or 'cvxopt'.
+            Linear programming numerical method.
+            Could be: 'ecos', 'highs-ds', 'highs-ipm', 'highs',
+            'interior-point', 'glpk' and 'cvxopt'.
             The defualt is 'ecos'.
 
         Returns
@@ -74,10 +76,10 @@ class Port_BTSD(Port_BTAD):
         pandas.DataFrame
             The portfolio time-series in the format "date", "pcolname".
         """
-        return super().set_model(mu, alpha, coef, rtype, detrended, 
-                                 hlength, method)
- 
-    
+        self.detrended = detrended
+        return super().set_model(mu, alpha, coef, rtype, hlength, method)
+
+
     def _wwgen(self):
-        return BTSDAnalyzer(self.alpha, self.coef, rtype=self.rtype,
+        return BTADAnalyzer(self.alpha, self.coef, rtype=self.rtype,
                             detrended=self.detrended, method=self.method)

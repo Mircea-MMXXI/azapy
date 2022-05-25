@@ -77,9 +77,9 @@ class SMGINIAnalyzer(GINIAnalyzer):
 
     def _risk_calc(self, prate, alpha):
         nn = len(prate)
-        smgini = np.sqrt(np.mean([(prate[i] - prate[j])**2 \
+        smgini = np.sqrt(np.sum([(prate[i] - prate[j])**2 \
                             for i in range(nn - 1) \
-                            for j in range(i + 1, nn)]) * 0.5)
+                            for j in range(i + 1, nn)])) / nn
         # status, SMGINI, SMGINI
         return 0, smgini, smgini
 
@@ -95,7 +95,7 @@ class SMGINIAnalyzer(GINIAnalyzer):
         nn2 = self.nn2
 
         # build c
-        c_data = [0.] * mm + [np.sqrt(0.5 / nn2)] + [0.] * nn2
+        c_data = [0.] * mm + [1.] + [0.] * nn2
 
         # bild G
         # linear
@@ -118,7 +118,7 @@ class SMGINIAnalyzer(GINIAnalyzer):
         #cone
         G_icol += list(range(mm, mm + nn2 + 1))
         G_irow += list(range(nn2 * 3 + mm + 2, nn2 * 4 + mm + 3))
-        G_data += [-1.] * (nn2 + 1)
+        G_data += [-self.nn] + [-1.] * nn2
 
         G_shape = (nn2 * 4 + 3 + mm, mm + nn2 + 1)
         G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
@@ -198,7 +198,7 @@ class SMGINIAnalyzer(GINIAnalyzer):
         G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
 
         # build h
-        h_data = [0.] * (nn2 * 2 + mm) + [np.sqrt(2 * nn2)] + [0.] * nn2
+        h_data = [0.] * (nn2 * 2 + mm) + [self.nn] + [0.] * nn2
 
         # build dims
         dims = {'l': (2 * nn2 + mm), 'q': [nn2 + 1]}
@@ -251,7 +251,7 @@ class SMGINIAnalyzer(GINIAnalyzer):
         nn2 = self.nn2
 
         # build c
-        c_data = [0.] * mm + [np.sqrt(0.5 / nn2)] + [0.] * (nn2 + 1)
+        c_data = [0.] * mm + [1.] + [0.] * (nn2 + 1)
 
         # build G
         #linear
@@ -270,7 +270,7 @@ class SMGINIAnalyzer(GINIAnalyzer):
         #cone
         G_icol += list(range(mm, mm + nn2 + 1))
         G_irow += list(range(nn2 * 3 + mm + 2, nn2 * 4 + mm + 3))
-        G_data += [-1.] * (nn2 + 1)
+        G_data += [-self.nn] + [-1.] * nn2
 
         G_shape = (nn2 * 4 + mm + 3, mm + nn2 + 2)
         G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
@@ -356,7 +356,7 @@ class SMGINIAnalyzer(GINIAnalyzer):
         G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
 
         # build h
-        h_data = [0.] * (nn2 * 2 + mm) + [np.sqrt(2 * nn2) * self.risk] \
+        h_data = [0.] * (nn2 * 2 + mm) + [self.nn * self.risk] \
                + [0.] * nn2
 
         # build dims
@@ -404,8 +404,7 @@ class SMGINIAnalyzer(GINIAnalyzer):
         nn2 = self.nn2
 
         # build c
-        c_data = list(-self.muk) + [self.Lambda / np.sqrt(2 * nn2)] \
-               + [0.] * nn2
+        c_data = list(-self.muk) + [self.Lambda] + [0.] * nn2
 
         # bild G
         # linear
@@ -421,11 +420,11 @@ class SMGINIAnalyzer(GINIAnalyzer):
         G_irow += list(range(nn2 * 2, nn2 * 2 + mm))
         G_data += [-1.] * (mm)
 
-         #cone
+        # cone
         G_icol += list(range(mm, mm + nn2 + 1))
         G_irow += list(range(nn2 * 2 + mm, nn2 * 3 + mm + 1))
-        G_data += [-1.] * (nn2 + 1)
-
+        G_data += [-self.nn] + [-1.] * nn2
+ 
         G_shape = (nn2 * 3 + mm + 1, mm + nn2 + 1)
         G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
 

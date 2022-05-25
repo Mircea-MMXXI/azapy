@@ -304,14 +304,11 @@ class MkTreader:
         # output
         if verbose:
             self.get_request_status()
-            #_ncol_default_ = pd.options.display.max_columns
-            #pd.options.display.max_columns = None
             with pd.option_context("display.max_columns", None):
                 print("\nRequest between "
                       + f"{self.sdate.date()} : {self.edate.date()}\n"
                       + f"{self.rout_status}\n"
                       + f"extraction time {round(self.delta_time, 3)} s")
-            #pd.options.display.max_columns = _ncol_default_
             
         if output_format == 'dict':
             return dict(tuple(self.rout.groupby('symbol')))
@@ -531,17 +528,16 @@ class MkTreader:
                 if rout_web.empty:
                     warnings.warn("{symbol}:{source} no data in range "
                                   + f"{sdate_web.date()}:{edate_adj.date()}") 
-                    return kod_web, pd.DataFrame()
-                
-                rout = pd.concat([rout, rout_web])
-                
-                rout['adjusted'] = self._adjustDividend(rout)    
-                if flag_save:
-                    if verbose:
-                        print(f"save {symbol} updated data to file")
-                        
-                    self._writer_disk(rout[self._out_col], symbol, 
-                                      file_dir, file_format)
+                else:
+                    rout = pd.concat([rout, rout_web])
+                    
+                    rout['adjusted'] = self._adjustDividend(rout)    
+                    if flag_save:
+                        if verbose:
+                            print(f"save {symbol} updated data to file")
+                            
+                        self._writer_disk(rout[self._out_col], symbol, 
+                                          file_dir, file_format)
                 
             return kod_web, rout.loc[sdate_adj:, ['symbol'] + self._col]
       
