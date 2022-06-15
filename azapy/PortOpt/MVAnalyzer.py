@@ -23,7 +23,7 @@ class MVAnalyzer(_RiskAnalyzer):
     """
     def __init__(self, 
                  mktdata=None, colname='adjusted', freq='Q', 
-                 hlenght=3.25, calendar=None,
+                 hlength=3.25, calendar=None,
                  rtype='Sharpe', method = 'ecos'):
         """
         Constructor
@@ -70,7 +70,7 @@ class MVAnalyzer(_RiskAnalyzer):
         The object.
 
         """
-        super().__init__(mktdata, colname, freq, hlenght, calendar, rtype)
+        super().__init__(mktdata, colname, freq, hlength, calendar, rtype)
         
         self._set_method(method)
         

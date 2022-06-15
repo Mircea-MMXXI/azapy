@@ -32,7 +32,7 @@ class Port_CVaR(Port_InvVol):
             Reference rate. Its meaning depends on the value of rtype. For
             rtype equal to: \n
                 'Sharpe' and 'Sharpe2': `mu` is the risk-free rate. \n
-                'Ris' : `mu` is the targeted expected rate of returns. \n
+                'Risk' : `mu` is the targeted expected rate of returns. \n
                 'MinRisk' and 'InvNrisk' : `mu` is ignored. \n
                 'RiskAverse' : `mu` is the Lambda risk aversion coefficient.
         `alpha` : list, optional
