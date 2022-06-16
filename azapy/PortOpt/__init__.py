@@ -1,7 +1,6 @@
 from .CVaRAnalyzer import *
 from .SMCRAnalyzer import *
 from .GINIAnalyzer import *
-from .SMGINIAnalyzer import *
 from .MADAnalyzer import *
 from .MVAnalyzer import *
 from .SDAnalyzer import *
@@ -18,7 +17,6 @@ from .Port_InvVol import *
 from .Port_InvVar import *
 from .Port_InvDD import *
 from .Port_GINI import *
-from .Port_SMGINI import *
 from .Port_MAD import *
 from .Port_MV import *
 from .Port_SD import *

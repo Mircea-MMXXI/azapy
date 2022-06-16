@@ -54,18 +54,19 @@ class CVaRAnalyzer(_RiskAnalyzer):
             The default is None.
         `rtype` : str, optional
             Optimization type. Possible values \n
-                "Risk" : minimization of dispersion (risk) measure for a fixed 
-                vale of expected rate of return. \n
-                "Sharpe" : maximization of generalized Sharpe ratio.\n
-                "Sharpe2" : minimization of the inverse generalized Sharpe 
+                'Risk' : minimization of dispersion (risk) measure for a 
+                targeted rate of return. \n
+                'Sharpe' : maximization of generalized Sharpe ratio.\n
+                'Sharpe2' : minimization of the inverse generalized Sharpe 
                 ratio.\n
-                "MinRisk" : optimal portfolio with minimum dispersion (risk) 
+                'MinRisk' : optimal portfolio with minimum dispersion (risk) 
                 value.\n
-                "InvNRisk" : optimal portfolio with the same dispersion (risk)
-                value as equal weighted portfolio. \n
-                "RiskAverse" : optimal portfolio for a fixed value of risk 
-                aversion coefficient.
-            The default is "Sharpe".
+                'InvNrisk' : optimal portfolio with the same dispersion (risk)
+                value as the targeted portfolio 
+                (e.g. equal weighted portfolio).\n
+                'RiskAverse' : optimal portfolio for a fixed value of 
+                risk-aversion.
+            The default is 'Sharpe'.
         `method` : str, optional
             Linear programming numerical method. 
             Could be: 'ecos', 'highs-ds', 'highs-ipm', 'highs', 

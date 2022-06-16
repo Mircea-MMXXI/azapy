@@ -19,9 +19,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
         * set_rtype
         * set_random_seed
     """
-    def __init__(self, alpha=[0.9], coef=None, 
-                 mktdata=None, colname='adjusted', freq='Q', 
-                 hlength=3.25, calendar=None,
+    def __init__(self, alpha=[0.9], coef=None, mktdata=None, 
+                 colname='adjusted', freq='Q', hlength=3.25, calendar=None,
                  rtype='Sharpe', method='ecos'):
         """
         Constructor
@@ -52,20 +51,21 @@ class SMCRAnalyzer(CVaRAnalyzer):
             Business days calendar. If is it `None` then the calendar will 
             be set to NYSE business calendar. 
             The default is None.
-        `rtype` : str, optional
+       `rtype` : str, optional
             Optimization type. Possible values \n
-                "Risk" : minimization of dispersion (risk) measure for a fixed 
-                vale of expected rate of return. \n
-                "Sharpe" : maximization of generalized Sharpe ratio.\n
-                "Sharpe2" : minimization of the inverse generalized Sharpe 
+                'Risk' : minimization of dispersion (risk) measure for a 
+                targeted rate of return. \n
+                'Sharpe' : maximization of generalized Sharpe ratio.\n
+                'Sharpe2' : minimization of the inverse generalized Sharpe 
                 ratio.\n
-                "MinRisk" : optimal portfolio with minimum dispersion (risk) 
+                'MinRisk' : optimal portfolio with minimum dispersion (risk) 
                 value.\n
-                "InvNRisk" : optimal portfolio with the same dispersion (risk)
-                value as equal weighted portfolio. \n
-                "RiskAverse" : optimal portfolio for a fixed value of risk 
-                aversion coefficient.
-            The default is "Sharpe".
+                'InvNrisk' : optimal portfolio with the same dispersion (risk)
+                value as the targeted portfolio 
+                (e.g. equal weighted portfolio).\n
+                'RiskAverse' : optimal portfolio for a fixed value of 
+                risk-aversion.
+            The default is 'Sharpe'.
         method : str, optional
             SOCP numerical method. 
             Could be: 'ecos' or 'cvxopt'.

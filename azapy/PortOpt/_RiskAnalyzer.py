@@ -54,17 +54,19 @@ class _RiskAnalyzer:
             The default is None.
         rtype : string, optional
             Optimization type. Possible values \n
-                "Risk" : minimization of dispersion (risk) measure.\n
-                "Sharpe" : maximization of generalized Sharpe ratio.\n
-                "Sharpe2" : alternative computation of generalized Sharpe
+                'Risk' : minimization of dispersion (risk) measure for 
+                a targetd expected rate of return.\n
+                'Sharpe' : maximization of generalized Sharpe ratio.\n
+                'Sharpe2' : minimization of inverse of generalized Sharpe
                 ratio.\n
-                "MinRisk" : optimal portfolio with minimum dispersion (risk)
+                'MinRisk' : optimal portfolio with minimum dispersion (risk)
                 value.\n
-                "InvNrisk" : optimal portfolio with the same dispersion (risk)
-                value as equally weighted portfolio. \n
-                "RiskAverse" : optimal portfolio for a fixed risk aversion
+                'InvNrisk' : optimal portfolio with the same dispersion (risk)
+                value as the targeted portfolio 
+                (e.g. equal weighted portfolio).\n
+                'RiskAverse' : optimal portfolio for a fixed risk-aversion
                 coefficient.
-            The default is "Sharpe".
+            The default is 'Sharpe'.
 
         Returns
         -------
@@ -79,8 +81,11 @@ class _RiskAnalyzer:
         self.mm = None
         self.muk = None
         self.mu = None
+        
         self.alpha = [1.]
         self.coef = [1.]
+        
+        self.Lambda = None
 
         self.risk = None
         self.primary_risk_comp = None
@@ -100,35 +105,58 @@ class _RiskAnalyzer:
         
         self.method = None
 
-
-    def getWeights(self, mu, rrate=None, rtype=None, d=1):
+        
+    def getWeights(self, rtype=None, mu=None, d=1, mu0=0., aversion=None,
+                   ww0=None, rrate=None ):  
         """
         Computes the optimal portfolio weights.
 
         Parameters
         ----------
-        mu : float
-            Rate of reference. Its meaning depends on the optimization
-            criterion. For rtype set to\n
-                "Risk" : mu is the targeted portfolio rate of returns.\n
-                "Sharpe" and "Sharpe2" : mu is the risk-free rate.\n
-                "MinRisk" and "InvNrisk": mu is ignored. \n
-                "RiskAverse" : mu is the Lambda aversion coefficient.
-        rrate : pandas.DataFrame, optional
-            The portfolio components historical rates of returns.
-            If it is not None, it will overwrite the rrate computed in the
-            constructor from mktdata. The default is None.
-        rtype : string, optional
+        rtype : str, optional
             Optimization type. If is not None it will overwrite the value
-            set by the constructor. The default is None.
+            set by the constructor. The default is `None`.
+        mu : float, optional
+            Targeted portfolio expected rate of return. 
+            Relevant only if `rtype='Risk'`
+            The default is `None`.
         d : int, optional
-            Frontier type. Active only if rtype="Risk". A value of 1 will
+            Frontier type. Active only if `rtype='Risk'`. A value of 1 will
             trigger the evaluation of optimal portfolio along the efficient
             frontier. Otherwise, it will find the portfolio with the lowest
             rate of return along the inefficient portfolio frontier.
-            The default is 1.
+            The default is `1`.
+        mu0 : float, optional
+            Risk-free rate accessible to the investor.
+            Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
+            The default is `0`.
+        aversion : float, optional
+            The value of the risk-aversion coefficient.
+            Must be positive. Relevant only if `rtype='RiskAvers'`.
+            The default is `None`.
+        ww0 : list (also np.array or pandas.Series), optional
+            Targeted portfolio weights. 
+            Relevant only if rype='InvNrisk'.
+            Its length must be equal to the number of
+            symbols in rrate (mktdata). 
+            All weights must be >= 0 with sum > 0.
+            If it is a list or a numpy.array then the weights are assumed to
+            by in order of rrate.columns. If it is a pandas. Series the index
+            should be compatible with the rrate.columns or mktdata symbols
+            (same symbols, not necessary in the same order).
+            If it is `None` then it will be set to equal weights.
+            The default is `None`.
+        rrate : pandas.DataFrame, optional
+            The portfolio components historical rates of returns.
+            If it is not `None`, it will overwrite the rrate computed in the
+            constructor from mktdata. The default is `None`. 
 
-        Returns
+        Raises
+        ------
+        ValueError
+            Wrong rtype value.
+
+       Returns
         -------
         pandas.Series
             Portfolio weights.
@@ -143,11 +171,13 @@ class _RiskAnalyzer:
         if rrate is not None:
             self.set_rrate(rrate)
 
-        if rtype is not None:
+        if not rtype is None:
             self.set_rtype(rtype)
-
+            
         if self.rtype == "Risk":
-            if mu > self.muk.max():
+            if mu is None:
+                raise ValueError("for rtype='Risk' mu must have a value")
+            elif mu > self.muk.max():
                 self.mu = self.muk.max()
             elif mu < self.muk.min():
                 self.mu = self.muk.min()
@@ -155,36 +185,62 @@ class _RiskAnalyzer:
                 self.mu = mu
 
             self._risk_min(d=d)
-        elif self.rtype == "Sharpe":
-            if mu > self.muk.max():
+            
+        elif self.rtype == 'Sharpe':           
+            if mu0 is None:
+                raise ValueError("for rtype='Sharpe' mu0 must have a value")
+            if mu0 > self.muk.max():
                 self.mu = self.muk.max() * 0.999
             else:
-                self.mu = mu
+                self.mu = mu0
 
             self._sharpe_max()
-        elif self.rtype == "MinRisk":
-            self.mu = self.muk.min()
-
-            self._risk_min(d=1)
-        elif self.rtype == "Sharpe2":
-            if mu > self.muk.max():
+            
+        elif self.rtype == 'Sharpe2':          
+            if mu0 is None:
+                raise ValueError("for rtype='Sharpe2' mu0 must have a value")
+            if mu0 > self.muk.max():
                 self.mu = self.muk.max() * 0.999
             else:
-                self.mu = mu
+                self.mu = mu0
 
-            self._sharpe_inv_min()      
-        elif self.rtype == "InvNrisk":
-            ww = np.array([1.] * len(self.rrate.columns))
-            ww = ww / np.sum(ww)
+            self._sharpe_inv_min() 
+            
+        elif self.rtype == "MinRisk":
+            self.mu = self.muk.min()
+            self._risk_min(d=1)
+            
+        elif self.rtype == "InvNrisk":    
+            if ww0 is None:
+                ww = np.full(len(self.rrate.columns), 
+                             1/len(self.rrate.columns))
+            else:
+                if isinstance(ww0, pd.core.series.Series):
+                    ww = np.array(ww0[self.rrate.columns])
+                else:
+                    ww = np.array(ww0)
+                if any(ww < 0.):
+                    raise ValueError("All ww0 must be non-negative")
+                sww = ww.sum()
+                if sww <= 0:
+                    raise ValueError("At least one ww0 must be non zero")
+                ww = ww / sww
+                
             self.getRisk(ww)
-            self._rr_max()      
-        elif self.rtype == "RiskAverse":
-            self.Lambda = mu
+            self._rr_max()  
+            
+        elif self.rtype == "RiskAverse":          
+            if aversion is None:
+                raise ValueError("for rtype='RiskAverse'"
+                                 + " aversion must have a value")
+            elif aversion < 0:
+                raise ValueError("aversion must be positive")
+                
+            self.Lambda = aversion
             self._risk_averse()
             
         else:
-            print(f"should not be here!! Unknown rtype {rtype}")
-            return np.nan
+            raise ValueError("you should not be here")
         
         if self.status != 0:
             warnings.warn(f"Warning: status {self.status} for {self.rtype}"
@@ -227,7 +283,10 @@ class _RiskAnalyzer:
         w = np.array(ww)
         if any(w < 0.):
             raise ValueError("All ww must be non-negative")
-        w = w / w.sum()
+        sw = w.sum()
+        if sw <= 0:
+            raise ValueError("At least one ww must be positive")
+        w = w / sw
 
         prate = np.dot(self.rrate, w)
 
@@ -250,24 +309,15 @@ class _RiskAnalyzer:
 
         return self.risk
 
-
-    def getPositions(self, mu, rtype=None, nshares=None, cash=0, ww=None):
+        
+    def getPositions(self, nshares=None, cash=0, ww=None, rtype=None, 
+                     mu=None, mu0=0., aversion=None, ww0=None, ):
         """
-        Computes the number of shares according to the weights
+        Computes the rebalanced number of shares.
 
         Parameters
         ----------
-        mu : float
-            Rate of reference. Its meaning depends on the optimization
-            criterion. For rtype set to\n
-                "Risk" : `mu` is the targeted portfolio rate of returns.\n
-                "Sharpe" and "Sharpe2" : `mu` is the risk-free rate.\n
-                "MinRisk" and "InvNrisk": `mu` is ignored. \n
-                "RiskAverse" : `mu` is the Lambda aversion coefficient.
-        rtype : str, optional
-            Optimization type. If is not `None` it will overwrite the value
-            set by the constructor. The default is `None`.
-        nshares : pandas.Series, optional
+        nshares : panda.Series, optional
             Initial number of shares per portfolio component.
             A missing component
             entry will be considered 0. A `None` value assumes that all
@@ -276,10 +326,39 @@ class _RiskAnalyzer:
         cash : float, optional
             Additional cash to be added to the capital. A
             negative entry assumes a reduction in the total capital
-            available for rebalance. The default is 0.
-        ww : pandas.Series, optional
-            External portfolio weights. If it not set to None these
-            weights will overwrite the calibrated weights.
+            available for rebalance. The total capital cannot be < 0.
+            The default is 0. 
+        ww : panda.Series, optional
+            External overwrite portfolio weights. 
+            If it not set to None these
+            weights will overwrite the calibrated.
+            The default is `None`. 
+        rtype : str, optional
+            Optimization type. If is not `None` it will overwrite the value
+            set by the constructor. The default is `None`.
+        mu : float, optional
+            Targeted portfolio expected rate of return. 
+            Relevant only if `rtype='Risk'`
+            The default is `None`.
+        mu0 : float, optional
+            Risk-free rate accessible to the investor.
+            Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
+            The default is `0`.
+        aversion : float, optional
+            The value of the risk-aversion coefficient.
+            Must be positive. Relevant only if `rtype='RiskAvers'`.
+            The default is `None`.
+        ww0 : list (also np.array or pandas.Series), optional
+            Targeted portfolio weights 
+            Relevant only if rype='InvNrisk'.
+            Its length must be equal to the number of
+            symbols in rrate (mktdata). 
+            All weights must be >= 0 with sum > 0.
+            If it is a list or a numpy.array then the weights are assumed to
+            by in order of rrate.columns. If it is a pandas.Series the index
+            should be compatible with the rrate.columns or mktdata symbols
+            (same symbols, not necessary in the same order).
+            If it is `None` then it will be set to equal weights.
             The default is `None`.
 
         Returns
@@ -289,13 +368,13 @@ class _RiskAnalyzer:
         Columns:
 
             - "old_nsh" :
-                initial number of shares per portfolio component as well as
-                additional cash position. These are present in the input.
+                initial number of shares per portfolio component and
+                the additional cash. These are input values.
             - "new_nsh" :
                 the new number of shares per component plus the residual
                 cash (due to the rounding to an integer number of shares).
                 A negative entry means that the investor needs to add more
-                cash to cover for the number of share roundups.
+                cash to cover for the roundups shortfall.
                 It has a small value.
             - "diff_nsh" :
                 the number of shares that needs to be both/sold in order
@@ -307,10 +386,13 @@ class _RiskAnalyzer:
                 the share prices used for rebalances evaluations.
 
         Note: Since the prices are closing prices, the rebalance can be
-        executed next business. Additional cash slippage may occur due
+        computed after the market close and before the (next day)
+        trading execution. 
+        Additional cash slippage may occur due
         to share price differential between the previous day closing and
         execution time.
         """
+       
         if rtype is not None:
             self.set_rtype(rtype)
 
@@ -326,10 +408,11 @@ class _RiskAnalyzer:
 
         cap = ns.dot(pp) + cash
         if ww is None:
-            ww = self.getWeights(mu, rtype=rtype)
+            ww = self.getWeights(rtype=rtype, mu=mu, mu0=mu0, ww0=ww0, 
+                                 aversion=aversion)
         else:
-            ww0 = pd.Series(0, index=self.rrate.columns)
-            ww = ww0.add(ww, fill_value=0)
+            wwp = pd.Series(0, index=self.rrate.columns)
+            ww = wwp.add(ww, fill_value=0)
             if len(self.rrate.columns) == len(ns):
                 raise ValueError(f"ww must be among {self.rrate.columns}")
 
@@ -517,7 +600,7 @@ class _RiskAnalyzer:
         # min risk
         res['risk_min'] = defaultdict(lambda x=0: None)
         rr = self.muk.min()
-        ww_min = self.getWeights(mu=rr, rtype='Risk')
+        ww_min = self.getWeights(rtype='Risk', mu=rr)
         risk_min = self.risk
         rr_min = self.RR
         res['risk_min']['risk'] = risk_min
@@ -533,7 +616,7 @@ class _RiskAnalyzer:
             ww_eff = []
             RR_eff = []
             for rr in rr_eff:
-                ww_eff.append(self.getWeights(mu=rr, rtype='Risk'))
+                ww_eff.append(self.getWeights(rtype='Risk', mu=rr))
                 risk_eff.append(self.risk)
                 RR_eff.append(self.RR)
             res['efficient']['risk'] = np.array(risk_eff)
@@ -549,7 +632,7 @@ class _RiskAnalyzer:
             ww_ineff = []
             RR_ineff = []
             for rr in rr_ineff:
-                ww_ineff.append(self.getWeights(mu=rr, rtype='Risk', d=-1))
+                ww_ineff.append(self.getWeights(rtype='Risk', mu=rr, d=-1))
                 risk_ineff.append(self.risk)
                 RR_ineff.append(self.RR)
             res['inefficient']['risk'] = np.array(risk_ineff)
@@ -561,7 +644,7 @@ class _RiskAnalyzer:
         res['sharpe']['mu'] = musharpe
         if not np.isnan(musharpe):
             if musharpe > self.muk.max(): musharpe = self.muk.max() * 0.9999
-            ww_sharpe = self.getWeights(mu=musharpe, rtype='Sharpe')
+            ww_sharpe = self.getWeights(rtype='Sharpe', mu0=musharpe)
             rr_sharpe = self.RR
             risk_sharpe = self.risk
             sharpe = self.sharpe
@@ -621,7 +704,7 @@ class _RiskAnalyzer:
             rr_n.append(self.RR)
             ww_n.append(wwn)
             # optimal 1/N risk portfolio
-            ww_n.append(self.getWeights(0., rtype="InvNrisk"))
+            ww_n.append(self.getWeights(rtype="InvNrisk"))
             risk_n.append(self.risk)
             rr_n.append(self.RR)
             res['inverseN']['risk'] = np.array(risk_n)

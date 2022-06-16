@@ -17,7 +17,7 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 p1 = az.Port_BTAD(mktdata, pname='BTADPort') 
 
 tic = time.perf_counter()
-port1 = p1.set_model(mu=0., detrended=True)   
+port1 = p1.set_model(detrended=True)   
 toc = time.perf_counter()
 print(f"time Sharpe: {toc-tic}")
 
@@ -26,7 +26,7 @@ print(f"time Sharpe: {toc-tic}")
 p2 = az.Port_MAD(mktdata, pname='MADPort') 
  
 tic = time.perf_counter()
-port2 = p2.set_model(mu=0.)   
+port2 = p2.set_model()   
 toc = time.perf_counter()
 print(f"time Sharpe: {toc-tic}")
 

@@ -1,11 +1,12 @@
 import setuptools
+from azapy import __version__
 
 with open("README.md", "r", encoding="utf-8") as readme:
     long_description = readme.read()
 
 setuptools.setup(
     name="azapy",
-    version="0.1.0",
+    version=__version__,
     author="Mircea Marinescu",
     author_email="mircea.marinescu@outlook.com",
     description="Financial Portfolio Optimization Algorithms",

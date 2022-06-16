@@ -16,7 +16,7 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 p4 = az.Port_SD(mktdata, pname='SDPort')
 
 tic = time.perf_counter()
-port4 = p4.set_model(mu=0.)
+port4 = p4.set_model()
 toc = time.perf_counter()
 print(f"time Sharpe: {toc-tic}")
 
@@ -34,7 +34,7 @@ p4.get_account(fancy=True)
 
 # Use rtype='Sharpe2' - should be the same results
 tic = time.perf_counter()
-port4_2 = p4.set_model(mu=0., rtype='Sharpe2')   
+port4_2 = p4.set_model(rtype='Sharpe2')   
 toc = time.perf_counter()
 print(f"time Sharpe2: {toc-tic}")
 
@@ -47,7 +47,7 @@ _ = pp.port_view_all(componly=(True))
 
 #=============================================================================
 # Compute SD optimal portfolio
-port4 = p4.set_model(mu=0.1, rtype="Risk")
+port4 = p4.set_model(rtype="Risk", mu=0.1)
 ww = p4.get_weights()
 p4.port_view()
 p4.port_view_all()
@@ -62,7 +62,7 @@ p4.get_account(fancy=True)
 
 #=============================================================================
 # Compute minimum SD optimal portfolio
-port4 = p4.set_model(mu=0.1, rtype="MinRisk")
+port4 = p4.set_model(rtype="MinRisk")
 ww = p4.get_weights()
 p4.port_view()
 p4.port_view_all()
@@ -77,7 +77,7 @@ p4.get_account(fancy=True)
 
 #=============================================================================
 # Compute optimal portfolio with SD of equal weighted portfolio
-port4 = p4.set_model(mu=0.1, rtype="InvNrisk")
+port4 = p4.set_model(rtype="InvNrisk")
 ww = p4.get_weights()
 p4.port_view()
 p4.port_view_all()
@@ -92,7 +92,7 @@ p4.get_account(fancy=True)
 
 #=============================================================================
 # Compute optimal portfolio for fixed risk aversion
-port4 = p4.set_model(mu=0.5, hlength=0.5, rtype="RiskAverse")   
+port4 = p4.set_model(rtype="RiskAverse", aversion=0.5)   
 ww = p4.get_weights()
 p4.port_view()
 p4.port_view_all()
@@ -113,7 +113,7 @@ p4.get_account(fancy=True)
 # zts = []
 # for method in methods:
 #     toc = time.perf_counter()
-#     zz = p4.set_model(mu=0., method=method)  
+#     zz = p4.set_model(method=method)  
 #     tic = time.perf_counter()
 #     print(f"{method} time: {tic-toc}")  
 #     zz.columns = [method]

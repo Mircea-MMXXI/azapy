@@ -26,17 +26,17 @@ _ = cr1.getWeights(mu=0.)
 RR_ = cr1.RR
 sharpe_ = cr1.sharpe
 
-# dict rtype: mu 
-mus = {'Risk': RR_, 'MinRisk': 0., 'Sharpe': 0., 'Sharpe2': 0., 'InvNrisk': 0.,
-       'RiskAverse': sharpe_}
+# rtype collection
+rtype_collection = ['Risk', 'MinRisk', 'InvNrisk', 'RiskAverse', 'Sharpe', 
+                    'Sharpe2' ]
 
 # loop over all rtype's
-for rtype in mus.keys():
-    ww1 = cr1.getWeights(mu=mus[rtype], rtype=rtype)
+for rtype in rtype_collection:
+    ww1 = cr1.getWeights(rtype=rtype, mu=RR_, aversion=sharpe_)
     RR1 = cr1.RR
     risk1 = cr1.risk
     
-    ww2 = cr2.getWeights(mu=mus[rtype], rtype=rtype)
+    ww2 = cr2.getWeights(rtype=rtype, mu=RR_, aversion=sharpe_)
     RR2 = cr2.RR
     risk2 = cr2.risk
     
