@@ -29,7 +29,7 @@ class Port_BTAD(Port_CVaR):
         Parameters
         ----------
         `alpha` : list, optional
-            List of Omega thresholds. The default is [0.].
+            List of thresholds. The default is `[0.]`.
         `coef` : list, optional
             List of positive mixture 
             coefficients. Must have the same size as `alpha`. 
@@ -65,14 +65,14 @@ class Port_BTAD(Port_CVaR):
             The default is `None`.
         `ww0` : list (also np.array or pandas.Series), optional
             Targeted portfolio weights. 
-            Relevant only if rype='InvNrisk'.
+            Relevant only if `rype='InvNrisk'`.
             Its length must be equal to the number of
             symbols in rrate (mktdata). 
             All weights must be >= 0 with sum > 0.
-            If it is a list or a numpy.array then the weights are assumed to
-            by in order of rrate.columns. If it is a pandas.Series the index
-            should be compatible with the rrate.columns or mktdata symbols
-            (same symbols, not necessary in the same order).
+            If it is a list or a `numpy.array` then the weights are assumed to
+            by in order of `rrate.columns`. If it is a `pandas.Series` then 
+            the index should be compatible with the `rrate.columns` or mktdata 
+            symbols (same symbols, not necessary in the same order).
             If it is `None` then it will be set to equal weights.
             The default is `None`.
         `detrended` : Boolean, optional
@@ -83,7 +83,7 @@ class Port_BTAD(Port_CVaR):
         `hlength` : float, optional
             The length in year of the historical calibration period relative
             to 'Dfix'. A fractional number will be rounded to an integer number
-            of months. The default is 3.25 years.
+            of months. The default is `3.25` years.
         `method` : str, optional
             Linear programming numerical method.
             Could be: 'ecos', 'highs-ds', 'highs-ipm', 'highs',

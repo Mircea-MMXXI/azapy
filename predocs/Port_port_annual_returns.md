@@ -26,7 +26,7 @@ are reported. The default is `False`.
     - `True` : the values are reported in percent rounded
     to 2 decimals and presented is color style.
 
-*Returns:* `pd.DataFrame`
+*Returns:* `pandas.DataFrame`
 
 [TOP](#TOP)
 

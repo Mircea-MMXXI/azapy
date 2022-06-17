@@ -22,7 +22,7 @@ The default is `False`.
     - `True` : the values are reported in percent rounded
     to 2 decimals.
 
-*Returns:* `pd.DataFrame` containing the table of
+*Returns:* `pandas.DataFrame` containing the table of
 performance information. Columns:
 * `'RR'` : annual average rate of returns,
 * `'DD'` : maximum rate of drawdown during the simulation period,

@@ -4,7 +4,7 @@ INDIR=.
 
 # gen risk-based docs
 
-F_RB = CVaR MAD SMCR LSSD MV SD GINI SMGINI Omega BTSD \
+F_RB = CVaR MAD SMCR LSSD MV SD GINI BTAD BTSD \
 
 RISK_RB = Risk_getWeights.md Risk_getRisk.md Risk_getPositions.md \
 Risk_ViewFrontiers.md Risk_set_mktdata.md Risk_set_rrate.md \

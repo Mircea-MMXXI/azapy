@@ -55,13 +55,13 @@ The default is `3.25` (years).
 then the calendar will be set to NYSE business calendar.
 The default is `None`.
 * `rtype` : Optimization type. The default is `'Sharpe'`. Possible values are:
-    - `'Risk'` : minimization of dispersion (risk) measure for a fixed values
-    of portfolio expected rate of return,
+    - `'Risk'` : minimization of dispersion (risk) measure for a targeted
+    expected rate of return,
     - `'Sharpe'` : maximization of generalized Sharpe ratio,
     - `'Sharpe2'` : minimization of inverse generalized Sharpe ratio,
     - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value,
-    - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
-		as equal weighted portfolio,
+    - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) as a
+    benchmark portfolio (e.g. equal weighted portfolio),
     - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
 * `method` : Designates the SOCP numerical method.
 It could be ``'ecos'`` or ``'cvxopt'``.

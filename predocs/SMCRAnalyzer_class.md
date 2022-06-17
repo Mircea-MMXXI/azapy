@@ -42,7 +42,8 @@ where:
 `alpha`. A `None` value assumes an equal weighted risk mixture.
 The vector of coefficients will be normalized to unit.
 The default is `None`.
-* `mktdata` : `pd.DataFrame` containing the market data in the format returned by
+* `mktdata` : `pandas.DataFrame` containing the market data in the format
+returned by
 the function `azapy.readMkT`. The default is `None`. `mktdata` could be loaded
 latter.
 * `colname` : Name of the price column from `mktdata` used in the weights
@@ -52,18 +53,18 @@ It could be `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
 * `hlength` : History length in number of years used for calibration.
 A fractional number will be rounded to an integer number of months.
 The default is `3.25` years.
-* `calendar` : `np.busdaycalendar` business days calendar. If is it `None`,
+* `calendar` : `numpy.busdaycalendar` business days calendar. If is it `None`,
 then the calendar will be set to NYSE business calendar.
 The default is `None`.
 * `rtype` : Optimization type. The default is `'Sharpe'`. Possible values are:
-    - `'Risk'` : minimization of dispersion (risk) measure for a fixed values
-    of portfolio expected rate of return,
+    - `'Risk'` : minimization of dispersion (risk) measure for targeted
+    expected rate of return,
     - `'Sharpe'` : maximization of generalized Sharpe ratio,
     - `'Sharpe2'` : minimization of inverse generalized Sharpe ratio,
-    - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value,
-    - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
-		as equal weighted portfolio,
-    - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
+    - `'MinRisk'` : minimum dispersion (risk) portfolio,
+    - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) as the
+    benchmark portfolio (e.g. equal weighted portfolio)
+    - `'RiskAverse'` : optimal portfolio for a fixed risk-aversion factor.
 * `method` : Designates the SOCP numerical method.
 It could be ``'ecos'`` or ``'cvxopt'``.
 The default is `'ecos'`.

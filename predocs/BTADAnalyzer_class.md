@@ -1,5 +1,5 @@
 
-## OmegaAnalyzer class
+## BTADAnalyzer class
 
 Computes the portfolio weights and performs in-sample portfolio analysis.
 
@@ -32,14 +32,14 @@ During its computations the following class members are also set:
 ### Constructor
 
 ```
-OmegaAnalyzer(alpha=[0.], coef=None, mktdata=None, colname='adjusted',
-              freq='Q', hlength=3.25, calendar=None, rtype='Sharpe',
-              detrended=False, method='ecos')
+BTADAnalyzer(alpha=[0.], coef=None, mktdata=None, colname='adjusted',
+             freq='Q', hlength=3.25, calendar=None, rtype='Sharpe',
+             detrended=False, method='ecos')
 ```
 
 where:
 
-* `alpha` : List of distinct Omega thresholds. The default is `[0.]`.
+* `alpha` : List of distinct thresholds. The default is `[0.]`.
 * `coef` : List of positive mixture
 coefficients. Must have the same size as `alpha`.
 A `None` value assumes an equal weighted risk mixture.
@@ -59,13 +59,13 @@ The default is `3.25` years.
 then the calendar will be set to NYSE business calendar.
 The default is `None`.
 * `rtype` : Optimization type. The default is `'Sharpe'`. Possible values are:
-    - `'Risk'` : minimization of dispersion (risk) measure for a fixed values
-    of portfolio expected rate of return,
+    - `'Risk'` : minimization of dispersion (risk) measure for a targeted
+    expected rate of return,
     - `'Sharpe'` : maximization of generalized Sharpe ratio,
     - `'Sharpe2'` : minimization of inverse generalized Sharpe ratio,
     - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value,
-    - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
-		as equal weighted portfolio,
+    - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) as a
+    benchmark portfolio (e.g. equal weighted portfolio),
     - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
 * `detrended` : Boolean flag:
   - `True` : detrended rate of return
@@ -81,7 +81,7 @@ The default is `'ecos'`.
 > Note:
 >	* `'ecos'` : is the LP implementation from __ecos__ _(Embedded Cone Solver)_
 package. For python __ecos__ provides only an interface for SOCP problems.
-However, a LP problem can be viewed as a particular case of a SOCP problem.
+However, an LP problem can be viewed as a special case of an SOCP problem.
 >	* `'highs-ds'`, `'highs-ipm'`, `'highs'` and `'interior-point'` : are LP
 implementations from __SciPy__ package. `'highs-ds'` and `'highs-ipm'` are
 the HiGHS _(high performance software for linear optimization)_ dual revised

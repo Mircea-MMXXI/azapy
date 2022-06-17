@@ -2,7 +2,7 @@
 ## Port_MV class
 
 
-Out-of-Sample (back testing) simulation of MV optimal portfolio periodically
+Out-of-sample (backtesting) simulation of MV optimal portfolio periodically
 rebalanced.
 
 

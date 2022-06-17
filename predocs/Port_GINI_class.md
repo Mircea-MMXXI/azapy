@@ -1,7 +1,7 @@
 
 ## Port_GINI class
 
-Out-of-Sample (back testing) simulation of GINI optimal portfolio periodically
+Out-of-sample (backtesting) simulation of GINI optimal portfolio periodically
 rebalanced.
 
 

@@ -29,8 +29,8 @@ class Port_MAD(Port_CVaR):
         Parameters
         ----------
         `coef` : list, optional
-            Positive non-increasing list of mixture coefficients. 
-            The default is [1.].
+            Positive non-increasing list of coefficients. 
+            The default is `[1.]`.
         `rtype` : : str, optional
             Optimization type. Possible values \n
                 'Risk' : minimization of dispersion (risk) measure for a fixed 

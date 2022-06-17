@@ -15,7 +15,7 @@ There is 1 support class:
 ## Port_Simple class
 
 
-Out-of-Sample (back testing) simulation of Buy and Hold portfolio strategy.
+Out-of-sample (backtesting) simulation of Buy and Hold portfolio strategy.
 
 
 **Methods:**
@@ -120,7 +120,7 @@ port_view(emas=[30, 200], bollinger=False, fancy=False, saveto=None)
 *Inputs:*
 
 * `emas` :
-List for EMA durations. The default is ``[30, 200]``.
+List for EMA durations. The default is `[30, 200]`.
 * `bollinger` : Boolean flag.
 `True` adds the Bollinger bands. The default is `False`.
 * `view` : Boolean flag.
@@ -132,7 +132,7 @@ List for EMA durations. The default is ``[30, 200]``.
 format: `png`, `pdf`, `svg`, etc. For more details see the `mathplotlib`
 documentation for `savefig`. The default is `None`.
 
-*Returns:* `pd.DataFrame` containing the time-series included in the plot.
+*Returns:* `pandas.DataFrame` containing the time-series included in the plot.
 
 [TOP](#TOP)
 
@@ -172,7 +172,7 @@ The default is `None`.
 format: `png`, `pdf`, `svg`, etc. For more details see the `mathplotlib`
 documentation for `savefig`.The default is `None`.
 
-*Returns:* `pd.DataFrame` containing the time-series included in the plot.
+*Returns:* `pandas.DataFrame` containing the time-series included in the plot.
 
 [TOP](#TOP)
 
@@ -200,7 +200,7 @@ The default is `5`.
     - `True` : the values are reported in percent rounded
     to 2 decimals.
 
-*Returns:* `pd.DataFrame` containing the table of
+*Returns:* `pandas.DataFrame` containing the table of
 drawdown events. Columns:
 * `'DD'` : drawdown rate,
 * `'Date'` : recorded date of the drawdown,
@@ -236,7 +236,7 @@ The default is `False`.
     - `True` : the values are reported in percent rounded
     to 2 decimals.
 
-*Returns:* `pd.DataFrame` containing the table of
+*Returns:* `pandas.DataFrame` containing the table of
 performance information. Columns:
 * `'RR'` : annual average rate of returns,
 * `'DD'` : maximum rate of drawdown during the simulation period,
@@ -276,7 +276,7 @@ are reported. The default is `False`.
     - `True` : the values are reported in percent rounded
     to 2 decimals and presented is color style.
 
-*Returns:* `pd.DataFrame`
+*Returns:* `pandas.DataFrame`
 
 [TOP](#TOP)
 
@@ -308,7 +308,7 @@ are reported. The default is `False`.
     - `True` : the values are reported in percent rounded
     to 2 decimals and presented is color style.
 
-*Returns:* `pd.DataFrame`
+*Returns:* `pandas.DataFrame`
 
 [TOP](#TOP)
 
@@ -329,7 +329,7 @@ get_mktdata()
 *Inputs:* None
 
 
-*Returns:* `pd.DataFrame`
+*Returns:* `pandas.DataFrame`
 
 [TOP](#TOP)
 

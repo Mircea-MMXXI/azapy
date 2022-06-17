@@ -1,19 +1,21 @@
 
 # Introduction
 
-A *Risk-based optimal portfolio strategy* attempts to find the
+A *Risk-based optimal portfolio* is the
 portfolio that, in some sense, has the best combination between the expected
 returns and the dispersion of possible outcomes.
 
-Given a portfolio, all we can hope to
+Given a portfolio, we can
 estimate ex-ante is its expectation of returns.
 The actual realization of
 an investment in this portfolio could be larger or smaller than this
 expectation. Therefore, the dispersion of possible
-outcomes around the expectation of returns is a quantity of interest.
-A smaller dispersion suggests that the investment actual
-return may be closer to its computed expected value. In the context of
-portfolio optimizations, the dispersion of possible outcomes is often called
+outcomes around the expectation of returns is a quantity of interest
+for investors.
+A smaller dispersion suggests that the actual
+return may be closer to its computed expected value.
+
+The dispersion of possible outcomes is often called
 *risk*.
 The quantity that measures the dispersion of possible outcomes is called
 dispersion
@@ -24,20 +26,15 @@ The dispersion measure can be defined in many ways. **azapy** package
 provides a comprehensive collection of risk-based portfolio optimization
 strategies based on the following dispersion measures:
 
-* CVaR - Conditional Value at Risk and its generalization
- mCVaR (mixture of CVaR's),
-* SMCR - Second Moment Coherent Risk and its generalization mSMCR
-(mixture of SMCR's),
-* MAD - Mean Absolute Deviation and its generalization mMAD
-(mixture of high order MAD's),
-* LSSD - Lower Semi-Standard Deviation and its generalization mLSSD
-(mixture of high order LSSD'm),
-* MV - Mean Variance,
-* SD - Standard Deviation,
-* GINI - Gini ratio,
-* SMGINI - Second Moment Gini dispersion measure,
-* Omega - Omega ratio.
-* BTSD - Below Target Standard Deviation
+* **mCVaR** - mixture Conditional Value at Risk,
+* **mSMCR** - mixture Second Moment Coherent Risk,
+* **mMAD** - m-level Mean Absolute Deviation,
+* **mLSSD** - m-level Lower Standard Semi-Deviation,
+* **mBTAD** - mixture Below Threshold Absolute Deviation,
+* **mBTSD** - mixture Below Threshold Standard Deviation,
+* **GINI** - Gini index,
+* **MV** - Variance (as in mean variance model),
+* **SD** - Standard Deviation.
 
 In each case several optimization strategies are implemented. To
 understand them better, let's look at a generic example of portfolio frontiers
@@ -62,10 +59,10 @@ red line is called the *inefficient frontier*. These are the portfolios
 with the lowest rate of returns for a given value of risk. Clearly, this
 family of portfolios are to be avoided by an investor.
 
-The most left point, where the blue and red lines meet, is the
+The leftmost point, where the blue and red lines meet, is the
 *Minimum Risk Portfolio* (also called *Global Minimum Risk Portfolio*).
 This is the portfolio with minimum risk. Investing
-in portfolios with minimum risk is a relative common strategy among
+in minimum risk portfolio is a relative common strategy among
 professional investors.
 
 The black straight line, in the upper part of the plot, is tangent to the
@@ -75,10 +72,11 @@ In this example the risk-free rate was set to 0. The
 tangency point along the efficient frontier (in our plot depicted by a green
 diamond) is the
 *tangency portfolio* or the *market portfolio*. This is the portfolio
-that maximizes the Sharpe ratio. The Sharpe ratio[^sharpe] is defined as
+that maximizes the $\rho$-Sharpe ratio.
+The $\rho$-Sharpe ratio[^sharpe] is defined as
 
 \begin{equation*}
-  \beta = \frac{R - r_f}{\rho},
+  \gamma = \frac{R - r_f}{\rho},
 \end{equation*}
 
 where:
@@ -87,9 +85,10 @@ where:
 * $r_f$ is the risk-free rate accessible to the investor,
 * $\rho$ is the dispersion of portfolio rate of return.
 
-Therefore, the portfolio that maximizes the Sharpe ratio is the portfolio
+Therefore, the portfolio that maximizes the $\rho$-Sharpe ratio is the portfolio
 with the highest expected excess rate of return (above the risk-free rate)
-per unit of risk. This is a remarkable efficient portfolio often preferred by
+per unit of risk, $\rho$.
+This is a remarkable efficient portfolio often preferred by
 the investors.
 
 All the points between the efficient (blue line) and
@@ -102,22 +101,17 @@ the market symbol of this portfolio component.
 
 Among the *inefficient portfolios* there is a remarkable portfolio. That is
 the portfolio with equal weights. All weights
-are proportional to $1/N$ where $N$ is the number of portfolio
+are equal to $1/N$ where $N$ is the number of portfolio
 components. Hence, its name $1/N$*-portfolio* or *inverse-N portfolio*.
 In our plot this portfolio is represented by a green X with label $1/N$.
 
 On the *efficient frontier* there is its correspondent. In our plot
 it is a green X with label *InvNrisk*. This is the efficient portfolio
-that has the same risk as the
-*inverse-N* portfolio. In-sample both portfolios have the same risk while
+that has the same risk as the equal weighted portfolio.
+In-sample both portfolios have the same risk while
 the expected rate of returns is larger for *InvNrisk*  than
-for *inverse-N* portfolio.
-
-It is remarkable that out-of-sample, although not always,
-for certain quite desirable portfolio compositions and
-under rather common market conditions, the *inverse-N* portfolio tends to
-outperform the *InvNrisk*. The reasons behind this odd behavior are still
-under debate among the specialists in the field.
+for *inverse-N* portfolio. However, out-of-sample, especially for short
+period of observations, equal weighted may outperform *InvNrisk* portfolio.
 
 Another way to visualize the portfolio frontiers is presented in the following
 figure.
@@ -127,74 +121,80 @@ figure.
 _Fig 2. : Example of portfolio frontiers - expected rate of return vs. Sharpe ratio._
 
 It contain the same information as Fig 1. However, now the
-x-axis is the expected rate of return while the y-axis is the Sharpe ratio.
+x-axis is the expected rate of return while the y-axis is the
+$\rho$-Sharpe ratio.
 We have preserved the color code and all the symbols from Fig.1.
 
-Fig 2. gives a better intuition of portfolio efficiency in terms of
+Fig 2. gives a better understanding of portfolio efficiency in terms of
 expected excess return per unit or risk.
 
 
 For all dispersion measures mentioned above, the **azapy** package offers
 the following portfolio optimization strategies:
 
-1. *Minimization of the risk given a fixed expected rate of return*. This is
-the most common portfolio optimization strategy.  It requires the user to
+1. **_Minimization of risk for targeted expected rate of return._** This is
+the most common portfolio optimization strategy. It returns portfolios
+along the efficient frontier (blue line in Fig 1 and 2).
+The strategy requires the user to
 input the desired value of the expected rate of return. This value must be
 between the expected rate of return of the efficient portfolio with minimum
 risk and the highest rate of return among the portfolio components. If
 the input value is outside of this range than it will automatically default
 to the nearby limit. In the code this strategy is designated by setting
 `rtype='Risk'`.
-2. *Maximization of Sharpe ratio*. This is the portfolio with the highest
+2. **_Maximization of $\rho$-Sharpe ratio._** This is the portfolio with the highest
 expected excess rate of return per unit of risk hold by the investor. It is a
 very popular strategy among investors.
 In the code this strategy is designated by setting `rtype='Sharpe'`.
-3. *Minimization of inverse Sharpe ratio*. Obviously, this strategy is
+3. **_Minimization of inverse $\rho$-Sharpe ratio._** Obviously, this strategy is
 logically equivalent with the one above. It returns the same portfolio
 weights. However, from a mathematical point of view, the direct
 minimization of inverse Sharpe ratio is a different programming problem
-than the direct maximization of Sharpe ratio. Some authors insist that
-the minimization of the inverse Sharpe leads to more stable numerical algorithms
-(under certain conditions). We were not able to verify
-this claim. Both methods have proved to be very stable with similar
+than the direct maximization of Sharpe ratio.
+Both methods have proved to be very stable with similar
 computational times. For completeness, we choose
 to make available this implementation under the setting `rtype='Sharpe2'`.
-4. *Minimum risk portfolio*. This is the efficient portfolio with
+4. **_Minimum risk portfolio._** This is the efficient portfolio with
 minimum risk (the most left limit of the *efficient frontier*). It is
 a common strategy among professional investor. It is available
 under the setting `rtype='MinRisk'`.
-5. *Efficient portfolio with same risk as inverse-N*. This is the
-optimal portfolio that has the same risk as the equal weighted portfolio.
-For many investor this could be
-the preferred choices since its out-of-sample (back testing) performance
-can be compared directly against *inverse-N* portfolio. In the code this
-strategy is designated by setting `rtype='InvNrisk'`.
-6. *Maximization of the expected rate of return for a given risk aversion*
-*factor*. In this strategy the optimal portfolio weights
+5. **_Maximization of expected rate of return for targeted risk value._**
+The strategy returns portfolios along the efficient frontier (blue line
+in Fig. 1 and 2). Requires the user to enter the desired value of risk.
+In general it is not intuitive for an investor to specify outright a rational
+value for risk. However, this strategy is useful if we want to
+find an efficient portfolio that has the same risk as  benchmark
+portfolio. The most common example is the efficient portfolio
+with the same risk as the equal weights portfolio. In the code this
+strategy is designated by setting `rtype='InvNrisk'`. Our
+implementation allowed to enter any benchmark portfolio by specifying
+its weights.
+6. **_Maximization of the expected rate of return for a fix risk-aversion factor._**
+In this strategy the optimal portfolio weights
 maximize the quantity $R -\lambda \rho$, where $R$ is the portfolio
-expected rate of returns, $\rho$ is the risk, and $\lambda$ is the
-*risk aversion* factor. $\lambda$ takes values between $0$ and
+expected rate of returns, $\rho$ is the risk, and $\lambda$ is
+the *risk-aversion* factor. $\lambda$ takes values between $0$ and
 $+\infty$. For $\lambda=0$ the optimal portfolio will contain only the
-asset with higher expected rate of return. This is the most right
+asset with higher expected rate of return. This is the rightmost
 point along the *efficient frontier*. For $\lambda=+\infty$ the optimal
-portfolio is the *minimum risk portfolio*, the most left point on the
-*efficient frontier*. Any other values for $\lambda$ will lead to an
+portfolio is the *minimum risk portfolio*, the leftmost point on
+the *efficient frontier*. Any other values for $\lambda$ will lead to an
 optimal portfolio along the *efficient frontier*. In general it is
 not intuitive for an investor to specify a rational value
-for the *risk aversion* factor. The same value of $\lambda$ may lead
+for the *risk-aversion* factor. The same value of $\lambda$ may lead
 to different portfolio compositions under different dispersion
 measures and market conditions. Therefore, a direct engagement of  
 this strategy, by specifying a desired value for $\lambda$, may not
 be convenient. However, this strategy may be useful if it is combined
-with a strategy to estimate the value of *risk aversion* factor based on
+with a strategy to estimate the value of *risk-aversion* factor based on
 market conditions (*e.g.* technical analysis, etc.).
 In the code this optimization strategy is designated by setting
 `rtype='RiskAverse'`.
 
 
-**azapy** package covers, 10 risk-based dispersion measures $\times$ 6
+**azapy** package covers, 9 risk-based dispersion measures $\times$ 6
 optimization strategies,
-in total 60 risk-based portfolio optimization strategies.[^strat]
+in total 54 risk-based portfolio optimization strategies.[^strat]
 
 The natural question that arises is: which one is the best?
 
@@ -208,7 +208,7 @@ analysis.
 
 _Fig 3. Example of out-of-sample (back testing) portfolio performance._
 
-An out-of-sample analysis, also called back testing or historical simulation,
+An out-of-sample analysis, also called backtesting or historical simulation,
 can be performed for any of the implemented portfolio
 strategies. The following information can be extracted:
 1. Portfolio realized rate of return. It is available monthly, annually
@@ -246,11 +246,11 @@ In the original definition $\rho$ is the portfolio volatility $\sigma$
 (standard deviation).
 In our presentation we use a generalization of Sharpe ratio where the
 volatility is replaced by the prevailing dispersion
-measure.
+measure, $\rho$. We call it $\rho$-Sharpe.
 
 [^strat]: Not all strategies are independent. For example `'Sharpe'` and
 `'Sharpe2'` produce identical result (up to numerical precision) although
 they have different numerical implementations. Also there are overlaps between
-`MV` and `SD` based strategies, *etc.*. 
+`MV` and `SD` based strategies, *etc.*.
 
 [^apikey]: Some of the market data providers require a valid API key.

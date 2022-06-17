@@ -33,7 +33,7 @@ There is 1 support class:
 ## Port_ConstW class
 
 
-Out-of-Sample (back testing) simulation of portfolio with constant weights
+Out-of-sample (backtesting) simulation of portfolio with constant weights
 periodically rebalanced.
 
 
@@ -68,7 +68,7 @@ Port_ConstW(mktdata, symb=None, sdate=None, edate=None, col_price='close',
 
 where:
 
-* `mktdata` : `pd.DataFrame`;
+* `mktdata` : `pandas.DataFrame`;
 Market data in the format `"symbol"`, `"date"`, `"open"`, `"high"`,
 `"low"`, `"close"`, `"volume"`, `"adjusted"`, `"divd"`, `"split"`
 (*e.g.* as returned by `azapy.readMkT`).
@@ -84,46 +84,46 @@ default to the earliest date in `mktdata`. The default is `None`.
 End date for historical simulation. Must be
 greater than  `sdate`. If it is `None`, then `edate` will default
 to the latest date in `mktdata`. The default is `None`.
-* `col_price` : `string`;
+* `col_price` : str;
 Column name in the `mktdata` that will be considered
 for portfolio aggregation. The default is `'close'`.
-* `col_divd` : `string`;
+* `col_divd` : str;
 Column name in the `mktdata` that holds the dividend
 information. The default is `'dvid'`.
-* `col_ref` : `string`;
+* `col_ref` : str;
 Column name in the `mktdata` that will be used as a price
 reference for portfolio components (used for various comparisons and graphs).
 The default is `'adjusted'`.
-* `col_calib` : `string`;
+* `col_calib` : str;
 Column name in the `mktdata` used for historical weights calibrations.
 The default is `'adjusted'`.
-* `pname` : `string`;
+* `pname` : str;
 The name of the portfolio. The default is `'Port'`.
-* `pcolname` : `string`;
+* `pcolname` : str;
 Name of the portfolio price column. If it is `None`, than
 `pcolname=pname`. The default is `None`.
-* `capital` : `float`;
+* `capital` : float;
 Initial portfolio Capital in dollars. The default is `100000`.
-* `schedule` : `pd.DataFrame`;
+* `schedule` : `pandas.DataFrame`;
 Rebalancing schedule, with columns for `'Droll'` rolling date and
 `'Dfix'` fixing date. If it is `None` than the schedule will be set
 using the `freq`, `nsoffset`, `fixoffset`, `hlength` and `calendar`
 information. The default is `None`.
-* `freq` : `string`;
+* `freq` : str;
 Rebalancing frequency. It can be `'Q'` for quarterly or `'M'` for
 monthly rebalancing. It is relevant only if schedule
 is `None`. The default is `'Q'`.
-* `noffset` : `int`;
+* `noffset` : int;
 Rebalancing date `'Droll'` number of offset business days
 relative to the end of the period (quart or month). A positive
 value add business days beyond the calendar end of the period while
 a negative value subtract business days. It is relevant only if
 `schedule` is `None`. The default is `-3`.
-* `fixoffset` : `int`;
+* `fixoffset` : int;
 fixing date `'Dfix'` number of offset business days relative to
 the rebalancing date `'Droll'`. It cane be `0` or negative. It is
 relevant only if `schedule` is `None`. The default is `-1`.
-* `calendar` : `np.busdaycalendar`;
+* `calendar` : `numpy.busdaycalendar`;
 Business calendar. If it is `None`, then it will be set to NYSE
 business calendar. The default is `None`.
 
@@ -179,7 +179,7 @@ port_view(emas=[30, 200], bollinger=False, fancy=False, saveto=None)
 *Inputs:*
 
 * `emas` :
-List for EMA durations. The default is ``[30, 200]``.
+List for EMA durations. The default is `[30, 200]`.
 * `bollinger` : Boolean flag.
 `True` adds the Bollinger bands. The default is `False`.
 * `view` : Boolean flag.
@@ -191,7 +191,7 @@ List for EMA durations. The default is ``[30, 200]``.
 format: `png`, `pdf`, `svg`, etc. For more details see the `mathplotlib`
 documentation for `savefig`. The default is `None`.
 
-*Returns:* `pd.DataFrame` containing the time-series included in the plot.
+*Returns:* `pandas.DataFrame` containing the time-series included in the plot.
 
 [TOP](#TOP)
 
@@ -231,7 +231,7 @@ The default is `None`.
 format: `png`, `pdf`, `svg`, etc. For more details see the `mathplotlib`
 documentation for `savefig`.The default is `None`.
 
-*Returns:* `pd.DataFrame` containing the time-series included in the plot.
+*Returns:* `pandas.DataFrame` containing the time-series included in the plot.
 
 [TOP](#TOP)
 
@@ -259,7 +259,7 @@ The default is `5`.
     - `True` : the values are reported in percent rounded
     to 2 decimals.
 
-*Returns:* `pd.DataFrame` containing the table of
+*Returns:* `pandas.DataFrame` containing the table of
 drawdown events. Columns:
 * `'DD'` : drawdown rate,
 * `'Date'` : recorded date of the drawdown,
@@ -295,7 +295,7 @@ The default is `False`.
     - `True` : the values are reported in percent rounded
     to 2 decimals.
 
-*Returns:* `pd.DataFrame` containing the table of
+*Returns:* `pandas.DataFrame` containing the table of
 performance information. Columns:
 * `'RR'` : annual average rate of returns,
 * `'DD'` : maximum rate of drawdown during the simulation period,
@@ -335,7 +335,7 @@ are reported. The default is `False`.
     - `True` : the values are reported in percent rounded
     to 2 decimals and presented is color style.
 
-*Returns:* `pd.DataFrame`
+*Returns:* `pandas.DataFrame`
 
 [TOP](#TOP)
 
@@ -367,7 +367,7 @@ are reported. The default is `False`.
     - `True` : the values are reported in percent rounded
     to 2 decimals and presented is color style.
 
-*Returns:* `pd.DataFrame`
+*Returns:* `pandas.DataFrame`
 
 [TOP](#TOP)
 
@@ -392,7 +392,7 @@ port_period_returns(fancy=False)
     - `True` : the values are reported in percent rounded
     to 2 decimals.
 
-*Returns:* `pd.DataFrame`
+*Returns:* `pandas.DataFrame`
 
 Each rolling period is indicated by its start date, `Droll`.
 For reference, the values of `Dfix` and components weights are
@@ -417,7 +417,7 @@ get_nshares()
 *Inputs:* None
 
 
-*Returns:* `pd.DataFrame`
+*Returns:* `pandas.DataFrame`
 
 Each rolling period is indicated by its start date, `Droll`.
 
@@ -484,7 +484,7 @@ get_mktdata()
 *Inputs:* None
 
 
-*Returns:* `pd.DataFrame`
+*Returns:* `pandas.DataFrame`
 
 [TOP](#TOP)
 

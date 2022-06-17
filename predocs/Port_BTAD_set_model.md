@@ -10,15 +10,15 @@ It must be called before any other class method.
 *Call:*
 
 ```
-set_model(alpha=[0.975], coef=None, rtype='Sharpe',
-          mu=None, mu0=0, aversion=None, ww0=None,
-          hlength=3.25, method='ecos'):
+set_model(alpha=[0.], coef=None, rtype='Sharpe', mu=None,
+          mu0=0, aversion=None, ww0=None, detrended=False,
+          hlength=3.25, method='ecos')
 ```
 
 *Inputs:*
 
 * `alpha` : list, optional.
-    List of alpha confidence levels. The default is `[0.975]`.
+    List of thresholds. The default is [0.].
 * `coef` : list, optional.
     List of positive mixture coefficients. Note that `len(coef)`
     must be equal to `len(alpha)`. A `None` value assumes an
@@ -60,6 +60,12 @@ set_model(alpha=[0.975], coef=None, rtype='Sharpe',
     symbols (same symbols, not necessary in the same order).
     If it is `None` then it will be set to equal weights.
     The default is `None`.
+* `detrended` : Boolean flag:
+  - `True` : detrended rate of return
+  is used in the evaluation of Delta-risk, *i.e.* $r$ is replaced by $r-E[r]$,
+  - `False` : standard rate of return is used in the evaluation of Delta-risk.
+
+  The default is `False`.
 * `hlength` : float, optional.
     The length in year of the historical calibration period relative
     to 'Dfix'. A fractional number will be rounded to an integer number

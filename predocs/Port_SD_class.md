@@ -2,7 +2,7 @@
 ## Port_SD class
 
 
-Out-of-Sample (back testing) simulation of SD optimal portfolio periodically
+Out-of-sample (backtesting) simulation of SD optimal portfolio periodically
 rebalanced.
 
 

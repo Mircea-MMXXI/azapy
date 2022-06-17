@@ -2,7 +2,7 @@
 ## Port_ConstW class
 
 
-Out-of-Sample (back testing) simulation of portfolio with constant weights
+Out-of-sample (backtesting) simulation of portfolio with constant weights
 periodically rebalanced.
 
 

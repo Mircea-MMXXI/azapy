@@ -2,7 +2,7 @@
 ## Port_SMCR class
 
 
-Out-of-Sample (back testing) simulation of mSMCR optimal portfolio periodically
+Out-of-sample (backtesting) simulation of mSMCR optimal portfolio periodically
 rebalanced.
 
 

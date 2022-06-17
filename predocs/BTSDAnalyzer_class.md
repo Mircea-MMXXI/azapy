@@ -39,8 +39,8 @@ BTSDAnalyzer(alpha=[0.], coef=None, mktdata=None, colname='adjusted', freq='Q',
 
 where:
 
-* `alpha` : List of distinct BTSD thresholds. The default is `[0.]`.
-* `coef` : List of mixture coefficients. Must have the same size as
+* `alpha` : list of distinct BTSD thresholds. The default is `[0.]`.
+* `coef` : list of mixture coefficients. Must have the same size as
 `alpha`. A `None` value assumes an equal weighted risk mixture.
 The default is `None`.
 * `mktdata` : `pandas.DataFrame` containing the market data in the format
@@ -53,17 +53,17 @@ It could be `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
 * `hlength` : History length in number of years used for calibration.
 A fractional number will be rounded to an integer number of months.
 The default is `3.25` years.
-* `calendar` :  `np.busdaycalendar` business days calendar. If it is `None`
+* `calendar` :  `numpy.busdaycalendar` business days calendar. If it is `None`
 then the calendar will be set to NYSE business calendar.
 The default is `None`.
 * `rtype` : Optimization type. The default is `'Sharpe'`. Possible values are:
-    - `'Risk'` : minimization of dispersion (risk) measure for a fixed values
-    of portfolio expected rate of return,
+    - `'Risk'` : minimization of dispersion (risk) measure for a targeted
+    expected rate of return,
     - `'Sharpe'` : maximization of generalized Sharpe ratio,
     - `'Sharpe2'` : minimization of inverse generalized Sharpe ratio,
     - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value,
-    - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
-		as equal weighted portfolio,
+    - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) as a
+    benchmark portfolio (*e.g.* equal weighted portfolio),
     - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
 * `detrended` : Boolean flag.
 In the BTSD expression use:

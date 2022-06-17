@@ -2,7 +2,7 @@
 ## Port_MAD class
 
 
-Out-of-Sample (back testing) simulation of mMAD optimal portfolio periodically
+Out-of-sample (backtesting) simulation of mMAD optimal portfolio periodically
 rebalanced.
 
 

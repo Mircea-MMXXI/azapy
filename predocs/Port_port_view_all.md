@@ -33,7 +33,7 @@ The default is `None`.
 format: `png`, `pdf`, `svg`, etc. For more details see the `mathplotlib`
 documentation for `savefig`.The default is `None`.
 
-*Returns:* `pd.DataFrame` containing the time-series included in the plot.
+*Returns:* `pandas.DataFrame` containing the time-series included in the plot.
 
 [TOP](#TOP)
 

@@ -14,7 +14,7 @@ get_mktdata()
 *Inputs:* None
 
 
-*Returns:* `pd.DataFrame`
+*Returns:* `pandas.DataFrame`
 
 [TOP](#TOP)
 

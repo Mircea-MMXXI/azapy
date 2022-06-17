@@ -31,7 +31,7 @@ class Port_CVaR(Port_InvVol):
         Parameters
         ----------
         `alpha` : list, optional
-            List of alpha confidence levels. The default is [0.975].
+            List of alpha confidence levels. The default is `[0.975]`.
         `coef` : list, optional
             List of positive mixture coefficients. Note that `len(coef)`
             must be equal to `len(alpha)`. A `None` value assumes an
@@ -51,7 +51,7 @@ class Port_CVaR(Port_InvVol):
                 as the targeted portfolio
                 (e.g. equal weighted portfolio). \n
                 'RiskAverse' : optimal portfolio for a fixed value of risk 
-                aversion coefficient.
+                aversion factor.
             The default is 'Sharpe'.
         `mu` : float, optional
             Targeted portfolio expected rate of return. 
@@ -65,31 +65,31 @@ class Port_CVaR(Port_InvVol):
             The value of the risk-aversion coefficient.
             Must be positive. Relevant only if `rtype='RiskAvers'`.
             The default is `None`.
-        `ww0` : list (also np.array or pandas.Series), optional
+        `ww0` : list (also `numpy.array` or `pandas.Series`), optional
             Targeted portfolio weights. 
-            Relevant only if rype='InvNrisk'.
+            Relevant only if `rype='InvNrisk'`.
             Its length must be equal to the number of
             symbols in rrate (mktdata). 
             All weights must be >= 0 with sum > 0.
-            If it is a list or a numpy.array then the weights are assumed to
-            by in order of rrate.columns. If it is a pandas.Series the index
-            should be compatible with the rrate.columns or mktdata symbols
-            (same symbols, not necessary in the same order).
+            If it is a list or a `numpy.array` then the weights are assumed to
+            by in order of `rrate.columns`. If it is a `pandas.Series` then 
+            the index should be compatible with the `rrate.columns` or mktdata 
+            symbols (same symbols, not necessary in the same order).
             If it is `None` then it will be set to equal weights.
             The default is `None`.
         `hlength` : float, optional
             The length in year of the historical calibration period relative
             to 'Dfix'. A fractional number will be rounded to an integer number
-            of months. The default is 3.25 years.
+            of months. The default is `3.25` years.
         `method` : str, optional
             Linear programming numerical method.
             Could be: 'ecos', 'highs-ds', 'highs-ipm', 'highs',
             'interior-point', 'glpk' and 'cvxopt'.
-            The default is 'ecos'.
+            The default is `'ecos'`.
 
          Returns
         -------
-        pandas.DataFrame
+        `pandas.DataFrame`
             The portfolio time-series in the format 'date', 'pcolname'.
         """
         self._set_alpha(alpha, coef)

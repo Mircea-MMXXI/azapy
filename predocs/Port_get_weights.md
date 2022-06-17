@@ -18,7 +18,7 @@ get_weights(fancy=False)
     - `True` : The values are reported in percent rounded
     to 2 decimals.
 
-*Returns:* `pd.DataFrame`
+*Returns:* `pandas.DataFrame`
 
 [TOP](#TOP)
 

@@ -28,7 +28,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         Parameters
         ----------
         `alpha` : list, optional
-            List of distinct alpha confidence levels. The default is [0.9].
+            List of distinct alpha confidence levels. The default is `[0.9]`.
         `coef` : list, optional
             List of positive mixture coefficients. Must have the same size with 
             `alpha`. A `None` value assumes an equal weighted risk mixture.
@@ -64,7 +64,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
                 value as the targeted portfolio 
                 (e.g. equal weighted portfolio).\n
                 'RiskAverse' : optimal portfolio for a fixed value of 
-                risk-aversion.
+                risk-aversion factor.
             The default is 'Sharpe'.
         method : str, optional
             SOCP numerical method. 

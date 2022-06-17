@@ -1,7 +1,7 @@
 
 ## Port_InvVar class
 
-Out-of-Sample (back testing) simulation of inverse variance portfolio,
+Out-of-sample (backtesting) simulation of inverse variance portfolio,
 periodically rebalanced.
 
 **Methods:**

@@ -2,7 +2,7 @@
 ## Port_LSSD class
 
 
-Out-of-Sample (back testing) simulation of mLSSD optimal portfolio periodically
+Out-of-sample (backtesting) simulation of mLSSD optimal portfolio periodically
 rebalanced.
 
 

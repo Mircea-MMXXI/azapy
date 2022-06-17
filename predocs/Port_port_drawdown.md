@@ -21,7 +21,7 @@ The default is `5`.
     - `True` : the values are reported in percent rounded
     to 2 decimals.
 
-*Returns:* `pd.DataFrame` containing the table of
+*Returns:* `pandas.DataFrame` containing the table of
 drawdown events. Columns:
 * `'DD'` : drawdown rate,
 * `'Date'` : recorded date of the drawdown,

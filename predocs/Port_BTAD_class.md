@@ -1,7 +1,7 @@
 
-## Port_SMGINI class
+## Port_BTAD class
 
-Out-of-Sample (back testing) simulation of SMGINI optimal portfolio periodically
+Out-of-sample (backtesting) simulation of BTAD optimal portfolio periodically
 rebalanced.
 
 
@@ -27,8 +27,8 @@ other method.
 ### Constructor
 
 ```
-Port_SMGINI(mktdata, symb=None, sdate=None, edate=None, col_price='close',
-            col_divd='divd', col_ref='adjusted', col_calib='adjusted',
-            pname='Port', pcolname=None, capital=100000, schedule=None,
-            freq='Q', noffset=-3, fixoffset=-1, calendar=None)
+Port_BTAD(mktdata, symb=None, sdate=None, edate=None, col_price='close',
+          col_divd='divd', col_ref='adjusted', col_calib='adjusted',
+          pname='Port', pcolname=None, capital=100000, schedule=None,
+          freq='Q', noffset=-3, fixoffset=-1, calendar=None)
 ```

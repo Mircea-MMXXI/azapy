@@ -25,7 +25,7 @@ coef = np.full(3, 1/3)
 # build the analyzer object
 cr1 = az.LSSDAnalyzer(coef, mktdata)
 # computes Sharpe weights for 0 risk-free rate
-ww1 = cr1.getWeights(mu=0.)
+ww1 = cr1.getWeights()
 # print portfolio characteristics
 # primary risk = set of LSSD's
 # secondary risk = set of cum LSSD's
@@ -52,7 +52,7 @@ print(f"Test for the risk computation\n {test_risk_res}")
 
 # Test the Sharpe weights by estimating an optimal portfolio with
 # the same expected rate of returns.
-test_ww1 = cr1.getWeights(mu=RR, rtype='Risk')
+test_ww1 = cr1.getWeights(rtype='Risk', mu=RR)
 ww_comp = pd.DataFrame({"ww1": ww1, "test_ww1": test_ww1,
                         'diff': ww1-test_ww1})
 print(f"Test for weights computation\n {ww_comp}")
@@ -70,7 +70,7 @@ rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR')
 # Sharpe vs. Sharpe2
 # first Sharpe (default rtype)
 cr1 = az.LSSDAnalyzer(coef, mktdata)
-ww1 = cr1.getWeights(mu=0.)
+ww1 = cr1.getWeights()
 RR1 = cr1.RR
 risk1 = cr1.risk
 prim1 = cr1.primary_risk_comp.copy()
@@ -78,7 +78,7 @@ seco1 = cr1.secondary_risk_comp.copy()
 sharpe1 = cr1.sharpe
 # second Sharpe2
 cr2 = az.LSSDAnalyzer(coef, mktdata)
-ww2 = cr2.getWeights(mu=0., rtype="Sharpe2")
+ww2 = cr2.getWeights(rtype="Sharpe2")
 RR2 = cr2.RR
 risk2 = cr2.risk
 prim2 = cr2.primary_risk_comp.copy()
@@ -105,41 +105,39 @@ print(f"Sharpe comp\n {sharpe_comp}")
 
 # # Speed of Sharpe vs Sharpe2 - may take some time
 # # please uncomment the lines below
-# %timeit cr2.getWeights(mu=0., rtype='Sharpe')
-# %timeit cr2.getWeights(mu=0., rtype='Sharpe2')
+# %timeit cr2.getWeights(rtype='Sharpe')
+# %timeit cr2.getWeights(rtype='Sharpe2')
 
 #=============================================================================
 # Compute InvNrisk optimal portfolio
 cr1 = az.LSSDAnalyzer(coef, mktdata)
 # compute the weights of InvNrisk
-ww1 = cr1.getWeights(mu=0., rtype="InvNrisk")
+ww1 = cr1.getWeights(rtype="InvNrisk")
 RR1 = cr1.RR
 
 # Test - compute the optimal portfolio for RR1 targeted rate of return
-ww2 = cr1.getWeights(mu=RR1, rtype="Risk")
+ww2 = cr1.getWeights(rtype="Risk", mu=RR1)
 # print comparison results - must be very close
 print("\nInvNrisk\n")
 ww_comp = pd.DataFrame({"InvNrisk": ww1, "Optimal": ww2, 'diff': ww1-ww2})
 print(f"weights comp\n {ww_comp}")
 
-# Test - compute the risk of equal weighted portfolio
-ww = np.ones(len(symb))
-ww = ww / np.sum(ww)
-risk = cr1.getRisk(ww)
+# Test - compute equal weighted portfolio
+ww = np.full(len(symb), 1/len(symb))
+ww3 = cr1.getWeights(rtype="InvNrisk", ww0=ww)
 # print comparison results - must be identical
-risk_comp = pd.DataFrame({'1/N': [risk], 'InvNrisk': [cr1.risk],
-                          'diff': [risk - cr1.risk]})
-print(f"risk comp\n {risk_comp}")
+ww_comp = pd.DataFrame({"InvNrisk": ww1, "Optimal": ww3, 'diff': ww1-ww3})
+print(f"weights comp\n {ww_comp}")
 
 #=============================================================================
 # Compute MinRisk optimal portfolio
 cr1 = az.LSSDAnalyzer(coef, mktdata)
 # compute the MinRisk portfolio
-ww1 = cr1.getWeights(mu=0., rtype="MinRisk")
+ww1 = cr1.getWeights(rtype="MinRisk")
 
-# Test - using rtype='Risk' for expected rate of return 0
+# Test - using rtype='Risk' for expected rate of return =min(mu_k)
 # should default to 'MinRisk' optimal portfolio
-ww2 = cr1.getWeights(mu=0., rtype="Risk")
+ww2 = cr1.getWeights(rtype="Risk", mu=cr1.muk.min())
 # print comparison - should be identical
 print("\nMinRisk\n")
 ww_comp = pd.DataFrame({"MinRisk": ww1, "Test": ww2, 'diff': ww1-ww2})
@@ -149,14 +147,14 @@ print(f"weights comp\n {ww_comp}")
 # Compute RiskAverse optimal portfolio
 # first compute the Sharpe portfolio
 cr1 = az.LSSDAnalyzer(coef, mktdata)
-ww1 = cr1.getWeights(mu=0.)
+ww1 = cr1.getWeights()
 sharpe = cr1.sharpe
 risk = cr1.risk
 
 # compute RiskAverse portfolio for Lambda=sharpe
 Lambda = sharpe
 cr2 = az.LSSDAnalyzer(coef, mktdata)
-ww2 = cr2.getWeights(mu=Lambda, rtype='RiskAverse')
+ww2 = cr2.getWeights(rtype='RiskAverse', aversion=Lambda)
 
 # comparison - they should be very close
 print("\nRiskAverse\n")
@@ -176,7 +174,7 @@ print(f"weigths:\n {ww_comp}")
 # for method in methods:
 #     crrx = az.LSSDAnalyzer(coef, mktdata, method=method)
 #     toc = time.perf_counter()
-#     wwx = crrx.getWeights(mu=0.)
+#     wwx = crrx.getWeights()
 #     tic = time.perf_counter() - toc
 #     print(f"method: {method} time: {tic}")
 #     xta[method] = pd.Series([tic], index=["Time"]).append(wwx)
@@ -193,7 +191,7 @@ ns = pd.Series(100, index=symb)
 cash = 0.
 
 # new positions and rolling info
-pos = cr1.getPositions(mu=0., rtype='Sharpe', nshares=ns, cash=0.)
+pos = cr1.getPositions(nshares=ns, cash=0, rtype='Sharpe')
 print(f" New position report\n {pos}")
 ```
 

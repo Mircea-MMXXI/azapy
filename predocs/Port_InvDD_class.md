@@ -1,7 +1,7 @@
 
 ## Port_InvDD class
 
-Out-of-Sample (back testing) simulation of inverse drawdown portfolio,
+Out-of-sample (backtesting) simulation of inverse drawdown portfolio,
 periodically rebalanced.
 
 
