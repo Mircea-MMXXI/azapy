@@ -13,7 +13,7 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Compute Omega-Sharpe optimal portfolio for alpha=0 (deafult) detrended
+# Compute Omega optimal portfolio for alpha=0 (deafult) detrended 
 p1 = az.Port_BTAD(mktdata, pname='BTADPort') 
 
 tic = time.perf_counter()
@@ -22,7 +22,7 @@ toc = time.perf_counter()
 print(f"time Sharpe: {toc-tic}")
 
 #=============================================================================
-# Compute MAD-Sharpe optimal portfolio - first order (default)
+# Compute mMAD-Sharpe optimal portfolio - first level (default)
 p2 = az.Port_MAD(mktdata, pname='MADPort') 
  
 tic = time.perf_counter()

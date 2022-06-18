@@ -13,7 +13,7 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# set BTSD for alpha=0 (default) detrended
+# set BTSD for alpha=0 (default) detrended 
 alpha = [0.]
 coef = [1.]
 cr1 = az.BTSDAnalyzer(alpha, coef, mktdata, detrended=True)
@@ -21,8 +21,8 @@ cr1 = az.BTSDAnalyzer(alpha, coef, mktdata, detrended=True)
 coef = [1]
 cr2 = az.LSSDAnalyzer(coef, mktdata)
 
-# collect reference data 
-_ = cr1.getWeights(mu=0.)
+# collect reference data for Sortino optimal portfolio
+_ = cr1.getWeights()
 RR_ = cr1.RR
 sharpe_ = cr1.sharpe
 
@@ -30,7 +30,7 @@ sharpe_ = cr1.sharpe
 rtype_collection = ['Risk', 'MinRisk', 'InvNrisk', 'RiskAverse', 'Sharpe', 
                     'Sharpe2' ]
 
-# loop over all rtype's
+# loop over all rtype's and compare
 for rtype in rtype_collection:
     ww1 = cr1.getWeights(rtype=rtype, mu=RR_, aversion=sharpe_)
     RR1 = cr1.RR

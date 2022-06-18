@@ -1,5 +1,4 @@
-# Examples
-import pandas as pd
+# Examples - use Port_Simple as a tool to compare price tine-series
 import azapy as az
 
 #=============================================================================
@@ -16,19 +15,18 @@ lmktdata = []
 for k, v in mktdata.groupby(by='symbol'):
     lmktdata.append(v.pivot(columns='symbol', values='close'))
 
-#=============================================================================
-# defines some weights
-ww = pd.Series(1./len(symb), index=symb)
+# use lmktdata as a collection of price time-series
 
 #=============================================================================
-# Compute portfolio and view some results
-# use the list version of the market data
+# set Port_Simple class
 p1 = az.Port_Simple(lmktdata, pname='SimplePort')
-port = p1.set_model(ww)
+# must call set_model
+port = p1.set_model()
 
-p1.port_view()
-p1.port_view_all()
-p1.port_drawdown(fancy=True)
-p1.port_perf(fancy=True)
-p1.port_annual_returns()
-p1.port_monthly_returns()
+# print info about the initial time-sereis
+p1.port_view_all(componly=True)
+print(p1.port_perf(componly=True, fancy=True))
+print(p1.port_annual_returns(withcomp=True, componly=True))
+print(p1.port_monthly_returns(withcomp=True, componly=True))
+
+

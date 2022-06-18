@@ -16,10 +16,11 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 alpha = [0.99, 0.975, 0.95]
 # assume equal weighted mixture - default
 
-#=============================================================================
-# Compute C-Sharpe optimal portfolio
+# set Port_CVaR class
 p4 = az.Port_CVaR(mktdata, pname='CVaRPort')
  
+#=============================================================================
+# Compute mCVaR-Sharpe optimal portfolio
 tic = time.perf_counter()
 port4 = p4.set_model(alpha=alpha, mu0=0.)   
 toc = time.perf_counter()
@@ -96,7 +97,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)  
 
 #=============================================================================
-# Compute optimal portfolio for fixed risk aversion
+# Compute optimal portfolio for fixed risk aversion factor
 port4 = p4.set_model(alpha=alpha, rtype="RiskAverse", aversion=0.5)   
 ww = p4.get_weights()
 p4.port_view()

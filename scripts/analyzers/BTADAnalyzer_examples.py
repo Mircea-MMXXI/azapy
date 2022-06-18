@@ -18,16 +18,16 @@ alpha = [0.01, 0, -0.01]
 coef = [1, 1, 2]
 
 #=============================================================================
-# Compute Omega optimal portfolio
+# Compute Omega (mBTAD-Sharpe) optimal portfolio
 # build the analyzer object
-cr1 = az.BTSDAnalyzer(alpha, coef, mktdata)
+cr1 = az.BTADAnalyzer(alpha, coef, mktdata)
 # computes Sharpe weights for 0 risk-free rate (default)
 ww1 = cr1.getWeights()
 # print portfolio characteristics
-# primary risk = [Delta-risk] (redundant)
-# secondary risk = [Delta-risk] (redundant)
-# risk = Delta-risk
-# Share = Omega ratio
+# primary risk = BTAD components 
+# secondary risk = BTAD thresholds
+# risk = mBTAD
+# Omega = mBTAD-Sharpe
 RR = cr1.RR
 risk = cr1.risk
 prim = cr1.primary_risk_comp.copy()
@@ -58,11 +58,11 @@ print(f"Test for weights computation\n {ww_comp}")
 #=============================================================================
 # Frontiers evaluations
 print("\nFrontiers evaluations\n")
-opt = {'title': "BTSD Port", 'tangent': True}
-print("\n rate of returns vs risk representation")
+opt = {'title': "Omega Port", 'tangent': True}
+print("\n rate of return vs risk representation")
 rft = cr1.viewFrontiers(musharpe=0, randomport=100, options=opt)
-print("\n Sharpe vs rate of returns representation")
-rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR')
+print("\n Sharpe vs rate of return representation")
+rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR', options=opt)
 
 #=============================================================================
 # Sharpe vs. Sharpe2

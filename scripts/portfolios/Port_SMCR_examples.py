@@ -16,10 +16,11 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 alpha = [0.9, 0.85]
 # assume equal weighted risk mixture - default
 
-#=============================================================================
-# Compute SMCR-Sharpe optimal portfolio
+# set por_SMCR class
 p4 = az.Port_SMCR(mktdata, pname='SMCRPort') 
 
+#=============================================================================
+# Compute mSMCR-Sharpe optimal portfolio
 tic = time.perf_counter()
 port4 = p4.set_model(alpha=alpha)   
 toc = time.perf_counter()
@@ -96,7 +97,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute optimal portfolio for fixed risk aversion
+# Compute optimal portfolio for fixed risk-aversion factor
 port4 = p4.set_model(alpha=alpha, rtype="RiskAverse", aversion=0.5)   
 ww = p4.get_weights()
 p4.port_view()

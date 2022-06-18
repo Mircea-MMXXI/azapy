@@ -37,12 +37,12 @@ class _RiskAnalyzer:
         ----------
         `mktdata` : `pandas.DataFrame`, optional
             Historic daily market data for portfolio components in the format
-            returned by azapy.mktData function. The default is `None`.
+            returned by `azapy.mktData` function. The default is `None`.
         `colname` : string, optional
             Name of the price column from mktdata used in the weights
             calibration. The default is 'adjusted'.
         `freq` : string, optional
-            Rate of returns horizon in number of business day. it could be
+            Rate of return horizon in number of business day. it could be
             'Q' for quarter or 'M' for month. The default is `'Q'`.
         `hlength` : float, optional
             History length in number of years used for calibration. A
@@ -54,14 +54,13 @@ class _RiskAnalyzer:
         `rtype` : string, optional
             Optimization type. Possible values \n
                 'Risk' : minimization of dispersion (risk) measure for 
-                a targetd expected rate of return.\n
+                targetd expected rate of return.\n
                 'Sharpe' : maximization of generalized Sharpe ratio.\n
                 'Sharpe2' : minimization of inverse of generalized Sharpe
                 ratio.\n
-                'MinRisk' : optimal portfolio with minimum dispersion (risk)
-                value.\n
+                'MinRisk' : minimum dispersion (risk) portfolio.\n
                 'InvNrisk' : optimal portfolio with the same dispersion (risk)
-                value as the targeted portfolio 
+                value as a benchmark portfolio 
                 (e.g. equal weighted portfolio).\n
                 'RiskAverse' : optimal portfolio for a fixed risk-aversion
                 factor.
@@ -131,7 +130,7 @@ class _RiskAnalyzer:
             The default is `0`.
         `aversion` : float, optional
             The value of the risk-aversion coefficient.
-            Must be positive. Relevant only if `rtype='RiskAvers'`.
+            Must be positive. Relevant only if `rtype='RiskAverse'`.
             The default is `None`.
         `ww0` : list (also `numpy.array` or `pandas.Series`), optional
             Targeted portfolio weights. 
@@ -257,7 +256,8 @@ class _RiskAnalyzer:
         ----------
         `ww` : list (`np.array` or `pandas.Series`)
             Portfolio weights. Its length must be equal to the number of
-            symbols in `rrate` (mktdata). All weights must be >0.
+            symbols in `rrate` (mktdata). All weights must be >=0 with 
+            sum > 0.
             If it is a list or a `numpy.array` then the weights are assumed to
             by in order of `rrate.columns`. If it is a `pandas.Series` than 
             the index should be compatible with the `rrate.columns` or mktdata 
@@ -346,11 +346,11 @@ class _RiskAnalyzer:
             The value of the risk-aversion coefficient.
             Must be positive. Relevant only if `rtype='RiskAvers'`.
             The default is `None`.
-        `ww0` : list (also np.array or pandas.Series), optional
+        `ww0` : list (also `np.array` or `pandas.Series`), optional
             Targeted portfolio weights 
             Relevant only if `rype='InvNrisk'`.
             Its length must be equal to the number of
-            symbols in rrate (mktdata). 
+            symbols in `rrate` (mktdata). 
             All weights must be >= 0 with sum > 0.
             If it is a list or a `numpy.array` then the weights are assumed to
             by in order of `rrate.columns`. If it is a `pandas.Series` then the 
@@ -372,20 +372,20 @@ class _RiskAnalyzer:
                 the new number of shares per component plus the residual
                 cash (due to the rounding to an integer number of shares).
                 A negative entry means that the investor needs to add more
-                cash to cover for the roundups shortfall.
+                cash to cover for the roundup shortfall.
                 It has a small value.
             - "diff_nsh" :
                 the number of shares that needs to be both/sold in order
                 to rebalance the portfolio positions.
             - "weights" :
-                portfolio weights used for rebalanceing. The cash entry is
+                portfolio weights used for rebalancing. The cash entry is
                 the new portfolio value (invested capital).
             - "prices" :
                 the share prices used for rebalances evaluations.
 
         Note: Since the prices are closing prices, the rebalance can be
-        computed after the market close and before the (next day)
-        trading execution. 
+        computed after the market close and before the 
+        trading execution (next day). 
         Additional cash slippage may occur due
         to share price differential between the previous day closing and
         execution time.
@@ -461,17 +461,17 @@ class _RiskAnalyzer:
         `mktdata` : `pandas.DataFrame`
             Historic daily market data for portfolio components in the format
             returned by `azapy.mktData` function.
-        `colname` : string, optional
+        `colname` : str, optional
             Name of the price column from mktdata used in the weights
             calibration. The default is 'adjusted'.
-        `freq` : string, optional
-            Rate of returns horizon in number of business day. it could be
+        `freq` : str, optional
+            Rate of returns horizon in number of business day. It could be
             'Q' for quarter or 'M' for month. The default is 'Q'.
         `hlength` : float, optional
             History length in number of years used for calibration. A
             fractional number will be rounded to an integer number of months.
             The default is `3.25`.
-        `calendar` : numpy.busdaycalendar, optional
+        `calendar` : `numpy.busdaycalendar`, optional
             Business days calendar. If is it `None` then the calendar will be 
             set to NYSE business calendar.
             The default is `None`.
@@ -532,16 +532,17 @@ class _RiskAnalyzer:
         ----------
         `efficient` : int, optional
             Number of points along the optimal frontier (equally spaced along
-            the rate of returns). The default is `20`.
+            the rate of return axis). The default is `20`.
         `inefficient` : int, optional
             Number of points along the inefficient frontier (equally spaced
-            along the rate of returns). The default is `20`.
+            along the rate of returns axis). The default is `20`.
         `musharpe` : float, optional
             Risk-free rate value used in the evaluation of
             generalized Sharpe ratio. The default is `0`.
         `component` : Boolean, optional
-            If True the portfolios containing a single component are evaluated
-            and added to the plot for references. The default is `True`.
+            If `True` the portfolios containing a single component are 
+            evaluated and added to the plot for references. 
+            The default is `True`.
         `randomport` : int, optional
             Number of portfolios with random weights (inefficient) to be
             evaluate and added to the plot for reference. The default is `20`.
@@ -558,26 +559,26 @@ class _RiskAnalyzer:
         `options` : dict, optional
             Additional graphical parameters. Relevant keys are:\n
                 'title' : The default is 'Portfolio frontiers'.\n
-                'xlabel' : The default is 'risk' if fig_type='RR_risk'
-                and 'rate of returns' otherwise.\n
-                'ylabel' : The default is 'rate of returns' if
-                fig_type='RR_risk' and 'sharpe' otherwise.\n
-                'tangent' : Boolean flag. If set to True the tangent
+                'xlabel' : The default is `'risk'` if `fig_type='RR_risk'`
+                and `'rate of returns'` otherwise.\n
+                'ylabel' : The default is `'rate of returns'` if
+                `fig_type='RR_risk'` and `'sharpe'` otherwise.\n
+                'tangent' : Boolean flag. If set to `True` the tangent
                 (to sharpe point) is added. It has effect only  if
-                fig_type='RR_risk'. The default is `True`.
+                `fig_type='RR_risk'`. The default is `True`.
         `saveto` : str, optional
             File name to save the figure. The extension dictates the format:
             png, pdf, svg, etc. For more details see the mathplotlib
             documentation for savefig. The default is `None`.
         `data` : dict, optional
-            Numerical data to construct the plot. If it is not None it
+            Numerical data to construct the plot. If it is not `None` it
             will take precedence and no other numerical evaluations will be
             performed. It is meant to produce different plot representations
             without reevaluations. The default is `None`.
 
         Returns
         -------
-        dict
+        `dict`
             Numerical data used to make the plots. It can be passed back to
             reconstruct the plots without reevaluations.
         """
@@ -875,7 +876,8 @@ class _RiskAnalyzer:
 
     def set_random_seed(self, seed = 42):
         """
-        Sets the seed for Dirichlet random generator used in viewFrontiers.
+        Sets the seed for Dirichlet random generator used in viewFrontiers
+        to select the inefficient portfolios.
 
         Parameters
         ----------

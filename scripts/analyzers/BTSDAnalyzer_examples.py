@@ -18,16 +18,16 @@ alpha = [0.01, 0, -0.01]
 coef = [1, 1, 2]
 
 #=============================================================================
-# Compute Sharpe optimal portfolio
+# Compute Sortino (mBTSD-Shapre) optimal portfolio
 # build the analyzer object
 cr1 = az.BTSDAnalyzer(alpha, coef, mktdata)
 # computes Sharpe weights for 0 risk-free rate
 ww1 = cr1.getWeights()
 # print portfolio characteristics
-# primary risk = [Delta-risk] (redundant)
-# secondary risk = [Delta-risk] (redundant)
-# risk = Delta-risk
-# Sortino = BTSD-Sharpe ratio
+# primary risk = BTSD components
+# secondary risk = BTSD thresholds
+# risk = mBTSD
+# Sortino = mBTSD-Sharpe ratio
 RR = cr1.RR
 risk = cr1.risk
 prim = cr1.primary_risk_comp.copy()
@@ -48,7 +48,7 @@ test_risk_res = pd.DataFrame({'risk': [risk], 'test_risk': [test_risk],
                               'diff': [risk-test_risk]})
 print(f"Test for the risk computation\n {test_risk_res}")
 
-# Test the Sharpe weights by estimating an optimal portfolio with
+# Test the Sortino weights by estimating an optimal portfolio with
 # the same expected rate of returns.
 test_ww1 = cr1.getWeights(rtype='Risk', mu=RR)
 ww_comp = pd.DataFrame({"ww1": ww1, "test_ww1": test_ww1,
@@ -58,11 +58,11 @@ print(f"Test for weights computation\n {ww_comp}")
 #=============================================================================
 # Frontiers evaluations
 print("\nFrontiers evaluations\n")
-opt = {'title': "BTSD Port", 'tangent': True}
-print("\n rate of returns vs risk representation")
+opt = {'title': "Sortino Port", 'tangent': True}
+print("\n rate of return vs risk representation")
 rft = cr1.viewFrontiers(musharpe=0, randomport=100, options=opt)
-print("\n Sortino vs rate of returns representation")
-rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR')
+print("\n Sortino vs rate of return representation")
+rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR', options=opt)
 
 #=============================================================================
 # Sharpe vs. Sharpe2

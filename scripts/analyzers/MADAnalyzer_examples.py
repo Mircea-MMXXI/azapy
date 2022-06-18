@@ -23,9 +23,10 @@ cr1 = az.MADAnalyzer(coef, mktdata)
 # computes Sharpe weights for 0 risk-free rate
 ww1 = cr1.getWeights()
 # print portfolio characteristics
-# primary risk = set of MAD's
-# secondary risk = set of cumulative MAD's
-# risk = mMAD value
+# primary risk = delta-risk values
+# secondary risk = delta-risk strikes
+# risk = mMAD
+# sharpe = mMAD-Sharpe
 RR = cr1.RR
 risk = cr1.risk
 prim = cr1.primary_risk_comp.copy()
@@ -56,11 +57,11 @@ print(f"Test for weights computation\n {ww_comp}")
 #=============================================================================
 # Frontiers evaluations
 print("\nFrontiers evaluations\n")
-opt = {'title': "MAD Port", 'tangent': True}
-print("\n rate of returns vs risk representation")
+opt = {'title': "mMAD-Sharpe Port", 'tangent': True}
+print("\n rate of return vs risk representation")
 rft = cr1.viewFrontiers(musharpe=0, randomport=100, options=opt)
-print("\n sharpe vs rate of returns representation")
-rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR')
+print("\n sharpe vs rate of return representation")
+rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR', options=opt)
 
 #=============================================================================
 # Sharpe vs. Sharpe2

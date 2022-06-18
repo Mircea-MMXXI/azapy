@@ -12,9 +12,11 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Compute GINI-Sharpe optimal portfolio
+# set Port_GINI class
 p4 = az.Port_GINI(mktdata, pname='GINIPort') 
  
+#=============================================================================
+# Compute GINI-Sharpe optimal portfolio
 tic = time.perf_counter()
 port4 = p4.set_model(hlength=0.5)   
 toc = time.perf_counter()
@@ -91,7 +93,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute optimal portfolio for fixed risk aversion
+# Compute optimal portfolio for fixed risk-aversion factor
 port4 = p4.set_model(rtype="RiskAverse", aversion=0.5, hlength=0.5)  
 ww = p4.get_weights()
 p4.port_view()

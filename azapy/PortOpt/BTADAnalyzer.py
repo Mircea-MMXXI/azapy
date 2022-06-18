@@ -7,7 +7,7 @@ from ._solvers import _lp_solver
 
 class BTADAnalyzer(_RiskAnalyzer):
     """
-    Mixture BTAD measures based portfolio optimization strategies.
+    Mixture BTAD based optimal portfolio strategies.
     
     Methods:
         * getWeights
@@ -28,47 +28,46 @@ class BTADAnalyzer(_RiskAnalyzer):
         Parameters
         ----------
         `alpha` : list, optional
-            List of BTSD thresholds. The default is [0.].
+            List of BTSD thresholds. The default is `[0.]`.
         `coef` : list, optionalList 
             List of positive mixture 
             coefficients. Must have the same size as `alpha`. 
             A `None` value assumes an equal weighted risk mixture.
             The vector of coefficients will be normalized to unit.
             The default is `None`.
-        `mktdata` : pandas.DataFrame, optional
+        `mktdata` : `pandas.DataFrame`, optional
             Historic daily market data for portfolio components in the format
-            returned by azapy.mktData function. The default is None.
+            returned by `azapy.mktData` function. The default is `None`.
         `colname` : str, optional
             Name of the price column from mktdata used in the weights 
-            calibration. The default is 'adjusted'.
+            calibration. The default is `'adjusted'`.
         `freq` : str, optional
-            Rate of returns horizon in number of business day. it could be 
-            'Q' for quarter or 'M' for month. The default is 'Q'.
+            Rate of return horizon in number of business day. it could be 
+            'Q' for quarter or 'M' for month. The default is `'Q'`.
         `hlength` : float, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
-            The default is 3.25 years.
-        `calendar` : numpy.busdaycalendar, optional
+            The default is `3.25` years.
+        `calendar` : `numpy.busdaycalendar`, optional
             Business days calendar. If is it `None` then the calendar will 
             be set to NYSE business calendar.
             The default is `None`.
         `rtype` : str, optional
             Optimization type. Possible values \n
-                'Risk' : minimization of dispersion (risk) measure for a fixed 
-                vale of expected rate of return. \n
+                'Risk' : minimization of dispersion (risk) for 
+                targeted expected rate of return. \n
                 'Sharpe' : maximization of generalized Sharpe ratio.\n
                 'Sharpe2' : minimization of the inverse generalized Sharpe 
                 ratio.\n
-                'MinRisk' : optimal portfolio with minimum dispersion (risk) 
-                value.\n
+                'MinRisk' : minimum dispersion (risk) portfolio.\n
                 'InvNRisk' : optimal portfolio with the same dispersion (risk)
-                value as a targeted portfolio 
+                value as a benchmark portfolio 
                 (e.g. equal weigthed portfolio). \n
                 'RiskAverse' : optimal portfolio for a fixed value of risk 
-                aversion coefficient.
-            The default is 'Sharpe'. 
+                aversion factor.
+            The default is `'Sharpe'`. 
         `detrended` : Boolean, optional
-            In the Delta-risk expression use: \n
+            Designates the rate type used in the delta-risk calculations:\n
                 `True` : detrended rate of return, i.e. r - E(r), \n
                 `False` : standard rate of return. 
             The default is `False`.
@@ -76,7 +75,7 @@ class BTADAnalyzer(_RiskAnalyzer):
             Linear programming numerical method. 
             Could be: 'ecos', 'highs-ds', 'highs-ipm', 'highs', 
             'interior-point', 'glpk' and 'cvxopt'.
-            The defualt is 'ecos'.
+            The defualt is `'ecos'`.
 
         Returns
         -------
@@ -114,7 +113,7 @@ class BTADAnalyzer(_RiskAnalyzer):
 
         Parameters
         ----------
-        `rrate` : pandas.DataFrame
+        `rrate` : `pandas.DataFrame`
             Portfolio components historical rates of returns. The
             columns are: "date", "symbol1", "symbol2", etc.
         Returns
@@ -209,17 +208,17 @@ class BTADAnalyzer(_RiskAnalyzer):
             warnings.warn(f"Warning {res['infostring']}")
             return np.array([np.nan] * mm)
             
-        # delta-risk
+        # mBTAD
         self.risk = res['pcost']
         # optimal weights
         self.ww = np.array(res['x'][:mm])
         self.ww.shape = mm
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
-        # primary risk components - default to risk
+        # BTAD components
         self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
                                            for l in range(ll)])
-        # secondary risk components - default to risk
+        # BTAD thresholds
         self.secondary_risk_comp = self.alpha.copy()
         
         return self.ww
@@ -291,17 +290,17 @@ class BTADAnalyzer(_RiskAnalyzer):
         t = res['x'][-1]
         # Omega
         self.sharpe = -res['pcost']
-        # risk
+        # mBTAD
         self.risk = 1. / t
         # optimal weights
         self.ww = np.array(res['x'][:mm] / t)
         self.ww.shape = mm
         # rate of return
         self.RR = -res['pcost'] * self.risk + self.mu
-        # primary risk components - default to risk
+        # BTAD components
         self.primary_risk_comp = \
             np.array([res['x'][mm + l * (nn + 1)] / t for l in range(ll)])
-        # secondary risk components - default to risk
+        # BTAD thresholds
         self.secondary_risk_comp = self.alpha.copy()
         
         return self.ww
@@ -376,17 +375,17 @@ class BTADAnalyzer(_RiskAnalyzer):
         t = res['x'][-1]
         # Omega
         self.sharpe = 1. / res['pcost']
-        # risk
+        # mBTAD
         self.risk =  res['pcost'] / t
         # optimal weights
         self.ww = np.array(res['x'][:mm] / t)
         self.ww.shape = mm
         # rate of return
         self.RR = 1. / t + self.mu
-        # primary risk components - default to risk
+        # BTAD components
         self.primary_risk_comp = \
             np.array([res['x'][mm + l * (nn + 1)] / t for l in range(ll)])
-        # secondary risk components - default to risk
+        # BTAD thresholds
         self.secondary_risk_comp = self.alpha.copy()
         
         return self.ww
@@ -462,10 +461,10 @@ class BTADAnalyzer(_RiskAnalyzer):
         # optimal weights
         self.ww = np.array(res['x'][:mm])
         self.ww.shape = mm
-        # primary risk components - default to risk
+        # BTAD components
         self.primary_risk_comp = \
             np.array([res['x'][mm + l * (nn + 1)] for l in range(ll)])
-        # secondary risk components - default to risk
+        # BTAD thresholds
         self.secondary_risk_comp = self.alpha.copy()
         
         return self.ww
@@ -539,12 +538,12 @@ class BTADAnalyzer(_RiskAnalyzer):
         self.ww.shape = mm
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
-        # delta-risk
+        # mBTAD
         self.risk = (res['pcost'] + self.RR) / self.Lambda
-        # primary risk components - default to risk
+        # BTAD components
         self.primary_risk_comp = \
             np.array([res['x'][mm + l * (nn + 1)] for l in range(ll)])
-        # secondary risk components - default to risk
+        # BTAD thresholds
         self.secondary_risk_comp = self.alpha.copy()
         
         return self.ww

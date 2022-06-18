@@ -13,7 +13,7 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Compute BTSD-Sharpe optimal portfolio for alpha=0 (default) detrended
+# Compute Sortino optimal portfolio alpha=0 (default) detrended  
 p1 = az.Port_BTSD(mktdata, pname='BTSDPort') 
 
 tic = time.perf_counter()
@@ -22,7 +22,7 @@ toc = time.perf_counter()
 print(f"time Sharpe: {toc-tic}")
 
 #=============================================================================
-# Compute LSSD-Sharpe optimal portfolio - first order 
+# Compute mLSSD-Sharpe optimal portfolio - first level (default)
 p2 = az.Port_LSSD(mktdata, pname='LSSDPort') 
  
 tic = time.perf_counter()

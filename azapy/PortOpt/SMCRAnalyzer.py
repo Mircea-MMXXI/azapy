@@ -7,7 +7,7 @@ from ._solvers import _socp_solver
 
 class SMCRAnalyzer(CVaRAnalyzer):
     """
-    Mixture SMCR dispersion measure based portfolio optimizations.
+    Mixture SMCR based optimal portfolio strategies.
     
     Methods:
         * getWeights
@@ -34,42 +34,41 @@ class SMCRAnalyzer(CVaRAnalyzer):
             `alpha`. A `None` value assumes an equal weighted risk mixture.
             The vector of coefficients will be normalized to unit.
             The default is `None`.
-        `mktdata` : pandas.DataFrame, optional
+        `mktdata` : `pandas.DataFrame`, optional
             Historic daily market data for portfolio components in the format
-            returned by azapy.mktData function. The default is None.
+            returned by `azapy.mktData` function. The default is `None`.
         `colname` : str, optional
             Name of the price column from mktdata used in the weights 
-            calibration. The default is 'adjusted'.
+            calibration. The default is `'adjusted'`.
         `freq` : str, optional
             Rate of returns horizon. It could be 
-            'Q' for quarter or 'M' for month. The default is 'Q'.
+            'Q' for quarter or 'M' for month. The default is `'Q'`.
         `hlength` : float, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
-            The default is 3.25 years.
-        `calendar` : numpy.busdaycalendar, optional
+            The default is `3.25` years.
+        `calendar` : `numpy.busdaycalendar`, optional
             Business days calendar. If is it `None` then the calendar will 
             be set to NYSE business calendar. 
-            The default is None.
+            The default is `None`.
        `rtype` : str, optional
             Optimization type. Possible values \n
-                'Risk' : minimization of dispersion (risk) measure for a 
+                'Risk' : minimization of dispersion (risk) measure for  
                 targeted rate of return. \n
                 'Sharpe' : maximization of generalized Sharpe ratio.\n
                 'Sharpe2' : minimization of the inverse generalized Sharpe 
                 ratio.\n
-                'MinRisk' : optimal portfolio with minimum dispersion (risk) 
-                value.\n
+                'MinRisk' : minimum dispersion (risk) portfolio.\n
                 'InvNrisk' : optimal portfolio with the same dispersion (risk)
-                value as the targeted portfolio 
+                value as a benchmark portfolio 
                 (e.g. equal weighted portfolio).\n
                 'RiskAverse' : optimal portfolio for a fixed value of 
                 risk-aversion factor.
-            The default is 'Sharpe'.
+            The default is `'Sharpe'`.
         method : str, optional
             SOCP numerical method. 
             Could be: 'ecos' or 'cvxopt'.
-            The defualt is 'ecos'.
+            The defualt is `'ecos'`.
             
         Returns
         -------
@@ -210,12 +209,12 @@ class SMCRAnalyzer(CVaRAnalyzer):
             warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * mm)
         
-        # SMVaR
+        # SMVaR 
         self.secondary_risk_comp = np.array([res['x'][mm + l * (nn + 2)] \
                                              for l in range(ll)])
-        # average SMCR
+        # mSMCR
         self.risk = res['pcost']
-        # component SMCR
+        # SMCR components
         self.primary_risk_comp = np.array(
             [res['x'][mm + l * (nn + 2)] \
              + 1 / (1 - self.alpha[l])  / np.sqrt(nn) \
@@ -308,19 +307,19 @@ class SMCRAnalyzer(CVaRAnalyzer):
             warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * mm)
         
-        # average SMCR (=1/t)
+        # mSMCR 
         self.risk = 1. / res['x'][-1]
-        # SMVaR (=u)
+        # SMVaR 
         self.secondary_risk_comp = np.array(
             [res['x'][mm + l * (nn + 2)] * self.risk for l in range(ll)])
-        # Sharpe
+        # mSMCR-Sharpe
         self.sharpe = -res['pcost']
         # optimal weights
         self.ww = np.array(res['x'][:mm] * self.risk)
         self.ww.shape = mm
         # rate of returns
         self.RR = np.dot(self.ww, self.muk)
-        # component SMCR (recomputed)
+        # SMCR components (recomputed)
         self.primary_risk_comp = \
             [(res['x'][mm + l * (nn + 2)] \
               + 1. / (1. - self.alpha[l]) / np.sqrt(nn) \
@@ -413,7 +412,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
             return np.array([np.nan] * mm)
         
         t = res['x'][-1]
-        # average SMCR (=g/t)
+        # mSMCR (=g/t)
         self.risk = res['pcost'] / t
         # SMVaR (=u/t)
         self.secondary_risk_comp = np.array(
@@ -425,7 +424,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         self.ww.shape = mm
         # rate of returns
         self.RR = 1. / t + self.mu
-        # component SMCR (recomputed)
+        # SMCR component (recomputed)
         self.primary_risk_comp = np.array(
             [(res['x'][mm + l * (nn + 2)] \
               + 1. / (1. - self.alpha[l]) / np.sqrt(nn) \
@@ -517,7 +516,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
                                              for l in range(ll)])
         # rate of returns
         self.RR = -res['pcost']
-        # component SMCR
+        # SMCR component 
         self.primary_risk_comp = np.array(
             [res['x'][mm + l * (nn + 2)] \
              + 1 / (1 - self.alpha[l])  / np.sqrt(nn) \
@@ -613,12 +612,12 @@ class SMCRAnalyzer(CVaRAnalyzer):
         self.ww.shape = mm
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
-        # average SMCR
+        # mSMCR
         self.risk = (res['pcost'] + self.RR) / self.Lambda
         # SMVaR
         self.secondary_risk_comp = np.array([res['x'][mm + l * (nn + 2)] \
                                              for l in range(ll)])
-        # component SMCR
+        # SMCR component 
         self.primary_risk_comp = np.array(
             [res['x'][mm + l * (nn + 2)] \
              + 1. / (1. - self.alpha[l])  / np.sqrt(nn) \

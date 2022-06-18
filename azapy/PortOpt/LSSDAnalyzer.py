@@ -7,7 +7,7 @@ from ._solvers import _socp_solver
 
 class LSSDAnalyzer(MADAnalyzer):
     """
-    Mixture LSSD dispersion measure based portfolio optimization.
+    m-level LSSD based optimal portfolio strategies.
     
     Methods:
         * getWeights
@@ -28,45 +28,44 @@ class LSSDAnalyzer(MADAnalyzer):
 
         Parameters
         ----------
-        `coef` : coef : list, optional
+        `coef` : list, optional
             Positive, non-increasing list of mixture coefficients. 
-            The default is [1.].
-        `mktdata` : pandas.DataFrame, optional
+            The default is `[1.]`.
+        `mktdata` : `pandas.DataFrame`, optional
             Historic daily market data for portfolio components in the format
-            returned by azapy.mktData function. The default is None.
+            returned by `azapy.mktData` function. The default is `None`.
         `colname` : str, optional
             Name of the price column from mktdata used in the weights 
-            calibration. The default is 'adjusted'.
+            calibration. The default is `'adjusted'`.
         `freq` : str, optional
-            Rate of returns horizon in number of business day. it could be 
-            'Q' for quarter or 'M' for month. The default is 'Q'.
+            Rate of return horizon in number of business day. It could be 
+            'Q' for quarter or 'M' for month. The default is `'Q'`.
         `hlength` : float, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
-            The default is 3.25 years.
-        `calendar` : numpy.busdaycalendar, optional
+            The default is `3.25` years.
+        `calendar` : `numpy.busdaycalendar`, optional
             Business days calendar. If is it `None` then the calendar will 
             be set to NYSE business calendar.
             The default is `None`.
         `rtype` : str, optional
             Optimization type. Possible values \n
-                'Risk' : minimization of dispersion (risk) measure for a 
+                'Risk' : minimization of dispersion (risk) measure for  
                 targeted rate of return. \n
                 'Sharpe' : maximization of generalized Sharpe ratio.\n
                 'Sharpe2' : minimization of the inverse generalized Sharpe 
                 ratio.\n
-                'MinRisk' : optimal portfolio with minimum dispersion (risk) 
-                value.\n
+                'MinRisk' : minimum dispersion (risk) portfolio.\n
                 'InvNrisk' : optimal portfolio with the same dispersion (risk)
-                value as the targeted portfolio 
+                value as a benchmark portfolio 
                 (e.g. equal weighted portfolio).\n
                 'RiskAverse' : optimal portfolio for a fixed value of 
-                risk-aversion.
-            The default is 'Sharpe'.
+                risk-aversion factor.
+            The default is `'Sharpe'`.
         `method` : str, optional
             SOCP numerical method. 
             Could be: 'ecos' or 'cvxopt'.
-            The defualt is 'ecos'.
+            The defualt is `'ecos'`.
 
         Returns
         -------
@@ -176,10 +175,10 @@ class LSSDAnalyzer(MADAnalyzer):
         
         # mLSSD
         self.risk = res['pcost']
-        # LSSD
+        # delta-risk values
         self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
                                            for l in range(ll)])
-        # tLSSD
+        # delta-risk strikes
         self.secondary_risk_comp = \
             np.cumsum(np.insert(self.primary_risk_comp, 0, 0))[:-1]
         # optimal weights
@@ -262,19 +261,19 @@ class LSSDAnalyzer(MADAnalyzer):
             warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * mm)
         
-        # risk (=1/t)
+        # mLSSD
         self.risk = 1. / res['x'][-1]
-        # LSSD (=u)
+        # delta-risk values
         self.primary_risk_comp = np.array(
             [res['x'][mm + l * (nn + 1)] * self.risk for l in range(ll)])
-        # Sharpe
+        # mLSSD-Sharpe
         self.sharpe = -res['pcost']
         # optimal weights
         self.ww = np.array(res['x'][:mm] * self.risk)
         self.ww.shape = mm
         # rate of return
         self.RR = self.sharpe * self.risk + self.mu
-         # tLSSD
+        # delta-risk strikes
         self.secondary_risk_comp = \
             np.cumsum(np.insert(self.primary_risk_comp, 0, 0))[:-1]
         
@@ -351,12 +350,12 @@ class LSSDAnalyzer(MADAnalyzer):
             warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * mm)
         
-        # Sharpe
+        # mLSSD-Sharpe
         self.sharpe = 1. / res['pcost']
-        # risk 
+        # mBTSD 
         t = res['x'][-1]
         self.risk = res['pcost'] / t
-        # LSSD (=u)
+        # delta-risk values
         self.primary_risk_comp = np.array(
             [res['x'][mm + l * (nn + 1)] / t for l in range(ll)])
         
@@ -365,7 +364,7 @@ class LSSDAnalyzer(MADAnalyzer):
         self.ww.shape = mm
         # rate of return
         self.RR = 1. / t + self.mu
-        # tLSSD
+        # delta-risk strikes
         self.secondary_risk_comp = \
             np.cumsum(np.insert(self.primary_risk_comp, 0, 0))[:-1]
         
@@ -440,10 +439,10 @@ class LSSDAnalyzer(MADAnalyzer):
         
         # rate of return
         self.RR = -res['pcost']
-        # LSSD
+        # delta-risk values
         self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 2)] \
                                            for l in range(ll)])
-        # tLSSD
+        # delta-risk strikes
         self.secondary_risk_comp = \
             np.cumsum(np.insert(self.primary_risk_comp, 0, 0))[:-1]
         # optimal weights
@@ -528,10 +527,10 @@ class LSSDAnalyzer(MADAnalyzer):
         self.RR = np.dot(self.ww, self.muk)
         # mLSSD
         self.risk = (self.RR + res['pcost']) / self.Lambda
-        # LSSD
+        # delta-risk values
         self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
                                            for l in range(ll)])
-        # tLSSD
+        # delta-risk strikes
         self.secondary_risk_comp = \
             np.cumsum(np.insert(self.primary_risk_comp, 0, 0))[:-1]
         

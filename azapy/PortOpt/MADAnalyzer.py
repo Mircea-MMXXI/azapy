@@ -7,7 +7,7 @@ from ._solvers import _lp_solver
 
 class MADAnalyzer(_RiskAnalyzer):
     """
-    Mixture MAD dispersion measure based portfolio optimization.
+    m-level MAD based optimal portfolio strategies.
 
     Methods:
         * getWeights
@@ -27,46 +27,45 @@ class MADAnalyzer(_RiskAnalyzer):
         Parameters
         ----------
         `coef` : list, optional
-            Positive, non-increasing list of mixture coefficients. 
-            The default is [1.].
-        `mktdata` : pandas.DataFrame, optional
+            Positive non-increasing list of mixture coefficients. 
+            The default is `[1.]`.
+        `mktdata` : `pandas.DataFrame`, optional
             Historic daily market data for portfolio components in the format
-            returned by azapy.mktData function. The default is None.
+            returned by `azapy.mktData` function. The default is `None`.
         `colname` : str, optional
             Name of the price column from mktdata used in the weights
-            calibration. The default is 'adjusted'.
+            calibration. The default is `'adjusted'`.
         `freq` : str, optional
-            Rate of returns horizon in number of business day. it could be
-            'Q' for quarter or 'M' for month. The default is 'Q'.
+            Rate of return horizon in number of business day. it could be
+            'Q' for quarter or 'M' for month. The default is `'Q'`.
         `hlength` : float, optional
             History length in number of years used for calibration. A
             fractional number will be rounded to an integer number of months.
-            The default is 3.25 years.
-        `calendar` : numpy.busdaycalendar, optional
+            The default is `3.25` years.
+        `calendar` : `numpy.busdaycalendar`, optional
             Business days calendar. If is it `None` then the calendar will
             be set to NYSE business calendar.
             The default is `None`.
         `rtype` : str, optional
             Optimization type. Possible values \n
-                'Risk' : minimization of dispersion (risk) measure for a 
+                'Risk' : minimization of dispersion (risk) measure for 
                 targeted rate of return. \n
                 'Sharpe' : maximization of generalized Sharpe ratio.\n
                 'Sharpe2' : minimization of the inverse generalized Sharpe 
                 ratio.\n
-                'MinRisk' : optimal portfolio with minimum dispersion (risk) 
-                value.\n
+                'MinRisk' : minimum dispersion (risk) portfolio.\n
                 'InvNrisk' : optimal portfolio with the same dispersion (risk)
-                value as the targeted portfolio 
+                value as a benchmark portfolio 
                 (e.g. equal weighted portfolio).\n
                 'RiskAverse' : optimal portfolio for a fixed value of 
-                risk-aversion.
-            The default is 'Sharpe'.
+                risk-aversion factor.
+            The default is `'Sharpe'`.
         `method` : str, optional
             method : string, optional
             Linear programming numerical method.
             Could be:'ecos', 'highs-ds', 'highs-ipm', 'highs',
             'interior-point', 'glpk' and 'cvxopt'.
-            The defualt is 'ecos'.
+            The defualt is `'ecos'`.
 
         Returns
         -------
@@ -101,9 +100,9 @@ class MADAnalyzer(_RiskAnalyzer):
 
         Parameters
         ----------
-        `ww` : list (numpy.array or pandas.Series)
+        `ww` : list (`numpy.array` or `pandas.Series`)
             Portfolio weights.
-        `rrate` : pandas.series, optional
+        `rrate` : `pandas.series`, optional
             The portfolio components historical rates of returns.
             If it is not `None`, it will overwrite the rrate computed in the
             constructor from mktdata. The default is `None`.
@@ -111,7 +110,7 @@ class MADAnalyzer(_RiskAnalyzer):
         Returns
         -------
         float :
-        The value of MAD
+        The value of mMAD
         """
         if rrate is not None:
             self.set_rrate(rrate)
@@ -220,10 +219,10 @@ class MADAnalyzer(_RiskAnalyzer):
 
         # mMAD
         self.risk = res['pcost']
-        # MAD
+        # delta-risk values
         self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
                                            for l in range(ll)])
-        # tMAD
+        # delta-risk strikes
         self.secondary_risk_comp = \
             np.cumsum(np.insert(self.primary_risk_comp, 0, 0))[:-1]
         # optimal weights
@@ -298,14 +297,14 @@ class MADAnalyzer(_RiskAnalyzer):
             return np.array([np.nan] * mm)
 
         t = res['x'][-1]
-        # sharpe
+        # mMAD-Sharpe
         self.sharpe = -res['pcost']
         # mMAD
         self.risk = 1 / t
-        # MAD
+        # delta-risk values
         self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] / t \
                                            for l in range(ll)])
-        # tMAD
+        # delta-risk strikes
         self.secondary_risk_comp = \
             np.cumsum(np.insert(self.primary_risk_comp, 0, 0))[:-1]
         # optimal weights
@@ -385,14 +384,14 @@ class MADAnalyzer(_RiskAnalyzer):
             return np.array([np.nan] * mm)
 
         t = res['x'][-1]
-        # sharpe
+        # mMAD-Sharpe
         self.sharpe = 1. / res['pcost']
         # mMAD
         self.risk = res['pcost'] / t
-        # MAD
+        # delta-risk values
         self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] / t \
                                            for l in range(ll)])
-        # tMAD
+        # delta-risk strikes
         self.secondary_risk_comp = \
             np.cumsum(np.insert(self.primary_risk_comp, 0, 0))[:-1]
         # optimal weights
@@ -467,10 +466,10 @@ class MADAnalyzer(_RiskAnalyzer):
             warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * mm)
 
-        # MAD
+        # delta-risk values
         self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
                                            for l in range(ll)])
-        # tMAD
+        # delta-risk strikes
         self.secondary_risk_comp = \
             np.cumsum(np.insert(self.primary_risk_comp, 0, 0))[:-1]
         # optimal weights
@@ -549,10 +548,10 @@ class MADAnalyzer(_RiskAnalyzer):
         self.RR = np.dot(self.ww, self.muk)
         # mMAD
         self.risk = (res['pcost'] + self.RR) / self.Lambda
-        # MAD
+        # delta-risk values
         self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
                                            for l in range(ll)])
-        # tMAD
+        # delta-risk strikes
         self.secondary_risk_comp = \
             np.cumsum(np.insert(self.primary_risk_comp, 0, 0))[:-1]
 

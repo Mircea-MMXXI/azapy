@@ -9,12 +9,12 @@ def gamblingKelly(pp=[0.6]):
 
     Parameters
     ----------
-    pp : list, optional
-        List of wining probabilities for each game. The default is [0.6].
+    `pp` : list, optional
+        List of wining probabilities for each game. The default is `[0.6]`.
 
     Returns
     -------
-    pandas.Series
+    `pandas.Series`
         Bet sizes as percentage of the capital=1.
     """
     pp = np.array(pp)

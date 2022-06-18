@@ -4,7 +4,7 @@ from .Port_InvVol import Port_InvVol
 
 class Port_CVaR(Port_InvVol):
     """
-    Back testing the CVaR optimal portfolio periodically rebalanced.
+    Backtesting mCVaR optimal portfolio strategies, periodically rebalanced.
 
     Methods:
         * set_model
@@ -38,21 +38,20 @@ class Port_CVaR(Port_InvVol):
             equal weighted risk mixture.
             The vector of coefficients will be normalized to unit.
             The default is `None`.
-        `rtype` : : str, optional
+        `rtype` : str, optional
             Optimization type. Possible values \n
-                'Risk' : minimization of dispersion (risk) measure for a fixed 
-                vale of expected rate of return. \n
+                'Risk' : minimization of dispersion (risk) measure for  
+                targeted rate of return. \n
                 'Sharpe' : maximization of generalized Sharpe ratio.\n
                 'Sharpe2' : minimization of the inverse generalized Sharpe 
                 ratio.\n
-                'MinRisk' : optimal portfolio with minimum dispersion (risk) 
-                value.\n
-                'InvNRisk' : optimal portfolio with the same dispersion (risk)
-                as the targeted portfolio
-                (e.g. equal weighted portfolio). \n
-                'RiskAverse' : optimal portfolio for a fixed value of risk 
-                aversion factor.
-            The default is 'Sharpe'.
+                'MinRisk' : minimum dispersion (risk) portfolio.\n
+                'InvNrisk' : optimal portfolio with the same dispersion (risk)
+                value as a benchmark portfolio 
+                (e.g. equal weighted portfolio).\n
+                'RiskAverse' : optimal portfolio for a fixed value of 
+                risk-aversion factor.
+            The default is `'Sharpe'`.
         `mu` : float, optional
             Targeted portfolio expected rate of return. 
             Relevant only if `rtype='Risk'`
@@ -62,7 +61,7 @@ class Port_CVaR(Port_InvVol):
             Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
             The default is `0`.
         `aversion` : float, optional
-            The value of the risk-aversion coefficient.
+            The value of the risk-aversion factor.
             Must be positive. Relevant only if `rtype='RiskAvers'`.
             The default is `None`.
         `ww0` : list (also `numpy.array` or `pandas.Series`), optional

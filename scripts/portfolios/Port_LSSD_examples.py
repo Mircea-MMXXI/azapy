@@ -16,10 +16,11 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 # Setup mLSSD mixture coef (equal weighted for max LSSD order 3)
 coef = np.full(3, 1/3)
 
-#=============================================================================
-# Compute LSSD-Sharpe optimal portfolio
+# set Port_LSSD class
 p4 = az.Port_LSSD(mktdata, pname='LSSDPort') 
  
+#=============================================================================
+# Compute mLSSD-Sharpe optimal portfolio
 tic = time.perf_counter()
 port4 = p4.set_model(coef=coef)   
 toc = time.perf_counter()
@@ -96,7 +97,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute optimal portfolio for fixed risk aversion
+# Compute optimal portfolio for fixed risk-aversion factor
 port4 = p4.set_model(coef=coef, rtype="RiskAverse", aversion=0.5)   
 ww = p4.get_weights()
 p4.port_view()

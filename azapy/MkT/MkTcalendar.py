@@ -10,7 +10,7 @@ import pandas_market_calendars as mcal
 def NYSEgen(sdate = np.datetime64('1980-01-01'),
             edate = np.datetime64('2050-12-31')):
     """
-    Generate the numpy business calendar from NYSE between `sdate` and 
+    Generate `numpy.busdaycalendar` for NYSE between `sdate` and 
     `edate`.
 
     Parameters

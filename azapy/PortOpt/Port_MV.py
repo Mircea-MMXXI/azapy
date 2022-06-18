@@ -3,7 +3,7 @@ from .MVAnalyzer import MVAnalyzer
 
 class Port_MV(Port_CVaR):
     """
-    Back testing the MV optimal portfolio periodically rebalanced.
+    Backtesting MV optimal portfolio strategies, periodically rebalanced.
 
     Methods:
         * set_model
@@ -54,18 +54,18 @@ class Port_MV(Port_CVaR):
             The value of the risk-aversion coefficient.
             Must be positive. Relevant only if `rtype='RiskAvers'`.
             The default is `None`.
-        `ww0` : list (also np.array or pandas.Series), optional
+        `ww0` : list (also 'numpy.array` or `pandas.Series`), optional
             Targeted portfolio weights. 
-            Relevant only if rype='InvNrisk'.
+            Relevant only if `rype='InvNrisk'`.
             Its length must be equal to the number of
             symbols in rrate (mktdata). 
             All weights must be >= 0 with sum > 0.
-            If it is a list or a numpy.array then the weights are assumed to
-            by in order of rrate.columns. If it is a pandas.Series the index
-            should be compatible with the rrate.columns or mktdata symbols
-            (same symbols, not necessary in the same order).
+            If it is a list or a `numpy.array` then the weights are assumed to
+            by in order of `rrate.columns`. If it is a `pandas.Series` the 
+            index should be compatible with the `rrate.columns` or mktdata 
+            symbols (same symbols, not necessary in the same order).
             If it is `None` then it will be set to equal weights.
-            The default is `None`. 
+            The default is `None`.
         `hlength` : float, optional
             The length in year of the historical calibration period relative
             to 'Dfix'. A fractional number will be rounded to an integer number

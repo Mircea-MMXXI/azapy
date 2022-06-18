@@ -12,34 +12,34 @@ def summary_MkTData(mktdata, calendar=None, sdate=None, edate=None):
 
     Parameters
     ----------
-    mktdata :pandas.DataFrame or a dictonary of pd.DataFrame's
-        Market Data in the format returned by azapy.readMkT function.
-    calendar : numpy.busdaycalendar, optional
+    `mktdata` :`pandas.DataFrame` or a dict of `pndas.DataFrame'
+        Market Data in the format returned by `azapy.readMkT` function.
+    `calendar` : `numpy.busdaycalendar`, optional
         Business days calendar. If is set to None it will 
         default to NYSE business calendar.
-    sdate : pandas.Timestamp, optional
-        Time-series start date. If it is None then sdate will be set to the 
+    `sdate` : `pandas.Timestamp`, optional
+        Time-series start date. If it is `None` then `sdate` will be set to the 
         earliest date in mktdata.
-        The default is None.
-    edate : pandas.Timestamp, optional
-        Time-series end date. If it is None then edate will be set to the most 
-        recent date in mktdata.
-        The default is None.
+        The default is `None`.
+    `edate` : `pandas.Timestamp`, optional
+        Time-series end date. If it is `None` then edate will be set to 
+        the most recent date in mktdata.
+        The default is `None`.
 
     Returns
     -------
-    pandas.DataFrame: a table with columns:
-        - symbol : time-series symbol
-        - begin : start date
-        - end : end date
-        - length : number of records
-        - na_total : total number of `nan`
-        - na_b : number of missing records at the beginning
-        - na_e : number of missing records at the end
-        - cont : total number of missing records
+    `pandas.DataFrame`: a table with columns:
+        - `symbol` : time-series symbol
+        - `begin` : start date
+        - `end` : end date
+        - `length` : number of records
+        - `na_total` : total number of `nan`
+        - `na_b` : number of missing records at the beginning
+        - `na_e` : number of missing records at the end
+        - `cont` : total number of missing records
             
     Comment: the main application is to assess the missing data in the 
-    time-series extracted with azapy.readMkT function.
+    time-series extracted with `azapy.readMkT` function.
     """
     if isinstance(mktdata, dict):
         gite = mktdata.items()

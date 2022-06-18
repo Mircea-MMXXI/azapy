@@ -12,12 +12,15 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Compute BTSD-Sharpe optimal portfolio
+# mBTSD parameters
 alpha = [0.01, 0., -0.01]
 coef = [1, 2, 3]
 
+# set Port_BTSD class
 p4 = az.Port_BTSD(mktdata, pname='BTSDPort') 
 
+#=============================================================================
+# Compute Sortino optimal portfolio
 tic = time.perf_counter()
 port4 = p4.set_model(alpha=alpha, coef=coef)   
 toc = time.perf_counter()

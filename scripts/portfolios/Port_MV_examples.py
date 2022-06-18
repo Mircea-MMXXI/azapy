@@ -12,9 +12,11 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Compute Sharpe optimal portfolio
+# set Port_MV class
 p4 = az.Port_MV(mktdata, pname='MVPort')
 
+#=============================================================================
+# Compute MV-Sharpe optimal portfolio
 tic = time.perf_counter()
 port4 = p4.set_model()   
 toc = time.perf_counter()
@@ -88,7 +90,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute optimal portfolio for fixed risk aversion
+# Compute optimal portfolio for fixed risk-aversion factor
 port4 = p4.set_model(rtype="RiskAverse", aversion=0.5)   
 ww = p4.get_weights()
 p4.port_view()

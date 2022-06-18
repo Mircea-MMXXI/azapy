@@ -19,9 +19,10 @@ cr1 = az.MVAnalyzer(mktdata, method='ecos')
 # computes Sharpe weights for 0 risk-free rate
 ww1 = cr1.getWeights()
 # print portfolio characteristics
-# primary risk = [MV] (redundant)
+# primary risk = [variance] (redundant)
 # secondary risk = [volatility]
-# risk = MV
+# risk = MV (variance)
+# sharpe = MV-Sharpe
 RR = cr1.RR
 risk = cr1.risk
 prim = cr1.primary_risk_comp.copy()
@@ -52,11 +53,11 @@ print(f"Test for weights computation\n {ww_comp}")
 #=============================================================================
 # Frontiers evaluations
 print("\nFrontiers evaluations\n")
-opt = {'title': "MV Port", 'tangent': True}
-print("\n rate of returns vs risk representation")
+opt = {'title': "MV-Sharpe Port", 'tangent': True}
+print("\n rate of return vs risk representation")
 rft = cr1.viewFrontiers(musharpe=0, randomport=100, options=opt)
-print("\n Sharpe vs rate of returns representation")
-rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR')
+print("\n Sharpe vs rate of return representation")
+rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR', options=opt)
 
 #=============================================================================
 # Sharpe vs. Sharpe2

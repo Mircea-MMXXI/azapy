@@ -12,12 +12,15 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Compute Omega optimal portfolio
+# mBTAD parameters
 alpha = [0.01, 0., -0.01]
 coef = [1, 2, 3]
 
-p4 = az.Port_BTAD(mktdata, pname='BTADPort') 
+# set Port_BTAD class
+p4 = az.Port_BTAD(mktdata, pname='BTAD_Port') 
 
+#=============================================================================
+# Compute Omega optimal portfolio
 tic = time.perf_counter()
 port4 = p4.set_model(alpha=alpha, coef=coef)   
 toc = time.perf_counter()
@@ -94,7 +97,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute optimal portfolio for fixed risk aversion
+# Compute optimal portfolio for fixed risk aversion factor
 port4 = p4.set_model(alpha=alpha, coef=coef, rtype="RiskAverse", aversion=0.5)  
 ww = p4.get_weights()
 p4.port_view()
