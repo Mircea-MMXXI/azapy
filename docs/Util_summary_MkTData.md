@@ -41,28 +41,34 @@ equal to `0`.
 ### [Examples:](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/util/summary_MkTData_example.py)
 
 ```
-import pandas as pd
+# Example of how to call readMkT and summary_MkTData functions
 import azapy as az
 
 #==============================================================================
 # Collect some market data
 mktdir = "../../MkTdata"
-sdate = "2000-01-01"
-edate = 'today'
+output_format = 'dict'
+sdate = '2012-01-03'
+edate = '2021-07-27'
 symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
 
 # returns a pd.DataFrame
-mktdata = az.readMkT(symb, sdate=sdate, edate=edate, dir=mktdir)
+mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir) 
+
+# ask for a summary of data quality
+smry1 = az.summary_MkTData(mktdata)
+print(f"summary from DataFrame:\n {smry1}")
 
 # returns a dict of pd.DataFrame
-mktdata_dict = az.readMkT(symb, sdate=sdate, edate=edate, dir=mktdir,
+mktdata_dict = az.readMkT(symb, sdate=sdate, edate=edate,  file_dir=mktdir,
                           output_format='dict')
 
-#==============================================================================
-# Check if there are gaps (for both data formats)
-smry1 = az.summary_MkTData(mktdata)
-print(f"summary\n{smry1}")
+# ask for a summary of data quality
+smry2 = az.summary_MkTData(mktdata)
+print(f"summary from dict:\n {smry2}")
 
-smry2 = az.summary_MkTData(mktdata_dict)
-print(f"summary from a dict format\n{smry2}")
+    
+
 ```
+
+[TOP](#TOP)

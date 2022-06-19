@@ -29,9 +29,9 @@ strategies based on the following dispersion measures:
 * **mCVaR** - mixture Conditional Value at Risk,
 * **mSMCR** - mixture Second Moment Coherent Risk,
 * **mMAD** - m-level Mean Absolute Deviation,
-* **mLSSD** - m-level Lower Standard Semi-Deviation,
+* **mLSD** - m-level Lower Semi-Deviation,
 * **mBTAD** - mixture Below Threshold Absolute Deviation,
-* **mBTSD** - mixture Below Threshold Standard Deviation,
+* **mBTSD** - mixture Below Threshold Semi-Deviation,
 * **GINI** - Gini index,
 * **MV** - Variance (as in mean variance model),
 * **SD** - Standard Deviation.

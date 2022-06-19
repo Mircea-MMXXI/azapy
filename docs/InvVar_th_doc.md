@@ -469,6 +469,7 @@ get_mktdata()
 ### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_InvVar_examples.py)
 
 ```
+# Examples
 import time
 import azapy as az
 
@@ -476,7 +477,7 @@ import azapy as az
 # Collect some market data
 mktdir = "../../MkTdata"
 sdate = "2012-01-01"
-edate = 'today'
+edate = "2021-07-27"
 symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
@@ -511,6 +512,8 @@ port2  = p2.set_model(ww)
 pp = az.Port_Simple([port2, port4])
 _ = pp.set_model()
 _ = pp.port_view_all(componly=True)
+                 
+
 ```
 
 [TOP](#TOP)

@@ -487,6 +487,7 @@ value other than 42 :). The default is `42`.
 ### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/SDAnalyzer_examples.py)
 
 ```
+# Examples
 import numpy as np
 import pandas as pd
 import azapy as az
@@ -540,11 +541,11 @@ print(f"Test for weights computation\n {ww_comp}")
 #=============================================================================
 # Frontiers evaluations
 print("\nFrontiers evaluations\n")
-opt = {'title': "SD Port", 'tangent': True}
-print("\n rate of returns vs risk representation")
+opt = {'title': "Sharpe Port", 'tangent': True}
+print("\n rate of return vs risk representation")
 rft = cr1.viewFrontiers(musharpe=0, randomport=100, options=opt)
-print("\n Sharpe vs rate of returns representation")
-rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR')
+print("\n Sharpe vs rate of return representation")
+rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR', options=opt)
 
 #=============================================================================
 # Sharpe vs. Sharpe2
@@ -672,6 +673,7 @@ cash = 0.
 # new positions and rolling info
 pos = cr1.getPositions(nshares=ns, cash=0, rtype='Sharpe')
 print(f" New position report\n {pos}")
+
 ```
 
 [TOP](#TOP)
@@ -1176,6 +1178,7 @@ get_mktdata()
 ### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_SD_examples.py)
 
 ```
+# Examples
 import time
 import azapy as az
 
@@ -1189,9 +1192,11 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Compute Sharpe optimal portfolio
+# set Port_SD class
 p4 = az.Port_SD(mktdata, pname='SDPort')
 
+#=============================================================================
+# Compute Sharpe optimal portfolio
 tic = time.perf_counter()
 port4 = p4.set_model()
 toc = time.perf_counter()
@@ -1268,7 +1273,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute optimal portfolio for fixed risk aversion
+# Compute optimal portfolio for fixed risk-aversion factor
 port4 = p4.set_model(rtype="RiskAverse", aversion=0.5)   
 ww = p4.get_weights()
 p4.port_view()

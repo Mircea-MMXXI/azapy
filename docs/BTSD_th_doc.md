@@ -1,7 +1,7 @@
 
 # mBTSD optimal portfolios <a name="TOP"></a>
 
-BTSD stands for Below Target Standard Deviation. It is similar
+BTSD stands for Below Target Semi-Deviation. It is similar
 to BTAD but defined in
 terms of $L_2$ norm rather than $L_1$, *i.e.*,
 
@@ -55,7 +55,7 @@ However, the mathematical formalism of risk-based
 optimal portfolio constructions can be applied.
 
 > Note: mBTSD measure for $L=1$, $\alpha_1=0$ and detrended
-rate of returns is the same as mLSSD first leve dispersion measure.
+rate of returns is the same as mLSD first leve dispersion measure.
 
 We will call the mBTSD-Sharpe ratio as Sortino ratio, which is a well established
 terminology among practitioners.
@@ -527,11 +527,12 @@ value other than 42 :). The default is `42`.
 [TOP](#TOP)
 
 ---
-<a name="OmegaAnalyzer_class_example"></a>
+<a name="BTSDAnalyzer_class_example"></a>
 
 ### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/BTSDAnalyzer_examples.py)
 
 ```
+# Examples
 import numpy as np
 import pandas as pd
 import azapy as az
@@ -546,21 +547,21 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Set the BTSD mixture parameter
+# Set the BTSD mixture parameter 
 alpha = [0.01, 0, -0.01]
 coef = [1, 1, 2]
 
 #=============================================================================
-# Compute Sharpe optimal portfolio
+# Compute Sortino (mBTSD-Shapre) optimal portfolio
 # build the analyzer object
 cr1 = az.BTSDAnalyzer(alpha, coef, mktdata)
 # computes Sharpe weights for 0 risk-free rate
 ww1 = cr1.getWeights()
 # print portfolio characteristics
-# primary risk = [Delta-risk] (redundant)
-# secondary risk = [Delta-risk] (redundant)
-# risk = Delta-risk
-# Sortino = BTSD-Sharpe ratio
+# primary risk = BTSD components
+# secondary risk = BTSD thresholds
+# risk = mBTSD
+# Sortino = mBTSD-Sharpe ratio
 RR = cr1.RR
 risk = cr1.risk
 prim = cr1.primary_risk_comp.copy()
@@ -581,7 +582,7 @@ test_risk_res = pd.DataFrame({'risk': [risk], 'test_risk': [test_risk],
                               'diff': [risk-test_risk]})
 print(f"Test for the risk computation\n {test_risk_res}")
 
-# Test the Sharpe weights by estimating an optimal portfolio with
+# Test the Sortino weights by estimating an optimal portfolio with
 # the same expected rate of returns.
 test_ww1 = cr1.getWeights(rtype='Risk', mu=RR)
 ww_comp = pd.DataFrame({"ww1": ww1, "test_ww1": test_ww1,
@@ -591,11 +592,11 @@ print(f"Test for weights computation\n {ww_comp}")
 #=============================================================================
 # Frontiers evaluations
 print("\nFrontiers evaluations\n")
-opt = {'title': "BTSD Port", 'tangent': True}
-print("\n rate of returns vs risk representation")
+opt = {'title': "Sortino Port", 'tangent': True}
+print("\n rate of return vs risk representation")
 rft = cr1.viewFrontiers(musharpe=0, randomport=100, options=opt)
-print("\n Sortino vs rate of returns representation")
-rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR')
+print("\n Sortino vs rate of return representation")
+rft2 = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR', options=opt)
 
 #=============================================================================
 # Sharpe vs. Sharpe2
@@ -1244,6 +1245,7 @@ get_mktdata()
 ### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_BTSD_examples.py)
 
 ```
+# Examples
 import time
 import azapy as az
 
@@ -1257,12 +1259,15 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Compute BTSD-Sharpe optimal portfolio
+# mBTSD parameters
 alpha = [0.01, 0., -0.01]
 coef = [1, 2, 3]
 
-p4 = az.Port_BTSD(mktdata, pname='BTSDPort')
+# set Port_BTSD class
+p4 = az.Port_BTSD(mktdata, pname='BTSDPort') 
 
+#=============================================================================
+# Compute Sortino optimal portfolio
 tic = time.perf_counter()
 port4 = p4.set_model(alpha=alpha, coef=coef)   
 toc = time.perf_counter()
@@ -1279,7 +1284,7 @@ p4.port_monthly_returns()
 p4.port_period_returns()
 p4.get_nshares()
 p4.get_account(fancy=True)
-
+        
 # Use rtype='Sharpe2' - should be the same results
 tic = time.perf_counter()
 port4_2 = p4.set_model(alpha=alpha, coef=coef, rtype='Sharpe2')   
@@ -1372,6 +1377,8 @@ p4.get_account(fancy=True)
 # pp = az.Port_Simple(zts)
 # _ = pp.set_model()
 # _ = pp.port_view_all(componly=True)
+
+
 ```
 
 [TOP](#TOP)

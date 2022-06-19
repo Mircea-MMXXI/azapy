@@ -6,7 +6,7 @@ from .MVAnalyzer import *
 from .SDAnalyzer import *
 from .BTADAnalyzer import *
 from .BTSDAnalyzer import *
-from .LSSDAnalyzer import *
+from .LSDAnalyzer import *
 from .KellyEngine import *
 
 from .Port_Simple import *
@@ -23,5 +23,5 @@ from .Port_SD import *
 from .Port_BTAD import *
 from .Port_BTSD import *
 from .Port_SMCR import *
-from .Port_LSSD import *
+from .Port_LSD import *
 from .Port_Kelly import *

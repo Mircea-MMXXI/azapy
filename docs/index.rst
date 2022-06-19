@@ -35,7 +35,7 @@ Risk based portfolio optimizations
    CVaR_th_doc
    SMCR_th_doc
    MAD_th_doc
-   LSSD_th_doc
+   LSD_th_doc
    BTAD_th_doc
    BTSD_th_doc
    GINI_th_doc

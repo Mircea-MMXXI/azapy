@@ -19,9 +19,9 @@ A. Risk based portfolio optimization algorithms:
   1. mCVaR - mixture CVaR (Conditional Value at Risk)
   2. mSMCR - mixture SMCR (Second Moment Coherent Risk)
   3. mMAD - m-level MAD (Mean Absolute Deviation)
-  4. mLSSD - m-level LSSD (Lower Standard Semi-Deviation)
+  4. mLSD - m-level LSD (Lower Semi-Deviation)
   5. mBTAD - mixture BTAD (Below Threshold Absolute Deviation)
-  6. mBTSD - mixture BTSD (Below Threshold Standard Deviation)
+  6. mBTSD - mixture BTSD (Below Threshold Semi-Deviation)
   7. GINI - Gini index (as in Corrado Gini statistician 1884-1965)
   8. MV - mean-variance
   9. SD - standard deviation

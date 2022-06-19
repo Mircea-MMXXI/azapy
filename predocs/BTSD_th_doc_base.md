@@ -1,7 +1,7 @@
 
 # mBTSD optimal portfolios <a name="TOP"></a>
 
-BTSD stands for Below Target Standard Deviation. It is similar
+BTSD stands for Below Target Semi-Deviation. It is similar
 to BTAD but defined in
 terms of $L_2$ norm rather than $L_1$, *i.e.*,
 
@@ -55,7 +55,7 @@ However, the mathematical formalism of risk-based
 optimal portfolio constructions can be applied.
 
 > Note: mBTSD measure for $L=1$, $\alpha_1=0$ and detrended
-rate of returns is the same as mLSSD first leve dispersion measure.
+rate of returns is the same as mLSD first leve dispersion measure.
 
 We will call the mBTSD-Sharpe ratio as Sortino ratio, which is a well established
 terminology among practitioners.

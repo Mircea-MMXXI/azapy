@@ -56,7 +56,7 @@ p = [0.55, 0.6, 0.65]
 
 ww = az.gamblingKelly(p)
 
-# bet sizes for each game as percentage of capital in hands
+# bet sizes for each game as percentage of capital in hand
 print(f"bet sizes as fraction of capital (in percent)\n{ww}")
 
 # percentage of the total capital invested in each round
@@ -311,6 +311,7 @@ set_rtype(rtype)
 ### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/KellyEngine_examples.py)
 
 ```
+# Examples
 import pandas as pd
 import time
 import azapy as az
@@ -319,8 +320,10 @@ import azapy as az
 # Collect some market data
 mktdir = "../../MkTdata"
 sdate = "2012-01-01"
-edate = 'today'
+edate = "2021-07-27"
 symb = ['PSJ', 'SPY', 'XLV', 'VGT', 'ONEQ']
+
+mktdir = "../../MkTdata"
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
@@ -362,9 +365,12 @@ print(f" Full: New position report\n {pos1}")
 
 pos2 = cr2.getPositions(nshares=ns, cash=0.)
 print(f" Order2: New position report\n {pos2}")
+
 ```
 
 [TOP](#TOP)
+
+---
 
 ## Port_Kelly class
 
@@ -829,14 +835,14 @@ get_mktdata()
 ### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_Kelly_examples.py)
 
 ```
-import time
+# Examples
 import azapy as az
 
 #=============================================================================
 # Collect some market data
 mktdir = "../../MkTdata"
 sdate = "2012-01-01"
-edate = 'today'
+edate = "2021-07-27"
 symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
@@ -845,6 +851,7 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 # Compute optimal portfolio with full Kelly criterion
 p4 = az.Port_Kelly(mktdata, pname='KellyPort')    
 
+import time
 tic = time.perf_counter()
 port4 = p4.set_model()   
 toc = time.perf_counter()
@@ -858,7 +865,7 @@ p4.port_drawdown(fancy=True)
 p4.port_perf(fancy=True)
 p4.port_annual_returns()
 p4.port_monthly_returns()
-p4.port_period_returns()
+p4.port_period_returns().round(3)
 p4.get_nshares()
 p4.get_account(fancy=True)
 
@@ -872,16 +879,17 @@ port4.merge(port2, how='left', on='date').plot()
 #=============================================================================
 # Compare with Order2 approximation of Kelly criterion algorithm
 p5 = az.Port_Kelly(mktdata, pname='KellyApxPort')   
-
+ 
 tic = time.perf_counter()
 port5 = p5.set_model(rtype='Order2')   
 toc = time.perf_counter()
 print(f"time get_port 2-nd order aprox Kelly criterion: {toc-tic}")
-
+                 
 # The results are very close
 pp = az.Port_Simple([port4, port5])
 _ = pp.set_model()
 _ = pp.port_view_all(componly=True)
+
 ```
 
 [TOP](#TOP)
