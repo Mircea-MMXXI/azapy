@@ -1,4 +1,4 @@
-# Examples - use Port_Simple as a tool to compare price tine-series
+# Examples - use Port_Simple as a tool to compare price time-series
 import azapy as az
 
 #=============================================================================
@@ -28,5 +28,3 @@ p1.port_view_all(componly=True)
 print(p1.port_perf(componly=True, fancy=True))
 print(p1.port_annual_returns(withcomp=True, componly=True))
 print(p1.port_monthly_returns(withcomp=True, componly=True))
-
-

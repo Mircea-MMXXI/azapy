@@ -62,7 +62,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute minimum MV optimal portfolio
+# Compute minimum MV portfolio
 port4 = p4.set_model(rtype="MinRisk")   
 ww = p4.get_weights()
 p4.port_view()
@@ -90,7 +90,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute optimal portfolio for fixed risk-aversion factor
+# Compute MV optimal portfolio for fixed risk-aversion factor
 port4 = p4.set_model(rtype="RiskAverse", aversion=0.5)   
 ww = p4.get_weights()
 p4.port_view()
@@ -122,4 +122,3 @@ p4.get_account(fancy=True)
 # pp = az.Port_Simple(zts)
 # _ = pp.set_model()
 # _ = pp.port_view_all(componly=True)
-

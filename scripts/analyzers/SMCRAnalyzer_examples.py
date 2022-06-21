@@ -15,11 +15,10 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 #=============================================================================
 # define mSMCR measure parameters alpha and coef
 alpha = np.array([0.9, 0.85])
-coef = np.ones(len(alpha))
-coef = coef / coef.sum()
+coef = np.full(len(alpha), 1/len(alpha))
 
 #=============================================================================
-# Compute Sharpe optimal portfolio
+# Compute mSMCR-Sharpe optimal portfolio
 # build the analyzer object
 cr1 = az.SMCRAnalyzer(alpha, coef, mktdata)
 # computes Sharpe weights for 0 risk-free rate
@@ -176,7 +175,7 @@ print(f"weigths:\n {ww_comp}")
 #     wwx = crrx.getWeights()
 #     tic = time.perf_counter() - toc
 #     print(f"method: {method} time: {tic}")
-#     xta[method] = pd.Series([tic], index=["Time"]).append(wwx)
+#     xta[method] = pd.concat([pd.Series([tic], index=["Time"]), wwx])
 
 # res = pd.DataFrame(xta)
 # print(res.round(4))

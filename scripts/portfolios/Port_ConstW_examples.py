@@ -1,5 +1,6 @@
 # Examples
 import pandas as pd
+import time
 import azapy as az
 
 #=============================================================================
@@ -20,11 +21,8 @@ ww = pd.Series(1./len(symb), index=symb)
 
 p3 = az.Port_ConstW(mktdata, pname='ConstW')
 
-import time
 tic = time.perf_counter()
-
 port3  = p3.set_model(ww)    
-
 toc = time.perf_counter()
 print(f"time to get port: {toc-tic}")
 

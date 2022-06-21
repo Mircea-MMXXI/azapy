@@ -30,14 +30,15 @@ setuptools.setup(
     install_requires=[
           'numpy',
           'pandas',
-          'pandas_market_calendars',
           'scipy',
-          'cvxopt',
-          'ecos',
-          'ta',
           'plotly',
           'matplotlib',
-          'yfinance',
           'requests',
+          'ecos',
+          'glpk',
+          'pandas_market_calendars',
+          'cvxopt',
+          'ta',
+          'yfinance'
       ],
 )

@@ -33,8 +33,9 @@ strategies based on the following dispersion measures:
 * **mBTAD** - mixture Below Threshold Absolute Deviation,
 * **mBTSD** - mixture Below Threshold Semi-Deviation,
 * **GINI** - Gini index,
-* **MV** - Variance (as in mean variance model),
-* **SD** - Standard Deviation.
+* **SD** - Standard Deviation,
+* **MV** - Variance (as in mean-variance model).
+
 
 In each case several optimization strategies are implemented. To
 understand them better, let's look at a generic example of portfolio frontiers

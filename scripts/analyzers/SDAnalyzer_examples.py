@@ -168,7 +168,7 @@ print(f"weigths:\n {ww_comp}")
 #     wwx = crrx.getWeights()
 #     tic = time.perf_counter() - toc
 #     print(f"method: {method} time: {tic}")
-#     xta[method] = pd.Series([tic], index=["Time"]).append(wwx)
+#     xta[method] = pd.concat([pd.Series([tic], index=["Time"]), wwx])
 
 # res = pd.DataFrame(xta)
 # print(res.round(4))

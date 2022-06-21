@@ -13,8 +13,8 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Set the BTSD mixture parameter 
-alpha = [0.01, 0, -0.01]
+# Set the mBTSD mixture parameter 
+alpha = [-0.01, 0, 0.01]
 coef = [1, 1, 2]
 
 #=============================================================================
@@ -176,7 +176,7 @@ print(f"weigths:\n {ww_comp}")
 #     wwx = crrx.getWeights()
 #     tic = time.perf_counter() - toc
 #     print(f"method: {method} time: {tic}")
-#     xta[method] = pd.Series([tic], index=["Time"]).append(wwx)
+#     xta[method] = pd.concat([pd.Series([tic], index=["Time"]), wwx])
 
 # res = pd.DataFrame(xta)
 # print(res.round(4))

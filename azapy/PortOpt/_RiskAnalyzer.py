@@ -243,7 +243,7 @@ class _RiskAnalyzer:
             warnings.warn(f"Warning: status {self.status} for {self.rtype}"
                           + " is not 0")
             
-        self.ww = pd.Series(self.ww, index=self.rrate.columns)
+        self.ww = pd.Series(self.ww, index=self.rrate.columns, dtype='float64')
         return self.ww
 
 

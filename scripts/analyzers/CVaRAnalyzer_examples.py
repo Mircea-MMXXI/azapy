@@ -19,7 +19,7 @@ alpha = np.array([0.99, 0.975, 0.95])
 coef = np.full(len(alpha), 1/len(alpha))
 
 #=============================================================================
-# Compute Sharpe optimal portfolio
+# Compute C-Sharpe optimal portfolio
 # build the analyzer object
 cr1 = az.CVaRAnalyzer(alpha, coef, mktdata)
 # computes Sharpe weights for 0 risk-free rate
@@ -169,14 +169,15 @@ print(f"weigths:\n {ww_comp}")
 # import time
 # methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 'glpk', 'cvxopt',  
 #            'interior-point' ]
+
 # xta = {}
 # for method in methods:
 #     crrx = az.CVaRAnalyzer(alpha, coef, mktdata, method=method)
 #     toc = time.perf_counter()
-#     wwx = crrx.getWeights(mu=0.)
+#     wwx = crrx.getWeights(rtype='InvNrisk')
 #     tic = time.perf_counter() - toc
 #     print(f"method: {method} time: {tic}")
-#     xta[method] = pd.Series([tic], index=["Time"]).append(wwx)
+#     xta[method] = pd.concat([pd.Series([tic], index=["Time"]), wwx])
 
 # res = pd.DataFrame(xta)
 # print(res.round(4))

@@ -43,7 +43,8 @@ def _lp_cvxopt(c, G, h, A, b, method):
         solver = method
     
     res = cx.solvers.lp(c, G, h, A, b, solver=solver, 
-                            options={'show_progress': False})
+                            options={'show_progress': False,
+                                     'glpk':{'msg_lev':'GLP_MSG_OFF'}})
     
     # gather the results
     rout = {}

@@ -23,8 +23,8 @@ A. Risk based portfolio optimization algorithms:
   5. mBTAD - mixture BTAD (Below Threshold Absolute Deviation)
   6. mBTSD - mixture BTSD (Below Threshold Semi-Deviation)
   7. GINI - Gini index (as in Corrado Gini statistician 1884-1965)
-  8. MV - mean-variance
-  9. SD - standard deviation
+  8. SD - standard deviation
+  9. MV - variance (as in mean-variance model)
 
 For each class of portfolios the following optimization strategies are
 available:

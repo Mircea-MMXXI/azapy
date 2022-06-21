@@ -39,8 +39,8 @@ Risk based portfolio optimizations
    BTAD_th_doc
    BTSD_th_doc
    GINI_th_doc
-   MV_th_doc
    SD_th_doc
+   MV_th_doc
 
 
 

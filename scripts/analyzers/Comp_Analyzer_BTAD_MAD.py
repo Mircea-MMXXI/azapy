@@ -13,13 +13,10 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# set BTAD for alpha1=0 (default) detrended
-alpha = [0.]
-coef = [1.]
-cr1 = az.BTADAnalyzer(alpha, coef, mktdata, detrended=True)
-# set MAD first order (default)
-coef = [1]
-cr2 = az.MADAnalyzer(coef, mktdata)
+# set mBTAD for alpha1=0 (default) detrended
+cr1 = az.BTADAnalyzer(mktdata=mktdata, detrended=True)
+# set MAD first level (default)
+cr2 = az.MADAnalyzer(mktdata=mktdata)
 
 # reference data collected for Omega optimal portfolio
 _ = cr1.getWeights()
@@ -40,7 +37,7 @@ for rtype in rtype_collection:
     RR2 = cr2.RR
     risk2 = cr2.risk
     
-    print("\nComparisons: BTAD (alpha0=0) vs. MAD (first order) "
+    print("\nComparisons: BTAD (alpha1=0) vs. MAD (first level) "
           + f"rtype = {rtype} \n")
     print(f"risk: BTAD {risk1} MAD {risk2} Diff {risk1-risk2}")
     print(f"RR: BTAD {RR1} MAD {RR2} Diff {RR1 - RR2}")

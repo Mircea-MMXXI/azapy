@@ -63,7 +63,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute minimum SD optimal portfolio
+# Compute minimum SD portfolio
 port4 = p4.set_model(rtype="MinRisk")
 ww = p4.get_weights()
 p4.port_view()
@@ -93,7 +93,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute optimal portfolio for fixed risk-aversion factor
+# Compute SD optimal portfolio for fixed risk-aversion factor
 port4 = p4.set_model(rtype="RiskAverse", aversion=0.5)   
 ww = p4.get_weights()
 p4.port_view()

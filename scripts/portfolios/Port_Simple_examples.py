@@ -27,4 +27,3 @@ p1.port_drawdown(fancy=True)
 p1.port_perf(fancy=True)
 p1.port_annual_returns()
 p1.port_monthly_returns()
-

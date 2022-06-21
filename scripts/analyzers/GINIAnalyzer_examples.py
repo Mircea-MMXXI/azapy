@@ -13,7 +13,7 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Compute Sharpe optimal portfolio
+# Compute Gini-Sharpe optimal portfolio
 # build the analyzer object
 cr1 = az.GINIAnalyzer(mktdata)
 # computes Sharpe weights for 0 risk-free rate

@@ -14,12 +14,9 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
 # set BTSD for alpha=0 (default) detrended 
-alpha = [0.]
-coef = [1.]
-cr1 = az.BTSDAnalyzer(alpha, coef, mktdata, detrended=True)
-# set LSD first order (default)
-coef = [1]
-cr2 = az.LSDAnalyzer(coef, mktdata)
+cr1 = az.BTSDAnalyzer(mktdata=mktdata, detrended=True)
+# set LSD first level (default)
+cr2 = az.LSDAnalyzer(mktdata=mktdata)
 
 # collect reference data for Sortino optimal portfolio
 _ = cr1.getWeights()
@@ -40,7 +37,7 @@ for rtype in rtype_collection:
     RR2 = cr2.RR
     risk2 = cr2.risk
     
-    print("\nComparisons: BTSD (alpha0=0) vs. LSD (first order) "
+    print("\nComparisons: BTSD (alpha0=0) vs. LSD (first level) "
           + f"rtype = {rtype} \n")
     print(f"risk: BTSD {risk1} LSD {risk2} Diff {risk1-risk2}")
     print(f"RR: BTSD {RR1} LSD {RR2} Diff {RR1 - RR2}")

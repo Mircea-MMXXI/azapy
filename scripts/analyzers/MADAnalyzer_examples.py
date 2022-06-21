@@ -13,7 +13,7 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Define mMAD coef (equal weighted mixture for max MAD order 3)
+# Define mMAD coef (equal weighted mixture for mMAD level 3)
 coef = np.full(3, 1/3)
 
 #=============================================================================
@@ -172,10 +172,10 @@ print(f"weigths:\n {ww_comp}")
 # for method in methods:
 #     crrx = az.MADAnalyzer(coef, mktdata, method=method)
 #     toc = time.perf_counter()
-#     wwx = crrx.getWeights()
+#     wwx = crrx.getWeights(rtype='InvNrisk')
 #     tic = time.perf_counter() - toc
 #     print(f"method: {method} time: {tic}")
-#     xta[method] = pd.Series([tic], index=["Time"]).append(wwx)
+#     xta[method] = pd.concat([pd.Series([tic], index=["Time"]), wwx])
 
 # res = pd.DataFrame(xta)
 # print(res.round(4))

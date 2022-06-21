@@ -13,8 +13,8 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Set Omega mixture parameters
-alpha = [0.01, 0, -0.01]
+# Set mBTAD mixture parameters
+alpha = [-0.01, 0, 0.01]
 coef = [1, 1, 2]
 
 #=============================================================================
@@ -168,15 +168,16 @@ print(f"weigths:\n {ww_comp}")
 # # please uncomment the lines below
 # import time
 # methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 'glpk', 'cvxopt',  
-#             'interior-point' ]
+#            'interior-point' ]
+
 # xta = {}
 # for method in methods:
 #     crrx = az.BTADAnalyzer(alpha, coef, mktdata, method=method)
 #     toc = time.perf_counter()
-#     wwx = crrx.getWeights()
+#     wwx = crrx.getWeights(rtype="InvNrisk")
 #     tic = time.perf_counter() - toc
 #     print(f"method: {method} time: {tic}")
-#     xta[method] = pd.Series([tic], index=["Time"]).append(wwx)
+#     xta[method] = pd.concat([pd.Series([tic], index=["Time"]), wwx])
 
 # res = pd.DataFrame(xta)
 # print(res.round(4))
@@ -192,4 +193,3 @@ cash = 0.
 # new positions and rolling info
 pos = cr1.getPositions(nshares=ns, cash=0., rtype='Sharpe')
 print(f" New position report\n {pos}")
-

@@ -17,7 +17,7 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 coef = np.full(3, 1/3)
 
 # set Port_LSD class
-p4 = az.Port_LSD(mktdata, pname='LSDPort') 
+p4 = az.Port_LSD(mktdata, pname='mLSDPort') 
  
 #=============================================================================
 # Compute mLSD-Sharpe optimal portfolio
@@ -67,7 +67,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute minimum mLSD optimal portfolio
+# Compute minimum mLSD portfolio
 port4 = p4.set_model(coef=coef, rtype="MinRisk")   
 ww = p4.get_weights()
 p4.port_view()
@@ -97,7 +97,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute optimal portfolio for fixed risk-aversion factor
+# Compute mLSD optimal portfolio for fixed risk-aversion factor
 port4 = p4.set_model(coef=coef, rtype="RiskAverse", aversion=0.5)   
 ww = p4.get_weights()
 p4.port_view()

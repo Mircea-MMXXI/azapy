@@ -17,7 +17,7 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 coef = np.full(3, 1/3)
 
 # set Port_MAD class
-p4 = az.Port_MAD(mktdata, pname='MADPort') 
+p4 = az.Port_MAD(mktdata, pname='mMADPort') 
 
 #=============================================================================
 # Compute mMAD-Sharpe optimal portfolio
@@ -67,7 +67,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute minimum mMAD optimal portfolio
+# Compute minimum mMAD portfolio
 port4 = p4.set_model(coef=coef, rtype="MinRisk")   
 ww = p4.get_weights()
 p4.port_view()
@@ -97,7 +97,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute optimal portfolio for fixed risk-aversion factor
+# Compute mMAD optimal portfolio for fixed risk-aversion factor
 port4 = p4.set_model(coef=coef, rtype="RiskAverse", aversion=0.5)   
 ww = p4.get_weights()
 p4.port_view()
@@ -116,7 +116,7 @@ p4.get_account(fancy=True)
 # # may take some time to complete
 # # please uncomment the lines below
 # methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 'glpk', 'cvxopt',  
-#            'interior-point' ]
+#             'interior-point' ]
 # zts = []
 # for method in methods:
 #     toc = time.perf_counter()

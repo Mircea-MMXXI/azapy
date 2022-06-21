@@ -17,7 +17,7 @@ alpha = [0.9, 0.85]
 # assume equal weighted risk mixture - default
 
 # set por_SMCR class
-p4 = az.Port_SMCR(mktdata, pname='SMCRPort') 
+p4 = az.Port_SMCR(mktdata, pname='mSMCRPort') 
 
 #=============================================================================
 # Compute mSMCR-Sharpe optimal portfolio
@@ -67,7 +67,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute minimum mSMCR optimal portfolio
+# Compute minimum mSMCR portfolio
 port4 = p4.set_model(alpha=alpha, rtype="MinRisk")   
 ww = p4.get_weights()
 p4.port_view()
@@ -97,7 +97,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute optimal portfolio for fixed risk-aversion factor
+# Compute mSMCR optimal portfolio for fixed risk-aversion factor
 port4 = p4.set_model(alpha=alpha, rtype="RiskAverse", aversion=0.5)   
 ww = p4.get_weights()
 p4.port_view()

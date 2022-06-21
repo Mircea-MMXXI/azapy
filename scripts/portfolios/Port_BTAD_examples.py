@@ -13,11 +13,11 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
 # mBTAD parameters
-alpha = [0.01, 0., -0.01]
+alpha = [-0.01, 0., 0.01]
 coef = [1, 2, 3]
 
 # set Port_BTAD class
-p4 = az.Port_BTAD(mktdata, pname='BTAD_Port') 
+p4 = az.Port_BTAD(mktdata, pname='mBTAD_Port') 
 
 #=============================================================================
 # Compute Omega optimal portfolio
@@ -52,7 +52,7 @@ _ = pp.set_model()
 _ = pp.port_view_all(componly=(True))
 
 #=============================================================================
-# Compute BTAD optimal portfolio
+# Compute mBTAD optimal portfolio
 port4 = p4.set_model(alpha=alpha, coef=coef, rtype="Risk", mu=0.1)   
 ww = p4.get_weights()
 p4.port_view()
@@ -67,7 +67,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute minimum mBTAD optimal portfolio
+# Compute minimum mBTAD portfolio
 port4 = p4.set_model(alpha=alpha, coef=coef, rtype="MinRisk")   
 ww = p4.get_weights()
 p4.port_view()
@@ -120,7 +120,7 @@ p4.get_account(fancy=True)
 # zts = []
 # for method in methods:
 #     toc = time.perf_counter()
-#     zz = p4.set_model(alpha=alpha, coef=coef, method=method)  
+#     zz = p4.set_model(alpha=alpha, coef=coef, rtype='InvNrisk', method=method)  
 #     tic = time.perf_counter()
 #     print(f"{method} time: {tic-toc}")  
 #     zz.columns = [method]
