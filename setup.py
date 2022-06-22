@@ -35,7 +35,6 @@ setuptools.setup(
           'matplotlib',
           'requests',
           'ecos',
-          'glpk',
           'pandas_market_calendars',
           'cvxopt',
           'ta',
