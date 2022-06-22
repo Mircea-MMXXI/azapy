@@ -657,7 +657,7 @@ print(f"weigths:\n {ww_comp}")
 #     wwx = crrx.getWeights()
 #     tic = time.perf_counter() - toc
 #     print(f"method: {method} time: {tic}")
-#     xta[method] = pd.Series([tic], index=["Time"]).append(wwx)
+#     xta[method] = pd.concat([pd.Series([tic], index=["Time"]), wwx])
 
 # res = pd.DataFrame(xta)
 # print(res.round(4))
@@ -1243,7 +1243,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute minimum SD optimal portfolio
+# Compute minimum SD portfolio
 port4 = p4.set_model(rtype="MinRisk")
 ww = p4.get_weights()
 p4.port_view()
@@ -1273,7 +1273,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute optimal portfolio for fixed risk-aversion factor
+# Compute SD optimal portfolio for fixed risk-aversion factor
 port4 = p4.set_model(rtype="RiskAverse", aversion=0.5)   
 ww = p4.get_weights()
 p4.port_view()
@@ -1305,6 +1305,6 @@ p4.get_account(fancy=True)
 # pp = az.Port_Simple(zts)
 # _ = pp.set_model()
 # _ = pp.port_view_all(componly=True)
-```
 
+```
 [TOP](#TOP)

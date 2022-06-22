@@ -1,6 +1,6 @@
 # azapy project
 ## Financial Portfolio Optimization Algorithms
-### An open source python library for everybody
+### An open-source python library for everybody
 
 ![TimeSeries](graphics/Portfolio_1.png)
 
@@ -26,7 +26,7 @@ A. Risk based portfolio optimization algorithms:
   8. SD - standard deviation
   9. MV - variance (as in mean-variance model)
 
-For each class of portfolios the following optimization strategies are
+For each class of portfolio the following optimization strategies are
 available:
   1. Minimization of dispersion for targeted expected rate of return
   2. Maximization of generalized Sharpe ratio

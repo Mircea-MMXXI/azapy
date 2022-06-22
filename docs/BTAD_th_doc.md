@@ -558,8 +558,8 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Set Omega mixture parameters
-alpha = [0.01, 0, -0.01]
+# Set mBTAD mixture parameters
+alpha = [-0.01, 0, 0.01]
 coef = [1, 1, 2]
 
 #=============================================================================
@@ -713,15 +713,16 @@ print(f"weigths:\n {ww_comp}")
 # # please uncomment the lines below
 # import time
 # methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 'glpk', 'cvxopt',  
-#             'interior-point' ]
+#            'interior-point' ]
+
 # xta = {}
 # for method in methods:
 #     crrx = az.BTADAnalyzer(alpha, coef, mktdata, method=method)
 #     toc = time.perf_counter()
-#     wwx = crrx.getWeights()
+#     wwx = crrx.getWeights(rtype="InvNrisk")
 #     tic = time.perf_counter() - toc
 #     print(f"method: {method} time: {tic}")
-#     xta[method] = pd.Series([tic], index=["Time"]).append(wwx)
+#     xta[method] = pd.concat([pd.Series([tic], index=["Time"]), wwx])
 
 # res = pd.DataFrame(xta)
 # print(res.round(4))
@@ -737,7 +738,6 @@ cash = 0.
 # new positions and rolling info
 pos = cr1.getPositions(nshares=ns, cash=0., rtype='Sharpe')
 print(f" New position report\n {pos}")
-
 
 ```
 
@@ -1274,11 +1274,11 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
 # mBTAD parameters
-alpha = [0.01, 0., -0.01]
+alpha = [-0.01, 0., 0.01]
 coef = [1, 2, 3]
 
 # set Port_BTAD class
-p4 = az.Port_BTAD(mktdata, pname='BTAD_Port') 
+p4 = az.Port_BTAD(mktdata, pname='mBTAD_Port') 
 
 #=============================================================================
 # Compute Omega optimal portfolio
@@ -1313,7 +1313,7 @@ _ = pp.set_model()
 _ = pp.port_view_all(componly=(True))
 
 #=============================================================================
-# Compute BTAD optimal portfolio
+# Compute mBTAD optimal portfolio
 port4 = p4.set_model(alpha=alpha, coef=coef, rtype="Risk", mu=0.1)   
 ww = p4.get_weights()
 p4.port_view()
@@ -1328,7 +1328,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute minimum mBTAD optimal portfolio
+# Compute minimum mBTAD portfolio
 port4 = p4.set_model(alpha=alpha, coef=coef, rtype="MinRisk")   
 ww = p4.get_weights()
 p4.port_view()
@@ -1381,7 +1381,7 @@ p4.get_account(fancy=True)
 # zts = []
 # for method in methods:
 #     toc = time.perf_counter()
-#     zz = p4.set_model(alpha=alpha, coef=coef, method=method)  
+#     zz = p4.set_model(alpha=alpha, coef=coef, rtype='InvNrisk', method=method)  
 #     tic = time.perf_counter()
 #     print(f"{method} time: {tic-toc}")  
 #     zz.columns = [method]
@@ -1393,5 +1393,4 @@ p4.get_account(fancy=True)
 # _ = pp.port_view_all(componly=True)
 
 ```
-
 [TOP](#TOP)

@@ -514,7 +514,7 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Define mMAD coef (equal weighted mixture for max MAD order 3)
+# Define mMAD coef (equal weighted mixture for mMAD level 3)
 coef = np.full(3, 1/3)
 
 #=============================================================================
@@ -673,10 +673,10 @@ print(f"weigths:\n {ww_comp}")
 # for method in methods:
 #     crrx = az.MADAnalyzer(coef, mktdata, method=method)
 #     toc = time.perf_counter()
-#     wwx = crrx.getWeights()
+#     wwx = crrx.getWeights(rtype='InvNrisk')
 #     tic = time.perf_counter() - toc
 #     print(f"method: {method} time: {tic}")
-#     xta[method] = pd.Series([tic], index=["Time"]).append(wwx)
+#     xta[method] = pd.concat([pd.Series([tic], index=["Time"]), wwx])
 
 # res = pd.DataFrame(xta)
 # print(res.round(4))
@@ -1221,7 +1221,7 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 coef = np.full(3, 1/3)
 
 # set Port_MAD class
-p4 = az.Port_MAD(mktdata, pname='MADPort') 
+p4 = az.Port_MAD(mktdata, pname='mMADPort') 
 
 #=============================================================================
 # Compute mMAD-Sharpe optimal portfolio
@@ -1271,7 +1271,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute minimum mMAD optimal portfolio
+# Compute minimum mMAD portfolio
 port4 = p4.set_model(coef=coef, rtype="MinRisk")   
 ww = p4.get_weights()
 p4.port_view()
@@ -1301,7 +1301,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute optimal portfolio for fixed risk-aversion factor
+# Compute mMAD optimal portfolio for fixed risk-aversion factor
 port4 = p4.set_model(coef=coef, rtype="RiskAverse", aversion=0.5)   
 ww = p4.get_weights()
 p4.port_view()
@@ -1320,7 +1320,7 @@ p4.get_account(fancy=True)
 # # may take some time to complete
 # # please uncomment the lines below
 # methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 'glpk', 'cvxopt',  
-#            'interior-point' ]
+#             'interior-point' ]
 # zts = []
 # for method in methods:
 #     toc = time.perf_counter()
@@ -1336,5 +1336,4 @@ p4.get_account(fancy=True)
 # _ = pp.port_view_all(componly=True)
 
 ```
-
 [TOP](#TOP)

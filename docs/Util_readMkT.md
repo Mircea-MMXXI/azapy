@@ -1,5 +1,6 @@
 <a name="HistMkTData"></a>
 
+
 # Read historical market data <a name="TOP"></a>
 
 There are 2 ways to get historical time series. Using:
@@ -225,8 +226,6 @@ mktdata = az.readMkT(symb, sdata=sdate, sdata=edate, source=source,
 ```
 [TOP](#TOP)
 
-<a name="MkTreader">
-
 ## **class MkTreader**
 
 Process historical market data requests.
@@ -352,5 +351,4 @@ req_status = mkt.get_request_status()
 # missing observation dates
 error_date = mkt.get_error_log()
 ```
-
 [TOP](#TOP)

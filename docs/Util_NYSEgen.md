@@ -1,5 +1,5 @@
 
-# NYSEgen
+# NYSEgen <a name="TOP"></a>
 
 ## Generate the NYSE (New York Stock Exchange) business days calendar.
 
@@ -29,3 +29,5 @@ default to the previous business day. The default is
 ```
 buscal = NYSEgen()
 ```
+
+[TOP](#TOP)

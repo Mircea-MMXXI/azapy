@@ -514,6 +514,6 @@ port2  = p2.set_model(ww)
 pp = az.Port_Simple([port2, port4])
 _ = pp.set_model()
 _ = pp.port_view_all(componly=True)
-```
 
+```
 [TOP](#TOP)

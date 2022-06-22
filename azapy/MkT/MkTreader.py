@@ -191,7 +191,7 @@ class MkTreader:
             (symbols) requested per minute. 
             It varies with the level of access 
             corresponding to the API key. The minimum value is 5 for a free key 
-            and starts at 75 for a premium key. This value is stored in
+            and starts at 75 for premium keys. This value is stored in
             max_req_per_min variable.
             
             Example: param = {'max_req_per_min': 5}
@@ -321,13 +321,12 @@ class MkTreader:
     
     def get_request_status(self):
         '''
-        Reports abbreviated information about the status of the request per 
-        symbol.
+        Reports abbreviated information about request status.
 
         Returns
         -------
         `pandas.DataFrame`
-            The columns are the symbols for which the data was requested.
+            The column names are the symbols for which the data was requested.
             The rows contain the actual input parameters per symbol as well
             as:
                 

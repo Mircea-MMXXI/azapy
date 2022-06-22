@@ -527,7 +527,7 @@ alpha = np.array([0.99, 0.975, 0.95])
 coef = np.full(len(alpha), 1/len(alpha))
 
 #=============================================================================
-# Compute Sharpe optimal portfolio
+# Compute C-Sharpe optimal portfolio
 # build the analyzer object
 cr1 = az.CVaRAnalyzer(alpha, coef, mktdata)
 # computes Sharpe weights for 0 risk-free rate
@@ -677,14 +677,15 @@ print(f"weigths:\n {ww_comp}")
 # import time
 # methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 'glpk', 'cvxopt',  
 #            'interior-point' ]
+
 # xta = {}
 # for method in methods:
 #     crrx = az.CVaRAnalyzer(alpha, coef, mktdata, method=method)
 #     toc = time.perf_counter()
-#     wwx = crrx.getWeights(mu=0.)
+#     wwx = crrx.getWeights(rtype='InvNrisk')
 #     tic = time.perf_counter() - toc
 #     print(f"method: {method} time: {tic}")
-#     xta[method] = pd.Series([tic], index=["Time"]).append(wwx)
+#     xta[method] = pd.concat([pd.Series([tic], index=["Time"]), wwx])
 
 # res = pd.DataFrame(xta)
 # print(res.round(4))
@@ -1230,11 +1231,11 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
 # Setup mCVaR parameters
-alpha = [0.99, 0.975, 0.95]
+alpha = [0.975, 0.95, 0.9]
 # assume equal weighted mixture - default
 
 # set Port_CVaR class
-p4 = az.Port_CVaR(mktdata, pname='CVaRPort')
+p4 = az.Port_CVaR(mktdata, pname='mCVaRPort')
  
 #=============================================================================
 # Compute mCVaR-Sharpe optimal portfolio
@@ -1284,7 +1285,7 @@ p4.get_nshares()
 p4.get_account(fancy=True) 
 
 #=============================================================================
-# Compute minimum mCVaR optimal portfolio
+# Compute minimum mCVaR portfolio
 port4 = p4.set_model(alpha=alpha, rtype="MinRisk")   
 ww = p4.get_weights()
 p4.port_view()
@@ -1314,7 +1315,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)  
 
 #=============================================================================
-# Compute optimal portfolio for fixed risk aversion factor
+# Compute mCVAR optimal portfolio for fixed risk aversion factor
 port4 = p4.set_model(alpha=alpha, rtype="RiskAverse", aversion=0.5)   
 ww = p4.get_weights()
 p4.port_view()
@@ -1333,7 +1334,7 @@ p4.get_account(fancy=True)
 # # may take some time to complete
 # # please uncomment the lines below
 # methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 'glpk', 'cvxopt',  
-#             'interior-point' ]
+#             'interior-point']
 # zts = []
 # for method in methods:
 #     toc = time.perf_counter()
@@ -1348,7 +1349,5 @@ p4.get_account(fancy=True)
 # _ = pp.set_model()
 # _ = pp.port_view_all(componly=True)
 
-
 ```
-
 [TOP](#TOP)

@@ -502,7 +502,7 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Compute Sharpe optimal portfolio
+# Compute Gini-Sharpe optimal portfolio
 # build the analyzer object
 cr1 = az.GINIAnalyzer(mktdata)
 # computes Sharpe weights for 0 risk-free rate
@@ -1195,10 +1195,10 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
 # set Port_GINI class
-p4 = az.Port_GINI(mktdata, pname='GINIPort') 
+p4 = az.Port_GINI(mktdata, pname='GiniPort') 
  
 #=============================================================================
-# Compute GINI-Sharpe optimal portfolio
+# Compute Gini-Sharpe optimal portfolio
 tic = time.perf_counter()
 port4 = p4.set_model(hlength=0.5)   
 toc = time.perf_counter()
@@ -1230,7 +1230,7 @@ _ = pp.set_model()
 _ = pp.port_view_all(componly=(True))
 
 #=============================================================================
-# Compute GINI optimal portfolio
+# Compute Gini optimal portfolio
 port4 = p4.set_model(rtype="Risk", mu=0.1, hlength=0.5)   
 ww = p4.get_weights()
 p4.port_view()
@@ -1245,7 +1245,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute minimum GINI optimal portfolio
+# Compute minimum Gini optimal portfolio
 port4 = p4.set_model(rtype="MinRisk", hlength=0.5)   
 ww = p4.get_weights()
 p4.port_view()
@@ -1275,7 +1275,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute optimal portfolio for fixed risk-aversion factor
+# Compute Gini optimal portfolio for fixed risk-aversion factor
 port4 = p4.set_model(rtype="RiskAverse", aversion=0.5, hlength=0.5)  
 ww = p4.get_weights()
 p4.port_view()
@@ -1309,8 +1309,5 @@ p4.get_account(fancy=True)
 # _ = pp.set_model()
 # _ = pp.port_view_all(componly=True)
 
-
-
 ```
-
 [TOP](#TOP)

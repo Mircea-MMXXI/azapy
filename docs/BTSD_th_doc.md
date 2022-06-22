@@ -547,8 +547,8 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Set the BTSD mixture parameter 
-alpha = [0.01, 0, -0.01]
+# Set the mBTSD mixture parameter 
+alpha = [-0.01, 0, 0.01]
 coef = [1, 1, 2]
 
 #=============================================================================
@@ -710,7 +710,7 @@ print(f"weigths:\n {ww_comp}")
 #     wwx = crrx.getWeights()
 #     tic = time.perf_counter() - toc
 #     print(f"method: {method} time: {tic}")
-#     xta[method] = pd.Series([tic], index=["Time"]).append(wwx)
+#     xta[method] = pd.concat([pd.Series([tic], index=["Time"]), wwx])
 
 # res = pd.DataFrame(xta)
 # print(res.round(4))
@@ -726,6 +726,7 @@ cash = 0.
 # new positions and rolling info
 pos = cr1.getPositions(nshares=ns, cash=0., rtype='Sharpe')
 print(f" New position report\n {pos}")
+
 ```
 
 [TOP](#TOP)
@@ -1260,11 +1261,11 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
 # mBTSD parameters
-alpha = [0.01, 0., -0.01]
+alpha = [-0.01, 0., 0.01]
 coef = [1, 2, 3]
 
 # set Port_BTSD class
-p4 = az.Port_BTSD(mktdata, pname='BTSDPort') 
+p4 = az.Port_BTSD(mktdata, pname='mBTSDPort') 
 
 #=============================================================================
 # Compute Sortino optimal portfolio
@@ -1299,7 +1300,7 @@ _ = pp.set_model()
 _ = pp.port_view_all(componly=(True))
 
 #=============================================================================
-# Compute BTSD optimal portfolio
+# Compute mBTSD optimal portfolio
 port4 = p4.set_model(alpha=alpha, coef=coef, rtype="Risk", mu=0.1)   
 ww = p4.get_weights()
 p4.port_view()
@@ -1314,7 +1315,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute minimum BTSD optimal portfolio
+# Compute minimum mBTSD portfolio
 port4 = p4.set_model(alpha=alpha, coef=coef, rtype="MinRisk")   
 ww = p4.get_weights()
 p4.port_view()
@@ -1329,7 +1330,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute optimal portfolio with BTSD of equal weighted portfolio
+# Compute optimal portfolio with mBTSD of equal weighted portfolio
 port4 = p4.set_model(alpha=alpha, coef=coef, rtype="InvNrisk")   
 ww = p4.get_weights()
 p4.port_view()
@@ -1344,7 +1345,7 @@ p4.get_nshares()
 p4.get_account(fancy=True)
 
 #=============================================================================
-# Compute optimal portfolio for fixed risk aversion
+# Compute mBTSD optimal portfolio for fixed risk aversion
 port4 = p4.set_model(alpha=alpha, coef=coef, rtype="RiskAverse", aversion=0.5)  
 ww = p4.get_weights()
 p4.port_view()
@@ -1362,8 +1363,7 @@ p4.get_account(fancy=True)
 # # speed comparisons for different LP methods
 # # may take some time to complete
 # # please uncomment the lines below
-# methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 'glpk', 'cvxopt',  
-#            'interior-point' ]
+# methods = ['ecos', 'cvxopt']
 # zts = []
 # for method in methods:
 #     toc = time.perf_counter()
@@ -1378,7 +1378,5 @@ p4.get_account(fancy=True)
 # _ = pp.set_model()
 # _ = pp.port_view_all(componly=True)
 
-
 ```
-
 [TOP](#TOP)
