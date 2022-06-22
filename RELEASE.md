@@ -1,4 +1,5 @@
 | Version | Date | Comments |
 |---------|------|----------|
-| 1.0.0 | 202111xx | First release |
-| 1.1.0 | 202204xx | Add more MkT data providers |
+| 0.0.8 | 20211130 | First release |
+| 0.1.0 | 20220419 | Add more MkT data providers |
+| 1.0.0 | 202206xx | Major release |

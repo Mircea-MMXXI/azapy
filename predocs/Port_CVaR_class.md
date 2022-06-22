@@ -1,7 +1,7 @@
 
 ## Port_CVaR class
 
-Out-of-Sample (back testing) simulation of mCVaR optimal portfolio periodically
+Out-of-sample (backtesting) simulation of mCVaR optimal portfolio periodically
 rebalanced.
 
 

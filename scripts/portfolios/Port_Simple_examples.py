@@ -1,5 +1,5 @@
 # Examples
-import pandas as pd
+
 import azapy as az
 
 #=============================================================================
@@ -13,8 +13,9 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
 # define some weights
-ww = pd.Series(1./len(symb), index=symb)
+ww = list(range(1,len(symb) + 1))
 
+print(f"weights:\n{ww}\n")
 #=============================================================================
 # Compute portfolio and view the results
 p1 = az.Port_Simple(mktdata, pname='SimplePort')
@@ -26,4 +27,3 @@ p1.port_drawdown(fancy=True)
 p1.port_perf(fancy=True)
 p1.port_annual_returns()
 p1.port_monthly_returns()
-

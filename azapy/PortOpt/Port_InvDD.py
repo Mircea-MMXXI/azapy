@@ -3,7 +3,7 @@ from azapy.util.drawdown import max_drawdown
 
 class Port_InvDD(Port_InvVol):
     """
-    Back testing portfolio with weights proportional to the inverse of
+    Backtesting portfolio with weights proportional to the inverse of
     component maximum drawdowns, periodically rebalanced.
 
     Methods:

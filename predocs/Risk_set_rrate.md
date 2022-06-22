@@ -14,7 +14,7 @@ set_rrate(rrate)
 
 *Inputs:*
 
-* `rrate` : `pd.DataFrame`,
+* `rrate` : `pandas.DataFrame`,
 portfolio components historical rates of returns, where the
 columns are `'date'`, `symbol1`, `symbol2`, etc.
 

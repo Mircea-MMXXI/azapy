@@ -7,7 +7,7 @@ from ._solvers import _socp_solver
 
 class SMCRAnalyzer(CVaRAnalyzer):
     """
-    SMCR - Second Momentum Coherent Risk based portfolio optimizations.
+    Mixture SMCR based optimal portfolio strategies.
     
     Methods:
         * getWeights
@@ -19,68 +19,68 @@ class SMCRAnalyzer(CVaRAnalyzer):
         * set_rtype
         * set_random_seed
     """
-    def __init__(self, alpha=[0.9], coef=[1.], 
-                 mktdata=None, colname='adjusted', freq='Q', 
-                 hlength=3.25, calendar=None,
+    def __init__(self, alpha=[0.9], coef=None, mktdata=None, 
+                 colname='adjusted', freq='Q', hlength=3.25, calendar=None,
                  rtype='Sharpe', method='ecos'):
         """
         Constructor
 
         Parameters
         ----------
-        alpha : list, optional
-            List of alpha values. The default is [0.9].
-        coef : list, optional
-            List of coefficients. Must be the same size with 
-            alpha. The default is [1.].
-        mktdata : pandas.DataFrame, optional
+        `alpha` : list, optional
+            List of distinct alpha confidence levels. The default is `[0.9]`.
+        `coef` : list, optional
+            List of positive mixture coefficients. Must have the same size with 
+            `alpha`. A `None` value assumes an equal weighted risk mixture.
+            The vector of coefficients will be normalized to unit.
+            The default is `None`.
+        `mktdata` : `pandas.DataFrame`, optional
             Historic daily market data for portfolio components in the format
-            returned by azapy.mktData function. The default is None.
-        colname : str, optional
+            returned by `azapy.mktData` function. The default is `None`.
+        `colname` : str, optional
             Name of the price column from mktdata used in the weights 
-            calibration. The default is 'adjusted'.
-        freq : str, optional
-            Rate of returns horizon in number of business day. it could be 
-            'Q' for quarter or 'M' for month. The default is 'Q'.
-        hlength : float, optional
+            calibration. The default is `'adjusted'`.
+        `freq` : str, optional
+            Rate of returns horizon. It could be 
+            'Q' for quarter or 'M' for month. The default is `'Q'`.
+        `hlength` : float, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
-            The default is 3.25 years.
-        calendar : numpy.busdaycalendar, optional
+            The default is `3.25` years.
+        `calendar` : `numpy.busdaycalendar`, optional
             Business days calendar. If is it `None` then the calendar will 
             be set to NYSE business calendar. 
             The default is `None`.
-        rtype : str, optional
+       `rtype` : str, optional
             Optimization type. Possible values \n
-                "Risk" : minimization of dispersion (risk) measure for a fixed 
-                vale of expected rate of return. \n
-                "Sharpe" : maximization of generalized Sharpe ratio.\n
-                "Sharpe2" : minimization of the inverse generalized Sharpe 
+                'Risk' : minimization of dispersion (risk) measure for  
+                targeted rate of return. \n
+                'Sharpe' : maximization of generalized Sharpe ratio.\n
+                'Sharpe2' : minimization of the inverse generalized Sharpe 
                 ratio.\n
-                "MinRisk" : optimal portfolio with minimum dispersion (risk) 
-                value.\n
-                "InvNRisk" : optimal portfolio with the same dispersion (risk)
-                value as equal weighted portfolio. \n
-                "RiskAverse" : optimal portfolio for a fixed value of risk 
-                aversion coefficient.
-            The default is "Sharpe".
+                'MinRisk' : minimum dispersion (risk) portfolio.\n
+                'InvNrisk' : optimal portfolio with the same dispersion (risk)
+                value as a benchmark portfolio 
+                (e.g. equal weighted portfolio).\n
+                'RiskAverse' : optimal portfolio for a fixed value of 
+                risk-aversion factor.
+            The default is `'Sharpe'`.
         method : str, optional
             SOCP numerical method. 
             Could be: 'ecos' or 'cvxopt'.
-            The defualt is 'ecos'.
+            The defualt is `'ecos'`.
             
         Returns
         -------
         The object.
 
         """
-        super().__init__(alpha, coef, 
-                         mktdata, colname, freq, hlength, calendar, rtype)
+        super().__init__(alpha, coef, mktdata, 
+                         colname, freq, hlength, calendar, rtype, method)
         
-        socp_methods = ['ecos', 'cvxopt']
-        if not method in socp_methods:
-            raise ValueError(f"method must be one of {socp_methods}")
-        self.method = method
+        
+    def _set_method(self, method):
+        self._set_socp_method(method)
 
 
     def _risk_calc(self, prate, alpha):
@@ -127,6 +127,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         
         return self.status, HMVaR, HMCR
     
+    
     def _risk_min(self, d=1):
         # Order of variables:
         # w <- [0:mm] 
@@ -157,9 +158,11 @@ class SMCRAnalyzer(CVaRAnalyzer):
             G_irow += list(range(l * nn, (l + 1) * nn)) \
                 + list(range(l * nn, (l + 1) * nn))
             G_data += [-1.] * nn + [-1.] * nn
+            
         G_icol += list(range(mm))
         G_irow += [nn * ll] * mm
         G_data += list(-self.muk * d)
+        
         G_icol += list(range(mm))
         G_irow += list(range(nn * ll + 1, mm + nn * ll + 1))
         G_data += [-1.] * mm
@@ -191,6 +194,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         A_icol = list(range(mm))
         A_irow = [0] * mm
         A_data = [1.] * mm
+        
         A_shape = (1, mm + ll * (nn + 2))
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
        
@@ -205,12 +209,12 @@ class SMCRAnalyzer(CVaRAnalyzer):
             warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * mm)
         
-        # SMVaR
+        # SMVaR 
         self.secondary_risk_comp = np.array([res['x'][mm + l * (nn + 2)] \
                                              for l in range(ll)])
-        # average SMCR
+        # mSMCR
         self.risk = res['pcost']
-        # component SMCR
+        # SMCR components
         self.primary_risk_comp = np.array(
             [res['x'][mm + l * (nn + 2)] \
              + 1 / (1 - self.alpha[l])  / np.sqrt(nn) \
@@ -223,6 +227,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         self.RR = np.dot(self.ww, self.muk)
 
         return self.ww
+    
     
     def _sharpe_max(self):
         # Order of variables:
@@ -251,6 +256,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
             G_irow += list(range(l * nn, (l + 1) * nn)) \
                 + list(range(l * nn, (l + 1) * nn))
             G_data += [-1] * nn + [-1] * nn
+            
         G_icol += list(range(mm))
         G_irow += list(range(nn * ll, mm + nn * ll))
         G_data += [-1.] * mm
@@ -301,19 +307,19 @@ class SMCRAnalyzer(CVaRAnalyzer):
             warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * mm)
         
-        # average SMCR (=1/t)
+        # mSMCR 
         self.risk = 1. / res['x'][-1]
-        # SMVaR (=u)
+        # SMVaR 
         self.secondary_risk_comp = np.array(
             [res['x'][mm + l * (nn + 2)] * self.risk for l in range(ll)])
-        # Sharpe
+        # mSMCR-Sharpe
         self.sharpe = -res['pcost']
         # optimal weights
         self.ww = np.array(res['x'][:mm] * self.risk)
         self.ww.shape = mm
         # rate of returns
         self.RR = np.dot(self.ww, self.muk)
-        # component SMCR (recomputed)
+        # SMCR components (recomputed)
         self.primary_risk_comp = \
             [(res['x'][mm + l * (nn + 2)] \
               + 1. / (1. - self.alpha[l]) / np.sqrt(nn) \
@@ -321,6 +327,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
              for l in range(ll)]
         
         return self.ww
+    
     
     def _sharpe_inv_min(self):
         # Order of variables:
@@ -354,6 +361,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
             G_irow += list(range(l * nn, (l + 1) * nn)) \
                 + list(range(l * nn, (l + 1) * nn))
             G_data += [-1] * nn + [-1] * nn
+            
         G_icol += list(range(mm))
         G_irow += list(range(nn * ll, mm + nn * ll))
         G_data += [-1.] * mm
@@ -384,6 +392,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         A_icol = list(range(mm)) + [mm + ll * (nn + 2)]
         A_irow = [0] * (mm + 1)
         A_data = [1.] * mm + [-1.]
+        
         A_icol += list(range(mm)) + [mm + ll * (nn + 2)]
         A_irow += [1] * (mm + 1)
         A_data += list(self.muk) + [-self.mu]
@@ -403,7 +412,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
             return np.array([np.nan] * mm)
         
         t = res['x'][-1]
-        # average SMCR (=g/t)
+        # mSMCR (=g/t)
         self.risk = res['pcost'] / t
         # SMVaR (=u/t)
         self.secondary_risk_comp = np.array(
@@ -415,7 +424,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         self.ww.shape = mm
         # rate of returns
         self.RR = 1. / t + self.mu
-        # component SMCR (recomputed)
+        # SMCR component (recomputed)
         self.primary_risk_comp = np.array(
             [(res['x'][mm + l * (nn + 2)] \
               + 1. / (1. - self.alpha[l]) / np.sqrt(nn) \
@@ -423,6 +432,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
              for l in range(ll)])
         
         return self.ww
+    
     
     def _rr_max(self):
         # Order of variables:
@@ -450,6 +460,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
             G_irow += list(range(l * nn, (l + 1) * nn)) \
                   + list(range(l * nn, (l + 1) * nn))
             G_data += [-1.] * nn + [-1.] * nn
+            
         G_icol += list(range(mm))
         G_irow += list(range(nn * ll, mm + nn * ll))
         G_data += [-1.] * mm
@@ -505,7 +516,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
                                              for l in range(ll)])
         # rate of returns
         self.RR = -res['pcost']
-        # component SMCR
+        # SMCR component 
         self.primary_risk_comp = np.array(
             [res['x'][mm + l * (nn + 2)] \
              + 1 / (1 - self.alpha[l])  / np.sqrt(nn) \
@@ -516,6 +527,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         self.ww.shape = mm
 
         return self.ww
+
 
     def _risk_averse(self):
         # Order of variables:
@@ -548,6 +560,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
             G_irow += list(range(l * nn, (l + 1) * nn)) \
                 + list(range(l * nn, (l + 1) * nn))
             G_data += [-1.] * nn + [-1.] * nn
+            
         G_icol += list(range(mm))
         G_irow += list(range(nn * ll, mm + nn * ll))
         G_data += [-1.] * mm
@@ -579,6 +592,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         A_icol = list(range(mm))
         A_irow = [0] * mm
         A_data = [1.] * mm
+        
         A_shape = (1, mm + ll * (nn + 2))
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         
@@ -598,12 +612,12 @@ class SMCRAnalyzer(CVaRAnalyzer):
         self.ww.shape = mm
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
-        # average SMCR
+        # mSMCR
         self.risk = (res['pcost'] + self.RR) / self.Lambda
         # SMVaR
         self.secondary_risk_comp = np.array([res['x'][mm + l * (nn + 2)] \
                                              for l in range(ll)])
-        # component SMCR
+        # SMCR component 
         self.primary_risk_comp = np.array(
             [res['x'][mm + l * (nn + 2)] \
              + 1. / (1. - self.alpha[l])  / np.sqrt(nn) \

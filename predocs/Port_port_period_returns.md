@@ -18,7 +18,7 @@ port_period_returns(fancy=False)
     - `True` : the values are reported in percent rounded
     to 2 decimals.
 
-*Returns:* `pd.DataFrame`
+*Returns:* `pandas.DataFrame`
 
 Each rolling period is indicated by its start date, `Droll`.
 For reference, the values of `Dfix` and components weights are

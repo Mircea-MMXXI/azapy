@@ -3,7 +3,7 @@ from .MVAnalyzer import MVAnalyzer
 
 class Port_MV(Port_CVaR):
     """
-    Back testing the MV optimal portfolio periodically rebalanced.
+    Backtesting MV optimal portfolio strategies, periodically rebalanced.
 
     Methods:
         * set_model
@@ -20,39 +20,58 @@ class Port_MV(Port_CVaR):
         * port_monthly_returns
         * port_period_returns
     """
-    def set_model(self, mu, rtype='Sharpe', hlength=3.25, method='ecos'):
+    def set_model(self, rtype='Sharpe', mu=None, mu0=0, aversion=None, 
+                  ww0=None, hlength=3.25, method='ecos'):
         """
         Sets model parameters and evaluates portfolio time-series.
 
         Parameters
-        ----------
-        mu : float
-            Reference rate. Its meaning depends on the value of `rtype`. For
-            `rtype` equal to: \n
-                "Sharpe" : `mu` is the risk-free rate, \n
-                "Risk" : `mu` is the targeted expected rate of returns, \n
-                "MinRisk" and "InvNrisk" : `mu` is ignored, \n
-                "RiskAverse" : `mu` is the Lambda risk aversion coefficient.
-        rtype : string, optional
+        ----------.
+        `rtype` : : str, optional
             Optimization type. Possible values \n
-                "Risk" : minimization of dispersion (risk) measure for a fixed 
+                'Risk' : minimization of dispersion (risk) measure for a fixed 
                 vale of expected rate of return. \n
-                "Sharpe" : maximization of generalized Sharpe ratio.\n
-                "Sharpe2" : minimization of the inverse generalized Sharpe 
+                'Sharpe' : maximization of generalized Sharpe ratio.\n
+                'Sharpe2' : minimization of the inverse generalized Sharpe 
                 ratio.\n
-                "MinRisk" : optimal portfolio with minimum dispersion (risk) 
+                'MinRisk' : optimal portfolio with minimum dispersion (risk) 
                 value.\n
-                "InvNRisk" : optimal portfolio with the same dispersion (risk)
-                value as equal weighted portfolio. \n
-                "RiskAverse" : optimal portfolio for a fixed value of risk 
+                'InvNRisk' : optimal portfolio with the same dispersion (risk)
+                as the targeted portfolio
+                (e.g. equal weighted portfolio). \n
+                'RiskAverse' : optimal portfolio for a fixed value of risk 
                 aversion coefficient.
-            The default is "Sharpe". 
-        hlength : float, optional
+            The default is 'Sharpe'.
+        `mu` : float, optional
+            Targeted portfolio expected rate of return. 
+            Relevant only if `rtype='Risk'`
+            The default is `None`.
+        `mu0` : float, optional
+            Risk-free rate accessible to the investor.
+            Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
+            The default is `0`.
+        `aversion` : float, optional
+            The value of the risk-aversion coefficient.
+            Must be positive. Relevant only if `rtype='RiskAvers'`.
+            The default is `None`.
+        `ww0` : list (also 'numpy.array` or `pandas.Series`), optional
+            Targeted portfolio weights. 
+            Relevant only if `rype='InvNrisk'`.
+            Its length must be equal to the number of
+            symbols in rrate (mktdata). 
+            All weights must be >= 0 with sum > 0.
+            If it is a list or a `numpy.array` then the weights are assumed to
+            by in order of `rrate.columns`. If it is a `pandas.Series` the 
+            index should be compatible with the `rrate.columns` or mktdata 
+            symbols (same symbols, not necessary in the same order).
+            If it is `None` then it will be set to equal weights.
+            The default is `None`.
+        `hlength` : float, optional
             The length in year of the historical calibration period relative
             to 'Dfix'. A fractional number will be rounded to an integer number
             of months. The default is 3.25 years.
-        method : str, optional
-            Numerical method to solve the SOCP and QP. Can be 'ecos' or 
+        `method` : str, optional
+            Numerical method to solve the SOCP and QP. It can be 'ecos' or 
             'cvxopt'. The default is 'ecos'.
 
         Returns
@@ -60,14 +79,10 @@ class Port_MV(Port_CVaR):
         pandas.DataFrame
             The portfolio time-series in the format "date", "pcolname".
         """
-        return super().set_model(mu=mu, rtype=rtype, hlength=hlength,
-                                 method=method)
+        return super().set_model(rtype=rtype, mu=mu, mu0=mu0, 
+                                 aversion=aversion, ww0=ww0,
+                                 hlength=hlength, method=method)
 
-    def _set_method(self, method):
-        methods = ['ecos', 'cvxopt']
-        if not method in methods:
-            raise ValueError(f"mehtod must be one of {methods}")
-        self.method = method
 
     def _wwgen(self):
         return MVAnalyzer(rtype=self.rtype, method=self.method)

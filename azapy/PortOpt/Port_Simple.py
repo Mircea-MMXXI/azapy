@@ -6,6 +6,13 @@ import plotly.graph_objects as go
 
 from azapy.util.drawdown import drawdown, max_drawdown
 
+def _color_negative_red(val):
+    if isinstance(val, numbers.Number) and (val < 0):
+        return 'color: red'
+    else:
+        return 'color: black'
+
+
 class Port_Simple:
     """
     Back testing the Buy and Hold portfolio.
@@ -424,10 +431,8 @@ class Port_Simple:
         if not fancy:
             return res
 
-        return pd.DataFrame(res.round(4)) \
-                 .style.format("{:.2%}") \
-                 .applymap(self._color_negative_red)
-
+        return res.style.format("{:.2%}").applymap(_color_negative_red)
+        
 
     def port_monthly_returns(self, withcomp=False, componly=False,
                              fancy=False):
@@ -480,14 +485,8 @@ class Port_Simple:
             res = res.reset_index(level=0).pivot(columns='year',
                                                  values=self.pcolname).round(4)
 
-        return res.style.format("{:.2%}").applymap(self._color_negative_red)
+        return res.style.format("{:.2%}").applymap(_color_negative_red)
 
-
-    def _color_negative_red(self, val):
-        if isinstance(val, numbers.Number) and (val < 0):
-            return 'color: red'
-        else:
-            return 'color: black'
 
     def _view_plotly(self, df):
         # Create figure

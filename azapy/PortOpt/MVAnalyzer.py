@@ -9,7 +9,7 @@ from ._solvers import _socp_solver, _qp_solver, _tol_cholesky
 
 class MVAnalyzer(_RiskAnalyzer):
     """
-    MV - Mean Variance dispersion measure based portfolio optimization.
+    MV (mean-variance) - Variance based optimal portfolio strategies.
     
     Methods:
         * getWeights
@@ -21,67 +21,68 @@ class MVAnalyzer(_RiskAnalyzer):
         * set_rtype
         * set_random_seed
     """
-    def __init__(self, 
-                 mktdata=None, colname='adjusted', freq='Q', 
-                 hlenght=3.25, calendar=None,
-                 rtype='Sharpe', method = 'ecos'):
+    def __init__(self, mktdata=None, colname='adjusted', freq='Q', 
+                 hlength=3.25, calendar=None, rtype='Sharpe', method = 'ecos'):
         """
         Constructor
 
         Parameters
         ----------
-        mktdata : pandas.DataFrame, optional
+       `mktdata` : `pandas.DataFrame`, optional
             Historic daily market data for portfolio components in the format
-            returned by azapy.mktData function. The default is None.
-        colname : str, optional
+            returned by `azapy.mktData` function. The default is `None`.
+        `colname` : str, optional
             Name of the price column from mktdata used in the weights 
-            calibration. The default is 'adjusted'.
-        freq : str, optional
-            Rate of returns horizon in number of business day. it could be 
-            'Q' for quarter or 'M' for month. The default is 'Q'.
-        hlength : float, optional
+            calibration. The default is `'adjusted'`.
+        `freq` : str, optional
+            Rate of return horizon in number of business day. it could be 
+            'Q' for quarter or 'M' for month. The default is `'Q'`.
+        `hlength` : float, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
-            The default is 3.25 years.
-        calendar : numpy.busdaycalendar, optional
+            The default is `3.25` years.
+        `calendar` : `numpy.busdaycalendar`, optional
             Business days calendar. If is it `None` then the calendar will be 
             set to NYSE business calendar.
             The default is `None`.
-        rtype : str, optional
+        `rtype` : str, optional
             Optimization type. Possible values \n
-                "Risk" : minimization of dispersion (risk) measure for a fixed 
-                vale of expected rate of return. \n
-                "Sharpe" : maximization of generalized Sharpe ratio.\n
-                "Sharpe2" : minimization of the inverse generalized Sharpe 
+                'Risk' : minimization of dispersion (risk) measure for  
+                targeted rate of return. \n
+                'Sharpe' : maximization of generalized Sharpe ratio.\n
+                'Sharpe2' : minimization of the inverse generalized Sharpe 
                 ratio.\n
-                "MinRisk" : optimal portfolio with minimum dispersion (risk) 
-                value.\n
-                "InvNRisk" : optimal portfolio with the same dispersion (risk)
-                value as equal weighted portfolio. \n
-                "RiskAverse" : optimal portfolio for a fixed value of risk 
-                aversion coefficient.
-            The default is "Sharpe". 
-        method : string, optional
+                'MinRisk' : minimum dispersion (risk) portfolio.\n
+                'InvNrisk' : optimal portfolio with the same dispersion (risk)
+                value as a benchmark portfolio 
+                (e.g. equal weighted portfolio).\n
+                'RiskAverse' : optimal portfolio for a fixed value of 
+                risk-aversion factor.
+            The default is 'Sharpe'.
+        `method` : str, optional
             Quadratic programming numerical method. Could be 'ecos' or
-            'cvxopt'. The default is 'ecos'.
+            'cvxopt'. The default is `'ecos'`.
             
         Returns
         -------
         The object.
 
         """
-        super().__init__(mktdata, colname, freq, hlenght, calendar, rtype)
+        super().__init__(mktdata, colname, freq, hlength, calendar, rtype)
         
-        qp_methods = ['ecos', 'cvxopt']
-        if not method in qp_methods:
-            raise ValueError(f"method must one of {qp_methods}")
-        self.method = method
+        self._set_method(method)
+        
+        
+    def _set_method(self, method):
+        self._set_qp_method(method)
+    
         
     def _risk_calc(self, prate, alpha):
         var = np.var(prate)
         
         # status, volatility, variance,
         return 0, np.sqrt(var), var
+    
     
     def _risk_min(self, d=1):
         # Order of variables
@@ -119,19 +120,20 @@ class MVAnalyzer(_RiskAnalyzer):
             warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * nn)
  
-        # Optimal weights
+        # optimal weights
         self.ww = np.array(res['x'])
         self.ww.shape = nn
-        # min volatility
+        # variance
         self.risk = 2 * res['pcost']
-        # min variance
+        # variance
         self.primary_risk_comp = np.array([self.risk])
-        # min volatility
+        # volatility
         self.secondary_risk_comp = np.array([np.sqrt(np.abs(self.risk))])
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
         
         return self.ww
+    
     
     def _sharpe_max(self):
         # Computes the mazimization of Sharpe
@@ -187,14 +189,15 @@ class MVAnalyzer(_RiskAnalyzer):
         # rate of return
         self.RR = self.mu -  res['pcost'] / t
         #self.RR = np.dot(self.ww, self.muk)
-        # min volatility
+        # variance
         self.risk = 1. / t
-        # min variance
+        # variance
         self.primary_risk_comp = np.array([self.risk])
-        # min volatility
+        # volatility
         self.secondary_risk_comp = np.array([np.sqrt(self.risk)])
         
         return self.ww
+    
     
     def _sharpe_inv_min(self):
         # Computes the minimum of inverse Sharpe
@@ -250,19 +253,20 @@ class MVAnalyzer(_RiskAnalyzer):
         # optimal weights
         self.ww = np.array(res['x'][:nn]) / t
         self.ww.shape = nn
-        # sharpe
+        # MV-Sharpe
         self.sharpe = 1. / res['pcost']
-        # min volatility
+        # variance
         self.risk = res['pcost'] / t
-        # min variance
+        # variance
         self.primary_risk_comp = np.array([self.risk])
-         # min volatility
+        # volatility
         self.secondary_risk_comp = np.array([np.sqrt(self.risk)])
         # rate of return
         self.RR = 1. / t + self.mu
         #self.RR = np.dot(self.ww, self.muk)
         
         return self.ww   
+    
     
     def _rr_max(self):
         # Computes the maximization of returns (for fixed volatility)
@@ -311,12 +315,13 @@ class MVAnalyzer(_RiskAnalyzer):
         self.ww.shape = nn
         # rate of return
         self.RR = -res['pcost']
-        # min variance
+        # variance
         self.primary_risk_comp = np.array([self.risk])
-         # min vol
+        # volatility
         self.secondary_risk_comp = np.array([np.sqrt(self.risk)])
         
         return self.ww   
+    
     
     def _risk_averse(self):
         # Order of variables
@@ -350,16 +355,16 @@ class MVAnalyzer(_RiskAnalyzer):
             warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * nn)
         
-        # Optimal weights
+        # optimal weights
         self.ww = np.array(res['x'])
         self.ww.shape = nn
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
-        # min volatility
+        # variance
         self.risk = (res['pcost'] + self.RR) / self.Lambda
-        # min variance
+        # variance
         self.primary_risk_comp = np.array([self.risk])
-        # min volatility
+        # volatility
         self.secondary_risk_comp = np.array([np.sqrt(self.risk)])
         
         return self.ww

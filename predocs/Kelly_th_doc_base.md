@@ -56,7 +56,7 @@ p = [0.55, 0.6, 0.65]
 
 ww = az.gamblingKelly(p)
 
-# bet sizes for each game as percentage of capital in hands
+# bet sizes for each game as percentage of capital in hand
 print(f"bet sizes as fraction of capital (in percent)\n{ww}")
 
 # percentage of the total capital invested in each round

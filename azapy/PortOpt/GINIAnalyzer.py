@@ -7,7 +7,7 @@ from ._solvers import _lp_solver
 
 class GINIAnalyzer(_RiskAnalyzer):
     """
-    GINI dispersion measure based portfolio optimization.
+    GINI based optimal portfolio strategies.
     
     Methods:
         * getWeights
@@ -27,42 +27,42 @@ class GINIAnalyzer(_RiskAnalyzer):
 
         Parameters
         ----------
-        mktdata : pandas.DataFrame, optional
+        `mktdata` : `pandas.DataFrame`, optional
             Historic daily market data for portfolio components in the format
-            returned by azapy.mktData function. The default is None.
-        colname : str, optional
+            returned by `azapy.mktData` function. The default is `None`.
+        `colname` : str, optional
             Name of the price column from mktdata used in the weights 
-            calibration. The default is 'adjusted'.
-        freq : str, optional
-            Rate of returns horizon in number of business day. it could be 
-            'Q' for quarter or 'M' for month. The default is 'Q'.
-        hlength : float, optional
+            calibration. The default is `'adjusted'`.
+        `freq` : str, optional
+            Rate of return horizon in number of business day. it could be 
+            'Q' for quarter or 'M' for month. The default is `'Q'`.
+        `hlength` : float, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
-            The default is 1.25 years.
-        calendar : numpy.busdaycalendar, optional
-            Business days calendar. If is it None then the calendar will be set
-            to NYSE business calendar.
-            The default is None.
-        rtype : str, optional
+            The default is `1.25` years.
+        `calendar` : `numpy.busdaycalendar`, optional
+            Business days calendar. If is it `None` then the calendar will 
+            be set to NYSE business calendar.
+            The default is `None`.
+        `rtype` : str, optional
             Optimization type. Possible values \n
-                "Risk" : minimization of dispersion (risk) measure for a fixed 
-                vale of expected rate of return. \n
-                "Sharpe" : maximization of generalized Sharpe ratio.\n
-                "Sharpe2" : minimization of the inverse generalized Sharpe 
+                'Risk' : minimization of dispersion (risk) measure for  
+                targeted rate of return. \n
+                'Sharpe' : maximization of generalized Sharpe ratio.\n
+                'Sharpe2' : minimization of the inverse generalized Sharpe 
                 ratio.\n
-                "MinRisk" : optimal portfolio with minimum dispersion (risk) 
-                value.\n
-                "InvNRisk" : optimal portfolio with the same dispersion (risk)
-                value as equal weighted portfolio.\n
-                "RiskAverse" : optimal portfolio for a fixed value of risk 
-                aversion coefficient.
-            The default is "Sharpe". 
-        method : string, optional
+                'MinRisk' : minimum dispersion (risk) portfolio.\n
+                'InvNrisk' : optimal portfolio with the same dispersion (risk)
+                value as a benchmark portfolio 
+                (e.g. equal weighted portfolio).\n
+                'RiskAverse' : optimal portfolio for a fixed value of 
+                risk-aversion factor.
+            The default is `'Sharpe'`.
+        `method` : str, optional
             Linear programming numerical method. 
             Could be: 'ecos', 'highs-ds', 'highs-ipm', 'highs', 
             'interior-point', 'glpk' and 'cvxopt'.
-            The defualt is 'ecos'.
+            The defualt is `'ecos'`.
             
         Returns
         -------
@@ -72,21 +72,12 @@ class GINIAnalyzer(_RiskAnalyzer):
         self.nn2 = None
         super().__init__(mktdata, colname, freq, hlength, calendar, rtype)
         
-        lp_methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 
-                       'interior-point', 'glpk', 'cvxopt']
-        if not method in lp_methods:
-            raise ValueError(f"method must be one of {lp_methods}")
-        self.method = method
+        self._set_method(method)
         
         
-    def _risk_calc(self, prate, alpha):
-        nn = len(prate)
-        gini = np.sum(np.fabs([prate[i] - prate[j] \
-                                for i in range(nn - 1) \
-                                for j in range(i + 1, nn)])) / nn / (nn - 1)
-        # status, gini, gini
-        return 0, gini, gini
-            
+    def _set_method(self, method):
+        self._set_lp_method(method)
+        
     
     def set_rrate(self, rrate):
         """
@@ -114,6 +105,15 @@ class GINIAnalyzer(_RiskAnalyzer):
         self.drate = np.concatenate(yy)
         
         
+    def _risk_calc(self, prate, alpha):
+        nn = len(prate)
+ 
+        y = np.sort(prate, kind='heapsort')
+        gini = np.sum([y[i] * ( 2 * i - nn + 1) for i in range(nn)]) / nn / nn
+        # status, gini, gini
+        return 0, gini, gini
+    
+    
     def _risk_min(self, d=1):
         # Order of variables (mm - no of symb, nn - no of observations)
         # w <- [0 : mm]
@@ -122,9 +122,10 @@ class GINIAnalyzer(_RiskAnalyzer):
         # where nn2 = nn * (nn - 1) / 2
         mm = self.mm
         nn2 = self.nn2
+        norm = 1 / self.nn ** 2
         
         # build c
-        c_data = [0.] * mm + [0.5 / nn2] * nn2
+        c_data = [0.] * mm + [norm] * nn2
         
         # bild G
         G_icol = [m for m in range(mm) for _ in range(nn2)] * 2
@@ -174,7 +175,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         self.ww.shape = mm
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
-        
+        # defalut to risk
         self.primary_risk_comp = np.array([self.risk])
         self.secondary_risk_comp = np.array([self.risk])
         
@@ -190,6 +191,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         # where nn2 = nn * (nn - 1) / 2
         mm = self.mm
         nn2 = self.nn2
+        norm = 1 / self.nn ** 2
         
         # build c
         c_data = list(-self.muk) + [0.] * nn2 + [self.mu]
@@ -216,7 +218,8 @@ class GINIAnalyzer(_RiskAnalyzer):
         # build A
         A_icol = list(range(mm, mm + nn2)) + list(range(mm)) + [mm + nn2] 
         A_irow = [0] * nn2 + [1] * (mm + 1)
-        A_data = [0.5 / nn2] * nn2 + [1.] * mm + [-1.]
+        A_data = [norm] * nn2 + [1.] * mm + [-1.]
+        
         A_shape = (2, mm + nn2 + 1)
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         
@@ -232,7 +235,7 @@ class GINIAnalyzer(_RiskAnalyzer):
             return np.array([np.nan] * mm)
             
         t = res['x'][-1]
-        # Sharpe
+        # Gini-Sharpe
         self.sharpe = -res['pcost']
         # GINI
         self.risk = 1. / t
@@ -241,7 +244,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         self.ww.shape = mm
         # rate of return
         self.RR = -res['pcost'] / t + self.mu
-        
+        # default to risk
         self.primary_risk_comp = np.array([self.risk])
         self.secondary_risk_comp = np.array([self.risk])
         
@@ -257,9 +260,10 @@ class GINIAnalyzer(_RiskAnalyzer):
         # where nn2 = nn * (nn - 1) / 2
         mm = self.mm
         nn2 = self.nn2
+        norm = 1 / self.nn ** 2
         
         # build c
-        c_data = [0.] * mm + [0.5 / nn2] * nn2 + [0.]
+        c_data = [0.] * mm + [norm] * nn2 + [0.]
         
         # build G
         G_icol = [m for m in range(mm) for _ in range(nn2)] * 2
@@ -284,6 +288,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         A_icol = (list(range(mm)) + [mm + nn2]) * 2
         A_irow = [0] * (mm + 1) + [1] * (mm + 1)
         A_data = list(self.muk) + [-self.mu] + [1.] * mm + [-1.]
+        
         A_shape = (2, mm + nn2 + 1)
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         
@@ -299,7 +304,7 @@ class GINIAnalyzer(_RiskAnalyzer):
             return np.array([np.nan] * mm)
             
         t = res['x'][-1]
-        # Sharpe
+        # Gini-Sharpe
         self.sharpe = 1. / res['pcost']
         # GINI
         self.risk = res['pcost'] / t
@@ -308,7 +313,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         self.ww.shape = mm
         # rate of return
         self.RR = 1. / t + self.mu
-        
+        # default to risk
         self.primary_risk_comp = np.array([self.risk])
         self.secondary_risk_comp = np.array([self.risk])
         
@@ -323,6 +328,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         # where nn2 = nn * (nn - 1) / 2
         mm = self.mm
         nn2 = self.nn2
+        norm = 1 / self.nn ** 2
         
         # build c
         c_data = list(-self.muk) + [0.] * nn2
@@ -349,7 +355,8 @@ class GINIAnalyzer(_RiskAnalyzer):
         # build A
         A_icol = list(range(mm)) + list(range(mm, mm + nn2))
         A_irow = [0] * mm + [1] * nn2
-        A_data = [1.] * mm + [0.5 / nn2] * nn2
+        A_data = [1.] * mm + [norm] * nn2
+        
         A_shape = (2, mm + nn2)
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         
@@ -369,7 +376,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         self.ww.shape = mm
         # rate of return
         self.RR = -res['pcost']
-        
+        # default to risk
         self.primary_risk_comp = np.array([self.risk])
         self.secondary_risk_comp = np.array([self.risk])
         
@@ -384,9 +391,10 @@ class GINIAnalyzer(_RiskAnalyzer):
         # where nn2 = nn * (nn - 1) / 2
         mm = self.mm
         nn2 = self.nn2
+        norm = 1 / self.nn ** 2
         
         # build c
-        c_data = list(-self.muk) + [0.5 * self.Lambda / nn2] * nn2
+        c_data = list(-self.muk) + [self.Lambda * norm] * nn2
         
         # bild G
         G_icol = [m for m in range(mm) for _ in range(nn2)] * 2
@@ -411,6 +419,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         A_icol = list(range(mm))
         A_irow = [0] * mm
         A_data = [1.] * mm
+        
         A_shape = (1, mm + nn2)
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
         
@@ -432,7 +441,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         self.RR = np.dot(self.ww, self.muk)
         # GINI
         self.risk = (res['pcost'] + self.RR) / self.Lambda
- 
+        # default to risk
         self.primary_risk_comp = np.array([self.risk])
         self.secondary_risk_comp = np.array([self.risk])
         

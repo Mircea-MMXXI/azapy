@@ -32,15 +32,18 @@ rebalancing delta positions and costs.
 ### Constructor
 
 ```
-CVaRAnalyzer(alpha=[0.975], coef=[1.], mktdata=None, colname='adjusted',
-             freq='Q', hlength=3.25, calendar=None, rtype='Sharpe', method='ecos')
+CVaRAnalyzer(alpha=[0.975], coef=None, mktdata=None, colname='adjusted',
+             freq='Q', hlength=3.25, calendar=None, rtype='Sharpe',
+             method='ecos')
 ```
 
 where:
 
-* `alpha` : List of confidence levels. The default is `[0.975]`.
-* `coef` : List of positive (`>0`) coefficients. `len(coef)` must be equal to
-`len(alpha)`. The default is `[1.]`.
+* `alpha` : List of distinct confidence levels. The default is `[0.975]`.
+* `coef` : List of positive mixture coefficients. Must have the same size as
+`alpha`. A `None` value assumes an equal weighted risk mixture. The vector
+of coefficients will be normalized to unit.
+The default is `None`.
 * `mktdata` : `pd.DataFrame` containing the market data in the format returned by
 the function `azapy.readMkT`. The default is `None`. `mktdata` could be loaded
 latter.
@@ -55,13 +58,13 @@ The default is `3.25` years.
 then the calendar will be set to NYSE business calendar.
 The default is `None`.
 * `rtype` : Optimization type. The default is `'Sharpe'`. Possible values are:
-    - `'Risk'` : minimization of dispersion (risk) measure for a fixed values
-    of portfolio expected rate of return,
+    - `'Risk'` : minimization of dispersion (risk) measure for a targeted
+    expected rate of return,
     - `'Sharpe'` : maximization of generalized Sharpe ratio,
     - `'Sharpe2'` : minimization of inverse generalized Sharpe ratio,
     - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value,
-    - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
-		as equal weighted portfolio,
+    - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) as a
+    benchmark portfolio (*e.g.* equal weighted portfolio),
     - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
 * `method` : Designates the linear programming numerical method.
 It could be one of: `'ecos',
@@ -71,7 +74,7 @@ The default is `'ecos'`.
 > Note:
 >	* `'ecos'` : is the LP implementation from __ecos__ _(Embedded Cone Solver)_
 package. For python __ecos__ provides only an interface for SOCP problems.
-However, a LP problem can be viewed as a particular case of a SOCP problem.
+However, an LP problem can be viewed as a special case of an SOCP problem.
 >	* `'highs-ds'`, `'highs-ipm'`, `'highs'` and `'interior-point'` : are LP
 implementations from __SciPy__ package. `'highs-ds'` and `'highs-ipm'` are
 the HiGHS _(high performance software for linear optimization)_ dual revised

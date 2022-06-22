@@ -8,7 +8,7 @@ from ._solvers import _socp_solver, _tol_cholesky
 
 class SDAnalyzer(_RiskAnalyzer):
     """
-    SD - Standard Deviation dispersion measure based portfolio optimization.
+    SD - Standard Deviation based optimal portfolio strategies.
     
     Methods:
         * getWeights
@@ -20,49 +20,47 @@ class SDAnalyzer(_RiskAnalyzer):
         * set_rtype
         * set_random_seed
     """
-    def __init__(self, 
-                 mktdata=None, colname='adjusted', freq='Q', 
-                 hlength=3.25, calendar=None, 
-                 rtype='Sharpe', method = 'ecos'):
+    def __init__(self, mktdata=None, colname='adjusted', freq='Q', 
+                 hlength=3.25, calendar=None, rtype='Sharpe', method = 'ecos'):
         """
         Constructor
 
         Parameters
         ----------
-        mktdata : pandas.DataFrame, optional
+        `mktdata` : `pandas.DataFrame`, optional
             Historic daily market data for portfolio components in the format
-            returned by azapy.mktData function. The default is None.
-        colname : str, optional
+            returned by `azapy.mktData` function. The default is `None`.
+        `colname` : str, optional
             Name of the price column from mktdata used in the weights 
-            calibration. The default is 'adjusted'.
-        freq : str, optional
+            calibration. The default is `'adjusted'`.
+        `freq` : str, optional
             Rate of returns horizon in number of business day. it could be 
-            'Q' for quarter or 'M' for month. The default is 'Q'.
-        hlength : float, optional
+            'Q' for quarter or 'M' for month. The default is `'Q'`.
+        `hlength` : float, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
-            The default is 3.25 years.
-        calendar : numpy.busdaycalendar, optional
+            The default is `3.25` years.
+        `calendar` : `numpy.busdaycalendar`, optional
             Business days calendar. If is it `None` then the calendar will 
             be set to NYSE business calendar. 
             The default is `None`.
-        rtype : string, optional
+        `rtype` : str, optional
             Optimization type. Possible values \n
-                "Risk" : minimization of dispersion (risk) measure for a fixed 
-                vale of expected rate of return. \n
-                "Sharpe" : maximization of generalized Sharpe ratio.\n
-                "Sharpe2" : minimization of the inverse generalized Sharpe 
+                'Risk' : minimization of dispersion (risk) measure for  
+                targeted rate of return. \n
+                'Sharpe' : maximization of generalized Sharpe ratio.\n
+                'Sharpe2' : minimization of the inverse generalized Sharpe 
                 ratio.\n
-                "MinRisk" : optimal portfolio with minimum dispersion (risk) 
-                value.\n
-                "InvNRisk" : optimal portfolio with the same dispersion (risk)
-                value as equal weighted portfolio. \n
-                "RiskAverse" : optimal portfolio for a fixed value of risk 
-                aversion coefficient.
-            The default is "Sharpe". 
-        method : str, optional
+                'MinRisk' : minimum dispersion (risk) portfolio.\n
+                'InvNrisk' : optimal portfolio with the same dispersion (risk)
+                value as a benchmark portfolio 
+                (e.g. equal weighted portfolio).\n
+                'RiskAverse' : optimal portfolio for a fixed value of 
+                risk-aversion factor.
+            The default is `'Sharpe'`.
+        `method` : str, optional
             Quadratic programming numerical method. Could be 'ecos' or
-            'cvxopt'. The default is 'ecos'.
+            'cvxopt'. The default is `'ecos'`.
             
         Returns
         -------
@@ -71,16 +69,19 @@ class SDAnalyzer(_RiskAnalyzer):
         """
         super().__init__(mktdata, colname, freq, hlength, calendar, rtype)
         
-        qp_methods = ['ecos', 'cvxopt']
-        if not method in qp_methods:
-            raise ValueError(f"method must one of {qp_methods}")
-        self.method = method
+        self._set_method(method)
+        
+        
+    def _set_method(self, method):
+        self._set_qp_method(method)
+        
         
     def _risk_calc(self, prate, alpha):
         var = np.var(prate)
         
         # status, variance, volatility
         return 0, var, np.sqrt(var)
+    
     
     def _risk_min(self, d=1):
         # Computes the minimization of volatility
@@ -131,19 +132,20 @@ class SDAnalyzer(_RiskAnalyzer):
             warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * nn)
 
-        # Optimal weights
+        # optimal weights
         self.ww = np.array(res['x'][:-1])
         self.ww.shape = nn
-        # min volatility
+        # volatility
         self.risk = res['pcost']
-        # min volatility
+        # volatility
         self.primary_risk_comp = np.array([self.risk])
-        # min variance
+        # variance
         self.secondary_risk_comp = np.array([self.risk**2])
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
         
         return self.ww
+    
     
     def _sharpe_inv_min(self):
         # Computes the minimization of the inverse of Sharpe
@@ -198,14 +200,15 @@ class SDAnalyzer(_RiskAnalyzer):
         self.ww.shape = nn
         # rate of return
         self.RR = self.mu + 1. / t
-        # min volatility
+        # volatility
         self.risk = res['pcost'] / t
-        # min volatility
+        # volatility
         self.primary_risk_comp = np.array([self.risk])
-        # min variance
+        # variance
         self.secondary_risk_comp = np.array([self.risk**2])
         
         return self.ww
+    
     
     def _sharpe_max(self):
         # Computes the maximization of Sharpe
@@ -256,16 +259,17 @@ class SDAnalyzer(_RiskAnalyzer):
         self.ww.shape = nn
         # sharpe
         self.sharpe = -res['pcost']
-        # min volatility
+        # volatility
         self.risk = 1. / t
-        # min volatility
+        # volatility
         self.primary_risk_comp = np.array([self.risk])
-         # min variance
+        # variance
         self.secondary_risk_comp = np.array([self.risk**2])
         # rate of return
         self.RR = self.sharpe / t + self.mu
         
         return self.ww   
+    
     
     def _rr_max(self):
         # Computes the maximization of returns (for fixed volatility)
@@ -314,12 +318,13 @@ class SDAnalyzer(_RiskAnalyzer):
         self.ww.shape = nn
         # rate of return
         self.RR = -res['pcost']
-        # min volatility
+        # volatility
         self.primary_risk_comp = np.array([self.risk])
-         # min variance
+        # variance
         self.secondary_risk_comp = np.array([self.risk**2])
         
         return self.ww   
+    
     
     def _risk_averse(self):
         # Order of variables
@@ -365,16 +370,16 @@ class SDAnalyzer(_RiskAnalyzer):
             warnings.warn(f"Warning {res['status']}: {res['infostring']}")
             return np.array([np.nan] * nn)
         
-        # Optimal weights
+        # optimal weights
         self.ww = np.array(res['x'][:nn])
         self.ww.shape = nn
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
-        # min volatility
+        # volatility
         self.risk = (res['pcost'] + self.RR) / self.Lambda
-        # min volatility
+        # volatility
         self.primary_risk_comp = np.array([self.risk])
-        # min variance
+        # variance
         self.secondary_risk_comp = np.array([self.risk**2])
         
         return self.ww

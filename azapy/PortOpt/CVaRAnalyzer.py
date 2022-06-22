@@ -7,7 +7,7 @@ from ._solvers import _lp_solver
 
 class CVaRAnalyzer(_RiskAnalyzer):
     """
-    CVaR risk measure based portfolio optimizer.
+    Mixture CVaR based optimal portfolio strategies.
         
     Methods:
         * getWeights
@@ -19,7 +19,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         * set_rtype
         * set_random_seed
     """
-    def __init__(self, alpha=[0.975], coef=[1.], 
+    def __init__(self, alpha=[0.975], coef=None, 
                  mktdata=None, colname='adjusted', freq='Q', 
                  hlength=3.25, calendar=None,
                  rtype='Sharpe', method='ecos'):
@@ -28,43 +28,45 @@ class CVaRAnalyzer(_RiskAnalyzer):
 
         Parameters
         ----------
-        alpha : list, optional
-            List of alpha values. The default is [0.975].
-        coef : list, optional
-            List of coefficients. Must be the same size with 
-            alpha. The default is [1.].
-        mktdata : pandas.DataFrame, optional
+        `alpha` : list, optional
+            List of distinct confidence levels. The default is `[0.975]`.
+        `coef` : list, optional
+            List of positive mixture coefficients. Must have the same size with 
+            `alpha`. A `None` value assumes an equal weighted risk mixture.
+            The vector of coefficients will be normalized to unit.
+            The default is `None`.
+        `mktdata` : `pandas.DataFrame`, optional
             Historic daily market data for portfolio components in the format
-            returned by azapy.mktData function. The default is None.
-        colname : str, optional
+            returned by `azapy.mktData` function. The default is `None`.
+        `colname` : str, optional
             Name of the price column from mktdata used in the weights 
-            calibration. The default is 'adjusted'.
-        freq : str, optional
-            Rate of returns horizon. It could be 
-            'Q' for quarter or 'M' for month. The default is 'Q'.
-        hlength : float, optional
+            calibration. The default is `'adjusted'`.
+        `freq` : str, optional
+            Rate of return horizon. It could be 
+            'Q' for quarter or 'M' for month. The default is `'Q'`.
+        `hlength` : float, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
-            The default is 3.25 years.
-        calendar : numpy.busdaycalendar, optional
-            Business days calendar. If is it None then the calendar will be set
-            to NYSE business calendar. 
-            The default is None.
-        rtype : str, optional
+            The default is `3.25` years.
+        `calendar` : `numpy.busdaycalendar`, optional
+            Business days calendar. If is it `None` then the calendar will 
+            be set to NYSE business calendar. 
+            The default is `None`.
+        `rtype` : str, optional
             Optimization type. Possible values \n
-                "Risk" : minimization of dispersion (risk) measure for a fixed 
-                vale of expected rate of return. \n
-                "Sharpe" : maximization of generalized Sharpe ratio.\n
-                "Sharpe2" : minimization of the inverse generalized Sharpe 
+                'Risk' : minimization of dispersion (risk) measure for  
+                targeted rate of return. \n
+                'Sharpe' : maximization of generalized Sharpe ratio.\n
+                'Sharpe2' : minimization of the inverse generalized Sharpe 
                 ratio.\n
-                "MinRisk" : optimal portfolio with minimum dispersion (risk) 
-                value.\n
-                "InvNRisk" : optimal portfolio with the same dispersion (risk)
-                value as equal weighted portfolio. \n
-                "RiskAverse" : optimal portfolio for a fixed value of risk 
-                aversion coefficient.
-            The default is "Sharpe".
-        method : str, optional
+                'MinRisk' : minimum dispersion (risk) portfolio.\n
+                'InvNrisk' : optimal portfolio with the same dispersion (risk)
+                value as a benchmark portfolio 
+                (e.g. equal weighted portfolio).\n
+                'RiskAverse' : optimal portfolio for a fixed value of 
+                risk-aversion factor.
+            The default is `'Sharpe'`.
+        `method` : str, optional
             Linear programming numerical method. 
             Could be: 'ecos', 'highs-ds', 'highs-ipm', 'highs', 
             'interior-point', 'glpk' and 'cvxopt'.
@@ -76,26 +78,34 @@ class CVaRAnalyzer(_RiskAnalyzer):
         """
         super().__init__(mktdata, colname, freq, hlength, calendar, rtype)
         
-        lp_methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs', 
-                      'interior-point', 'glpk', 'cvxopt']
-        if not method in lp_methods:
-            raise ValueError(f"method must be one of {lp_methods}")
-        self.method = method
+        self._set_method(method)
 
-        if len(alpha) != len(coef):
-            raise ValueError("alpha and coef must have the same length")
         self.alpha = np.array(alpha)
-        self.coef = np.array(coef)
-        if any(self.coef <= 0.):
-            raise ValueError("All coef must be positive")
         if any((self.alpha <= 0.) | (1. <= self.alpha)):
             raise ValueError("All alpha coefficients must be in (0,1)")
-        
-        
-        self.coef = self.coef / self.coef.sum()
+        if len(np.unique(self.alpha)) != len(self.alpha):
+            raise ValueError("alpha values are not unique")
+            
         self.ll = len(alpha)
+            
+        if coef is None:
+            self.coef = np.full(self.ll, 1/self.ll)
+        else:
+            self.coef = np.array(coef)
+        
+            if len(self.coef) != len(self.alpha):
+                raise ValueError("alpha and coef must have the same length")
+            if any(self.coef <= 0.):
+                raise ValueError("All coef must be positive")
+        
+            self.coef = self.coef / self.coef.sum()
+        
 
-    
+
+    def _set_method(self, method):
+        self._set_lp_method(method)
+        
+        
     def _risk_calc_lp(self, prate, alpha):
         # lp formulation of CVaR & VaR
         # Order of variables:
@@ -111,6 +121,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         G_icol = [0] * nn + list(range(1, nn + 1)) + list(range(nn+1))
         G_irow = list(range(nn)) * 2 + list(range(nn, 2 * nn + 1))
         G_data = [-1.] * (3 * nn + 1)
+        
         G_shape = (2 * nn + 1, nn + 1)
         G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
 
@@ -128,6 +139,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
   
         return 0, VaR, CVaR
     
+    
     def _risk_calc(self, prate, alpha):
         # Analytic formulation of CVaR & VaR
         ws = np.sort(prate)
@@ -136,6 +148,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         CVaR = VaR - (ws[ws <= -VaR] + VaR).sum() / nnl
         
         return 0, VaR, CVaR
+    
     
     def _risk_min(self, d=1):
         # Order of variables:
@@ -164,9 +177,11 @@ class CVaRAnalyzer(_RiskAnalyzer):
             G_irow += list(range(l * nn, (l + 1) * nn)) \
                 + list(range(l * nn, (l + 1) * nn))
             G_data += [-1] * nn + [-1] * nn
+            
         G_icol += list(range(mm))
         G_irow += [nn * ll] * mm
         G_data += list(-self.muk * d)
+        
         G_icol += list(range(mm + ll * (nn + 1)))
         G_irow += list(range(ll * nn + 1, ll * nn + 1 + mm + ll * (nn + 1)))
         G_data += [-1.] * (mm + ll * (nn + 1) )
@@ -181,6 +196,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         A_icol = list(range(mm))
         A_irow = [0] * mm
         A_data = [1.] * mm
+        
         A_shape = (1, mm + ll * (nn + 1))
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
 
@@ -214,6 +230,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         
         return self.ww
     
+    
     def _sharpe_max(self):
         # Order of variables:
         # w <- [0:mm] 
@@ -239,6 +256,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
             G_irow += list(range(l * nn, (l + 1) * nn)) \
                 + list(range(l * nn, (l + 1) * nn))
             G_data += [-1] * nn + [-1] * nn
+            
         G_icol += list(range(mm + ll * (nn + 1) + 1))
         G_irow += list(range(ll * nn, ll * nn + mm + ll * (nn + 1) + 1))
         G_data += [-1.] * (mm + ll * (nn + 1) + 1)
@@ -296,6 +314,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         
         return self.ww
     
+    
     def _sharpe_inv_min(self):
         # Order of variables:
         # w <- [0:mm] 
@@ -325,6 +344,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
             G_irow += list(range(l * nn, (l + 1) * nn)) \
                 + list(range(l * nn, (l + 1) * nn))
             G_data += [-1.] * nn + [-1.] * nn
+            
         G_icol += list(range(mm + ll * (nn + 1) + 1))
         G_irow += list(range(ll * nn, ll * nn + mm + ll * (nn + 1) + 1))
         G_data += [-1.] * (mm + ll * (nn + 1) + 1)
@@ -339,6 +359,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         A_icol = list(range(mm)) + [mm + ll * (nn + 1)]
         A_irow = [0] * (mm + 1)
         A_data = [1.] * mm + [-1.]
+        
         A_icol += list(range(mm)) + [mm + ll * (nn + 1)]
         A_irow += [1] * (mm + 1)
         A_data += list(self.muk) + [-self.mu]
@@ -379,6 +400,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         
         return self.ww
     
+    
     def _rr_max(self):
         # Order of variables:
         # w <- [0:mm] 
@@ -403,6 +425,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
             G_irow += list(range(l * nn, (l + 1) * nn)) \
                 + list(range(l * nn, (l + 1) * nn))
             G_data += [-1.] * nn + [-1.] * nn
+            
         G_icol += list(range(mm + ll * (nn + 1)))
         G_irow += list(range(ll * nn, ll * nn + mm + ll * (nn + 1)))
         G_data += [-1.] * (mm + ll * (nn + 1))
@@ -452,6 +475,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         
         return self.ww 
  
+    
     def _risk_averse(self):
         # Order of variables:
         # w <- [0:mm] 
@@ -479,6 +503,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
             G_irow += list(range(l * nn, (l + 1) * nn)) \
                 + list(range(l * nn, (l + 1) * nn))
             G_data += [-1] * nn + [-1] * nn
+            
         G_icol += list(range(mm + ll * (nn + 1)))
         G_irow += list(range(ll * nn, ll * nn + mm + ll * (nn + 1)))
         G_data += [-1.] * (mm + ll * (nn + 1))
@@ -493,6 +518,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         A_icol = list(range(mm))
         A_irow = [0] * mm
         A_data = [1.] * mm
+        
         A_shape = (1, mm + ll * (nn + 1))
         A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
 

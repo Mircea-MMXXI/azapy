@@ -8,7 +8,7 @@ if "%SPHINXBUILD%" == "" (
 	set SPHINXBUILD=sphinx-build
 )
 set SOURCEDIR=docs
-set BUILDDIR=../work/azapy/build
+set BUILDDIR=./build
 
 if "%1" == "" goto help
 

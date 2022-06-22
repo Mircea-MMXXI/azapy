@@ -2,7 +2,7 @@
 ## Port_InvVol class
 
 
-Out-of-Sample (back testing) simulation of inverse volatility portfolio,
+Out-of-sample (backtesting) simulation of inverse volatility portfolio,
 periodically rebalanced.
 
 

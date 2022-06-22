@@ -14,7 +14,7 @@ get_nshares()
 *Inputs:* None
 
 
-*Returns:* `pd.DataFrame`
+*Returns:* `pandas.DataFrame`
 
 Each rolling period is indicated by its start date, `Droll`.
 

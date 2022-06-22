@@ -3,7 +3,7 @@ from .KellyEngine import KellyEngine
 
 class Port_Kelly(Port_InvVol):
     """
-    Back testing portfolio with Kelly optimal weights, periodically rebalanced.
+    Backtesting Kelly optimal portfolio, periodically rebalanced.
     
     Methods:
         * set_model
@@ -26,24 +26,24 @@ class Port_Kelly(Port_InvVol):
 
         Parameters
         ----------
-        rtype : str, optional
+        `rtype` : str, optional
             Type of optimization. It could take the values:\n
-                "Full" - Non-linear (full) Kelly selection algorithm. \n
-                "Order2" - Second order approximation of Kelly selection 
+                `'Full'` - Non-linear (full) Kelly selection algorithm. \n
+                `'Order2'` - Second order approximation of Kelly selection 
                 algorithm. \n
-            The default is 'Full'.
-        hlength : float, optional
+            The default is `'Full'`.
+        `hlength` : float, optional
             The length in year of the historical calibration period relative 
             to 'Dfix'. A fractional number will be rounded to an integer number 
-            of months. The default is 1.25 years. 
-        method : str, optional
-            The QP solver class. It is relevant only if rtype='Order2'.
+            of months. The default is `1.25` years. 
+        `method` : str, optional
+            The QP solver class. It is relevant only if `rtype='Order2'`.
             It takes 2 values: 'ecos' or 'cvxopt'.
-            The default is 'ecos'.
+            The default is `'ecos'`.
 
         Returns
         -------
-        pandas.DataFrame
+        `pandas.DataFrame`
             The portfolio time-series in the format "date", "pcolname".
         """
         self._set_rtype(rtype)

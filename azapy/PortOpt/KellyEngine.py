@@ -9,7 +9,7 @@ from ._solvers import _qp_solver
 
 class KellyEngine(_RiskEngine):
     """
-    Computes the Kelly optimal portfolio.
+    Kelly optimal portfolio.
     
     Methods:
         * getWeights
@@ -27,33 +27,33 @@ class KellyEngine(_RiskEngine):
 
         Parameters
         ----------
-        mktdata : pandas.DataFrame, optional
+        `mktdata` : `pandas.DataFrame`, optional
             Historic daily market data for portfolio components in the format
-            returned by azapy.mktData function. The default is None.
-        colname : str, optional
+            returned by `azapy.mktData` function. The default is `None`.
+        `colname` : str, optional
             Name of the price column from mktdata used in the weights 
-            calibration. The default is 'adjusted'.
-        freq : str, optional
-            Rate of returns horizon in number of business day. it could be 
-            'Q' for quarter or 'M' for month. The default is 'Q'.
-        hlength : float, optional
+            calibration. The default is `'adjusted'`.
+        `freq` : str, optional
+            Rate of return horizon in number of business day. it could be 
+            'Q' for quarter or 'M' for month. The default is `'Q'`.
+        `hlength` : float, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
-            The default is 3.25 years.
-        calendar : numpy.busdaycalendar, optional
+            The default is `3.25` years.
+        `calendar` : `numpy.busdaycalendar`, optional
             Business days calendar. If is it `None` then the calendar will
             be set to NYSE business calendar.
             The default is `None`.
-        rtype : str, optional
+        `rtype` : str, optional
             Optimization approximation. It can be:\n
                 'Full' - non-linear original Kelly problem. \n
                 'Order2' - second order Taylor approximation of original Kelly 
             problem. It is a QP problem. \n
-            The default is 'Full'.
-        method : str, optional
+            The default is `'Full'`.
+        `method` : str, optional
             The QP solver class. It is relevant only if `rtype='Order2'`.
             It takes 2 values: 'ecos' or 'cvxopt'.
-            The default is 'ecos'.
+            The default is `'ecos'`.
         
         Returns
         -------
@@ -73,28 +73,30 @@ class KellyEngine(_RiskEngine):
 
         Parameters
         ----------
-        rrate : pandas.DataFrame, optional
+        `rrate` : `pandas.DataFrame`, optional
             Portfolio components historical rates of returns in the format 
            "date", "symbol1", "symbol2", etc. A value different than `None` 
            will overwrite the of 'rrate' set by the constructor from 
-           'mktdata'. The default is `None`.
-        rtype : str, optional
+           `mktdata`. The default is `None`.
+        `rtype` : str, optional
             Optimization approximation. It can be: \n
                 'Full' - non-linear original Kelly problem. \n
                 'Order2' - second order Taylor approximation of original Kelly 
-                problem. It is a QP problem. A value different than `None` will
-                overwrite the value for `rype` set in the constructor. \n
+                problem. It is a QP problem.\n 
+                
+            A value different than `None` will
+            overwrite the value for `rype` set in the constructor. \n
             The default is `None`.
-        method : str, optional
-            The QP solver class. It is relevant only if rtype='Order2'.
+        `method` : str, optional
+            The QP solver class. It is relevant only if `rtype='Order2'`.
             It takes 2 values: 'ecos' or 'cvxopt'.
-            A valiue different than `None` will overwrite the
+            A value different than `None` will overwrite the
             value set in the constructor.
             The default is `None`.
             
         Returns
         -------
-        pandas.Series
+        `pandas.Series`
             Portfolio weights.
         """
         if rrate is not None:
@@ -143,8 +145,11 @@ class KellyEngine(_RiskEngine):
         icol = list(range(mm)) * 2
         irow = list(range(mm)) + [mm] * mm
         data = [-1.] * mm + [1.] * mm
+        
         G = cx.spmatrix(data, irow, icol, (mm + 1, mm))
+        
         h = cx.matrix([0.] * mm + [1.])
+        
         dims = {'l': mm + 1, 'q': [], 's': []}
         
         res = cx.solvers.cp(F, G=G, h=h, dims=dims, 
@@ -173,6 +178,7 @@ class KellyEngine(_RiskEngine):
         icol = list(range(mm)) * 2
         irow = list(range(mm)) + [mm] * mm
         data = [-1.] * mm + [1.] * mm
+        
         G = sps.coo_matrix((data, (irow, icol)), shape=(mm + 1, mm))
         
         h_data = [0.] * mm + [1.]
@@ -194,14 +200,15 @@ class KellyEngine(_RiskEngine):
 
         Parameters
         ----------
-        rtype : str
-            It could be: 'Full' for a non-linear (no approximation) model, or
-            'Order2' for a second order Taylor approximation (a QP problem).
-            It will overwrite the value set by the 
-            constructor.
+        `rtype` : str
+            It could be: `'Full'` for a non-linear (no approximation) model, 
+            or `'Order2'` for a second order Taylor approximation 
+            (a QP problem).\n
+            It will overwrite the value set by the constructor.
+            
         Returns
         -------
-        None.
+        None
         """
         rtypes = ["Full", "Order2"]
         if not rtype in rtypes:
@@ -210,18 +217,6 @@ class KellyEngine(_RiskEngine):
         
         
     def _set_method(self, method):
-        """
-        Sets the QP numerical method for rtype='Order2'
-
-        Parameters
-        ----------
-        method : str
-            Could take the values 'ecos' or 'cvxopt', indicating QP solver.
-
-        Returns
-        -------
-        None.
-        """
         methods = ['ecos', 'cvxopt']
         if not method in methods:
             raise ValueError(f"method must be one of {methods}")

@@ -2,7 +2,7 @@
 ## Port_Simple class
 
 
-Out-of-Sample (back testing) simulation of Buy and Hold portfolio strategy.
+Out-of-sample (backtesting) simulation of Buy and Hold portfolio strategy.
 
 
 **Methods:**

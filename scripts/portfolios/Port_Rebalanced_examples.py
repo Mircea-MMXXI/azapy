@@ -18,6 +18,7 @@ ww = az.schedule_simple(sdate=sdate, edate=edate, freq='Q')
 for sy in symb:
     ww[sy] = [1./len(symb)] * len(ww)
 
+print(f"Rebalancing schedule:\n{ww}\n")
 #=============================================================================
 # Compute portfolio
 p2 = az.Port_Rebalanced(mktdata, pname='RBPort')

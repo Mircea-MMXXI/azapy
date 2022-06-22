@@ -53,13 +53,13 @@ The default is `3.25` years.
 then the calendar will be set to NYSE business calendar.
 The default is `None`.
 * `rtype` : Optimization type. The default is `'Sharpe'`. Possible values are:
-    - `'Risk'` : minimization of dispersion (risk) measure for a fixed values
-    of portfolio expected rate of return,
+    - `'Risk'` : minimization of dispersion (risk) measure for a targeted
+    expected rate of return,
     - `'Sharpe'` : maximization of generalized Sharpe ratio,
     - `'Sharpe2'` : minimization of inverse generalized Sharpe ratio,
     - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value,
-    - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) value
-		as equal weighted portfolio,
+    - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) as a
+    benchmark portfolio (*e.g.* equal weighted portfolio),
     - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
 * `method` : QP and SOCP numerical methods. Could be `'ecos'` or `'cvxopt'`.
 The default is `'ecos'`.
@@ -67,8 +67,8 @@ The default is `'ecos'`.
 > Note:
 >	* `'ecos'` : is SOCP implementation of **ecos** *(Embedded Cone Solver)*
 package. **ecos** dose not provide a python explicit interface to a
-QP *(Quadratic Programming)* solver. However, any QP problem can be transformed
-into a SOCP *(Second Order Cone Programming)* problem.
+QP *(Quadratic Programming)* solver. However, QP problem can be viewed as a
+special case of SOCP *(Second Order Cone Programming)*.
 >
 > * `'cvxopt'` : is the SOCP/QP implantation from **cvxopt** package.
 >

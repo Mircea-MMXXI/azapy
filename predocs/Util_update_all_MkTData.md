@@ -1,4 +1,5 @@
-# update_all_mkTData
+
+# update_all_mkTData <a name="TOP"></a>
 
 ## Update all the MkT data saved in a directory
 
@@ -46,13 +47,4 @@ are silently omitted from the update.
 
 ### [Examples:](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/util/update_all_MkTData_example.py)
 
-```
-import azapy as az
-
-mktdir = "../../MkTdata_test"
-
-ercode = az.update_all_mktdata(mktdir)
-
-# error code 200 is OK (see docs)
-print(f"error code: {ercode}")
 ```

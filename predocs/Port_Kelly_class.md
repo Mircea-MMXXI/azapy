@@ -1,7 +1,7 @@
 
 ## Port_Kelly class
 
-Out-of-Sample (back testing) simulation of Kelly optimal portfolio periodically
+Out-of-sample (backtesting) simulation of Kelly optimal portfolio periodically
 rebalanced.
 
 
