@@ -1,6 +1,3 @@
-
-<a name="getWeights"></a>
-
 #### <span style="color:green">getWeights</span>
 
 Computes the optimal portfolio weights.
@@ -60,9 +57,3 @@ Note: It will set the following class members:
 * _secondary_risk_comp_
 * _sharpe_
 * _RR_
-
-Their meanings are [here](#RiskMembers).
-
-[TOP](#TOP)
-
----

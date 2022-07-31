@@ -1,5 +1,4 @@
-
-# mBTSD optimal portfolios <a name="TOP"></a>
+# mBTSD optimal portfolios
 
 BTSD stands for Below Target Semi-Deviation. It is similar
 to BTAD but defined in

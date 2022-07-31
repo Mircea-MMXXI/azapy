@@ -1,6 +1,3 @@
-
-<a name="set_model">
-
 #### <span style="color:green">set_model</span>
 
 Sets model parameters and evaluates portfolio time-series.
@@ -61,7 +58,3 @@ The default is `'ecos'`.
 
 *Returns:* `pandas.DataFrame` containing the portfolio time-series in the format
 `'date'`, `'pcolname'`.
-
-[TOP](#TOP)
-
----

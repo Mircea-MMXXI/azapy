@@ -1,5 +1,4 @@
-
-# SD optimal portfolios <a name="TOP"></a>
+# SD optimal portfolios
 
 SD stands for *Standard Deviation* (square root of variance).
 It will play the role of dispersion measure. In many respects, SD and MV

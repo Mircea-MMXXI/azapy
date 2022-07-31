@@ -1,6 +1,3 @@
-
-<a name="set_rrate"></a>
-
 #### <span style="color:green">set_rrate</span>
 
 Sets portfolio components historical rates of returns.
@@ -20,7 +17,3 @@ columns are `'date'`, `symbol1`, `symbol2`, etc.
 
 
 *Returns:* `None`
-
-[TOP](#TOP)
-
----

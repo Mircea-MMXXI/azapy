@@ -1,5 +1,4 @@
-
-# mCVaR optimal portfolios <a name="TOP"></a>
+# mCVaR optimal portfolios
 
 CVaR stands for *Conditional Value at Risk*. It is one of the most popular risk
 measures in finance. The CVaR dispersion measure can be defined as

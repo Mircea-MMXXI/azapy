@@ -1,5 +1,4 @@
-
-# mSMCR optimal portfolios <a name="TOP"></a>
+# mSMCR optimal portfolios
 
 SMCR stands for *Second Moment Coherent Risk*. SMCR dispersion measure can be
 defined as

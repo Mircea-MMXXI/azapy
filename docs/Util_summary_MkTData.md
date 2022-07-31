@@ -1,5 +1,5 @@
-
-# summary_MKTData <a name="TOP"></a>
+(Util_summary_MkTData_TOP)= 
+# summary_MKTData
 
 ## Summary of market data time-series length and quality
 Checks for missing records.
@@ -40,7 +40,6 @@ The default is `None`.
 equal to `0`.
 
 ### [Examples:](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/util/summary_MkTData_example.py)
-
 ```
 # Example of how to call readMkT and summary_MkTData functions
 import azapy as az
@@ -69,6 +68,5 @@ smry2 = az.summary_MkTData(mktdata)
 print(f"summary from dict:\n {smry2}")
 
     
-
 ```
-[TOP](#TOP)
+[TOP](Util_summary_MkTData_TOP) 

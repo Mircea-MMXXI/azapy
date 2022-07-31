@@ -1,5 +1,4 @@
-
-# mMAD optimal portfolios <a name="TOP"></a>
+# mMAD optimal portfolios
 
 MAD stands for _Mean Absolute Deviation_.
 

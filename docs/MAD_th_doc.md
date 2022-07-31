@@ -1,5 +1,6 @@
-
-# mMAD optimal portfolios <a name="TOP"></a>
+ 
+(MAD_th_doc_base)= 
+# mMAD optimal portfolios
 
 MAD stands for _Mean Absolute Deviation_.
 
@@ -43,23 +44,26 @@ There are 2 support classes:
 * **MADAnalyzer** : computes the portfolio weights and performs in-sample
 analysis,
 * **Port_MAD** : performs portfolio back testing, out-of-sample analysis.
-
+ 
+[TOP](MAD_th_doc_base) 
+ 
+(MADAnalyzer_class)= 
 ## MADAnalyzer class
 
 Computes the portfolio weights and performs in-sample portfolio analysis.
 
 **Methods:**
 
-* [<span style="color:green">getWeights</span>](#getWeights)
-* [<span style="color:green">getRsik</span>](#getRisk)
-* [<span style="color:green">getPositions</span>](#getPositions)
-* [<span style="color:green">viewFrontiers</span>](#viewFrontiers)
-* [<span style="color:green">set_mktdata</span>](#set_mktdata)
-* [<span style="color:green">set_rrdata</span>](#set_rrdate)
-* [<span style="color:green">set_rtype</span>](#set_rtype)
-* [<span style="color:green">set_random_seed</span>](#set_random_seed)
+* [<span style="color:green">getWeights</span>](MAD_Risk_getWeights)
+* [<span style="color:green">getRsik</span>](MAD_Risk_getRisk)
+* [<span style="color:green">getPositions</span>](MAD_Risk_getPositions)
+* [<span style="color:green">viewFrontiers</span>](MAD_Risk_viewFrontiers)
+* [<span style="color:green">set_mktdata</span>](MAD_Risk_set_mktdata)
+* [<span style="color:green">set_rrdata</span>](MAD_Risk_set_rrate)
+* [<span style="color:green">set_rtype</span>](MAD_Risk_set_rtype)
+* [<span style="color:green">set_random_seed</span>](MAD_Risk_set_random_seed)
 
-Note the following 2 important methods: <a name="RiskMembers"></a>
+Note the following 2 important methods:
 * **getWeights** : Computes the optimal portfolio weights.
 During its computations the following class members are also set:
   * _risk_ : the value of mMAD,
@@ -129,13 +133,12 @@ proves to be the slowest.
 > * `'glpk'` : is the GLPK LP implementation.
 >
 > In our cases `'ecos'` and `'hight-ds'` provides the fastest computations.
-
-[TOP](#TOP)
+ 
+[TOP](MAD_th_doc_base) 
 
 ### Methods:
-
-<a name="getWeights"></a>
-
+ 
+(MAD_Risk_getWeights)= 
 #### <span style="color:green">getWeights</span>
 
 Computes the optimal portfolio weights.
@@ -195,15 +198,12 @@ Note: It will set the following class members:
 * _secondary_risk_comp_
 * _sharpe_
 * _RR_
-
-Their meanings are [here](#RiskMembers).
-
-[TOP](#TOP)
-
----
-
-<a name="getRisk"></a>
-
+ 
+Their meanings are [here](MADAnalyzer_class) 
+ 
+[TOP](MAD_th_doc_base) 
+ 
+(MAD_Risk_getRisk)= 
 #### <span style="color:green">getRisk</span>
 
 Computes the risk of a portfolio defined by a set of weights.
@@ -234,15 +234,12 @@ Note: It will set the following class members:
 * _secondary_risk_comp_
 * _sharpe_
 * _RR_
-
-Their meanings are [here](#RiskMembers).
-
-[TOP](#TOP)
-
----
-
-<a name="getPositions"></a>
-
+ 
+Their meanings are [here](MADAnalyzer_class) 
+ 
+[TOP](MAD_th_doc_base) 
+ 
+(MAD_Risk_getPositions)= 
 #### <span style="color:green">getPositions</span>
 
 Computes the rebalanced and delta numbers of shares for each portfolio
@@ -320,13 +317,10 @@ is the new portfolio value (invested capital).
 >Note: Since the prices are closing prices, the rebalance can be executed next
 business day. Additional cash slippage may occur due to share price differential
 between the previous day closing and  execution time.
-
-[TOP](#TOP)
-
----
-
-<a name="viewFrontiers"></a>
-
+ 
+[TOP](MAD_th_doc_base) 
+ 
+(MAD_Risk_ViewFrontiers)= 
 #### <span style="color:green">viewFrontiers</span>
 
 Produces a graphical representation of the portfolio frontiers.
@@ -379,13 +373,10 @@ without reevaluations. The default is `None`.
 *Returns:* Dictionary containing numerical data used to make the plots.
 It can be passed back as `data` argument to reconstruct the plots without
 reevaluations.
-
-[TOP](#TOP)
-
----
-
-<a name="set_mktdata"></a>
-
+ 
+[TOP](MAD_th_doc_base) 
+ 
+(MAD_Risk_set_mktdata)= 
 #### <span style="color:green">set_mktdata</span>
 
 Sets historical market data. It will overwrite the choices made in the
@@ -418,13 +409,10 @@ to NYSE business calendar. The default is `None`.
 
 
 *Returns:* `None`
-
-[TOP](#TOP)
-
----
-
-<a name="set_rrate"></a>
-
+ 
+[TOP](MAD_th_doc_base) 
+ 
+(MAD_Risk_set_rrate)= 
 #### <span style="color:green">set_rrate</span>
 
 Sets portfolio components historical rates of returns.
@@ -444,13 +432,10 @@ columns are `'date'`, `symbol1`, `symbol2`, etc.
 
 
 *Returns:* `None`
-
-[TOP](#TOP)
-
----
-
-<a name="set_rtype"></a>
-
+ 
+[TOP](MAD_th_doc_base) 
+ 
+(MAD_Risk_set_rtype)= 
 #### <span style="color:green">set_rtype</span>
 
 Sets the optimization type. It will overwrite the value set in the
@@ -467,13 +452,10 @@ set_rtype(rtype)
 * `rtype` : Optimization type.
 
 *Returns:* `None`
-
-[TOP](#TOP)
-
----
-
-<a name="set_random_seed"></a>
-
+ 
+[TOP](MAD_th_doc_base) 
+ 
+(MAD_Risk_set_random_seed)= 
 #### <span style="color:green">set_random_seed</span>
 
 Sets the seed for Dirichlet random generator used in `viewFrontiers`.
@@ -490,14 +472,12 @@ set_random_seed(seed=42)
 value other than 42 :). The default is `42`.
 
 *Returns:* `None`
-
-[TOP](#TOP)
-
----
-<a name="MADAnalyzer_class_example"></a>
+ 
+[TOP](MAD_th_doc_base) 
+ 
+(MADAnalyzer_class_example)= 
 
 ### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/MADAnalyzer_examples.py)
-
 ```
 # Examples
 import numpy as np
@@ -692,13 +672,11 @@ cash = 0.
 # new positions and rolling info
 pos = cr1.getPositions(nshares=ns, cash=0, rtype='Sharpe')
 print(f" New position report\n {pos}")
-
 ```
-
-[TOP](#TOP)
-
----
-
+ 
+[TOP](MAD_th_doc_base) 
+ 
+(MAD_Port_class)= 
 ## Port_MAD class
 
 
@@ -708,18 +686,18 @@ rebalanced.
 
 **Methods:**
 
-* [<span style="color:green">set_model</span>](#set_model)
-* [<span style="color:green">port_view</span>](#port_view)
-* [<span style="color:green">port_view_all</span>](#port_view_all)
-* [<span style="color:green">port_drawdown</span>](#port_drawdown)
-* [<span style="color:green">port_perf</span>](#port_perf)
-* [<span style="color:green">port_annual_returns</span>](#port_annual_returns)
-* [<span style="color:green">port_monthly_returns</span>](#port_monthly_returns)
-* [<span style="color:green">port_period_returns</span>](#port_period_returns)
-* [<span style="color:green">get_nshares</span>](#get_nshares)
-* [<span style="color:green">get_weights</span>](#get_weights)
-* [<span style="color:green">get_account</span>](#get_account)
-* [<span style="color:green">get_mktdata</span>](#get_mktdata)
+* [<span style="color:green">set_model</span>](MAD_Port_set_model)
+* [<span style="color:green">port_view</span>](MAD_Port_port_view)
+* [<span style="color:green">port_view_all</span>](MAD_Port_port_view_all)
+* [<span style="color:green">port_drawdown</span>](MAD_Port_port_drawdown)
+* [<span style="color:green">port_perf</span>](MAD_Port_port_perf)
+* [<span style="color:green">port_annual_returns</span>](MAD_Port_port_annual_returns)
+* [<span style="color:green">port_monthly_returns</span>](MAD_Port_port_monthly_returns)
+* [<span style="color:green">port_period_returns</span>](MAD_Port_port_period_returns)
+* [<span style="color:green">get_nshares</span>](MAD_Port_get_nshares)
+* [<span style="color:green">get_weights</span>](MAD_Port_get_weights)
+* [<span style="color:green">get_account</span>](MAD_Port_get_account)
+* [<span style="color:green">get_mktdata</span>](MAD_Port_get_mktdata)
 
 
 The most important method is **set_model**. It must be called before any
@@ -795,13 +773,12 @@ relevant only if `schedule` is `None`. The default is `-1`.
 * `calendar` : `numpy.busdaycalendar`;
 Business calendar. If it is `None`, then it will be set to NYSE
 business calendar. The default is `None`.
-
-[TOP](#TOP)
+ 
+[TOP](MAD_th_doc_base) 
 
 ### Methods:
-
-<a name="set_model">
-
+ 
+(MAD_Port_set_model)= 
 #### <span style="color:green">set_model</span>
 
 Sets model parameters and evaluates portfolio time-series.
@@ -867,13 +844,10 @@ set_model(coef=[1.], rtype='Sharpe', mu=None, mu0=0, aversion=None,
 
 *Returns:* `pandas.DataFrame` containing the portfolio time-series in the format
 `'date'`, `'pcolname'`.
-
-[TOP](#TOP)
-
----
-
-<a name="port_view"></a>
-
+ 
+[TOP](MAD_th_doc_base) 
+ 
+(MAD_Port_port_view)= 
 #### <span style="color:green">port_view</span>
 
 Plots the optimal portfolio time series together with some technical
@@ -901,13 +875,10 @@ format: `png`, `pdf`, `svg`, etc. For more details see the `mathplotlib`
 documentation for `savefig`. The default is `None`.
 
 *Returns:* `pandas.DataFrame` containing the time-series included in the plot.
-
-[TOP](#TOP)
-
----
-
-<a name="port_view_all"></a>
-
+ 
+[TOP](MAD_th_doc_base) 
+ 
+(MAD_Port_port_view_all)= 
 #### <span style="color:green">port_view_all</span>
 
 Plots in a relative bases the optimal portfolio and its components time-series.
@@ -941,13 +912,10 @@ format: `png`, `pdf`, `svg`, etc. For more details see the `mathplotlib`
 documentation for `savefig`.The default is `None`.
 
 *Returns:* `pandas.DataFrame` containing the time-series included in the plot.
-
-[TOP](#TOP)
-
----
-
-<a name="port_drawdown"></a>
-
+ 
+[TOP](MAD_th_doc_base) 
+ 
+(MAD_Port_port_drawdown)= 
 #### <span style="color:green">port_drawdown</span>
 
 Computes the portfolio drawdowns.
@@ -976,13 +944,10 @@ drawdown events. Columns:
 * `'End'` : end date of the drawdown. A `NaN` value indicates that the
 drawdown event is in progress and the values of `'DD'` and `'Date'` are
 provisional only.
-
-[TOP](#TOP)
-
----
-
-<a name="port_perf"></a>
-
+ 
+[TOP](MAD_th_doc_base) 
+ 
+(MAD_Port_port_perf)= 
 #### <span style="color:green">port_perf</span>
 
 Brief description of optimal portfolio and its components performances
@@ -1012,13 +977,10 @@ performance information. Columns:
 * `'DD_date'` : recorded date of maximum drawdown,
 * `'DD_start'` : start date of maximum drawdown,
 * `'DD_end'` : end date of maximum drawdown.
-
-[TOP](#TOP)
-
----
-
-<a name="port_annual_returns"></a>
-
+ 
+[TOP](MAD_th_doc_base) 
+ 
+(MAD_Port_port_annual_returns)= 
 #### <span style="color:green">port_annual_returns</span>
 
 Computes optimal portfolio and its components annual (calendar) rates of returns.
@@ -1045,13 +1007,10 @@ are reported. The default is `False`.
     to 2 decimals and presented is color style.
 
 *Returns:* `pandas.DataFrame`
-
-[TOP](#TOP)
-
----
-
-<a name="port_monthly_returns"></a>
-
+ 
+[TOP](MAD_th_doc_base) 
+ 
+(MAD_Port_port_monthly_returns)= 
 #### <span style="color:green">port_monthly_returns</span>
 
 Computes optimal portfolio and its components monthly (calendar) rate of
@@ -1077,13 +1036,10 @@ are reported. The default is `False`.
     to 2 decimals and presented is color style.
 
 *Returns:* `pandas.DataFrame`
-
-[TOP](#TOP)
-
----
-
-<a name="port_period_returns"></a>
-
+ 
+[TOP](MAD_th_doc_base) 
+ 
+(MAD_Port_port_period_returns)= 
 #### <span style="color:green">port_period_returns</span>
 
 Computes the rolling periods rate of returns.
@@ -1106,13 +1062,10 @@ port_period_returns(fancy=False)
 Each rolling period is indicated by its start date, `Droll`.
 For reference, the values of `Dfix` and components weights are
 included in the report.
-
-[TOP](#TOP)
-
----
-
-<a name="get_nshares"></a>
-
+ 
+[TOP](MAD_th_doc_base) 
+ 
+(MAD_Port_get_nshares)= 
 #### <span style="color:green">get_nshares</span>
 
 Returns the number of shares hold after each rolling date.
@@ -1129,14 +1082,32 @@ get_nshares()
 *Returns:* `pandas.DataFrame`
 
 Each rolling period is indicated by its start date, `Droll`.
+ 
+[TOP](MAD_th_doc_base) 
+ 
+(MAD_Port_get_weights)= 
+#### <span style="color:green">get_weights</span>
 
+Returns the portfolio weights for each rebalancing period.
 
-[TOP](#TOP)
+*Call:*
 
----
+```
+get_weights(fancy=False)
+```
 
-<a name="get_account"></a>
+*Inputs:*
 
+* `fancy` : Boolean flag with default value `False`.
+    - `False` : The values are reported in unaltered algebraic format.
+    - `True` : The values are reported in percent rounded
+    to 2 decimals.
+
+*Returns:* `pandas.DataFrame`
+ 
+[TOP](MAD_th_doc_base) 
+ 
+(MAD_Port_get_account)= 
 #### <span style="color:green">get_account</span>
 
 Returns additional bookkeeping information regarding rebalancing
@@ -1173,13 +1144,10 @@ the fixing (computation) and rolling (execution) dates. In general it
 has a small positive or negative value.
 The finance of the `'cash_roll'` (if it has a negative value) is assumed
 to be done separately by the investor.
-
-[TOP](#TOP)
-
----
-
-<a name="get_mktdata"></a>
-
+ 
+[TOP](MAD_th_doc_base) 
+ 
+(MAD_Port_get_mktdata)= 
 #### <span style="color:green">get_mktdata</span>
 
 Returns the actual market data used for portfolio evaluations.
@@ -1194,13 +1162,12 @@ get_mktdata()
 
 
 *Returns:* `pandas.DataFrame`
-
-[TOP](#TOP)
-
----
+ 
+[TOP](MAD_th_doc_base) 
+ 
+(MAD_Port_class_example)= 
 
 ### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_MAD_examples.py)
-
 ```
 # Examples
 import numpy as np
@@ -1334,6 +1301,6 @@ p4.get_account(fancy=True)
 # pp = az.Port_Simple(zts)
 # _ = pp.set_model()
 # _ = pp.port_view_all(componly=True)
-
 ```
-[TOP](#TOP)
+ 
+[TOP](MAD_th_doc_base) 

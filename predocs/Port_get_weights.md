@@ -1,6 +1,3 @@
-
-<a name="get_weights"></a>
-
 #### <span style="color:green">get_weights</span>
 
 Returns the portfolio weights for each rebalancing period.
@@ -19,7 +16,3 @@ get_weights(fancy=False)
     to 2 decimals.
 
 *Returns:* `pandas.DataFrame`
-
-[TOP](#TOP)
-
----

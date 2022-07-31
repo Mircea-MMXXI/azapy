@@ -1,4 +1,3 @@
-
 # Introduction
 
 The "Naïve" class of portfolios defines the weights heuristically, based

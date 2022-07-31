@@ -1,6 +1,3 @@
-
-<a name="getPositions"></a>
-
 #### <span style="color:green">getPositions</span>
 
 Computes the rebalanced and delta numbers of shares for each portfolio
@@ -78,7 +75,3 @@ is the new portfolio value (invested capital).
 >Note: Since the prices are closing prices, the rebalance can be executed next
 business day. Additional cash slippage may occur due to share price differential
 between the previous day closing and  execution time.
-
-[TOP](#TOP)
-
----

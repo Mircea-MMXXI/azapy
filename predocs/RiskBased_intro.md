@@ -1,4 +1,3 @@
-
 # Introduction
 
 A *Risk-based optimal portfolio* is the
@@ -236,7 +235,7 @@ An example is provided in a
 
 **azapy** package has its own facility to collect historical market data from
 various providers[^apikey]
-(see section [*Read historical market data*](./Util_readMkT.html#HistMkTData)).
+(see section [*Read historical market data*](Util_readMkT)).
 
 
 

@@ -1,5 +1,4 @@
-
-# mBTAD optimal portfolios <a name="TOP"></a>
+# mBTAD optimal portfolios
 
 In 2002, Omega ratio was introduced as an alternative to Sharpe ratio.
 It can be defined as

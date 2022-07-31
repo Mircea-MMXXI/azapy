@@ -1,5 +1,6 @@
-
-# Inverse drawdowns portfolio <a name="TOP"></a>
+ 
+(InvDD_Port_th_doc_base)= 
+# Inverse drawdowns portfolio
 
 Portfolio with weights proportional to the inverse of the portfolio
 component maximum drawdowns, periodically rebalanced.
@@ -14,7 +15,10 @@ rebalancing events.
 There is 1 support class:
 
 * **Port_InvDD** : performs portfolio back testing, out-of-sample analyzes.
-
+ 
+[TOP](InvDD_Port_th_doc_base) 
+ 
+(InvDD_Port_class)= 
 ## Port_InvDD class
 
 Out-of-sample (backtesting) simulation of inverse drawdown portfolio,
@@ -23,18 +27,18 @@ periodically rebalanced.
 
 **Methods:**
 
-* [<span style="color:green">set_model</span>](#set_model)
-* [<span style="color:green">port_view</span>](#port_view)
-* [<span style="color:green">port_view_all</span>](#port_view_all)
-* [<span style="color:green">port_drawdown</span>](#port_drawdown)
-* [<span style="color:green">port_perf</span>](#port_perf)
-* [<span style="color:green">port_annual_returns</span>](#port_annual_returns)
-* [<span style="color:green">port_monthly_returns</span>](#port_monthly_returns)
-* [<span style="color:green">port_period_returns</span>](#port_period_returns)
-* [<span style="color:green">get_nshares</span>](#get_nshares)
-* [<span style="color:green">get_weights</span>](#get_weights)
-* [<span style="color:green">get_account</span>](#get_account)
-* [<span style="color:green">get_mktdata</span>](#get_mktdata)
+* [<span style="color:green">set_model</span>](InvDD_Port_set_model)
+* [<span style="color:green">port_view</span>](InvDD_Port_port_view)
+* [<span style="color:green">port_view_all</span>](InvDD_Port_port_view_all)
+* [<span style="color:green">port_drawdown</span>](InvDD_Port_port_drawdown)
+* [<span style="color:green">port_perf</span>](InvDD_Port_port_perf)
+* [<span style="color:green">port_annual_returns</span>](InvDD_Port_port_annual_returns)
+* [<span style="color:green">port_monthly_returns</span>](InvDD_Port_port_monthly_returns)
+* [<span style="color:green">port_period_returns</span>](InvDD_Port_port_period_returns)
+* [<span style="color:green">get_nshares</span>](InvDD_Port_get_nshares)
+* [<span style="color:green">get_weights</span>](InvDD_Port_get_weights)
+* [<span style="color:green">get_account</span>](InvDD_Port_get_account)
+* [<span style="color:green">get_mktdata</span>](InvDD_Port_get_mktdata)
 
 
 The most important method is **set_model**. It must be called before any
@@ -110,13 +114,12 @@ relevant only if `schedule` is `None`. The default is `-1`.
 * `calendar` : `numpy.busdaycalendar`;
 Business calendar. If it is `None`, then it will be set to NYSE
 business calendar. The default is `None`.
-
-[TOP](#TOP)
+ 
+[TOP](InvDD_Port_th_doc_base) 
 
 ### Methods:
-
-<a name="set_model">
-
+ 
+(InvDD_Port_set_model)= 
 #### <span style="color:green">set_model</span>
 
 Sets model parameters and evaluates portfolio time-series.
@@ -137,13 +140,10 @@ of months. The default is `3.25` years.
 
 *Returns:* `pd.DataFrame` containing the portfolio time-series in the format
 `'date'`, `'pcolname'`.
-
-[TOP](#TOP)
-
----
-
-<a name="port_view"></a>
-
+ 
+[TOP](InvDD_Port_th_doc_base) 
+ 
+(InvDD_Port_port_view)= 
 #### <span style="color:green">port_view</span>
 
 Plots the optimal portfolio time series together with some technical
@@ -171,13 +171,10 @@ format: `png`, `pdf`, `svg`, etc. For more details see the `mathplotlib`
 documentation for `savefig`. The default is `None`.
 
 *Returns:* `pandas.DataFrame` containing the time-series included in the plot.
-
-[TOP](#TOP)
-
----
-
-<a name="port_view_all"></a>
-
+ 
+[TOP](InvDD_Port_th_doc_base) 
+ 
+(InvDD_Port_port_view_all)= 
 #### <span style="color:green">port_view_all</span>
 
 Plots in a relative bases the optimal portfolio and its components time-series.
@@ -211,13 +208,10 @@ format: `png`, `pdf`, `svg`, etc. For more details see the `mathplotlib`
 documentation for `savefig`.The default is `None`.
 
 *Returns:* `pandas.DataFrame` containing the time-series included in the plot.
-
-[TOP](#TOP)
-
----
-
-<a name="port_drawdown"></a>
-
+ 
+[TOP](InvDD_Port_th_doc_base) 
+ 
+(InvDD_Port_port_drawdown)= 
 #### <span style="color:green">port_drawdown</span>
 
 Computes the portfolio drawdowns.
@@ -246,13 +240,10 @@ drawdown events. Columns:
 * `'End'` : end date of the drawdown. A `NaN` value indicates that the
 drawdown event is in progress and the values of `'DD'` and `'Date'` are
 provisional only.
-
-[TOP](#TOP)
-
----
-
-<a name="port_perf"></a>
-
+ 
+[TOP](InvDD_Port_th_doc_base) 
+ 
+(InvDD_Port_port_perf)= 
 #### <span style="color:green">port_perf</span>
 
 Brief description of optimal portfolio and its components performances
@@ -282,13 +273,10 @@ performance information. Columns:
 * `'DD_date'` : recorded date of maximum drawdown,
 * `'DD_start'` : start date of maximum drawdown,
 * `'DD_end'` : end date of maximum drawdown.
-
-[TOP](#TOP)
-
----
-
-<a name="port_annual_returns"></a>
-
+ 
+[TOP](InvDD_Port_th_doc_base) 
+ 
+(InvDD_Port_port_annual_returns)= 
 #### <span style="color:green">port_annual_returns</span>
 
 Computes optimal portfolio and its components annual (calendar) rates of returns.
@@ -315,13 +303,10 @@ are reported. The default is `False`.
     to 2 decimals and presented is color style.
 
 *Returns:* `pandas.DataFrame`
-
-[TOP](#TOP)
-
----
-
-<a name="port_monthly_returns"></a>
-
+ 
+[TOP](InvDD_Port_th_doc_base) 
+ 
+(InvDD_Port_port_monthly_returns)= 
 #### <span style="color:green">port_monthly_returns</span>
 
 Computes optimal portfolio and its components monthly (calendar) rate of
@@ -347,13 +332,10 @@ are reported. The default is `False`.
     to 2 decimals and presented is color style.
 
 *Returns:* `pandas.DataFrame`
-
-[TOP](#TOP)
-
----
-
-<a name="port_period_returns"></a>
-
+ 
+[TOP](InvDD_Port_th_doc_base) 
+ 
+(InvDD_Port_port_period_returns)= 
 #### <span style="color:green">port_period_returns</span>
 
 Computes the rolling periods rate of returns.
@@ -376,13 +358,10 @@ port_period_returns(fancy=False)
 Each rolling period is indicated by its start date, `Droll`.
 For reference, the values of `Dfix` and components weights are
 included in the report.
-
-[TOP](#TOP)
-
----
-
-<a name="get_nshares"></a>
-
+ 
+[TOP](InvDD_Port_th_doc_base) 
+ 
+(InvDD_Port_get_nshares)= 
 #### <span style="color:green">get_nshares</span>
 
 Returns the number of shares hold after each rolling date.
@@ -399,14 +378,32 @@ get_nshares()
 *Returns:* `pandas.DataFrame`
 
 Each rolling period is indicated by its start date, `Droll`.
+ 
+[TOP](InvDD_Port_th_doc_base) 
+ 
+(InvDD_Port_get_weights)= 
+#### <span style="color:green">get_weights</span>
 
+Returns the portfolio weights for each rebalancing period.
 
-[TOP](#TOP)
+*Call:*
 
----
+```
+get_weights(fancy=False)
+```
 
-<a name="get_account"></a>
+*Inputs:*
 
+* `fancy` : Boolean flag with default value `False`.
+    - `False` : The values are reported in unaltered algebraic format.
+    - `True` : The values are reported in percent rounded
+    to 2 decimals.
+
+*Returns:* `pandas.DataFrame`
+ 
+[TOP](InvDD_Port_th_doc_base) 
+ 
+(InvDD_Port_get_account)= 
 #### <span style="color:green">get_account</span>
 
 Returns additional bookkeeping information regarding rebalancing
@@ -443,13 +440,10 @@ the fixing (computation) and rolling (execution) dates. In general it
 has a small positive or negative value.
 The finance of the `'cash_roll'` (if it has a negative value) is assumed
 to be done separately by the investor.
-
-[TOP](#TOP)
-
----
-
-<a name="get_mktdata"></a>
-
+ 
+[TOP](InvDD_Port_th_doc_base) 
+ 
+(InvDD_Port_get_mktdata)= 
 #### <span style="color:green">get_mktdata</span>
 
 Returns the actual market data used for portfolio evaluations.
@@ -464,13 +458,12 @@ get_mktdata()
 
 
 *Returns:* `pandas.DataFrame`
-
-[TOP](#TOP)
-
----
+ 
+[TOP](InvDD_Port_th_doc_base) 
+ 
+(InvDD_Port_class_example)= 
 
 ### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_InvDD_examples.py)
-
 ```
 # Examples
 import time
@@ -515,6 +508,6 @@ port2  = p2.set_model(ww)
 pp = az.Port_Simple([port2, port4])
 _ = pp.set_model()
 _ = pp.port_view_all(componly=True)
-                 
-```
-[TOP](#TOP)
+                 ```
+ 
+[TOP](InvDD_Port_th_doc_base) 

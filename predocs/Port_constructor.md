@@ -60,7 +60,3 @@ relevant only if `schedule` is `None`. The default is `-1`.
 * `calendar` : `numpy.busdaycalendar`;
 Business calendar. If it is `None`, then it will be set to NYSE
 business calendar. The default is `None`.
-
-[TOP](#TOP)
-
-### Methods:

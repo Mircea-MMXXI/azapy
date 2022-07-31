@@ -1,6 +1,3 @@
-
-<a name="set_model"></a>
-
 #### <span style="color:green">set_model</span>
 
 Sets model parameters and evaluates portfolio time-series.
@@ -21,7 +18,3 @@ of months. The default is `3.25` years.
 
 *Returns:* `pd.DataFrame` containing the portfolio time-series in the format
 `'date'`, `'pcolname'`.
-
-[TOP](#TOP)
-
----

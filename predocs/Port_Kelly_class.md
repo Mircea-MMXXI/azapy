@@ -1,4 +1,3 @@
-
 ## Port_Kelly class
 
 Out-of-sample (backtesting) simulation of Kelly optimal portfolio periodically
@@ -7,18 +6,18 @@ rebalanced.
 
 **Methods:**
 
-* [<span style="color:green">set_model</span>](#set_model)
-* [<span style="color:green">port_view</span>](#port_view)
-* [<span style="color:green">port_view_all</span>](#port_view_all)
-* [<span style="color:green">port_drawdown</span>](#port_drawdown)
-* [<span style="color:green">port_perf</span>](#port_perf)
-* [<span style="color:green">port_annual_returns</span>](#port_annual_returns)
-* [<span style="color:green">port_monthly_returns</span>](#port_monthly_returns)
-* [<span style="color:green">port_period_returns</span>](#port_period_returns)
-* [<span style="color:green">get_nshares</span>](#get_nshares)
-* [<span style="color:green">get_weights</span>](#get_weights)
-* [<span style="color:green">get_account</span>](#get_account)
-* [<span style="color:green">get_mktdata</span>](#get_mktdata)
+* [<span style="color:green">set_model</span>](Kelly_Port_set_model)
+* [<span style="color:green">port_view</span>](Kelly_Port_port_view)
+* [<span style="color:green">port_view_all</span>](Kelly_Port_port_view_all)
+* [<span style="color:green">port_drawdown</span>](Kelly_Port_port_drawdown)
+* [<span style="color:green">port_perf</span>](Kelly_Port_port_perf)
+* [<span style="color:green">port_annual_returns</span>](Kelly_Port_port_annual_returns)
+* [<span style="color:green">port_monthly_returns</span>](Kelly_Port_port_monthly_returns)
+* [<span style="color:green">port_period_returns</span>](Kelly_Port_port_period_returns)
+* [<span style="color:green">get_nshares</span>](Kelly_Port_get_nshares)
+* [<span style="color:green">get_weights</span>](Kelly_Port_get_weights)
+* [<span style="color:green">get_account</span>](Kelly_Port_get_account)
+* [<span style="color:green">get_mktdata</span>](Kelly_Port_get_mktdata)
 
 
 The most important method is **set_model**. It must be called before any
@@ -91,7 +90,3 @@ relevant only if `schedule` is `None`. The default is `-1`.
 * `calendar` : `np.busdaycalendar`;
 Business calendar. If it is `None` then it will be set to NYSE
 business calendar. The default is `None`.
-
-[TOP](#TOP)
-
-### Methods:

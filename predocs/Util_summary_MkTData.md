@@ -1,5 +1,4 @@
-
-# summary_MKTData <a name="TOP"></a>
+# summary_MKTData
 
 ## Summary of market data time-series length and quality
 Checks for missing records.
@@ -40,5 +39,3 @@ The default is `None`.
 equal to `0`.
 
 ### [Examples:](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/util/summary_MkTData_example.py)
-
-```

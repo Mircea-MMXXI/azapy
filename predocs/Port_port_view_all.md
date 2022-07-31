@@ -1,6 +1,3 @@
-
-<a name="port_view_all"></a>
-
 #### <span style="color:green">port_view_all</span>
 
 Plots in a relative bases the optimal portfolio and its components time-series.
@@ -34,7 +31,3 @@ format: `png`, `pdf`, `svg`, etc. For more details see the `mathplotlib`
 documentation for `savefig`.The default is `None`.
 
 *Returns:* `pandas.DataFrame` containing the time-series included in the plot.
-
-[TOP](#TOP)
-
----

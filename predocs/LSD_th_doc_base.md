@@ -1,5 +1,4 @@
-
-# mLSD optimal portfolios <a name="TOP"></a>
+# mLSD optimal portfolios
 
 LSD stands for *Lower Semi-Deviation*.
 

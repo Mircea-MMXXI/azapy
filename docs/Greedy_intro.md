@@ -1,4 +1,3 @@
-
 # Introduction
 
 A "Greedy" portfolio has the expected rate of return optimized relative to

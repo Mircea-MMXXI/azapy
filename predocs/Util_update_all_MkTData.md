@@ -1,5 +1,4 @@
-
-# update_all_mkTData <a name="TOP"></a>
+# update_all_mkTData
 
 ## Update all the MkT data saved in a directory
 
@@ -46,5 +45,3 @@ Error code (int):
 are silently omitted from the update.
 
 ### [Examples:](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/util/update_all_MkTData_example.py)
-
-```

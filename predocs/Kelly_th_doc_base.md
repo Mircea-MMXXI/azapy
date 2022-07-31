@@ -1,5 +1,4 @@
-
-# Kelly optimal portfolio <a name="TOP"></a>
+# Kelly optimal portfolio 
 
 Kelly optimal portfolio is named after John Larry Kelly Jr. (1923-1965)
 the author of Kelly criterion for betting on favorable gambling games.

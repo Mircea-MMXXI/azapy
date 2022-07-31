@@ -1,6 +1,3 @@
-
-<a name="set_model">
-
 #### <span style="color:green">set_model</span>
 
 Sets model parameters and evaluates portfolio time-series.
@@ -72,7 +69,3 @@ set_model(alpha=[0.975], coef=None, rtype='Sharpe',
 
 *Returns:* `pandas.DataFrame` containing the portfolio time-series in the format
 `'date'`, `'pcolname'`.
-
-[TOP](#TOP)
-
----

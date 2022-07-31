@@ -1,14 +1,13 @@
-
 ## KellyEngine class
 
 Computes the Kelly optimal portfolio weights.
 
 **Methods:**
-* [<span style="color:green">getWeights</span>](#getWeights)
-* [<span style="color:green">getPositions</span>](#getPositions)
-* [<span style="color:green">set_mktdata</span>](#set_mktdata)
-* [<span style="color:green">set_rrdata</span>](#set_rrdate)
-* [<span style="color:green">set_rtype</span>](#set_rtype)
+* [<span style="color:green">getWeights</span>](Kelly_Engine_getWeights)
+* [<span style="color:green">getPositions</span>](Kelly_Engine_getPositions)
+* [<span style="color:green">set_mktdata</span>](Kelly_Engine_set_mktdata)
+* [<span style="color:green">set_rrdata</span>](Kelly_Engine_set_rrate)
+* [<span style="color:green">set_rtype</span>](Kelly_Engine_set_rtype)
 
 ### Constructor
 
@@ -53,12 +52,11 @@ practical applications.  On the other hand `Order2` is a lot faster
 than 'Full'. For a typical example of 5 assets portfolio, 'Order2' is more than
 10 times faster than 'Full'.
 
-[TOP](#TOP)
+[TOP](Kelly_th_doc_base)
 
 ### Methods:
 
-<a name="getWeights"></a>
-
+(Kelly_Engine_getWeights)=
 #### <span style="color:green">getWeights</span>
 
 Computes the optimal portfolio weights.
@@ -79,12 +77,9 @@ value set by the constructor. The default is `None`.
 
 *Returns:* `pd.Series` containing the portfolio weights.
 
-[TOP](#TOP)
+[TOP](Kelly_th_doc_base)
 
----
-
-<a name="getPositions"></a>
-
+(Kelly_Engine_getPositions)=
 #### <span style="color:green">getPositions</span>
 
 Computes the rebalanced and delta numbers of shares for each portfolio
@@ -112,12 +107,9 @@ these weights will overwrite the calibrated weights. The default is `None`.
 
 *Returns:* `pd.DataFrame` containing the rolling information.
 
-[TOP](#TOP)
+[TOP](Kelly_th_doc_base)
 
----
-
-<a name="set_mktdata"></a>
-
+(Kelly_Engine_set_mktdata)=
 #### <span style="color:green">set_mktdata</span>
 
 Sets historical market data. It will overwrite the choices made in the
@@ -152,12 +144,9 @@ The default is `None`.
 
 *Returns:* `None`
 
-[TOP](#TOP)
+[TOP](Kelly_th_doc_base)
 
----
-
-<a name="set_rrate"></a>
-
+(Kelly_Engine_set_rrate)=
 #### <span style="color:green">set_rrate</span>
 
 Sets portfolio components historical rates of returns.
@@ -178,12 +167,9 @@ columns are `'date'`, `symbol1`, `symbol2`, etc.
 
 *Returns:* `None`
 
-[TOP](#TOP)
+[TOP](Kelly_th_doc_base)
 
----
-
-<a name="set_rtype"></a>
-
+(Kelly_Engine_set_rtype)=
 #### <span style="color:green">set_rtype</span>
 
 Sets the optimization type. It will overwrite the value set in the
@@ -201,6 +187,4 @@ set_rtype(rtype)
 
 *Returns:* `None`
 
-[TOP](#TOP)
-
----
+[TOP](Kelly_th_doc_base)

@@ -1,20 +1,19 @@
-
 ## GINIAnalyzer class
 
 Computes the portfolio weights and performs in-sample portfolio analysis.
 
 **Methods:**
 
-* [<span style="color:green">getWeights</span>](#getWeights)
-* [<span style="color:green">getRsik</span>](#getRisk)
-* [<span style="color:green">getPositions</span>](#getPositions)
-* [<span style="color:green">viewFrontiers</span>](#viewFrontiers)
-* [<span style="color:green">set_mktdata</span>](#set_mktdata)
-* [<span style="color:green">set_rrdata</span>](#set_rrdate)
-* [<span style="color:green">set_rtype</span>](#set_rtype)
-* [<span style="color:green">set_random_seed</span>](#set_random_seed)
+* [<span style="color:green">getWeights</span>](GINI_Risk_getWeights)
+* [<span style="color:green">getRsik</span>](GINI_Risk_getRisk)
+* [<span style="color:green">getPositions</span>](GINI_Risk_getPositions)
+* [<span style="color:green">viewFrontiers</span>](GINI_Risk_viewFrontiers)
+* [<span style="color:green">set_mktdata</span>](GINI_Risk_set_mktdata)
+* [<span style="color:green">set_rrdata</span>](GINI_Risk_set_rrate)
+* [<span style="color:green">set_rtype</span>](GINI_Risk_set_rtype)
+* [<span style="color:green">set_random_seed</span>](GINI_Risk_set_random_seed)
 
-Note the following 2 important methods: <a name="RiskMembers"></a>
+Note the following 2 important methods:
 * **getWeights** : Computes the optimal portfolio weights.
 During its computations the following class members are also set:
   * _risk_ : the value of GINI,
@@ -81,7 +80,3 @@ proves to be the slowest.
 > * `'glpk'` : is the GLPK LP implementation.
 >
 > In our cases `'ecos'` and `'hight-ds'` provides the fastest computations.
-
-[TOP](#TOP)
-
-### Methods:

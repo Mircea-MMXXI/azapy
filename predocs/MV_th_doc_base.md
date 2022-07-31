@@ -1,5 +1,4 @@
-
-# MV optimal portfolios <a name="TOP"></a>
+# MV optimal portfolios
 
 MV stands for *Mean Variance*.
 The MV optimal portfolio was
