@@ -16,17 +16,16 @@ Computes the portfolio weights and performs in-sample portfolio analysis.
 Note the following 2 important methods:
 * **getWeights** : Computes the optimal portfolio weights.
 During its computations the following class members are also set:
-  * _risk_ : the value of optimal portfolio Delta-risk,
-  * _primery_risk_comp_ : redundant (single value list containing the
-    optimal portfolio Delta-risk),
-  * _secondary_risk_comp_ : redundant (single value list containing the
-    optimal portfolio Delta-risk),
-  * _sharpe_ : Sharpe ration if `rtype` is set to `'Shapre'` or `'Sharpe2'`
+  * _risk_ : the value of mBTAD,
+  * _primery_risk_comp_ : The values of ${\rm BTAD_{\alpha_l}}$ components of
+  mBTAD,
+  * _secondary_risk_comp_ : The list of thresholds $\alpha_l$ (the input values),
+  * _sharpe_ : Omega ration if `rtype` is set to `'Shapre'` or `'Sharpe2'`
   otherwise `None`. This is the Omega ratio.
   * _RR_ : optimal portfolio expected rate of return.
 
-  * **getPositions** : Provides practical information regarding the portfolio
-  rebalancing delta positions and costs.  
+* **getPositions** : Provides practical information regarding the portfolio
+rebalancing delta positions and costs.  
 
 ### Constructor
 
@@ -44,8 +43,8 @@ coefficients. Must have the same size as `alpha`.
 A `None` value assumes an equal weighted risk mixture.
 The vector of coefficients will be normalized to unit.
 The default is `None`.
-* `mktdata` : `pd.DataFrame` containing the market data in the format returned by
-the function `azapy.readMkT`. The default is `None`. `mktdata` could be loaded
+* `mktdata` : `pandas.DataFrame` containing the market data in the format returned by
+the function `azapy.readMkT`. The default is `None`. Note: `mktdata` could be loaded
 latter.
 * `colname` : Name of the price column from `mktdata` used in the weights
 calibration. The default is `'adjusted'`.
@@ -54,18 +53,19 @@ It could be `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
 * `hlength` : History length in number of years used for calibration.
 A fractional number will be rounded to an integer number of months.
 The default is `3.25` years.
-* `calendar` :  `np.busdaycalendar` business days calendar. If it is `None`
+* `calendar` :  `numpy.busdaycalendar` business days calendar. If it is `None`
 then the calendar will be set to NYSE business calendar.
 The default is `None`.
-* `rtype` : Optimization type. The default is `'Sharpe'`. Possible values are:
-    - `'Risk'` : minimization of dispersion (risk) measure for a targeted
-    expected rate of return,
-    - `'Sharpe'` : maximization of generalized Sharpe ratio,
-    - `'Sharpe2'` : minimization of inverse generalized Sharpe ratio,
-    - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value,
-    - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) as a
-    benchmark portfolio (e.g. equal weighted portfolio),
-    - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
+* `rtype` : Optimization type:
+    - `'Risk'` : minimization of risk for fixed expected rate of return value.
+    - `'MinRisk'` : minimum risk portfolio.
+    - `'InvNRisk'` : optimal portfolio with the same risk as a benchmark
+     portfolio (*e.g.* equal weighted portfolio).
+    - `'RiskAverse'` : optimal portfolio for fixed risk-aversion value.
+    - `'Sharpe'` : maximization of Omega ratio.
+    - `'Sharpe2'` : minimization of the inverse Omega ratio.
+
+  The default is `'Sharpe'`.
 * `detrended` : Boolean flag:
   - `True` : detrended rate of return
   is used in the evaluation of Delta-risk, *i.e.* $r$ is replaced by $r-E[r]$,
@@ -87,7 +87,7 @@ the HiGHS _(high performance software for linear optimization)_ dual revised
 simplex and interior point methods, respectively, while `'highs'` is a
 dispatch interface choosing between the two automatically.
 `'interior-point'` is the default __SciPy__ LP algorithm. In our cases it
-proves to be the slowest.
+is the slowest.
 > * `'cvxopt'` : is the LP implantation from __cvxopt__ package.
 > * `'glpk'` : is the GLPK LP implementation.
 >

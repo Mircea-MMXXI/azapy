@@ -11,7 +11,7 @@
 
 ### Inputs:
 
-* `data` : pandas.DataFrame or dict <br>
+* `data` : `pandas.DataFrame` or `dict` <br>
 A valid MkT data object as returned by the function `azapy.readMkT`.
 * `name` : str <br>
 The name of the cash like security. It must be different than the other

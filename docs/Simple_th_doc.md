@@ -46,7 +46,7 @@ Port_Simple(mktdata, symb=None, sdate=None, edate=None, col='adjusted',
 
 where:
 
-* `mktdata` : `pd.DataFrame`;
+* `mktdata` : `pandas.DataFrame`;
 Market data in the format `"symbol"`, `"date"`, `"open"`, `"high"`,
 `"low"`, `"close"`, `"volume"`, `"adjusted"`, `"divd"`, `"split"`
 (*e.g.* as returned by `azapy.readMkT`).
@@ -98,7 +98,7 @@ order. If it is `None`, than `ww` will be set to equal weights,
 `ww = [1 / len(symb)] * len(symb)`.
 The default is `None`.
 
-*Returns:* `pd.DataFrame` containing the portfolio time-series in the format
+*Returns:* `pandas.DataFrame` containing the portfolio time-series in the format
 `'date'`, `'pcolname'`.
  
 [TOP](Simple_Port_th_doc_base) 
@@ -118,7 +118,7 @@ port_view(emas=[30, 200], bollinger=False, fancy=False, saveto=None)
 *Inputs:*
 
 * `emas` :
-List for EMA durations. The default is `[30, 200]`.
+List for EMA durations (in number of days). The default is `[30, 200]`.
 * `bollinger` : Boolean flag.
 `True` adds the Bollinger bands. The default is `False`.
 * `view` : Boolean flag.
@@ -149,11 +149,11 @@ port_view_all(sdate=None, edate=None, componly=False, fancy=False, saveto=None)
 
 *Inputs:*
 
-* `sdate` : date like;
+* `sdate` : date-like;
 Start date of plotted time-series. If it is `None`,
 then `sdate` is set to the earliest date in the time-series.
 The default is `None`.
-* `edate` : date like;
+* `edate` : date-like;
 End date of plotted time-series. If it is `None`, then `edate`
 is set to the most recent date of the time-series.
 The default is `None`.

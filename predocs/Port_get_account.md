@@ -16,7 +16,7 @@ get_account(fancy=False)
     - `False` : the values are reported in unaltered algebraic format.
     - `True` : the values are reported rounded.
 
-*Returns:* `pd.DataFrame`
+*Returns:* `pandas.DataFrame`
 
 Accounting report; each rolling period is identified by `'Droll'`. Columns:
 

@@ -30,8 +30,8 @@ of asset volatilities,
 * Inverse variance portfolio - the weights are proportional to the inverse
 of asset variances,
 * Inverse drawdown portfolio - the weight are proportional to the inverse
-of the asset maximum drawdowns experienced during a predefined period of
-time.
+of the asset maximum drawdowns experienced during a predefined historical
+period.
 
 We had included in this class the "Buy and Hold portfolio". This is an
 investment strategy where the initial asset positions (number of shares

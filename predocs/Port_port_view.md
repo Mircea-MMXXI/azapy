@@ -12,7 +12,7 @@ port_view(emas=[30, 200], bollinger=False, fancy=False, saveto=None)
 *Inputs:*
 
 * `emas` :
-List for EMA durations. The default is `[30, 200]`.
+List for EMA durations (in number of days). The default is `[30, 200]`.
 * `bollinger` : Boolean flag.
 `True` adds the Bollinger bands. The default is `False`.
 * `view` : Boolean flag.

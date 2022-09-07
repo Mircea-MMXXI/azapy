@@ -16,17 +16,16 @@ Computes the portfolio weights and performs in-sample portfolio analysis.
 Note the following 2 important methods:
 * **getWeights** : Computes the optimal portfolio weights.
 During its computations the following class members are also set:
-  * _risk_ : the value of optimal portfolio Delta-risk,
-  * _primery_risk_comp_ : redundant (single value list containing the
-    optimal portfolio Delta-risk),
-  * _secondary_risk_comp_ : redundant (single value list containing the
-    optimal portfolio Delta-risk),
-  * _sharpe_ : Sharpe ration if `rtype` is set to `'Shapre'` or `'Sharpe2'`
+  * _risk_ : the value of mBTSD,
+  * _primery_risk_comp_ : The values of ${\rm BTSD_{\alpha_l}}$ components of
+  mBTSD,
+  * _secondary_risk_comp_ : The list of thresholds $\alpha_l$ (the input values),
+  * _sharpe_ : Sortino ration if `rtype` is set to `'Shapre'` or `'Sharpe2'`
   otherwise `None`. This is the Omega ratio.
   * _RR_ : optimal portfolio expected rate of return.
 
-  * **getPositions** : Provides practical information regarding the portfolio
-  rebalancing delta positions and costs.  
+* **getPositions** : Provides practical information regarding the portfolio
+rebalancing delta positions and costs.  
 
 ### Constructor
 
@@ -44,7 +43,7 @@ where:
 The default is `None`.
 * `mktdata` : `pandas.DataFrame` containing the market data in the format
 returned by the function `azapy.readMkT`. The default is `None`.
-`mktdata` could be loaded latter.
+Note: `mktdata` could be loaded latter.
 * `colname` : Name of the price column from `mktdata` used in the weights
 calibration. The default is `'adjusted'`.
 * `freq` : Rate of returns horizon (portfolio rebalancing period).
@@ -55,15 +54,16 @@ The default is `3.25` years.
 * `calendar` :  `numpy.busdaycalendar` business days calendar. If it is `None`
 then the calendar will be set to NYSE business calendar.
 The default is `None`.
-* `rtype` : Optimization type. The default is `'Sharpe'`. Possible values are:
-    - `'Risk'` : minimization of dispersion (risk) measure for a targeted
-    expected rate of return,
-    - `'Sharpe'` : maximization of generalized Sharpe ratio,
-    - `'Sharpe2'` : minimization of inverse generalized Sharpe ratio,
-    - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value,
-    - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) as a
-    benchmark portfolio (*e.g.* equal weighted portfolio),
-    - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
+* `rtype` : Optimization type:
+    - `'Risk'` : minimization of risk for fixed expected rate of return value.
+    - `'MinRisk'` : minimum risk portfolio.
+    - `'InvNRisk'` : optimal portfolio with the same risk as a benchmark
+     portfolio (*e.g.* equal weighted portfolio).
+    - `'RiskAverse'` : optimal portfolio for fixed risk-aversion value.
+    - `'Sharpe'` : maximization of Sortino ratio.
+    - `'Sharpe2'` : minimization of the inverse Sortino ratio.
+
+  The default is `'Sharpe'`.
 * `detrended` : Boolean flag.
 In the BTSD expression use:
     - `True` : detrended rate of return, *i.e.* ${\bar r} = r - E[r]$,

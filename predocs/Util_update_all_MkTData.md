@@ -28,7 +28,7 @@ The default is `None`.
 List of symbols to be omitted from the update. The default is [].
 * `verbose` : Boolean, <br>
 
-  -`True` will print a progress report,
+  - `True` will print a progress report,
   - `False` suppress any printing to the terminal.
 
 The default is `True`.

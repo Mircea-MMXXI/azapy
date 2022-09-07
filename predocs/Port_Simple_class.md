@@ -28,7 +28,7 @@ Port_Simple(mktdata, symb=None, sdate=None, edate=None, col='adjusted',
 
 where:
 
-* `mktdata` : `pd.DataFrame`;
+* `mktdata` : `pandas.DataFrame`;
 Market data in the format `"symbol"`, `"date"`, `"open"`, `"high"`,
 `"low"`, `"close"`, `"volume"`, `"adjusted"`, `"divd"`, `"split"`
 (*e.g.* as returned by `azapy.readMkT`).

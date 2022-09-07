@@ -18,8 +18,8 @@ KellyEngine(mktdata=None, colname='adjusted', freq='Q', hlength=3.25,
 
 where:
 
-* `mktdata` : `pd.DataFrame` containing the market data in the format returned by
-the function `azapy.readMkT`. The default is `None`. `mktdata` could be loaded
+* `mktdata` : `pandas.DataFrame` containing the market data in the format returned by
+the function `azapy.readMkT`. The default is `None`. Note: `mktdata` could be loaded
 latter.
 * `colname` : Name of the price column from `mktdata` used in the weights
 calibration. The default is `'adjusted'`.
@@ -28,7 +28,7 @@ It could be `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
 * `hlength` : History length in number of years used for calibration.
 A fractional number will be rounded to an integer number of months.
 The default is `3.25` (years).
-* `calendar` :  Business days calendar, `np.busdaycalendar`. If is it `None`
+* `calendar` :  Business days calendar, `numpy.busdaycalendar`. If is it `None`
 then the calendar will be set to NYSE business calendar.
 The default is `None`.
 * `rtype` : Optimization approximation. It can be:
@@ -69,13 +69,13 @@ getWeights(rrate=None, rtype=None)
 
 *Inputs:*
 
-* `rrate` : `pd.DataFrame` containing the portfolio components historical
+* `rrate` : `pandas.DataFrame` containing the portfolio components historical
 rates of returns. If it is not `None`, it will overwrite the `rrate`
 computed in the constructor from `mktdata`. The default is `None`.
 * `rtype` : Optimization approximation. If is not `None` it will overwrite the
 value set by the constructor. The default is `None`.
 
-*Returns:* `pd.Series` containing the portfolio weights.
+*Returns:* `pandas.Series` containing the portfolio weights.
 
 [TOP](Kelly_th_doc_base)
 
@@ -102,10 +102,10 @@ The default is `None`.
 * `cash` : Additional cash to be added to the capital. A negative entry
 assumes a reduction in the total capital  available for rebalance.
 The default is `0`.
-* `ww` : External portfolio weights (`pd.Series`). If it is not set to `None`
+* `ww` : External portfolio weights (`pandas.Series`). If it is not set to `None`
 these weights will overwrite the calibrated weights. The default is `None`.
 
-*Returns:* `pd.DataFrame` containing the rolling information.
+*Returns:* `pandas.DataFrame` containing the rolling information.
 
 [TOP](Kelly_th_doc_base)
 
@@ -123,7 +123,7 @@ set_mktdata(mktdata, colname='adjusted', freq='Q', hlength=3.25, calendar=None)
 
 *Inputs:*
 
-* `mktdata` : pd.DataFrame
+* `mktdata` : `pandas.DataFrame`
 Historic daily market data for portfolio components in the format
 returned by `azapy.mktData` function.
 * `colname` :
@@ -136,7 +136,7 @@ Rate of returns horizon in number of business day. it could be
 History length in number of years used for calibration. A
 fractional number will be rounded to an integer number of months.
 The default is `3.25` years.
-* `calendar` : `np.busdaycalendar`, optional
+* `calendar` : `numpy.busdaycalendar`, optional
 Business days calendar. If is it `None` then the calendar will be set
 to NYSE business calendar.
 The default is `None`.
@@ -160,7 +160,7 @@ set_rrate(rrate)
 
 *Inputs:*
 
-* rrate : `pd.DataFrame`,
+* rrate : `pandas.DataFrame`,
 portfolio components historical rates of returns, where the
 columns are `'date'`, `symbol1`, `symbol2`, etc.
 

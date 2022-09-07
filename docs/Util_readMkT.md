@@ -69,12 +69,12 @@ readMkT(symbol=[], sdate="2012-01-01", edate='today', calendar=None,
 * `symbol` : `str, list`. <br>
 A `str` containing a single stock symbol or a list of stock symbols.
 The default is `[]`.
-* `sdate` : `date like`. <br>
+* `sdate` : date-like. <br>
 Start date of historical time series requested.
 If `sdate` is not a valid exchange business day then it will
 be adjusted forward to the next business day.
 The default is `'2012-01-01'`.   
-* `edate` : `date like`. <br>
+* `edate` : date-like. <br>
 End date of historical time-series requested. This is the date
 relative to which the adjusted data is computed. If `edate` is not a
 valid exchange business day then it will be adjusted backwards to the
@@ -263,7 +263,7 @@ get(symbol=[], sdate="2012-01-01", edate='today', calendar=None,
 
 *Inputs:*
 
-The inputs are the same as for [`readMkT` function](readMkT).
+The inputs are the same as for [`readMkT`](readMkT) function.
 
 [TOP](Util_readMkT_MkTreader)
 

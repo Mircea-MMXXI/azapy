@@ -5,7 +5,7 @@
 Portfolio with constant weights periodically rebalanced.
 
 A remarkable member of this class is _equal weighted portfolio_.
-It is a very important benchmark to assess a portfolio performance.
+It is a popular benchmark to assess a portfolio performance.
 
 Relative to a risk based optimal portfolio, the equal weighted portfolio
 is always inefficient. It means that in-sample there is always an efficient
@@ -82,10 +82,10 @@ List of symbols of portfolio components. All symbols
 should be present in `mktdata`. If it is `None`, then `symb` will default
 to the full set of symbols present in `mktdata`. The default
 is `None`.
-* `sdate` : date like;
+* `sdate` : date-like;
 Start date for historical simulation. If it is `None`, then `sdate` will
 default to the earliest date in `mktdata`. The default is `None`.
-* `edate` : date like;
+* `edate` : date-like;
 End date for historical simulation. Must be
 greater than  `sdate`. If it is `None`, then `edate` will default
 to the latest date in `mktdata`. The default is `None`.
@@ -153,14 +153,14 @@ set_model(ww=None)
 
 * `ww` :
 List like positive weights, `len(ww)` must be equal to
-`len(symb)`. If `ww` is a `pd.Series`
+`len(symb)`. If `ww` is a `pandas.Series`
 the index should match the portfolio symbols, `symb`
 Otherwise the weights are considered in the  `symb`
 order. If it is `None` than `ww` will be set to equal weights,
 `ww = [1 / len(symb)] * len(symb)`.
 The default is `None`.
 
-*Returns:* `pd.DataFrame` containing the portfolio time-series in the format
+*Returns:* `pandas.DataFrame` containing the portfolio time-series in the format
 `'date'`, `'pcolname'`.
  
 [TOP](ConstW_Port_th_doc_base) 
@@ -180,7 +180,7 @@ port_view(emas=[30, 200], bollinger=False, fancy=False, saveto=None)
 *Inputs:*
 
 * `emas` :
-List for EMA durations. The default is `[30, 200]`.
+List for EMA durations (in number of days). The default is `[30, 200]`.
 * `bollinger` : Boolean flag.
 `True` adds the Bollinger bands. The default is `False`.
 * `view` : Boolean flag.
@@ -211,11 +211,11 @@ port_view_all(sdate=None, edate=None, componly=False, fancy=False, saveto=None)
 
 *Inputs:*
 
-* `sdate` : date like;
+* `sdate` : date-like;
 Start date of plotted time-series. If it is `None`,
 then `sdate` is set to the earliest date in the time-series.
 The default is `None`.
-* `edate` : date like;
+* `edate` : date-like;
 End date of plotted time-series. If it is `None`, then `edate`
 is set to the most recent date of the time-series.
 The default is `None`.
@@ -444,7 +444,7 @@ get_account(fancy=False)
     - `False` : the values are reported in unaltered algebraic format.
     - `True` : the values are reported rounded.
 
-*Returns:* `pd.DataFrame`
+*Returns:* `pandas.DataFrame`
 
 Accounting report; each rolling period is identified by `'Droll'`. Columns:
 

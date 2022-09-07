@@ -1,4 +1,4 @@
-# Kelly optimal portfolio 
+# Kelly optimal portfolio
 
 Kelly optimal portfolio is named after John Larry Kelly Jr. (1923-1965)
 the author of Kelly criterion for betting on favorable gambling games.
@@ -6,17 +6,17 @@ the author of Kelly criterion for betting on favorable gambling games.
 To illustrate Kelly criterion let's examine a simple coin tossing game.
 In this game you are allowed to bet any portion of your capital on hands on
 the outcome of the tossing. You may bet repeatedly until
-either you get bankrupt or you get board .
+either you get bankrupt or you get bored .
 We also assume that the coin is unfair. And you know that
-the probability to get Heads is say $p=60\%$. The question is how much
-should you bet on each throw of the coin.
+the probability to get Heads, say $p=60\%$. The question is how much
+should you bet on each coin tossing.
 
-It is clear that, since the probability to get a Head is bigger than $50\%$,
+It is clear that, since the probability to get Heads is bigger than $50\%$,
 you will always bet on the Heads with no exceptions.
 However, you still need to determine
-how much should you bet. Certainly not betting at all will not increase
+how much should you bet. Certainly, not betting at all will not increase
 your capital. On the other hand, betting the entire capital in all instances
-will lead sooner or later to bankruptcy.
+will lead with certainly to bankruptcy.
 
 
 Kelly criterion provides an optimal solution to this problem.
@@ -24,12 +24,12 @@ It consists in choosing the betting size that maximizes the expectation of
 the log returns of the game.
 
 
-In our case, the maximization can be carried out analytic. It is a
+In this case, the maximization can be carried out analytic. It is a
 straightforward computation. The final result is that the optimal betting size
 must be
-$2p-1$ times the capital on hands, provided that $p \ge 50\%$ and $0$
+$2p-1$ times the capital on hands, provided that $p \ge 50\%$, and $0$
 otherwise. This strategy guaranties that we will never get bankrupt and
-our capital can increase unlimited as we play.
+our capital may increase unlimited as we play (if $p \ge 50\%$).
 
 Thinks are a bit more complicated if for example there are $N$ simultaneous
 uncorrelated tossing coin games similar to one described above. And we

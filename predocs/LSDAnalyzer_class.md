@@ -17,11 +17,11 @@ Note the following 2 important methods:
 * **getWeights** : Computes the optimal portfolio weights.
 During its computations the following class members are also set:
   * _risk_ : the value of mLSD,
-  * _primery_risk_comp_ : the value of individual LSD's entering in the
+  * _primery_risk_comp_ : the value of $\delta_l^{(2)}$ entering in the
   expression of mLSD,
-  * _secondary_risk_comp_ : high order cumulative corrections over the
-  0-order LSD in ascending order (note: the first element is 0),
-  * _sharpe_ : Sharpe ration if `rtype` is set to `'Shapre'` or `'Sharpe2'`
+  * _secondary_risk_comp_ : high order cumulative corrections over
+  $\delta_1^{(2)}$ (LSD) in ascending order (note: the first element is 0),
+  * _sharpe_ : mLSD-Sharpe ration if `rtype` is set to `'Shapre'` or `'Sharpe2'`
   otherwise `None`,
   * _RR_ : optimal portfolio expected rate of return.
 
@@ -40,8 +40,8 @@ where:
 
 * `coef` : Positive, non-increasing list of mixture coefficients.
 The default is [1.].
-* `mktdata` : `pd.DataFrame` containing the market data in the format returned by
-the function `azapy.readMkT`. The default is `None`. `mktdata` could be loaded
+* `mktdata` : `pandas.DataFrame` containing the market data in the format returned by
+the function `azapy.readMkT`. The default is `None`. Note: `mktdata` could be loaded
 latter.
 * `colname` : Name of the price column from `mktdata` used in the weights
 calibration. The default is `'adjusted'`.
@@ -50,18 +50,19 @@ It could be `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
 * `hlength` : History length in number of years used for calibration.
 A fractional number will be rounded to an integer number of months.
 The default is `3.25` (years).
-* `calendar` :  `np.busdaycalendar`, business days calendar. If it is `None`
+* `calendar` :  `numpy.busdaycalendar`, business days calendar. If it is `None`
 then the calendar will be set to NYSE business calendar.
 The default is `None`.
-* `rtype` : Optimization type. The default is `'Sharpe'`. Possible values are:
-    - `'Risk'` : minimization of dispersion (risk) measure for a targeted
-    expected rate of return,
-    - `'Sharpe'` : maximization of generalized Sharpe ratio,
-    - `'Sharpe2'` : minimization of inverse generalized Sharpe ratio,
-    - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value,
-    - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) as a
-    benchmark portfolio (e.g. equal weighted portfolio),
-    - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
+* `rtype` : Optimization type:
+    - `'Risk'` : minimization of risk for fixed expected rate of return value.
+    - `'MinRisk'` : minimum risk portfolio.
+    - `'InvNRisk'` : optimal portfolio with the same risk as a benchmark
+     portfolio (*e.g.* equal weighted portfolio).
+    - `'RiskAverse'` : optimal portfolio for fixed risk-aversion value.
+    - `'Sharpe'` : maximization of mLSD-Sharpe ratio.
+    - `'Sharpe2'` : minimization of the inverse mLSD-Sharpe ratio.
+
+  The default is `'Sharpe'`.
 * `method` : Designates the SOCP numerical method.
 It could be ``'ecos'`` or ``'cvxopt'``.
 The default is `'ecos'`.

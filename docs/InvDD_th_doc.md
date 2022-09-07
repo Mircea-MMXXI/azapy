@@ -65,10 +65,10 @@ List of symbols of portfolio components. All symbols
 should be present in `mktdata`. If it is `None`, then `symb` will default
 to the full set of symbols present in `mktdata`. The default
 is `None`.
-* `sdate` : date like;
+* `sdate` : date-like;
 Start date for historical simulation. If it is `None`, then `sdate` will
 default to the earliest date in `mktdata`. The default is `None`.
-* `edate` : date like;
+* `edate` : date-like;
 End date for historical simulation. Must be
 greater than  `sdate`. If it is `None`, then `edate` will default
 to the latest date in `mktdata`. The default is `None`.
@@ -138,7 +138,7 @@ The length in years of the historical calibration period ending on
 `'Dfix'`. A fractional number will be rounded to an integer number
 of months. The default is `3.25` years.
 
-*Returns:* `pd.DataFrame` containing the portfolio time-series in the format
+*Returns:* `pandas.DataFrame` containing the portfolio time-series in the format
 `'date'`, `'pcolname'`.
  
 [TOP](InvDD_Port_th_doc_base) 
@@ -158,7 +158,7 @@ port_view(emas=[30, 200], bollinger=False, fancy=False, saveto=None)
 *Inputs:*
 
 * `emas` :
-List for EMA durations. The default is `[30, 200]`.
+List for EMA durations (in number of days). The default is `[30, 200]`.
 * `bollinger` : Boolean flag.
 `True` adds the Bollinger bands. The default is `False`.
 * `view` : Boolean flag.
@@ -189,11 +189,11 @@ port_view_all(sdate=None, edate=None, componly=False, fancy=False, saveto=None)
 
 *Inputs:*
 
-* `sdate` : date like;
+* `sdate` : date-like;
 Start date of plotted time-series. If it is `None`,
 then `sdate` is set to the earliest date in the time-series.
 The default is `None`.
-* `edate` : date like;
+* `edate` : date-like;
 End date of plotted time-series. If it is `None`, then `edate`
 is set to the most recent date of the time-series.
 The default is `None`.
@@ -422,7 +422,7 @@ get_account(fancy=False)
     - `False` : the values are reported in unaltered algebraic format.
     - `True` : the values are reported rounded.
 
-*Returns:* `pd.DataFrame`
+*Returns:* `pandas.DataFrame`
 
 Accounting report; each rolling period is identified by `'Droll'`. Columns:
 

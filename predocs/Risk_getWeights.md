@@ -11,28 +11,28 @@ getWeights(rtype=None, mu=None, d=1, mu0=0., aversion=None, ww0=None,
 
 *Inputs:*
 
-* `rtype` : str, optional.
+* `rtype` : str, optional;
     Optimization type. If is not `None` it will overwrite the value
     set by the constructor. The default is `None`.
 * `mu` : float, optional.
     Targeted portfolio expected rate of return.
     Relevant only if `rtype='Risk'`
     The default is `None`.
-* `d` : int, optional.
+* `d` : int, optional;
     Frontier type. Active only if `rtype='Risk'`. A value of `1` will
     trigger the evaluation of optimal portfolio along the efficient
     frontier. Otherwise, it will find the portfolio with the lowest
     rate of return along the inefficient portfolio frontier.
     The default is `1`.
-* `mu0` : float, optional.
+* `mu0` : float, optional;
     Risk-free rate accessible to the investor.
     Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
     The default is `0`.
-* `aversion` : float, optional
+* `aversion` : float, optional;
     The value of the risk-aversion coefficient.
     Must be positive. Relevant only if `rtype='RiskAvers'`.
     The default is `None`.
-* `ww0` : list (also `numpy.array` or `pandas.Series`), optional.
+* `ww0` : list (also `numpy.array` or `pandas.Series`), optional;
     Targeted portfolio weights.
     Relevant only if `rype='InvNrisk'`.
     Its length must be equal to the number of
@@ -44,7 +44,7 @@ getWeights(rtype=None, mu=None, d=1, mu0=0., aversion=None, ww0=None,
     (same symbols, not necessary in the same order).
     If it is `None` then it will be set to equal weights.
     The default is `None`.
-* `rrate` : `pandas.DataFrame`, optional.
+* `rrate` : `pandas.DataFrame`, optional;
     The portfolio components historical rates of returns.
     If it is not `None`, it will overwrite the rrate computed in the
     constructor from mktdata. The default is `None`.

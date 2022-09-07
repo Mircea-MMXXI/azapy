@@ -15,11 +15,11 @@ Market data in the format returned by `azapy.readMkT` function.
 If it is  `None`, then it will
 default to NYSE business calendar (as returned by `azapy.NYSEgen()` function).
 The default is `None`.
-* `sdate` : date like. <br>
+* `sdate` : date-like. <br>
 Time-series start date. If it is `None` then `sdate` is set to the
 earliest date in `mktdata`, across all symbols.
 The default is `None`.
-* `edate` : date like. <br>
+* `edate` : date-like. <br>
 Time-series end date. If it is `None` then `edate` is set to the most
 recent date in `mktdata`, across all symbols.
 The default is `None`.
