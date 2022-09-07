@@ -1,5 +1,4 @@
-
-# Inverse drawdowns portfolio <a name="TOP"></a>
+# Inverse drawdowns portfolio
 
 Portfolio with weights proportional to the inverse of the portfolio
 component maximum drawdowns, periodically rebalanced.

@@ -1,6 +1,3 @@
-
-<a name="set_random_seed"></a>
-
 #### <span style="color:green">set_random_seed</span>
 
 Sets the seed for Dirichlet random generator used in `viewFrontiers`.
@@ -17,7 +14,3 @@ set_random_seed(seed=42)
 value other than 42 :). The default is `42`.
 
 *Returns:* `None`
-
-[TOP](#TOP)
-
----

@@ -1,5 +1,4 @@
-
-# Inverse variances portfolio <a name="TOP"></a>
+# Inverse variances portfolio
 
 Portfolio with weights proportional to the inverse of the portfolio
 component variances, periodically rebalanced.

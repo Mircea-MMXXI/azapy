@@ -1,6 +1,3 @@
-
-<a name="set_mktdata"></a>
-
 #### <span style="color:green">set_mktdata</span>
 
 Sets historical market data. It will overwrite the choices made in the
@@ -33,7 +30,3 @@ to NYSE business calendar. The default is `None`.
 
 
 *Returns:* `None`
-
-[TOP](#TOP)
-
----

@@ -25,7 +25,7 @@ Package installation: :blue:`pip install azapy`
     <script type='text/javascript'>kofiwidget2.init('Support azapy on Ko-fi',
     '#29abe0', 'D1D07G22H');kofiwidget2.draw();</script>
 
-Risk based portfolio optimizations
+Risk-based portfolio optimizations
 ==================================
 
 .. toctree::

@@ -1,6 +1,3 @@
-
-<a name="port_drawdown"></a>
-
 #### <span style="color:green">port_drawdown</span>
 
 Computes the portfolio drawdowns.
@@ -29,7 +26,3 @@ drawdown events. Columns:
 * `'End'` : end date of the drawdown. A `NaN` value indicates that the
 drawdown event is in progress and the values of `'DD'` and `'Date'` are
 provisional only.
-
-[TOP](#TOP)
-
----

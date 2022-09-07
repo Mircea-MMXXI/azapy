@@ -1,5 +1,6 @@
-
-# Buy and Hold portfolio <a name="TOP"></a>
+ 
+(Simple_Port_th_doc_base)= 
+# Buy and Hold portfolio 
 
 A *Buy and Hold* strategy assumes that at some point in time
 the entire capital is invested in a portfolio with fixed composition
@@ -11,7 +12,10 @@ The back testing of this strategy could be viewed as a performance benchmark.
 There is 1 support class:
 
 * **Port_Simple** : performs portfolio back testing, out-of-sample analyzes.
-
+ 
+[TOP](Simple_Port_th_doc_base) 
+ 
+(Simple_Port_class)= 
 ## Port_Simple class
 
 
@@ -20,14 +24,14 @@ Out-of-sample (backtesting) simulation of Buy and Hold portfolio strategy.
 
 **Methods:**
 
-* [<span style="color:green">set_model</span>](#set_model)
-* [<span style="color:green">port_view</span>](#port_view)
-* [<span style="color:green">port_view_all</span>](#port_view_all)
-* [<span style="color:green">port_drawdown</span>](#port_drawdown)
-* [<span style="color:green">port_perf</span>](#port_perf)
-* [<span style="color:green">port_annual_returns</span>](#port_annual_returns)
-* [<span style="color:green">port_monthly_returns</span>](#port_monthly_returns)
-* [<span style="color:green">get_mktdata</span>](#get_mktdata)
+* [<span style="color:green">set_model</span>](Simple_Port_set_model)
+* [<span style="color:green">port_view</span>](Simple_Port_port_view)
+* [<span style="color:green">port_view_all</span>](Simple_Port_port_view_all)
+* [<span style="color:green">port_drawdown</span>](Simple_Port_port_drawdown)
+* [<span style="color:green">port_perf</span>](Simple_Port_port_perf)
+* [<span style="color:green">port_annual_returns</span>](Simple_Port_port_annual_returns)
+* [<span style="color:green">port_monthly_returns</span>](Simple_Port_port_monthly_returns)
+* [<span style="color:green">get_mktdata</span>](Simple_Port_get_mktdata)
 
 
 The most important method is **set_model**. It must be called before any
@@ -42,7 +46,7 @@ Port_Simple(mktdata, symb=None, sdate=None, edate=None, col='adjusted',
 
 where:
 
-* `mktdata` : `pd.DataFrame`;
+* `mktdata` : `pandas.DataFrame`;
 Market data in the format `"symbol"`, `"date"`, `"open"`, `"high"`,
 `"low"`, `"close"`, `"volume"`, `"adjusted"`, `"divd"`, `"split"`
 (*e.g.* as returned by `azapy.readMkT`).
@@ -69,12 +73,9 @@ Name of the portfolio price column. If it is `None` than
 * `capital` : `float`;
 Initial portfolio Capital in dollars. The default is `100000`.
 
-[TOP](#TOP)
-
 ### Methods:
-
-<a name="set_model"></a>
-
+ 
+(Simple_Port_set_model)= 
 #### <span style="color:green">set_model</span>
 
 Sets model parameters and evaluates portfolio time-series.
@@ -97,15 +98,12 @@ order. If it is `None`, than `ww` will be set to equal weights,
 `ww = [1 / len(symb)] * len(symb)`.
 The default is `None`.
 
-*Returns:* `pd.DataFrame` containing the portfolio time-series in the format
+*Returns:* `pandas.DataFrame` containing the portfolio time-series in the format
 `'date'`, `'pcolname'`.
-
-[TOP](#TOP)
-
----
-
-<a name="port_view"></a>
-
+ 
+[TOP](Simple_Port_th_doc_base) 
+ 
+(Simple_Port_port_view)= 
 #### <span style="color:green">port_view</span>
 
 Plots the optimal portfolio time series together with some technical
@@ -120,7 +118,7 @@ port_view(emas=[30, 200], bollinger=False, fancy=False, saveto=None)
 *Inputs:*
 
 * `emas` :
-List for EMA durations. The default is `[30, 200]`.
+List for EMA durations (in number of days). The default is `[30, 200]`.
 * `bollinger` : Boolean flag.
 `True` adds the Bollinger bands. The default is `False`.
 * `view` : Boolean flag.
@@ -133,13 +131,10 @@ format: `png`, `pdf`, `svg`, etc. For more details see the `mathplotlib`
 documentation for `savefig`. The default is `None`.
 
 *Returns:* `pandas.DataFrame` containing the time-series included in the plot.
-
-[TOP](#TOP)
-
----
-
-<a name="port_view_all"></a>
-
+ 
+[TOP](Simple_Port_th_doc_base) 
+ 
+(Simple_Port_port_view_all)= 
 #### <span style="color:green">port_view_all</span>
 
 Plots in a relative bases the optimal portfolio and its components time-series.
@@ -154,11 +149,11 @@ port_view_all(sdate=None, edate=None, componly=False, fancy=False, saveto=None)
 
 *Inputs:*
 
-* `sdate` : date like;
+* `sdate` : date-like;
 Start date of plotted time-series. If it is `None`,
 then `sdate` is set to the earliest date in the time-series.
 The default is `None`.
-* `edate` : date like;
+* `edate` : date-like;
 End date of plotted time-series. If it is `None`, then `edate`
 is set to the most recent date of the time-series.
 The default is `None`.
@@ -173,13 +168,10 @@ format: `png`, `pdf`, `svg`, etc. For more details see the `mathplotlib`
 documentation for `savefig`.The default is `None`.
 
 *Returns:* `pandas.DataFrame` containing the time-series included in the plot.
-
-[TOP](#TOP)
-
----
-
-<a name="port_drawdown"></a>
-
+ 
+[TOP](Simple_Port_th_doc_base) 
+ 
+(Simple_Port_port_drawdown)= 
 #### <span style="color:green">port_drawdown</span>
 
 Computes the portfolio drawdowns.
@@ -208,13 +200,10 @@ drawdown events. Columns:
 * `'End'` : end date of the drawdown. A `NaN` value indicates that the
 drawdown event is in progress and the values of `'DD'` and `'Date'` are
 provisional only.
-
-[TOP](#TOP)
-
----
-
-<a name="port_perf"></a>
-
+ 
+[TOP](Simple_Port_th_doc_base) 
+ 
+(Simple_Port_port_perf)= 
 #### <span style="color:green">port_perf</span>
 
 Brief description of optimal portfolio and its components performances
@@ -244,13 +233,10 @@ performance information. Columns:
 * `'DD_date'` : recorded date of maximum drawdown,
 * `'DD_start'` : start date of maximum drawdown,
 * `'DD_end'` : end date of maximum drawdown.
-
-[TOP](#TOP)
-
----
-
-<a name="port_annual_returns"></a>
-
+ 
+[TOP](Simple_Port_th_doc_base) 
+ 
+(Simple_Port_port_annual_returns)= 
 #### <span style="color:green">port_annual_returns</span>
 
 Computes optimal portfolio and its components annual (calendar) rates of returns.
@@ -277,13 +263,10 @@ are reported. The default is `False`.
     to 2 decimals and presented is color style.
 
 *Returns:* `pandas.DataFrame`
-
-[TOP](#TOP)
-
----
-
-<a name="port_monthly_returns"></a>
-
+ 
+[TOP](Simple_Port_th_doc_base) 
+ 
+(Simple_Port_port_monthly_returns)= 
 #### <span style="color:green">port_monthly_returns</span>
 
 Computes optimal portfolio and its components monthly (calendar) rate of
@@ -309,13 +292,10 @@ are reported. The default is `False`.
     to 2 decimals and presented is color style.
 
 *Returns:* `pandas.DataFrame`
-
-[TOP](#TOP)
-
----
-
-<a name="get_mktdata"></a>
-
+ 
+[TOP](Simple_Port_th_doc_base) 
+ 
+(Simple_Port_get_mktdata)= 
 #### <span style="color:green">get_mktdata</span>
 
 Returns the actual market data used for portfolio evaluations.
@@ -330,11 +310,10 @@ get_mktdata()
 
 
 *Returns:* `pandas.DataFrame`
-
-[TOP](#TOP)
-
----
-
+ 
+[TOP](Simple_Port_th_doc_base) 
+ 
+(Simple_Port_class_example_1)= 
 ### Examples
 
 [script 1](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_Simple_examples.py)
@@ -368,12 +347,13 @@ p1.port_drawdown(fancy=True)
 p1.port_perf(fancy=True)
 p1.port_annual_returns()
 p1.port_monthly_returns()
-
 ```
-[TOP](#TOP)
+ 
+[TOP](Simple_Port_th_doc_base) 
+ 
+(Simple_Port_class_example_2)= 
 
 [script 2](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_Simple_examples2.py)
-
 ```
 # Examples - use Port_Simple as a tool to compare price time-series
 import azapy as az
@@ -405,6 +385,6 @@ p1.port_view_all(componly=True)
 print(p1.port_perf(componly=True, fancy=True))
 print(p1.port_annual_returns(withcomp=True, componly=True))
 print(p1.port_monthly_returns(withcomp=True, componly=True))
-
 ```
-[TOP](#TOP)
+ 
+[TOP](Simple_Port_th_doc_base) 
