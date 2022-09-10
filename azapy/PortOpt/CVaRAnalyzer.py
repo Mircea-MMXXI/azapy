@@ -209,6 +209,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         self.status = res['status']
         if self.status != 0:
             warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            print(f"warning on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
             
         # VaR (u)
@@ -290,6 +291,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         self.status = res['status']
         if self.status != 0:
             warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            print(f"warning on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
 
         # average CVaR (1/t)
@@ -376,6 +378,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         self.status = res['status']
         if self.status != 0:
             warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            print(f"warning on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
 
         t = res['x'][-1]
@@ -456,6 +459,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         self.status = res['status']
         if self.status != 0:
             warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            print(f"warning on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
 
         # VaR (u)
@@ -531,6 +535,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         self.status = res['status']
         if self.status != 0:
             warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            print(f"warning on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
 
         # optimal weights
@@ -552,3 +557,94 @@ class CVaRAnalyzer(_RiskAnalyzer):
         
         return self.ww
         
+    
+    def _risk_diversification(self, d=1):
+        # Order of variables:
+        # w <- [0:mm] 
+        # then for l <- [0:ll]
+        # u_l <- mm + l(nn+1), 
+        # s_l <- [mm + l(nn + 1) + 1: mm + (l + 1)(nn + 1)]
+        # and last t <- [mm + ll(nn + 1)]
+        # in total dim = mm + ll(nn + 1) + 1
+        ll = self.ll
+        nn = self.nn
+        mm = self.mm
+        
+        # build c   
+        c_data = [0.] * mm 
+        for l in range(ll):
+            c_data += [self.coef[l]] \
+                    + [self.coef[l] / (1. - self.alpha[l]) / nn] * nn
+        c_data += [0.]
+        
+        # build G
+        G_icol = list(range(mm)) * (nn * ll)
+        G_irow = [k  for k in range(nn * ll) for _ in range(mm)]
+        G_data = list(np.ravel(-self.rrate)) * ll
+        for l in range(ll):
+            G_icol += [mm + l * (nn + 1)] * nn \
+                + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
+            G_irow += list(range(l * nn, (l + 1) * nn)) \
+                + list(range(l * nn, (l + 1) * nn))
+            G_data += [-1.] * nn + [-1.] * nn
+            
+            
+        G_icol += list(range(mm)) + [mm + ll * (nn + 1)]
+        G_irow += [ll * nn] * (mm + 1)
+        G_data += list(-self.muk * d) + [self.mu * d]
+            
+        G_icol += list(range(mm + ll * (nn + 1) + 1))
+        G_irow += list(range(ll * nn + 1, ll * nn + mm + ll * (nn + 1) + 2))
+        G_data += [-1.] * (mm + ll * (nn + 1) + 1)
+        
+        G_shape = (ll * nn + mm + ll * (nn + 1) + 2, mm + ll * (nn + 1) + 1)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
+     
+        # build h
+        h_data = [0.] * (nn * ll + mm + ll * (nn + 1) + 2)
+        
+        #build A
+        A_icol = list(range(mm)) + [mm + ll * (nn + 1)]
+        A_irow = [0] * (mm + 1)
+        A_data = [1.] * mm + [-1.]
+        
+        A_icol += list(range(mm)) 
+        A_irow += [1] * mm
+        A_data += list(self.risk_comp) 
+        
+        A_shape = (2, mm + ll * (nn + 1) + 1)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
+     
+        # build b
+        b_data = [0., 1.]
+
+        # calc
+        res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
+       
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            print(f"warning on calibration date {self.rrate.index[-1]}")
+            return np.array([np.nan] * mm)
+
+        t = res['x'][-1]
+        # average CVaR (g/t)
+        self.risk = res['pcost'] / t
+        # VaR (u)
+        self.secondary_risk_comp = \
+            np.array([res['x'][mm + l * (nn + 1)] / t for l in range(ll)])
+        # Diversification
+        self.divers = 1. - res['pcost']
+        # optimal weights
+        self.ww = np.array(res['x'][:mm] / t)
+        self.ww.shape = mm
+        # rate of return
+        self.RR = np.dot(self.ww, self.muk)
+        # component CVaR (recomputed)
+        self.primary_risk_comp = \
+            np.array([(res['x'][mm + l * (nn + 1)] + 1 / (1 - self.alpha[l]) \
+            * np.mean(res['x'][(mm + l * (nn + 1) + 1) :\
+                            (mm + (l + 1) * (nn + 1))])) /t \
+            for l in range(ll)])
+        
+        return self.ww

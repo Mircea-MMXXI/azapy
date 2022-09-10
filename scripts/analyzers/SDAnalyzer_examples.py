@@ -15,7 +15,7 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 #=============================================================================
 # Compute Sharpe optimal portfolio
 # build the analyzer object
-cr1 = az.SDAnalyzer(mktdata, method='ecos')
+cr1 = az.SDAnalyzer(mktdata)
 # computes Sharpe weights for 0 risk-free rate
 ww1 = cr1.getWeights()
 # print portfolio characteristics

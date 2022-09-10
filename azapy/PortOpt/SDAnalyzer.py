@@ -130,6 +130,7 @@ class SDAnalyzer(_RiskAnalyzer):
         self.status = res['status']
         if self.status != 0:
             warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            print(f"warning on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * nn)
 
         # optimal weights
@@ -190,6 +191,7 @@ class SDAnalyzer(_RiskAnalyzer):
         self.status = res['status']
         if self.status != 0:
             warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            print(f"warning on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * nn)
 
         t = res['x'][-2]
@@ -251,6 +253,7 @@ class SDAnalyzer(_RiskAnalyzer):
         self.status = res['status']
         if self.status != 0:
             warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            print(f"warning on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * nn)
  
         t = res['x'][-1]
@@ -311,6 +314,7 @@ class SDAnalyzer(_RiskAnalyzer):
         self.status = res['status']
         if self.status != 0:
             warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            print(f"warning on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * nn)
 
         # optimal weights
@@ -368,6 +372,7 @@ class SDAnalyzer(_RiskAnalyzer):
         self.status = res['status']
         if self.status != 0:
             warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            print(f"warning on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * nn)
         
         # optimal weights
@@ -377,6 +382,72 @@ class SDAnalyzer(_RiskAnalyzer):
         self.RR = np.dot(self.ww, self.muk)
         # volatility
         self.risk = (res['pcost'] + self.RR) / self.Lambda
+        # volatility
+        self.primary_risk_comp = np.array([self.risk])
+        # variance
+        self.secondary_risk_comp = np.array([self.risk**2])
+        
+        return self.ww
+    
+    
+    def _risk_diversification(self, d=1):
+        # Computes the minimization of the inverse of Sharpe
+        # Order of variables
+        # w <- [0:nn]
+        # t <- nn
+        # u <- nn + 1
+        # in total dim = nn + 2
+        P = self.rrate.cov().to_numpy()
+        nn = P.shape[0]
+        
+        # build c
+        c_data = [0.] * (nn + 1) + [1.]
+       
+        # biuld G
+        dd = sps.block_diag((np.diag([-1.] * nn), [0.,-1.]))
+ 
+        if any(np.diag(P) < _tol_cholesky):
+            pp = np.concatenate((-la.sqrtm(P), np.zeros((nn,2))), axis=1)
+        else:
+            pp = np.concatenate((-la.cholesky(P, overwrite_a=True), 
+                                 np.zeros((nn,2))), axis=1)
+          
+        xx = sps.coo_matrix(list(-self.muk * d) + [self.mu * d, 0.])
+        
+        G = sps.vstack([xx, dd, pp])
+        
+        # biuld dims
+        dims = {'l': nn + 1, 'q': [nn + 1]}
+        
+        # build h
+        h_data = [0.] * (2 * nn + 2)
+        
+        # build A
+        A = sps.coo_matrix(
+            [list(self.risk_comp) + [0.] + [0.], [1.] * nn + [-1.] + [0.]])
+        
+        # build b
+        b_data = [1., 0.]
+        
+         # calc
+        res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            print(f"warning on calibration date {self.rrate.index[-1]}")
+            return np.array([np.nan] * nn)
+
+        t = res['x'][-2]
+        # SD-Divers
+        self.divers = 1. - res['pcost']
+        # optimal weights
+        self.ww = np.array(res['x'][:nn]) / t
+        self.ww.shape = nn
+        # rate of return
+        self.RR = np.dot(self.ww, self.muk)
+        # volatility
+        self.risk = res['pcost'] / t
         # volatility
         self.primary_risk_comp = np.array([self.risk])
         # variance

@@ -113,10 +113,10 @@ class Port_CVaR(Port_InvVol):
 
 
     def _set_rtype(self, rtype):
-        rtype_values = ['Sharpe', 'Risk', 'MinRisk', 'InvNrisk', 'RiskAverse',
-                        'Sharpe2']
-        if not rtype in rtype_values:
-            raise ValueError(f"rtype must be one of {rtype_values}")
+        # rtype_values = ['Sharpe', 'Risk', 'MinRisk', 'InvNrisk', 'RiskAverse',
+        #                 'Sharpe2']
+        # if not rtype in rtype_values:
+        #     raise ValueError(f"rtype must be one of {rtype_values}")
 
         self.rtype = rtype
 

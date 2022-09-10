@@ -89,5 +89,5 @@ class Port_LSD(Port_MAD):
         
     def _wwgen(self):
         return LSDAnalyzer(coef=self.coef, rtype=self.rtype, 
-                            method=self.method)
+                           method=self.method)
     

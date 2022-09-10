@@ -102,6 +102,9 @@ class _RiskAnalyzer:
         self.set_random_seed()
         
         self.method = None
+        
+        self.divers = None
+        self.risk_comp = None
 
         
     def getWeights(self, rtype=None, mu=None, d=1, mu0=0., aversion=None,
@@ -235,6 +238,25 @@ class _RiskAnalyzer:
                 
             self.Lambda = aversion
             self._risk_averse()
+            
+        elif self.rtype == "Divers":
+            if mu is None:
+                raise ValueError("for rtype='Risk' mu must have a value")
+            elif mu > self.muk.max():
+                self.mu = self.muk.max()
+            elif mu < self.muk.min():
+                self.mu = self.muk.min()
+            else:
+                self.mu = mu
+
+            self.getRiskComp()
+            self._risk_diversification(d=d)
+            
+        elif self.rtype == "MaxDivers":  
+            self.mu = self.muk.min()
+            self.getRiskComp()
+            self._risk_diversification()
+            
             
         else:
             raise ValueError("you should not be here")
@@ -515,7 +537,7 @@ class _RiskAnalyzer:
         None
         """
         rtypes = ["Sharpe", "Risk", "MinRisk", "Sharpe2", "InvNrisk",
-                  "RiskAverse"]
+                  "RiskAverse", "Divers", "MaxDivers"]
         if not rtype in rtypes:
             raise ValueError(f"rtype must be one of {rtypes}")
         self.rtype = rtype
@@ -934,3 +956,86 @@ class _RiskAnalyzer:
         pass
     def _risk_averse(self):
         pass
+    def _risk_diversification(self, d=1):
+        pass
+    
+    
+    def getRiskComp(self):
+        """
+        Returns the risk of each portfolio component
+
+        Returns
+        -------
+        pandas.Series
+        """
+        srisk = np.zeros(self.rrate.shape[1])
+        for i in range(len(srisk)):
+            wws = np.zeros(len(srisk))
+            wws[i] = 1
+            srisk[i] = self.getRisk(wws)
+        
+        self.risk_comp = pd.Series(srisk, self.rrate.columns)
+        
+        return self.risk_comp
+        
+        
+    
+    def getDiversification(self, ww, rrate=None):
+        """
+        Returns the value of the diversification for a give 
+        portfolio.
+
+        Parameters
+        ----------
+        `ww` : list (`np.array` or `pandas.Series`)
+            Portfolio weights. Its length must be equal to the number of
+            symbols in `rrate` (mktdata). All weights must be >=0 with 
+            sum > 0.
+            If it is a list or a `numpy.array` then the weights are assumed to
+            by in order of `rrate.columns`. If it is a `pandas.Series` than 
+            the index should be compatible with the `rrate.columns` or mktdata 
+            symbols (not necessary in the same order).
+        `rrate` : `pandas.DataFrame`, optional
+            Contains the portfolio components historical
+            rates of returns. If it is not `None`, it will overwrite the
+            rrate computed in the constructor from mktdata.
+            The default is `None`.
+
+        Returns
+        -------
+        float
+            The diversification value.
+        """
+        if rrate is not None:
+            self.set_rrate(rrate)
+
+        if isinstance(ww, pd.core.series.Series):
+            ww = ww[self.rrate.columns]
+        w = np.array(ww)
+        if any(w < 0.):
+            raise ValueError("All ww must be non-negative")
+        sw = w.sum()
+        if sw <= 0:
+            raise ValueError("At least one ww must be positive")
+        w = w / sw
+        
+        # srisk = np.zeros(self.rrate.shape[1])
+        # for i in range(len(srisk)):
+        #     wws = np.zeros(len(srisk))
+        #     wws[i] = 1
+        #     srisk[i] = self.getRisk(wws)
+        
+        self.getRiskComp()
+            
+        wrisk = self.getRisk(w)
+        
+        crisk = np.dot(self.risk_comp, w)
+
+        if crisk == 0:
+            self.divers = 1
+        else:
+            self.divers = 1 - wrisk / crisk
+            
+       # self.risk_comp = pd.Series(srisk, self.rrate.columns)
+        
+        return self.divers
