@@ -163,8 +163,8 @@ class BTSDAnalyzer(BTADAnalyzer):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
             
         # mBTSD
@@ -249,8 +249,8 @@ class BTSDAnalyzer(BTADAnalyzer):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
             
         t = res['x'][-1]
@@ -342,8 +342,8 @@ class BTSDAnalyzer(BTADAnalyzer):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
             
         t = res['x'][-1]
@@ -433,8 +433,8 @@ class BTSDAnalyzer(BTADAnalyzer):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
             
         # rate of return
@@ -516,8 +516,8 @@ class BTSDAnalyzer(BTADAnalyzer):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
             
         # optimal weights
@@ -610,7 +610,8 @@ class BTSDAnalyzer(BTADAnalyzer):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
             
         t = res['x'][-1]

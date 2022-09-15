@@ -170,8 +170,8 @@ class LSDAnalyzer(MADAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
         
         # mLSD
@@ -259,8 +259,8 @@ class LSDAnalyzer(MADAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
         
         # mLSD
@@ -349,8 +349,8 @@ class LSDAnalyzer(MADAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
         
         # mLSD-Sharpe
@@ -437,8 +437,8 @@ class LSDAnalyzer(MADAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
         
         # rate of return
@@ -521,8 +521,8 @@ class LSDAnalyzer(MADAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
         
         # optimal weights
@@ -617,8 +617,8 @@ class LSDAnalyzer(MADAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
         
         # mLSD-Divers

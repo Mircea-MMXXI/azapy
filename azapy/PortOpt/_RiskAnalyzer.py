@@ -61,18 +61,16 @@ class _RiskAnalyzer:
             set to NYSE business calendar. The default is `None`.
         `rtype` : string, optional
             Optimization type. Possible values \n
-                'Risk' : optimal portfolio for
-                targetd expected rate of return.\n
+                'Risk' : optimal portfolio for targeted expected rate of return.\n
                 'Sharpe' : optimal Sharpe portfolio - maximization solution.\n
                 'Sharpe2' : optimal Sharpe portfolio - minimization solution.\n
                 'MinRisk' : minimum risk portfolio.\n
-                'InvNrisk' : optimal portfolio with the same risk
-                value as a benchmark portfolio 
-                (e.g. equal weighted portfolio).\n
+                'InvNrisk' : optimal portfolio with the same risk value as a 
+                benchmark portfolio (e.g. equal weighted portfolio).\n
                 'RiskAverse' : optimal portfolio for a fixed risk-aversion
                 factor.\n
                 `MaxDivers` : portfolio with maximum diversification.\n
-                `Divers` : optimal diversified portfolio for targetd
+                `Divers` : optimal diversified portfolio for targeted
                 expected rate of return.\n
             The default is 'Sharpe'.
 
@@ -246,7 +244,7 @@ class _RiskAnalyzer:
             
         elif self.rtype == "Divers":
             if mu is None:
-                raise ValueError("for rtype='Risk' mu must have a value")
+                raise ValueError("for rtype='Divers' mu must have a value")
             elif mu > self.muk.max():
                 self.mu = self.muk.max()
             elif mu < self.muk.min():
@@ -267,8 +265,7 @@ class _RiskAnalyzer:
             raise ValueError("you should not be here")
         
         if self.status != 0:
-            warnings.warn(f"Warning: status {self.status} for {self.rtype}"
-                          + " is not 0")
+            warnings.warn(f"Warning: status {self.status} for {self.rtype}")
             
         self.ww = pd.Series(self.ww, index=self.rrate.columns, dtype='float64')
         self._norm_weights()
@@ -293,7 +290,7 @@ class _RiskAnalyzer:
         `rrate` : `pandas.DataFrame`, optional;
             Contains the portfolio components historical
             rates of returns. If it is not `None`, it will overwrite the
-            rrate computed in the constructor from mktdata.
+            `rrate` computed in the constructor from `mktdata`.
             The default is `None`.
 
         Returns
@@ -490,7 +487,7 @@ class _RiskAnalyzer:
         `mktdata` : `pandas.DataFrame`;
             Historic daily market data for portfolio components in the format
             returned by `azapy.mktData` function.
-        `colname` : str, optional
+        `colname` : `str`, optional
             Name of the price column from mktdata used in the weights
             calibration. The default is 'adjusted'.
         `freq` : `str`, optional;
@@ -556,10 +553,7 @@ class _RiskAnalyzer:
                       sharpe=True, musharpe=0.,
                       component=True, randomport=20, inverseN=True,
                       maxdivers=False, divers_efficient=0, divers_inefficient=0,
-                      addport=None,
-                      fig_type='RR_risk', 
-                      **opt):
-                      #options=None, saveto=None, data=None):
+                      addport=None, fig_type='RR_risk', **opt):
         """
         Computes the elements of the portfolio frontiers.
 
@@ -604,14 +598,14 @@ class _RiskAnalyzer:
         `addport` : `dict` or `pandas.DataFrame`, optional;
             The weights of additional portfolio to be added to the plot.
             If it is a `dict` then the keys are the labels, and the values are 
-            list of weigths in the order of `rrate.columns`. If it is a 
+            list of weights in the order of `rrate.columns`. If it is a 
             `pandas.DataFrame` the index are the labels, and each row is a set 
             of weights. The columns names should match the symbols names. 
             The default is `None`.
-        `fig_type` : str, optional;
+        `fig_type` : `str`, optional;
             Graphical representation format. \n
-                * `'RR_risk'` : expected rate of retun vs risk
-                * `'Sharpe_RR'` : sharpe vs. expected rate of return
+                * `'RR_risk'` : expected rate of return vs risk
+                * `'Sharpe_RR'` : sharpe vs expected rate of return
                 * `'Divers_RR'` : diversification vs expected rate of return
                 
             The default is `'RR_risk'`.
@@ -630,8 +624,8 @@ class _RiskAnalyzer:
                     `fig_type='RR_risk'`. The default is `True`.
                 * `saveto` : `str`, optional; \n
                     File name to save the figure. The extension dictates the format:
-                    png, pdf, svg, etc. For more details see the mathplotlib
-                    documentation for savefig. The default is `None`.
+                    png, pdf, svg, etc. For more details see the `mathplotlib`
+                    documentation for `savefig`. The default is `None`.
                 * `data` : `dict`, optional; \n
                     Numerical data to construct the plot. If it is not `None` it
                     will take precedence and no other numerical evaluations will be
@@ -648,30 +642,17 @@ class _RiskAnalyzer:
         for k, v in opt.items():
             if v is None:
                 next
-            elif isinstance(v, dict):
+            elif isinstance(v, dict) & (k != 'data'):
                 options.update(v)
             else:
                 options[k] = v
+                
         saveto = options['saveto']
         del options['saveto']
         res = options['data']
         del options['data']
-        
-        # if data is not None: 
-        #     data['saveto'] = saveto
-            
-        #     data['options'] = options
-                
-        #     if fig_type == 'RR_risk':
-        #         self._plot_f1(data)
-        #     elif fig_type == 'Sharpe_RR':
-        #         self._plot_f2(data)
-        #     elif fig_type == 'Divers_RR':
-        #         self._plot_f3(data)
-        #     else:
-        #         raise ValueError("fig_type must be 'RR_risk', 'Sharpe_RR' or 'Divers_RR'")
-        #     return data
-        
+ 
+        # calc
         if res is None:
             res = defaultdict(lambda: None)
             
@@ -683,10 +664,7 @@ class _RiskAnalyzer:
             self.getRiskComp()
             if maxdivers | (divers_efficient != 0) | (divers_inefficient !=0): 
                 maxdivers_calc = True
-    
-            
-            
-            
+  
             # min risk
             res['risk_min'] = defaultdict(lambda: None)
             res['risk_min']['risk_min'] = minrisk
@@ -908,7 +886,7 @@ class _RiskAnalyzer:
                 elif isinstance(addport, pd.core.frame.DataFrame):
                     aport = addport[self.rrate.columns]
                 else:
-                    raise ValueError("addpot must be a dict or a pandas.DataFrame, see doc")
+                    raise ValueError("addport must be a dict or a pandas.DataFrame, see doc")
      
                 def ff_addport(x):
                     risk_addport = self.getRisk(x)
@@ -938,7 +916,7 @@ class _RiskAnalyzer:
         elif fig_type == 'Divers_RR':
             self._plot_f3(res)
         else:
-            raise ValueError("fig_type must be 'RR_risk', 'Sharpe_RR' or 'Divers_RR'")
+            raise ValueError(f"fig_type={fig_type} ; must be 'RR_risk', 'Sharpe_RR' or 'Divers_RR'")
             
         return res
 
@@ -979,8 +957,6 @@ class _RiskAnalyzer:
                 ax.annotate(res['component']['label'][k],
                             (res['component']['risk'][k] * lf,
                              res['component']['rr'][k] * lf))
-                
-        
 
         if res['randomport']['randomport'] > 0:
             ax.scatter(x=res['randomport']['risk'], y=res['randomport']['rr'],
@@ -1002,7 +978,7 @@ class _RiskAnalyzer:
             ax.annotate(res['maxdivers']['label'],
                         (res['maxdivers']['risk'] * lf,
                          res['maxdivers']['rr'] * lf))
-            
+    
         if res['divers_efficient']['divers_efficient'] > 0:
             ax.plot(res['divers_efficient']['risk'], res['divers_efficient']['rr'],
                     color='lightblue', linewidth=1, linestyle=':')
@@ -1110,7 +1086,7 @@ class _RiskAnalyzer:
             lf = 1.01
             ax.annotate(res['maxdivers']['label'],
                        (res['maxdivers']['rr'] * lf, res['maxdivers']['sharpe'] * lf))
-            
+
         if res['divers_efficient']['divers_efficient'] > 0:
             ax.plot(res['divers_efficient']['rr'], res['divers_efficient']['sharpe'],
                     color='lightblue', linewidth=1, linestyle=':')
@@ -1281,22 +1257,6 @@ class _RiskAnalyzer:
         self.method = method
         
 
-    # to be implemented in the deriv class
-    def _risk_calc(self, prate, alpha):
-        pass
-    def _risk_min(self, d=1):
-        pass
-    def _sharpe_max(self):
-        pass
-    def _sharpe_inv_min(self):
-        pass
-    def _rr_max(self):
-        pass
-    def _risk_averse(self):
-        pass
-    def _risk_diversification(self, d=1):
-        pass
-    
     
     def getRiskComp(self):
         """
@@ -1317,16 +1277,14 @@ class _RiskAnalyzer:
         
         self.risk_comp = pd.Series(srisk, self.rrate.columns)
         self._flag_risk_comp_calc = True
-        
-        print("getRiskComp calc")
-        
+
         return self.risk_comp
         
         
     
     def getDiversification(self, ww, rrate=None):
         """
-        Returns the value of the diversification for a give 
+        Returns the value of the diversification factor for a give 
         portfolio.
 
         Parameters
@@ -1336,7 +1294,7 @@ class _RiskAnalyzer:
             symbols in `rrate` (mktdata). All weights must be >=0 with 
             sum > 0.
             If it is a list or a `numpy.array` then the weights are assumed to
-            by in order of `rrate.columns`. If it is a `pandas.Series` than 
+            be in order of `rrate.columns`. If it is a `pandas.Series` than 
             the index should be compatible with the `rrate.columns` or mktdata 
             symbols (not necessary in the same order).
         `rrate` : `pandas.DataFrame`, optional;
@@ -1381,3 +1339,21 @@ class _RiskAnalyzer:
     def _norm_weights(self):
         self.ww = self.ww.apply(lambda x: x if x >= _WW_TOL else 0)
         self.ww /= self.ww.sum()
+
+
+    # to be implemented in the deriv class
+    def _risk_calc(self, prate, alpha):
+        pass
+    def _risk_min(self, d=1):
+        pass
+    def _sharpe_max(self):
+        pass
+    def _sharpe_inv_min(self):
+        pass
+    def _rr_max(self):
+        pass
+    def _risk_averse(self):
+        pass
+    def _risk_diversification(self, d=1):
+        pass
+    

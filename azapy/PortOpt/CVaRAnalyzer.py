@@ -208,8 +208,8 @@ class CVaRAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
             
         # VaR (u)
@@ -290,8 +290,8 @@ class CVaRAnalyzer(_RiskAnalyzer):
        
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
 
         # average CVaR (1/t)
@@ -377,8 +377,8 @@ class CVaRAnalyzer(_RiskAnalyzer):
        
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
 
         t = res['x'][-1]
@@ -458,8 +458,8 @@ class CVaRAnalyzer(_RiskAnalyzer):
        
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
 
         # VaR (u)
@@ -534,8 +534,8 @@ class CVaRAnalyzer(_RiskAnalyzer):
        
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
 
         # optimal weights
@@ -623,8 +623,8 @@ class CVaRAnalyzer(_RiskAnalyzer):
        
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
 
         t = res['x'][-1]

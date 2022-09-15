@@ -5,6 +5,7 @@ import warnings
 from .CVaRAnalyzer import CVaRAnalyzer
 from ._solvers import _socp_solver
 
+
 class SMCRAnalyzer(CVaRAnalyzer):
     """
     Mixture SMCR based optimal portfolio strategies.
@@ -119,8 +120,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return self.status, np.nan, np.nan
         
         HMVaR = res['x'][0]
@@ -207,8 +208,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
         
         # SMVaR 
@@ -306,8 +307,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
         
         # mSMCR 
@@ -411,8 +412,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
         
         t = res['x'][-1]
@@ -512,8 +513,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
         
         # SMVaR
@@ -609,8 +610,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
         
         # optimal weights
@@ -716,8 +717,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
         
         t = res['x'][-1]

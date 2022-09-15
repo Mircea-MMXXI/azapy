@@ -214,8 +214,8 @@ class MADAnalyzer(_RiskAnalyzer):
 
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
 
         # mMAD
@@ -294,8 +294,8 @@ class MADAnalyzer(_RiskAnalyzer):
 
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
 
         t = res['x'][-1]
@@ -382,8 +382,8 @@ class MADAnalyzer(_RiskAnalyzer):
 
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
 
         t = res['x'][-1]
@@ -466,8 +466,8 @@ class MADAnalyzer(_RiskAnalyzer):
 
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
 
         # delta-risk values
@@ -542,8 +542,8 @@ class MADAnalyzer(_RiskAnalyzer):
 
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
 
         # optimal weights
@@ -631,8 +631,8 @@ class MADAnalyzer(_RiskAnalyzer):
     
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
-            print(f"warning on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
     
         t = res['x'][-1]

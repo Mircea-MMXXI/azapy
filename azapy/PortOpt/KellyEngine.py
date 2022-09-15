@@ -188,7 +188,8 @@ class KellyEngine(_RiskEngine):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return pd.Series(np.nan, index=self.rrate.columns)    
 
         return pd.Series(res['x'], index=self.rrate.columns)
