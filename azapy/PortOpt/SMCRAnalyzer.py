@@ -5,6 +5,7 @@ import warnings
 from .CVaRAnalyzer import CVaRAnalyzer
 from ._solvers import _socp_solver
 
+
 class SMCRAnalyzer(CVaRAnalyzer):
     """
     Mixture SMCR based optimal portfolio strategies.
@@ -119,7 +120,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return self.status, np.nan, np.nan
         
         HMVaR = res['x'][0]
@@ -206,7 +208,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
         
         # SMVaR 
@@ -304,7 +307,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
         
         # mSMCR 
@@ -408,7 +412,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
         
         t = res['x'][-1]
@@ -508,7 +513,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
         
         # SMVaR
@@ -604,7 +610,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
         
         # optimal weights
@@ -623,5 +630,115 @@ class SMCRAnalyzer(CVaRAnalyzer):
              + 1. / (1. - self.alpha[l])  / np.sqrt(nn) \
              * res['x'][mm + l * (nn + 2) + 1] \
             for l in range(ll)])
+        
+        return self.ww
+    
+    
+    def _risk_diversification(self, d=1):
+        # Order of variables:
+        # w <- [0:mm] 
+        # then for l <- [0:ll]
+        #   u_l <- mm + l(nn+2), 
+        #   eta_l <- mm + l(nn+2) + 1,
+        #   s_l <- [mm + l(nn + 2) + 2: mm + (l + 1)(nn + 2)]
+        # and last t <- [mm + ll(nn + 2)]
+        # in total dim = mm + ll(nn + 2) + 1
+        ll = self.ll
+        nn = self.nn
+        mm = self.mm
+        
+        # build c
+        c_data = [0.] * mm
+        for l in range(ll):
+            c_data += [self.coef[l]] \
+                    + [self.coef[l] / (1. -self.alpha[l]) / np.sqrt(nn)] \
+                    + [0.] * nn
+        c_data += [0.]
+                    
+        # build G
+        # linear
+        G_icol = list(range(mm)) * (nn * ll)
+        G_irow = [k  for k in range(nn * ll) for _ in range(mm)]
+        G_data = list(np.ravel(-self.rrate)) * ll
+        for l in range(ll):
+            G_icol += [mm + l * (nn + 2)] * nn \
+                + list(range(mm + l * (nn + 2) + 2, mm + (l + 1) * (nn + 2)))
+            G_irow += list(range(l * nn, (l + 1) * nn)) \
+                + list(range(l * nn, (l + 1) * nn))
+            G_data += [-1] * nn + [-1] * nn
+        
+        G_icol += list(range(mm)) + [mm + ll * (nn + 2)]
+        G_irow += [nn * ll] * (mm + 1)
+        G_data += list(-self.muk * d) + [self.mu * d]
+            
+        G_icol += list(range(mm))
+        G_irow += list(range(nn * ll + 1, mm + nn * ll + 1))
+        G_data += [-1.] * mm
+        for l in range(ll):
+            G_icol += list(range(mm + l * (nn + 2) + 2,\
+                                 mm + (l + 1) * (nn + 2)))
+            G_irow += list(range(mm + nn * ll + 1 + l * nn, \
+                                 mm + nn * ll + 1 + (l + 1) * nn))
+            G_data += [-1.] * nn
+        # cone
+        for l in range(ll):
+            G_icol += list(range((nn + 2) * l + mm + 1, 
+                                 (nn + 2) * l + mm + 1 + nn + 1))
+            G_irow += list(range(mm + 2 * nn * ll + l * (nn + 1) + 1, 
+                                 mm + 2 * nn * ll + (l + 1) * (nn + 1) + 1))
+            G_data += [-1.] * (nn + 1)
+            
+        G_shape = (3 * nn * ll + mm + ll + 1, mm + ll * (nn + 2) + 1)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
+  
+        # build h
+        h_data = [0.] * (3 * nn * ll + mm + ll + 1)
+        
+        # define dims
+        dims = {'l': (2 * ll * nn + mm + 1), 'q': [nn + 1] * ll}
+        
+        # build A
+        A_icol = list(range(mm)) + [mm + ll * (nn + 2)]
+        A_irow = [0] * (mm + 1)
+        A_data = [1.] * mm + [-1.]
+        
+        A_icol += list(range(mm))
+        A_irow += [1] * mm
+        A_data += list(self.risk_comp)
+        
+        A_shape = (2, mm + ll * (nn + 2) + 1)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
+
+        # build b
+        b_data = [0.] + [1.]
+        
+        # calc
+        res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+ 
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
+            return np.array([np.nan] * mm)
+        
+        t = res['x'][-1]
+        # mSMCR (=g/t)
+        self.risk = res['pcost'] / t
+        # SMVaR (=u/t)
+        self.secondary_risk_comp = np.array(
+            [res['x'][mm + l * (nn + 2)] / t for l in range(ll)])
+        # Diversification
+        self.divers = 1. - res['pcost']
+        # optimal weights
+        self.ww = np.array(res['x'][:mm] / t)
+        self.ww.shape = mm
+        # rate of returns
+        self.RR = np.dot(self.ww, self.muk)
+        # SMCR component (recomputed)
+        self.primary_risk_comp = np.array(
+            [(res['x'][mm + l * (nn + 2)] \
+              + 1. / (1. - self.alpha[l]) / np.sqrt(nn) \
+              * res['x'][mm + l * (nn + 2) + 1]) / t \
+             for l in range(ll)])
         
         return self.ww

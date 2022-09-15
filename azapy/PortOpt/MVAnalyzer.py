@@ -117,7 +117,8 @@ class MVAnalyzer(_RiskAnalyzer):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * nn)
  
         # optimal weights
@@ -177,7 +178,8 @@ class MVAnalyzer(_RiskAnalyzer):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * nn)
  
         t = res['x'][-1]
@@ -246,7 +248,8 @@ class MVAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * nn)
   
         t = res['x'][-1]
@@ -307,7 +310,8 @@ class MVAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * nn)
         
         # optimal weights
@@ -352,7 +356,8 @@ class MVAnalyzer(_RiskAnalyzer):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * nn)
         
         # optimal weights
@@ -369,3 +374,74 @@ class MVAnalyzer(_RiskAnalyzer):
         
         return self.ww
     
+    
+    def _risk_diversification(self, d=1):
+        # Computes the minimum of inverse Sharpe
+        # Order of variables
+        # w <- [0:nn]
+        # u <- nn
+        # t <- nn + 1
+        # in total dim = nn + 2
+        P = self.rrate.cov().to_numpy()
+        nn = P.shape[0]
+        
+        # build c
+        c_data = [0.] * nn + [1., 0.]
+        sq2 = -np.sqrt(0.5)
+
+        # build G
+        yy = sps.coo_matrix(list(-self.muk * d) + [0., self.mu * d])
+        
+        # ww > 0 and u > 0 and t > 0
+        dd = np.diag([-1.] * (nn + 2))
+        # cone
+        xx = sps.coo_matrix(([sq2, sq2], ([0, 0], [nn, nn + 1])), 
+                            shape=(1, nn + 2))
+        
+        if any(np.diag(P) < _tol_cholesky):
+            pp = sps.block_diag((-la.sqrtm(P), np.diag([sq2, sq2])))
+        else:
+            pp = sps.block_diag((-la.cholesky(P, overwrite_a=True), 
+                                  np.diag([sq2, sq2])))
+            
+        G = sps.vstack([yy, dd, xx, pp])
+        
+        # build h
+        h_data = [0.] * (2 * nn + 6)
+        
+        # def dims
+        dims = {'l': nn + 3, 'q': [nn + 3]}
+        
+        # build A
+        A = sps.coo_matrix(
+            [[1.] * nn + [0., -1.], list(self.risk_comp) + [0., 0.]])
+ 
+        # build b
+        b_data = [0., 1.]
+        
+        # calc
+        res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+ 
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
+            return np.array([np.nan] * nn)
+  
+        t = res['x'][-1]
+        # optimal weights
+        self.ww = np.array(res['x'][:nn]) / t
+        self.ww.shape = nn
+        # MV-Divers
+        self.divers = 1. - res['pcost']
+        # variance
+        self.risk = res['pcost'] / t
+        # variance
+        self.primary_risk_comp = np.array([self.risk])
+        # volatility
+        self.secondary_risk_comp = np.array([np.sqrt(self.risk)])
+        # rate of return
+        self.RR = np.dot(self.ww, self.muk)
+        #self.RR = np.dot(self.ww, self.muk)
+        
+        return self.ww   

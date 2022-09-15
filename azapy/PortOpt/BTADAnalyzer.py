@@ -205,7 +205,8 @@ class BTADAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
             
         # mBTAD
@@ -284,7 +285,8 @@ class BTADAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
             
         t = res['x'][-1]
@@ -369,7 +371,8 @@ class BTADAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
             
         t = res['x'][-1]
@@ -453,7 +456,8 @@ class BTADAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
             
         # rate of return
@@ -530,7 +534,8 @@ class BTADAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
             
         # optimal weights
@@ -548,3 +553,92 @@ class BTADAnalyzer(_RiskAnalyzer):
         
         return self.ww
         
+    
+    def _risk_diversification(self, d=1):
+        # Order of variables:
+        # w <- [0 : mm]
+        # then for l <- [0:ll]
+        #   u_l <- mm + l(nn+1), 
+        #   s_l <- [mm + l(nn + 1) + 1: mm + (l + 1)(nn + 1)]
+        # t <- mm + ll * (nn + 1)
+        # in total dim = mm + ll(nn + 1) + 1
+        nn = self.nn
+        mm = self.mm
+        ll = self.ll
+        
+        # build c
+        c_data = [0.] * mm 
+        for l in range(ll):
+            c_data += [self.coef[l]] + [0.] * nn
+        c_data += [0.]
+        
+        # build G
+        G_icol = list(range(mm)) * (nn * ll)
+        G_irow = [k  for k in range(nn * ll) for _ in range(mm)]
+        G_data = list(np.ravel(-self.rrate)) * ll
+        for l in range(ll):
+            G_icol += [mm + ll * (nn + 1)] * nn \
+                  + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
+            G_irow += list(range(l * nn, (l + 1) * nn)) * 2
+            G_data += [self.alpha[l]] * nn + [-1.] * nn 
+            
+        G_icol += list(range(mm)) +[mm + ll * (nn + 1)]
+        G_irow += [nn * ll] * (mm + 1)
+        G_data += list(-self.muk * d) + [self.mu * d]
+            
+        G_icol += list(range(mm + ll * (nn + 1) + 1))
+        G_irow += list(range(nn * ll + 1, nn * ll + 2 + mm + ll * (nn + 1)))
+        G_data += [-1.] * (mm + ll * (nn + 1) + 1)
+        
+        G_shape = (nn * ll + 2 + mm + ll * (nn + 1), mm + ll * (nn + 1) + 1)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
+        
+        # build h
+        h_data = [0.] * (ll * nn + mm + ll * (nn + 1) + 2)
+        
+        #build A
+        A_icol = list(range(mm)) + [mm + ll * (nn + 1)]
+        A_irow = [0] * (mm + 1)
+        A_data = [1.] * mm + [-1.]
+    
+        for l in range(ll):
+            A_icol += list(range(mm + l * (nn + 1), mm + (l + 1) * (nn + 1)))
+            A_irow += [1 + l] * (nn + 1)
+            A_data += [-1.] + [1. / nn] * nn
+            
+        A_icol += list(range(mm)) 
+        A_irow += [ll + 1] * mm
+        A_data += list(self.risk_comp) 
+        
+        A_shape = (ll + 2, mm + ll * (nn + 1) + 1)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
+        
+        # build b
+        b_data = [0.] * (ll + 1) + [1.]
+        
+        # calc
+        res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
+ 
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
+            return np.array([np.nan] * mm)
+            
+        t = res['x'][-1]
+        # BTAD-Divers
+        self.divers = 1. - res['pcost']
+        # mBTAD
+        self.risk =  res['pcost'] / t
+        # optimal weights
+        self.ww = np.array(res['x'][:mm] / t)
+        self.ww.shape = mm
+        # rate of return
+        self.RR = np.dot(self.ww, self.muk)
+        # BTAD components
+        self.primary_risk_comp = \
+            np.array([res['x'][mm + l * (nn + 1)] / t for l in range(ll)])
+        # BTAD thresholds
+        self.secondary_risk_comp = self.alpha.copy()
+        
+        return self.ww

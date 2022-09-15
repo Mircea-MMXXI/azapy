@@ -170,7 +170,8 @@ class LSDAnalyzer(MADAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
         
         # mLSD
@@ -258,7 +259,8 @@ class LSDAnalyzer(MADAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
         
         # mLSD
@@ -347,7 +349,8 @@ class LSDAnalyzer(MADAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
         
         # mLSD-Sharpe
@@ -434,7 +437,8 @@ class LSDAnalyzer(MADAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
         
         # rate of return
@@ -517,7 +521,8 @@ class LSDAnalyzer(MADAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']}")
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
         
         # optimal weights
@@ -536,3 +541,102 @@ class LSDAnalyzer(MADAnalyzer):
         
         return self.ww
     
+    
+    def _risk_diversification(self, d=1):
+        # Order of variables:
+        # w <- [0:mm] 
+        # then for l <- [0:ll]
+        # u_l <- mm + l(nn+1), 
+        # s_l <- [mm + l(nn + 1) + 1: mm + (l + 1)(nn + 1)]
+        # and last t <- [mm + ll(nn + 1)]
+        # in total dim = mm + ll(nn + 1) + 1
+        ll = self.ll
+        nn = self.nn
+        mm = self.mm
+        
+        # build c
+        c_data = [0.] * mm 
+        for l in range(ll):
+            c_data += [self.coef[l]] + [0.] * nn
+        c_data += [0.]
+        
+        # build G
+        # linear
+        G_icol = list(range(mm)) * (nn * ll)
+        G_irow = [k  for k in range(nn * ll) for _ in range(mm)]
+        G_data = list(np.ravel(-self.rrate)) * ll
+        for l in range(ll):
+            G_icol += [mm + k * (nn + 1) for k in range(l)] * nn \
+                  + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
+            G_irow += [k for k in range(l * nn, (l + 1) * nn) \
+                       for _ in range(l)]\
+                  + list(range(l * nn, (l + 1) * nn))
+            G_data += [-1.] * ((l + 1) * nn)
+            
+        G_icol += list(range(mm)) + [mm + ll * (nn + 1)]
+        G_irow += [nn * ll] * (mm + 1)
+        G_data += list(-self.muk * d) + [self.mu * d]
+
+        G_icol += list(range(mm + ll * (nn + 1) + 1))
+        G_irow += list(range(nn * ll + 1, mm + 2 * nn * ll + ll + 2))
+        G_data += [-1.] * (mm + ll * (nn + 1) + 1)
+        # cone
+        for l in range(ll):
+            G_icol += list(range((nn + 1) * l + mm , 
+                                 (nn + 1) * l + mm + 1 + nn))
+            G_irow += list(range(mm + 2 * nn * ll + ll + 2 + l * (nn + 1), 
+                           mm + 2 * nn * ll + ll + 2 + (l + 1) * (nn + 1)))
+            G_data += [-np.sqrt(nn)] + [-1.] * nn
+            
+        G_shape = (3 * nn * ll + mm + 2 * ll + 2, mm + ll * (nn + 1) + 1)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
+        
+        # build h
+        h_data = [0.] * (3 * nn * ll + mm + 2 * ll + 2)
+        
+        # build dims
+        dims = {'l': (2 * ll * nn + mm + ll + 2), 'q': [nn + 1] * ll}
+        
+        # build A
+        A_icol = list(range(mm)) + [mm + ll * (nn + 1)]
+        A_irow = [0] * (mm + 1) 
+        A_data = [1.] * mm + [-1.] 
+        
+        A_icol += list(range(mm))
+        A_irow += [1] * mm
+        A_data += list(self.risk_comp)
+ 
+        A_shape = (2, mm + ll * (nn + 1) + 1)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
+ 
+        # bjuild b
+        b_data = [0., 1.]
+        
+        # calc
+        res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+ 
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
+            return np.array([np.nan] * mm)
+        
+        # mLSD-Divers
+        self.divers = 1. - res['pcost']
+        # mLSD
+        t = res['x'][-1]
+        self.risk = res['pcost'] / t
+        # delta-risk values
+        self.primary_risk_comp = np.array(
+            [res['x'][mm + l * (nn + 1)] / t for l in range(ll)])
+        
+        # optimal weights
+        self.ww = np.array(res['x'][:mm] / t)
+        self.ww.shape = mm
+        # rate of return
+        self.RR = np.dot(self.ww, self.muk)
+        # delta-risk strikes
+        self.secondary_risk_comp = \
+            np.cumsum(np.insert(self.primary_risk_comp, 0, 0))[:-1]
+        
+        return self.ww

@@ -3,6 +3,7 @@ import numpy as np
 import ta
 import numbers
 import plotly.graph_objects as go
+from collections import defaultdict
 
 from azapy.util.drawdown import drawdown, max_drawdown
 
@@ -116,6 +117,8 @@ class Port_Simple:
 
         self.ww = None
         self.port = None
+        
+        self.options = None
 
     def set_model(self, ww=None):
         """
@@ -182,32 +185,39 @@ class Port_Simple:
         """
         return self.mktdata.copy()
 
-    def port_view(self, emas=[30, 200], bollinger=False, fancy=False,
-                  saveto=None):
+    def port_view(self, emas=[30, 200], bollinger=False, **opt):
         """
         Plot the portfolio time series together with optional technical
         indicators.
 
         Parameters
         ----------
-        emas : list of int, optional
+        `emas` : `list` of int, optional
             List of EMA durations. The default is [30, 200].
-        bollinger : Boolean, optional
-            If set `True` it adds the Bollinger bands. The default is `False`.
-        fancy : Boolean, optional
-            `False` : it uses the matplotlib capabilities.
-
-            `True` : it uses plotly library for interactive time-series view.
-
-            The default is `False`.
-        saveto : str, optional
-            The name of the file where to save the plot. The default is `None`.
-
+        `bollinger` : Boolean, optional
+            If set `True` it adds the Bollinger bands. The default is `False`.    
+        `opt` : other parameters
+            * `fancy` : Boolean, optional
+                - `False` : it uses the matplotlib capabilities.
+                - `True` : it uses plotly library for interactive time-series view.
+    
+                The default is `False`.
+            * `title` : `str`, optional; plot title. The default is `None`.
+            * `xaxis` : `str`, optional; name of x-axis. The default is `'date'`.
+            * `yaxis` : `srt`; optional; name of y-axis. The default is `None`.
+            * `saveto` : `str`, optional
+                The name of the file where to save the plot. The default is `None`.
         Returns
         -------
-        pandas.DataFrame
+        `pandas.DataFrame`
             Contains the time-series included in plot.
         """
+        options = defaultdict(lambda: None)
+        options['xaxis'] = 'date';
+        options.update(opt)
+        fancy = options['fancy']
+        saveto = options['saveto']
+        
         df = self.port.copy()
 
         if isinstance(emas, list):
@@ -224,53 +234,67 @@ class Port_Simple:
             df['B_lower'] = idx.bollinger_lband()
 
         if fancy:
-            fig = self._view_plotly(df)
+            fig = self._view_plotly(df, options)
             if saveto is not None:
                 fig.write_image(saveto)
         else:
             if saveto is None:
-                df.plot()
+                df.plot(title=options['title'], 
+                        xlabel=options['xaxis'], 
+                        ylabel=options['yaxis'])
             else:
-                df.plot().get_figure().savefig(saveto)
+                df.plot(title=options['title'], 
+                        xlabel=options['xaxis'], 
+                        ylabel=options['yaxis']).get_figure().savefig(saveto)
 
         return df
 
-    def port_view_all(self, sdate=None, edate=None, componly=False,
-                      fancy=False, saveto=None):
+    def port_view_all(self, sdate=None, edate=None, componly=False, **opt):
         """
         Plot the portfolio and its component time-series in a relative bases.
 
         Parameters
         ----------
-        sdate : date like, optional
+        `sdate` : date-like, optional;
             Start date of plotted time-series. If it is set to `None`
             then the `sdate` is set to the earliest date in the time-series.
             The default is `None`.
-        edate : date like, optional
+        `edate` : date-like, optional;
             End date of plotted time-series. If it set to `None` then 
             the `edate
             is set to the most recent date of the time-series.
             The default is `None`.
-        componly : Boolean, optional
+        `componly` : Boolean, optional;
             `True` : only the portfolio components time-series are plotted.
 
             `False`: the portfolio and its components times-series are plotted.
 
             The default is `True`.
-        fancy : Boolean, optional
-            `False` : it uses the pandas plot (matplotlib) capabilities.
+        `opt` : other parameters
+            * `fancy` : Boolean, optional;
+                - `False` : it uses the pandas plot (matplotlib) capabilities.
+                - `True` : it uses plotly library for interactive time-series view.
 
-            `True` : it uses plotly library for interactive time-series view.
-
-            The default is `False`.
-        saveto : str, optional
-            The name of the file where to save the plot. The default is `None`.
+                The default is `False`.
+            * `title` : `str`, optional; plot title. The default is `None`.
+            * `xaxis` : `str`, optional; name of x-axis. The default is `'date'`.
+            * `yaxis` : `srt`; optional; name of y-axis. The default is `None`.
+            * `saveto` : `str`, optional;
+                The name of the file where to save the plot. The default is `None`.
 
         Returns
         -------
-        pandas.DataFrame
+        `pandas.DataFrame`
             A Data Frame containing the time-series.
         """
+        options = defaultdict(lambda: None)
+        options['xaxis'] = 'date';
+        options['fancy'] = False
+        options.update(opt)
+        fancy = options['fancy']
+        saveto = options['saveto']
+        
+        
         if sdate is None:
             sdate = self.sdate
         if edate is None:
@@ -286,14 +310,18 @@ class Port_Simple:
         df = df.apply(lambda x: x / x[0])
 
         if fancy:
-            fig = self._view_plotly(df)
+            fig = self._view_plotly(df, options)
             if saveto is not None:
                 fig.write_image(saveto)
         else:
             if saveto is None:
-                df.plot()
+                df.plot(title=options['title'], 
+                        xlabel=options['xaxis'], 
+                        ylabel=options['yaxis'])
             else:
-                df.plot().get_figure().savefig(saveto)
+                df.plot(title=options['title'], 
+                        xlabel=options['xaxis'], 
+                        ylabel=options['yaxis']).get_figure().savefig(saveto)
 
         return df
 
@@ -488,7 +516,7 @@ class Port_Simple:
         return res.style.format("{:.2%}").applymap(_color_negative_red)
 
 
-    def _view_plotly(self, df):
+    def _view_plotly(self, df, options):
         # Create figure
         fig = go.Figure()
 
@@ -498,7 +526,9 @@ class Port_Simple:
 
         # Set title
         fig.update_layout(
-            title_text="Port performance"
+            title_text=options['title'],
+            xaxis_title=options['xaxis'],
+            yaxis_title=options['yaxis']
         )
 
         # Add range slider

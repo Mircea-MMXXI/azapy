@@ -6,22 +6,24 @@ indicators.
 *Call:*
 
 ```
-port_view(emas=[30, 200], bollinger=False, fancy=False, saveto=None)
+port_view(emas=[30, 200], bollinger=False, **randomport)
 ```
 
 *Inputs:*
 
-* `emas` :
-List for EMA durations (in number of days). The default is `[30, 200]`.
-* `bollinger` : Boolean flag.
-`True` adds the Bollinger bands. The default is `False`.
-* `view` : Boolean flag.
-`False` suppresses the plotting to the terminal. The default is `True`.
-* `fancy` : Boolean flag with default value `False`.
-    - `False` : it uses the `matplotlib` package capabilities.
-    - `True` : it uses `plotly` package for interactive time-series view.
-* `saveto` : File name where to save the plot. The extension dictates the
-format: `png`, `pdf`, `svg`, etc. For more details see the `mathplotlib`
-documentation for `savefig`. The default is `None`.
+* `emas` : `list` of int. List of EMA durations. The default is [30, 200].
+* `bollinger` : Boolean flag. If it is set `True` then the Bollinger bands are
+added. The default is `False`.    
+* `opt` : other parameters
+    * `fancy` : Boolean flag.
+        - `False` : it uses the matplotlib capabilities.
+        - `True` : it uses plotly library for interactive time-series view.
+
+        The default is `False`.
+    * `title` : `str`. The plot title. The default is `None`.
+    * `xaxis` : `str`. The name of x-axis. The default is `'date'`.
+    * `yaxis` : `srt`. The name of y-axis. The default is `None`.
+    * `saveto` : `str`.
+        The name of the file where to save the plot. The default is `None`.
 
 *Returns:* `pandas.DataFrame` containing the time-series included in the plot.
