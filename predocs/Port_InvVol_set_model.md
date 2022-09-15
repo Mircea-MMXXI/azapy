@@ -11,7 +11,7 @@ set_model(hlength=3.25)
 
 *Inputs:*
 
-* `hlength` :
+* `hlength` : `float`, optional;
 The length in years of the historical calibration period ending on
 `'Dfix'`. A fractional number will be rounded to an integer number
 of months. The default is `3.25` years.

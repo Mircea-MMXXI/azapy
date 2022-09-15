@@ -11,9 +11,9 @@ set_rrate(rrate)
 
 *Inputs:*
 
-* `rrate` : `pandas.DataFrame`,
-portfolio components historical rates of returns, where the
-columns are `'date'`, `symbol1`, `symbol2`, etc.
+* `rrate` : `pandas.DataFrame`;
+Portfolio components historical rates of returns. The index name is `'date'` and
+columns are `symbol1`, `symbol2`, etc.
 
 
 *Returns:* `None`

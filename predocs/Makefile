@@ -1,6 +1,6 @@
 OUTDIR=../docs
 INDIR=.
-TEMPDIR=../temp_docs
+TEMPDIR=../work/temp_docs
 ANALYZEREX=../scripts/analyzers
 PORTFOLIOSEX=../scripts/portfolios
 UTILEX=../scripts/util

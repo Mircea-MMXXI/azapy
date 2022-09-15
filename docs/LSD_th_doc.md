@@ -39,7 +39,10 @@ The following portfolio optimization strategies are available:
 benchmark portfolio (*e.g.* same risk as equal weighted portfolio),
 * Maximization of expected rate of return for fixed risk-aversion factor,
 * Maximization of mLSD-Sharpe ratio,
-* Minimization of the inverse of mLSD-Sharpe ratio.
+* Minimization of the inverse of mLSD-Sharpe ratio,
+* Maximization of diversification factor for targeted expected rate of return
+value <span style="color:red">(alpha version)</span>,
+* Maximum diversified portfolio <span style="color:red">(alpha version)</span>,
 
 There are 2 support classes:
 
@@ -76,6 +79,8 @@ During its computations the following class members are also set:
   * _sharpe_ : mLSD-Sharpe ration if `rtype` is set to `'Shapre'` or `'Sharpe2'`
   otherwise `None`,
   * _RR_ : optimal portfolio expected rate of return.
+  * _divers_ : diversification factor if `rtype` is set to `'Divers'` or `'MaxDivers'`
+  otherwise `None` <span style="color:red">(alpha version)</span>.
 
 
 * **getPositions** : Provides practical information regarding the portfolio
@@ -106,13 +111,16 @@ The default is `3.25` (years).
 then the calendar will be set to NYSE business calendar.
 The default is `None`.
 * `rtype` : Optimization type:
-    - `'Risk'` : minimization of risk for fixed expected rate of return value.
+    - `'Risk'` : minimization of risk for targeted expected rate of return value.
     - `'MinRisk'` : minimum risk portfolio.
     - `'InvNRisk'` : optimal portfolio with the same risk as a benchmark
-     portfolio (*e.g.* equal weighted portfolio).
-    - `'RiskAverse'` : optimal portfolio for fixed risk-aversion value.
+     portfolio (*e.g.* same risk as equal weighted portfolio).
+    - `'RiskAverse'` : optimal portfolio for fixed risk-aversion factor.
     - `'Sharpe'` : maximization of mLSD-Sharpe ratio.
     - `'Sharpe2'` : minimization of the inverse mLSD-Sharpe ratio.
+    - `'Divers'` : maximization of diversification factor for targeted expected
+    rate of return value <span style="color:red">(alpha version)</span>.
+    - `'MaxDivers'` : maximum diversified portfolio <span style="color:red">(alpha version)</span>.
 
   The default is `'Sharpe'`.
 * `method` : Designates the SOCP numerical method.
@@ -144,32 +152,32 @@ getWeights(rtype=None, mu=None, d=1, mu0=0., aversion=None, ww0=None,
 
 *Inputs:*
 
-* `rtype` : str, optional;
+* `rtype` : `str`, optional;
     Optimization type. If is not `None` it will overwrite the value
     set by the constructor. The default is `None`.
-* `mu` : float, optional.
+* `mu` : `float`, optional;
     Targeted portfolio expected rate of return.
     Relevant only if `rtype='Risk'`
     The default is `None`.
-* `d` : int, optional;
+* `d` : `int`, optional;
     Frontier type. Active only if `rtype='Risk'`. A value of `1` will
     trigger the evaluation of optimal portfolio along the efficient
     frontier. Otherwise, it will find the portfolio with the lowest
     rate of return along the inefficient portfolio frontier.
     The default is `1`.
-* `mu0` : float, optional;
+* `mu0` : `float`, optional;
     Risk-free rate accessible to the investor.
     Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
     The default is `0`.
-* `aversion` : float, optional;
+* `aversion` : `float`, optional;
     The value of the risk-aversion coefficient.
     Must be positive. Relevant only if `rtype='RiskAvers'`.
     The default is `None`.
-* `ww0` : list (also `numpy.array` or `pandas.Series`), optional;
+* `ww0` : `list` (also `numpy.array` or `pandas.Series`), optional;
     Targeted portfolio weights.
     Relevant only if `rype='InvNrisk'`.
     Its length must be equal to the number of
-    symbols in rrate (mktdata).
+    symbols in `rrate` (`mktdata`).
     All weights must be >= 0 with sum > 0.
     If it is a list or a `numpy.array` then the weights are assumed to
     by in order of `rrate.columns`. If it is a `pandas.Series` then the index
@@ -190,6 +198,7 @@ Note: It will set the following class members:
 * _secondary_risk_comp_
 * _sharpe_
 * _RR_
+* _divers_ <span style="color:red">(alpha version)</span>
  
 Their meanings are [here](LSDAnalyzer_class) 
  
@@ -252,7 +261,7 @@ getPositions(nshares=None, cash=0, ww=None, rtype=None, mu=None, mu0=0.,
     entry will be considered 0. A `None` value assumes that all
     components entries are 0. The name of the components must be
     present in the mrkdata. The default is `None`.
-* `cash` : float, optional
+* `cash` : `float`, optional;
     Additional cash to be added to the capital. A
     negative entry assumes a reduction in the total capital
     available for rebalance. The total capital cannot be < 0.
@@ -262,22 +271,22 @@ getPositions(nshares=None, cash=0, ww=None, rtype=None, mu=None, mu0=0.,
     If it not set to `None` these
     weights will overwrite the calibrated.
     The default is `None`.
-* `rtype` : str, optional;
+* `rtype` : `str`, optional;
     Optimization type. If is not `None` it will overwrite the value
     set by the constructor. The default is `None`.
-* `mu` : float, optional
+* `mu` : `float`, optional;
     Targeted portfolio expected rate of return.
-    Relevant only if `rtype='Risk'`
+    Relevant only if `rtype='Risk'` or `rtype='Divers'`.
     The default is `None`.
-* `mu0` : float, optional;
+* `mu0` : `float`, optional;
     Risk-free rate accessible to the investor.
     Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
     The default is `0`.
-* `aversion` : float, optional;
+* `aversion` : `float`, optional;
     The value of the risk-aversion coefficient.
     Must be positive. Relevant only if `rtype='RiskAvers'`.
     The default is `None`.
-* `ww0` : list (also `numpy.array` or `pandas.Series`), optional;
+* `ww0` : `list` (also `numpy.array` or `pandas.Series`), optional;
     Targeted portfolio weights
     Relevant only if `rype='InvNrisk'`.
     Its length must be equal to the number of
@@ -362,8 +371,8 @@ The default is `None`.
     * `'Divers_RR'` : diversification vs expected rate of return.
 
     The default is `'RR_risk'`.
-* `opt` : Additonal parameters:
-    * `'title'` : The default is 'Portfolio frontiers'
+* `opt` : Other optional parameters:
+    * `'title'` : The default is `"Portfolio frontiers"`
     * `'xlabel'` : The default is
         - `'risk'` if `fig_type='RR_risk'`
         - `'rate of returns'` otherwise
@@ -407,17 +416,17 @@ set_mktdata(mktdata, colname='adjusted', freq='Q', hlength=3.25, calendar=None)
 * `mktdata` : `pandas.DataFrame`
 Historic daily market data for portfolio components in the format
 returned by `azapy.mktData` function.
-* `colname` :
+* `colname` : `str`, optional;
 Name of the price column from `mktdata` used in the weights
 calibration. The default is `'adjusted'`.
-* `freq` :
+* `freq` : `str`, optional;
 Rate of returns horizon. It could be
 `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
-* `hlength` :
+* `hlength` : `float`, optional;
 History length in number of years used for calibration. A
 fractional number will be rounded to an integer number of months.
 The default is `3.25` years.
-* `calendar` : `numpy.busdaycalendar`, optional
+* `calendar` : `numpy.busdaycalendar`, optional;
 Business days calendar. If it is `None`, then the calendar will be set
 to NYSE business calendar. The default is `None`.
 
@@ -440,9 +449,9 @@ set_rrate(rrate)
 
 *Inputs:*
 
-* `rrate` : `pandas.DataFrame`,
-portfolio components historical rates of returns, where the
-columns are `'date'`, `symbol1`, `symbol2`, etc.
+* `rrate` : `pandas.DataFrame`;
+Portfolio components historical rates of returns. The index name is `'date'` and
+columns are `symbol1`, `symbol2`, etc.
 
 
 *Returns:* `None`
@@ -807,32 +816,35 @@ set_model(coef=[1.], rtype='Sharpe', mu=None, mu0=0, aversion=None,
 
 *Inputs:*
 
-* `coef` : list, optional;
+* `coef` : `list`, optional;
   List of positive non-increasing coefficients.
   The default is `[1.]`.
-* `rtype` : str, optional; Optimization type:
-    - `'Risk'` : minimization of risk for fixed expected rate of return value.
+* `rtype` : `str`, optional; Optimization type:
+    - `'Risk'` : minimization of risk for targeted expected rate of return value.
     - `'MinRisk'` : minimum risk portfolio.
     - `'InvNRisk'` : optimal portfolio with the same risk as a benchmark
-     portfolio (*e.g.* equal weighted portfolio).
-    - `'RiskAverse'` : optimal portfolio for fixed risk-aversion value.
+     portfolio (*e.g.* same risk as equal weighted portfolio).
+    - `'RiskAverse'` : optimal portfolio for fixed risk-aversion factor.
     - `'Sharpe'` : maximization of mLSD-Sharpe ratio.
     - `'Sharpe2'` : minimization of the inverse mLSD-Sharpe ratio.
+    - `'Divers'` : maximization of diversification factor for targeted expected
+    rate of return value <span style="color:red">(alpha version)</span>.
+    - `'MaxDivers'` : maximum diversified portfolio <span style="color:red">(alpha version)</span>.
 
   The default is `'Sharpe'`.
-* `mu` : float, optional;
+* `mu` : `float`, optional;
     Targeted portfolio expected rate of return.
     Relevant only if `rtype='Risk'`
     The default is `None`.
-* `mu0` : float, optional;
+* `mu0` : `float`, optional;
     Risk-free rate accessible to the investor.
     Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
     The default is `0`.
-* `aversion` : float, optional;
+* `aversion` : `float`, optional;
     The value of the risk-aversion coefficient.
     Must be positive. Relevant only if `rtype='RiskAvers'`.
     The default is `None`.
-* `ww0` : list (also `numpy.array` or `pandas.Series`), optional;
+* `ww0` : `list` (also `numpy.array` or `pandas.Series`), optional;
     Targeted portfolio weights.
     Relevant only if `rype='InvNrisk'`.
     Its length must be equal to the number of
@@ -844,11 +856,11 @@ set_model(coef=[1.], rtype='Sharpe', mu=None, mu0=0, aversion=None,
     symbols (same symbols, not necessary in the same order).
     If it is `None` then it will be set to equal weights.
     The default is `None`.
-* `hlength` : float, optional;
+* `hlength` : `float`, optional;
     The length in year of the historical calibration period relative
     to 'Dfix'. A fractional number will be rounded to an integer number
     of months. The default is `3.25` years.
-* `method` :
+* `method` : `str`, optional;
 SOCP numerical method.
 Could be  `'ecos'` or `'cvxopt'`.
 The default is `'ecos'`.
@@ -872,19 +884,19 @@ port_view(emas=[30, 200], bollinger=False, **randomport)
 
 *Inputs:*
 
-* `emas` : `list` of int. List of EMA durations. The default is [30, 200].
-* `bollinger` : Boolean flag. If it is set `True` then the Bollinger bands are
+* `emas` : `list` of int, optional; List of EMA durations. The default is [30, 200].
+* `bollinger` : `Boolean`, optional; If it is `True` then the Bollinger bands are
 added. The default is `False`.    
 * `opt` : other parameters
-    * `fancy` : Boolean flag.
+    * `fancy` : `Boolean`, optional;
         - `False` : it uses the matplotlib capabilities.
         - `True` : it uses plotly library for interactive time-series view.
 
         The default is `False`.
-    * `title` : `str`. The plot title. The default is `None`.
-    * `xaxis` : `str`. The name of x-axis. The default is `'date'`.
-    * `yaxis` : `srt`. The name of y-axis. The default is `None`.
-    * `saveto` : `str`.
+    * `title` : `str`, optional; The plot title. The default is `'Relative performance'`.
+    * `xaxis` : `str`, optional; The name of x-axis. The default is `'date'`.
+    * `yaxis` : `str`, optional; The name of y-axis. The default is `None`.
+    * `saveto` : `str`, optional;
         The name of the file where to save the plot. The default is `None`.
 
 *Returns:* `pandas.DataFrame` containing the time-series included in the plot.
@@ -906,29 +918,29 @@ port_view_all(sdate=None, edate=None, componly=False, **opt)
 
 *Inputs:*
 
-* `sdate` : date-like;
+* `sdate` : `date-like`, optional;
 Start date of plotted time-series. If it is `None`,
 then `sdate` is set to the earliest date in the time-series.
 The default is `None`.
-* `edate` : date-like;
+* `edate` : `date-like`, optional;
 End date of plotted time-series. If it is `None`, then `edate`
 is set to the most recent date of the time-series.
 The default is `None`.
-* `componly` : Boolean flag.
+* `componly` : `Boolean`, optional;
     - `True` : only the portfolio components time-series are plotted.
     - `False`: the portfolio and its components times-series are plotted.
 
     The default is `True`.
 * `opt` : Other parameters:
-    * `fancy` : Boolean flag.
+    * `fancy` : `Boolean`, optional;
         - `False` : it uses the pandas plot (matplotlib) capabilities.
         - `True` : it uses plotly library for interactive time-series view.
 
         The default is `False`.
-    * `title` : `str`. The plot title. The default is `None`.
-    * `xaxis` : `str`. The name of x-axis. The default is `'date'`.
-    * `yaxis` : `srt`. The name of y-axis. The default is `None`.
-    * `saveto` : `str`.
+    * `title` : `str`, optimal; The plot title. The default is `'Port performance'`.
+    * `xaxis` : `str`, optimal; The name of x-axis. The default is `'date'`.
+    * `yaxis` : `str`, optimal; The name of y-axis. The default is `None`.
+    * `saveto` : `str`, optimal;
         The name of the file where to save the plot. The default is `None`.
 
 *Returns:* `pandas.DataFrame` containing the time-series included in the plot.

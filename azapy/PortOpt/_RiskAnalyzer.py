@@ -361,7 +361,7 @@ class _RiskAnalyzer:
             set by the constructor. The default is `None`.
         `mu` : float, optional
             Targeted portfolio expected rate of return. 
-            Relevant only if `rtype='Risk'`
+            Relevant only if `rtype='Risk'` and `rtype='Divers'`.
             The default is `None`.
         `mu0` : float, optional;
             Risk-free rate accessible to the investor.
@@ -922,15 +922,14 @@ class _RiskAnalyzer:
     def _plot_f1(self, res):
         fig = plt.figure()
         ax = fig.add_subplot(111)
-
-        _opt = {'title': "Portfolio frontiers", 'xlabel': 'risk',
-                'ylabel': 'rate of return', 'tangent': True}
-        if res['options'] is None:
-            opt = defaultdict(lambda x=0: None, _opt)
-        else:
-            opt = defaultdict(lambda x=0: None, res['options'])
-            for key in _opt.keys():
-                if opt[key] is None: opt[key] = _opt[key]
+        
+        opt = defaultdict(lambda: None, 
+                          {'title': "Portfolio frontiers", 
+                           'xlabel': 'risk',
+                           'ylabel': 'rate of return', 
+                           'tangent': True})
+        if res['options'] is not None:
+            opt.update(res['options'])
 
         ax.set(title=opt['title'], xlabel=opt['xlabel'], ylabel=opt['ylabel'])
 
@@ -1031,15 +1030,13 @@ class _RiskAnalyzer:
     def _plot_f2(self, res):
         fig = plt.figure()
         ax = fig.add_subplot(111)
-
-        _opt = {'title': "Portfolio frontiers", 'xlabel': 'rate of return',
-                'ylabel': 'sharpe'}
-        if res['options'] is None:
-            opt = defaultdict(lambda x=0: None, _opt)
-        else:
-            opt = defaultdict(lambda x=0: None, res['options'])
-            for key in _opt.keys():
-                if opt[key] is None: opt[key] = _opt[key]
+        
+        opt = defaultdict(lambda: None, 
+                          {'title': "Portfolio frontiers", 
+                           'xlabel': 'rate of return',
+                           'ylabel': 'sharpe'})
+        if res['options'] is not None:
+            opt.update(res['options'])
 
         ax.set(title=opt['title'], xlabel=opt['xlabel'], ylabel=opt['ylabel'])
 
@@ -1118,15 +1115,13 @@ class _RiskAnalyzer:
     def _plot_f3(self, res):
         fig = plt.figure()
         ax = fig.add_subplot(111)
-    
-        _opt = {'title': "Portfolio frontiers", 'xlabel': 'rate of return',
-                'ylabel': 'diversification'}
-        if res['options'] is None:
-            opt = defaultdict(lambda x=0: None, _opt)
-        else:
-            opt = defaultdict(lambda x=0: None, res['options'])
-            for key in _opt.keys():
-                if opt[key] is None: opt[key] = _opt[key]
+        
+        opt = defaultdict(lambda: None, 
+                          {'title': "Portfolio frontiers", 
+                           'xlabel': 'rate of return',
+                           'ylabel': 'diversification'})
+        if res['options'] is not None:
+            opt.update(res['options'])
     
         ax.set(title=opt['title'], xlabel=opt['xlabel'], ylabel=opt['ylabel'])
 

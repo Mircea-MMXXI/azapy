@@ -12,29 +12,32 @@ set_model(rtype='Sharpe', mu=None, mu0=0, aversion=None, ww0=None,
 
 *Inputs:*
 
-* `rtype` : str, optional; Optimization type:
-    - `'Risk'` : minimization of risk for fixed expected rate of return value.
+* `rtype` : `str`, optional; Optimization type:
+    - `'Risk'` : minimization of risk for targeted expected rate of return value.
     - `'MinRisk'` : minimum risk portfolio.
     - `'InvNRisk'` : optimal portfolio with the same risk as a benchmark
-     portfolio (*e.g.* equal weighted portfolio).
-    - `'RiskAverse'` : optimal portfolio for fixed risk-aversion value.
+     portfolio (*e.g.* same risk as equal weighted portfolio).
+    - `'RiskAverse'` : optimal portfolio for fixed risk-aversion factor.
     - `'Sharpe'` : maximization of Sharpe ratio.
     - `'Sharpe2'` : minimization of the inverse Sharpe ratio.
+    - `'Divers'` : maximization of diversification factor for targeted expected
+    rate of return value <span style="color:red">(alpha version)</span>.
+    - `'MaxDivers'` : maximum diversified portfolio <span style="color:red">(alpha version)</span>.
 
   The default is `'Sharpe'`.
-* `mu` : float, optional;
+* `mu` : `float`, optional;
     Targeted portfolio expected rate of return.
     Relevant only if `rtype='Risk'`
     The default is `None`.
-* `mu0` : float, optional;
+* `mu0` : `float`, optional;
     Risk-free rate accessible to the investor.
     Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
     The default is `0`.
-* `aversion` : float, optional;
+* `aversion` : `float`, optional;
     The value of the risk-aversion coefficient.
     Must be positive. Relevant only if `rtype='RiskAvers'`.
     The default is `None`.
-* `ww0` : list (also `numpy.array` or `pandas.Series`), optional;
+* `ww0` : `list` (also `numpy.array` or `pandas.Series`), optional;
     Targeted portfolio weights.
     Relevant only if `rype='InvNrisk'`.
     Its length must be equal to the number of
@@ -46,11 +49,11 @@ set_model(rtype='Sharpe', mu=None, mu0=0, aversion=None, ww0=None,
     symbols (same symbols, not necessary in the same order).
     If it is `None` then it will be set to equal weights.
     The default is `None`.
-* `hlength` : float, optional;
+* `hlength` : `float`, optional;
     The length in year of the historical calibration period relative
     to 'Dfix'. A fractional number will be rounded to an integer number
     of months. The default is `3.25` years.
-* `method` :
+* `method` : `str`, optional;
 QP and SOCP numerical methods.
 Could be  `'ecos'` or `'cvxopt'`.
 The default is `'ecos'`.
