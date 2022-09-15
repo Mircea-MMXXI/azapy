@@ -1,19 +1,20 @@
+
 ## MVAnalyzer class
 
 Computes the portfolio weights and performs in-sample portfolio analysis.
 
 **Methods:**
 
-* [<span style="color:green">getWeights</span>](MV_Risk_getWeights)
-* [<span style="color:green">getRsik</span>](MV_Risk_getRisk)
-* [<span style="color:green">getPositions</span>](MV_Risk_getPositions)
-* [<span style="color:green">viewFrontiers</span>](MV_Risk_viewFrontiers)
-* [<span style="color:green">set_mktdata</span>](MV_Risk_set_mktdata)
-* [<span style="color:green">set_rrdata</span>](MV_Risk_set_rrate)
-* [<span style="color:green">set_rtype</span>](MV_Risk_set_rtype)
-* [<span style="color:green">set_random_seed</span>](MV_Risk_set_random_seed)
+* [<span style="color:green">getWeights</span>](#getWeights)
+* [<span style="color:green">getRsik</span>](#getRisk)
+* [<span style="color:green">getPositions</span>](#getPositions)
+* [<span style="color:green">viewFrontiers</span>](#viewFrontiers)
+* [<span style="color:green">set_mktdata</span>](#set_mktdata)
+* [<span style="color:green">set_rrdata</span>](#set_rrdate)
+* [<span style="color:green">set_rtype</span>](#set_rtype)
+* [<span style="color:green">set_random_seed</span>](#set_random_seed)
 
-Note the following 2 important methods:
+Note the following 2 important methods: <a name="RiskMembers"></a>
 * **getWeights** : Computes the optimal portfolio weights.
 During its computations the following class members are also set:
   * _risk_ : the value of optimal portfolio variance,
@@ -21,11 +22,9 @@ During its computations the following class members are also set:
     optimal portfolio variance),
   * _secondary_risk_comp_ : single element list containing the
   optimal portfolio volatility (square root of variance),
-  * _sharpe_ : MV-Sharpe ration if `rtype` is set to `'Shapre'` or `'Sharpe2'`
+  * _sharpe_ : Sharpe ration if `rtype` is set to `'Shapre'` or `'Sharpe2'`
   otherwise `None`,
   * _RR_ : optimal portfolio expected rate of return.
-  * _divers_ : diversification factor if `rtype` is set to `'Divers'` or `'MaxDivers'`
-  otherwise `None` <span style="color:red">(beta version)</span>.
 
 
 * **getPositions** : Provides practical information regarding the portfolio
@@ -40,8 +39,8 @@ MVAnalyzer(mktdata=None, colname='adjusted', freq='Q', hlength=3.25,
 
 where:
 
-* `mktdata` : `pandas.DataFrame` containing the market data in the format returned by
-the function `azapy.readMkT`. The default is `None`. Note: `mktdata` could be loaded
+* `mktdata` : `pd.DataFrame` containing the market data in the format returned by
+the function `azapy.readMkT`. The default is `None`. `mktdata` could be loaded
 latter.
 * `colname` : Name of the price column from `mktdata` used in the weights
 calibration. The default is `'adjusted'`.
@@ -50,22 +49,18 @@ It could be `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
 * `hlength` : History length in number of years used for calibration.
 A fractional number will be rounded to an integer number of months.
 The default is `3.25` years.
-* `calendar` :  `numpy.busdaycalendar` business days calendar. If it is `None`
+* `calendar` :  `np.busdaycalendar` business days calendar. If it is `None`
 then the calendar will be set to NYSE business calendar.
 The default is `None`.
-* `rtype` : `str`, optional; Optimization type:
-    - `'Risk'` : minimization of risk for targeted expected rate of return value.
-    - `'MinRisk'` : minimum risk portfolio.
-    - `'InvNRisk'` : optimal portfolio with the same risk as a benchmark
-     portfolio (*e.g.* same risk as equal weighted portfolio).
-    - `'RiskAverse'` : optimal portfolio for fixed risk-aversion factor.
-    - `'Sharpe'` : maximization of MV-Sharpe ratio.
-    - `'Sharpe2'` : minimization of the inverse MV-Sharpe ratio.
-    - `'Divers'` : maximization of diversification factor for targeted expected
-    rate of return value <span style="color:red">(beta version)</span>.
-    - `'MaxDivers'` : maximum diversified portfolio <span style="color:red">(beta version)</span>.
-
-  The default is `'Sharpe'`.
+* `rtype` : Optimization type. The default is `'Sharpe'`. Possible values are:
+    - `'Risk'` : minimization of dispersion (risk) measure for a targeted
+    expected rate of return,
+    - `'Sharpe'` : maximization of generalized Sharpe ratio,
+    - `'Sharpe2'` : minimization of inverse generalized Sharpe ratio,
+    - `'MinRisk'` : optimal portfolio with minimum dispersion (risk) value,
+    - `'InvNrisk'` : optimal portfolio with the same dispersion (risk) as a
+    benchmark portfolio (*e.g.* equal weighted portfolio),
+    - `'RiskAverse'` : optimal portfolio for a fixed risk aversion coefficient.
 * `method` : QP and SOCP numerical methods. Could be `'ecos'` or `'cvxopt'`.
 The default is `'ecos'`.
 
@@ -78,3 +73,8 @@ special case of SOCP *(Second Order Cone Programming)*.
 > * `'cvxopt'` : is the SOCP/QP implantation from **cvxopt** package.
 >
 > In our cases `'ecos'` is the fastest.
+
+
+[TOP](#TOP)
+
+### Methods:

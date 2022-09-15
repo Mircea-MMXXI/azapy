@@ -640,7 +640,9 @@ class _RiskAnalyzer:
         """
         options = defaultdict(lambda: None)
         for k, v in opt.items():
-            if isinstance(v, dict) & (k != 'data'):
+            if v is None:
+                next
+            elif isinstance(v, dict) & (k != 'data'):
                 options.update(v)
             else:
                 options[k] = v

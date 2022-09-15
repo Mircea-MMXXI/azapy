@@ -1,3 +1,6 @@
+
+<a name="port_period_returns"></a>
+
 #### <span style="color:green">port_period_returns</span>
 
 Computes the rolling periods rate of returns.
@@ -20,3 +23,7 @@ port_period_returns(fancy=False)
 Each rolling period is indicated by its start date, `Droll`.
 For reference, the values of `Dfix` and components weights are
 included in the report.
+
+[TOP](#TOP)
+
+---

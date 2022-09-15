@@ -11,10 +11,10 @@ List of symbols of portfolio components. All symbols
 should be present in `mktdata`. If it is `None`, then `symb` will default
 to the full set of symbols present in `mktdata`. The default
 is `None`.
-* `sdate` : date-like;
+* `sdate` : date like;
 Start date for historical simulation. If it is `None`, then `sdate` will
 default to the earliest date in `mktdata`. The default is `None`.
-* `edate` : date-like;
+* `edate` : date like;
 End date for historical simulation. Must be
 greater than  `sdate`. If it is `None`, then `edate` will default
 to the latest date in `mktdata`. The default is `None`.
@@ -60,3 +60,7 @@ relevant only if `schedule` is `None`. The default is `-1`.
 * `calendar` : `numpy.busdaycalendar`;
 Business calendar. If it is `None`, then it will be set to NYSE
 business calendar. The default is `None`.
+
+[TOP](#TOP)
+
+### Methods:

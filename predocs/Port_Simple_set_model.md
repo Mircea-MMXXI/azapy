@@ -1,3 +1,6 @@
+
+<a name="set_model"></a>
+
 #### <span style="color:green">set_model</span>
 
 Sets model parameters and evaluates portfolio time-series.
@@ -20,5 +23,9 @@ order. If it is `None`, than `ww` will be set to equal weights,
 `ww = [1 / len(symb)] * len(symb)`.
 The default is `None`.
 
-*Returns:* `pandas.DataFrame` containing the portfolio time-series in the format
+*Returns:* `pd.DataFrame` containing the portfolio time-series in the format
 `'date'`, `'pcolname'`.
+
+[TOP](#TOP)
+
+---

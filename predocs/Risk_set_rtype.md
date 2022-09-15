@@ -1,3 +1,6 @@
+
+<a name="set_rtype"></a>
+
 #### <span style="color:green">set_rtype</span>
 
 Sets the optimization type. It will overwrite the value set in the
@@ -14,3 +17,7 @@ set_rtype(rtype)
 * `rtype` : Optimization type.
 
 *Returns:* `None`
+
+[TOP](#TOP)
+
+---

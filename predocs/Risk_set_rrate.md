@@ -1,3 +1,6 @@
+
+<a name="set_rrate"></a>
+
 #### <span style="color:green">set_rrate</span>
 
 Sets portfolio components historical rates of returns.
@@ -11,9 +14,13 @@ set_rrate(rrate)
 
 *Inputs:*
 
-* `rrate` : `pandas.DataFrame`;
-Portfolio components historical rates of returns. The index is `'date'` and
-the columns are `symbol1`, `symbol2`, etc.
+* `rrate` : `pandas.DataFrame`,
+portfolio components historical rates of returns, where the
+columns are `'date'`, `symbol1`, `symbol2`, etc.
 
 
 *Returns:* `None`
+
+[TOP](#TOP)
+
+---

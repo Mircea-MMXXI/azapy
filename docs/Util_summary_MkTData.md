@@ -1,5 +1,5 @@
-(Util_summary_MkTData_TOP)= 
-# summary_MKTData
+
+# summary_MKTData <a name="TOP"></a>
 
 ## Summary of market data time-series length and quality
 Checks for missing records.
@@ -16,11 +16,11 @@ Market data in the format returned by `azapy.readMkT` function.
 If it is  `None`, then it will
 default to NYSE business calendar (as returned by `azapy.NYSEgen()` function).
 The default is `None`.
-* `sdate` : date-like. <br>
+* `sdate` : date like. <br>
 Time-series start date. If it is `None` then `sdate` is set to the
 earliest date in `mktdata`, across all symbols.
 The default is `None`.
-* `edate` : date-like. <br>
+* `edate` : date like. <br>
 Time-series end date. If it is `None` then `edate` is set to the most
 recent date in `mktdata`, across all symbols.
 The default is `None`.
@@ -40,6 +40,7 @@ The default is `None`.
 equal to `0`.
 
 ### [Examples:](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/util/summary_MkTData_example.py)
+
 ```
 # Example of how to call readMkT and summary_MkTData functions
 import azapy as az
@@ -68,5 +69,6 @@ smry2 = az.summary_MkTData(mktdata)
 print(f"summary from dict:\n {smry2}")
 
     
+
 ```
-[TOP](Util_summary_MkTData_TOP) 
+[TOP](#TOP)

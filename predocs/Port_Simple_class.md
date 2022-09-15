@@ -1,3 +1,4 @@
+
 ## Port_Simple class
 
 
@@ -6,14 +7,14 @@ Out-of-sample (backtesting) simulation of Buy and Hold portfolio strategy.
 
 **Methods:**
 
-* [<span style="color:green">set_model</span>](Simple_Port_set_model)
-* [<span style="color:green">port_view</span>](Simple_Port_port_view)
-* [<span style="color:green">port_view_all</span>](Simple_Port_port_view_all)
-* [<span style="color:green">port_drawdown</span>](Simple_Port_port_drawdown)
-* [<span style="color:green">port_perf</span>](Simple_Port_port_perf)
-* [<span style="color:green">port_annual_returns</span>](Simple_Port_port_annual_returns)
-* [<span style="color:green">port_monthly_returns</span>](Simple_Port_port_monthly_returns)
-* [<span style="color:green">get_mktdata</span>](Simple_Port_get_mktdata)
+* [<span style="color:green">set_model</span>](#set_model)
+* [<span style="color:green">port_view</span>](#port_view)
+* [<span style="color:green">port_view_all</span>](#port_view_all)
+* [<span style="color:green">port_drawdown</span>](#port_drawdown)
+* [<span style="color:green">port_perf</span>](#port_perf)
+* [<span style="color:green">port_annual_returns</span>](#port_annual_returns)
+* [<span style="color:green">port_monthly_returns</span>](#port_monthly_returns)
+* [<span style="color:green">get_mktdata</span>](#get_mktdata)
 
 
 The most important method is **set_model**. It must be called before any
@@ -28,7 +29,7 @@ Port_Simple(mktdata, symb=None, sdate=None, edate=None, col='adjusted',
 
 where:
 
-* `mktdata` : `pandas.DataFrame`;
+* `mktdata` : `pd.DataFrame`;
 Market data in the format `"symbol"`, `"date"`, `"open"`, `"high"`,
 `"low"`, `"close"`, `"volume"`, `"adjusted"`, `"divd"`, `"split"`
 (*e.g.* as returned by `azapy.readMkT`).
@@ -54,3 +55,7 @@ Name of the portfolio price column. If it is `None` than
 `pcolname=pname`. The default is `None`.
 * `capital` : `float`;
 Initial portfolio Capital in dollars. The default is `100000`.
+
+[TOP](#TOP)
+
+### Methods:

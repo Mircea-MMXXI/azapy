@@ -1,6 +1,5 @@
- 
-(Kelly_th_doc_base)= 
-# Kelly optimal portfolio
+
+# Kelly optimal portfolio <a name="TOP"></a>
 
 Kelly optimal portfolio is named after John Larry Kelly Jr. (1923-1965)
 the author of Kelly criterion for betting on favorable gambling games.
@@ -8,17 +7,17 @@ the author of Kelly criterion for betting on favorable gambling games.
 To illustrate Kelly criterion let's examine a simple coin tossing game.
 In this game you are allowed to bet any portion of your capital on hands on
 the outcome of the tossing. You may bet repeatedly until
-either you get bankrupt or you get bored .
+either you get bankrupt or you get board .
 We also assume that the coin is unfair. And you know that
-the probability to get Heads, say $p=60\%$. The question is how much
-should you bet on each coin tossing.
+the probability to get Heads is say $p=60\%$. The question is how much
+should you bet on each throw of the coin.
 
-It is clear that, since the probability to get Heads is bigger than $50\%$,
+It is clear that, since the probability to get a Head is bigger than $50\%$,
 you will always bet on the Heads with no exceptions.
 However, you still need to determine
-how much should you bet. Certainly, not betting at all will not increase
+how much should you bet. Certainly not betting at all will not increase
 your capital. On the other hand, betting the entire capital in all instances
-will lead with certainly to bankruptcy.
+will lead sooner or later to bankruptcy.
 
 
 Kelly criterion provides an optimal solution to this problem.
@@ -26,12 +25,12 @@ It consists in choosing the betting size that maximizes the expectation of
 the log returns of the game.
 
 
-In this case, the maximization can be carried out analytic. It is a
+In our case, the maximization can be carried out analytic. It is a
 straightforward computation. The final result is that the optimal betting size
 must be
-$2p-1$ times the capital on hands, provided that $p \ge 50\%$, and $0$
+$2p-1$ times the capital on hands, provided that $p \ge 50\%$ and $0$
 otherwise. This strategy guaranties that we will never get bankrupt and
-our capital may increase unlimited as we play (if $p \ge 50\%$).
+our capital can increase unlimited as we play.
 
 Thinks are a bit more complicated if for example there are $N$ simultaneous
 uncorrelated tossing coin games similar to one described above. And we
@@ -102,20 +101,17 @@ Our implementation supports both methods:
 portfolio strategy:
 * **KellyEngine**  : computes the portfolio weight,
 * **Port_Kelly** : performs portfolio back testing, out-of-sample analyzes.
- 
-[TOP](Kelly_th_doc_base) 
- 
-(KellyEngine_class)= 
+
 ## KellyEngine class
 
 Computes the Kelly optimal portfolio weights.
 
 **Methods:**
-* [<span style="color:green">getWeights</span>](Kelly_Engine_getWeights)
-* [<span style="color:green">getPositions</span>](Kelly_Engine_getPositions)
-* [<span style="color:green">set_mktdata</span>](Kelly_Engine_set_mktdata)
-* [<span style="color:green">set_rrdata</span>](Kelly_Engine_set_rrate)
-* [<span style="color:green">set_rtype</span>](Kelly_Engine_set_rtype)
+* [<span style="color:green">getWeights</span>](#getWeights)
+* [<span style="color:green">getPositions</span>](#getPositions)
+* [<span style="color:green">set_mktdata</span>](#set_mktdata)
+* [<span style="color:green">set_rrdata</span>](#set_rrdate)
+* [<span style="color:green">set_rtype</span>](#set_rtype)
 
 ### Constructor
 
@@ -126,8 +122,8 @@ KellyEngine(mktdata=None, colname='adjusted', freq='Q', hlength=3.25,
 
 where:
 
-* `mktdata` : `pandas.DataFrame` containing the market data in the format returned by
-the function `azapy.readMkT`. The default is `None`. Note: `mktdata` could be loaded
+* `mktdata` : `pd.DataFrame` containing the market data in the format returned by
+the function `azapy.readMkT`. The default is `None`. `mktdata` could be loaded
 latter.
 * `colname` : Name of the price column from `mktdata` used in the weights
 calibration. The default is `'adjusted'`.
@@ -136,7 +132,7 @@ It could be `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
 * `hlength` : History length in number of years used for calibration.
 A fractional number will be rounded to an integer number of months.
 The default is `3.25` (years).
-* `calendar` :  Business days calendar, `numpy.busdaycalendar`. If is it `None`
+* `calendar` :  Business days calendar, `np.busdaycalendar`. If is it `None`
 then the calendar will be set to NYSE business calendar.
 The default is `None`.
 * `rtype` : Optimization approximation. It can be:
@@ -160,11 +156,12 @@ practical applications.  On the other hand `Order2` is a lot faster
 than 'Full'. For a typical example of 5 assets portfolio, 'Order2' is more than
 10 times faster than 'Full'.
 
-[TOP](Kelly_th_doc_base)
+[TOP](#TOP)
 
 ### Methods:
 
-(Kelly_Engine_getWeights)=
+<a name="getWeights"></a>
+
 #### <span style="color:green">getWeights</span>
 
 Computes the optimal portfolio weights.
@@ -177,17 +174,20 @@ getWeights(rrate=None, rtype=None)
 
 *Inputs:*
 
-* `rrate` : `pandas.DataFrame` containing the portfolio components historical
+* `rrate` : `pd.DataFrame` containing the portfolio components historical
 rates of returns. If it is not `None`, it will overwrite the `rrate`
 computed in the constructor from `mktdata`. The default is `None`.
 * `rtype` : Optimization approximation. If is not `None` it will overwrite the
 value set by the constructor. The default is `None`.
 
-*Returns:* `pandas.Series` containing the portfolio weights.
+*Returns:* `pd.Series` containing the portfolio weights.
 
-[TOP](Kelly_th_doc_base)
+[TOP](#TOP)
 
-(Kelly_Engine_getPositions)=
+---
+
+<a name="getPositions"></a>
+
 #### <span style="color:green">getPositions</span>
 
 Computes the rebalanced and delta numbers of shares for each portfolio
@@ -210,14 +210,17 @@ The default is `None`.
 * `cash` : Additional cash to be added to the capital. A negative entry
 assumes a reduction in the total capital  available for rebalance.
 The default is `0`.
-* `ww` : External portfolio weights (`pandas.Series`). If it is not set to `None`
+* `ww` : External portfolio weights (`pd.Series`). If it is not set to `None`
 these weights will overwrite the calibrated weights. The default is `None`.
 
-*Returns:* `pandas.DataFrame` containing the rolling information.
+*Returns:* `pd.DataFrame` containing the rolling information.
 
-[TOP](Kelly_th_doc_base)
+[TOP](#TOP)
 
-(Kelly_Engine_set_mktdata)=
+---
+
+<a name="set_mktdata"></a>
+
 #### <span style="color:green">set_mktdata</span>
 
 Sets historical market data. It will overwrite the choices made in the
@@ -231,7 +234,7 @@ set_mktdata(mktdata, colname='adjusted', freq='Q', hlength=3.25, calendar=None)
 
 *Inputs:*
 
-* `mktdata` : `pandas.DataFrame`
+* `mktdata` : pd.DataFrame
 Historic daily market data for portfolio components in the format
 returned by `azapy.mktData` function.
 * `colname` :
@@ -244,7 +247,7 @@ Rate of returns horizon in number of business day. it could be
 History length in number of years used for calibration. A
 fractional number will be rounded to an integer number of months.
 The default is `3.25` years.
-* `calendar` : `numpy.busdaycalendar`, optional
+* `calendar` : `np.busdaycalendar`, optional
 Business days calendar. If is it `None` then the calendar will be set
 to NYSE business calendar.
 The default is `None`.
@@ -252,9 +255,12 @@ The default is `None`.
 
 *Returns:* `None`
 
-[TOP](Kelly_th_doc_base)
+[TOP](#TOP)
 
-(Kelly_Engine_set_rrate)=
+---
+
+<a name="set_rrate"></a>
+
 #### <span style="color:green">set_rrate</span>
 
 Sets portfolio components historical rates of returns.
@@ -268,16 +274,19 @@ set_rrate(rrate)
 
 *Inputs:*
 
-* rrate : `pandas.DataFrame`,
+* rrate : `pd.DataFrame`,
 portfolio components historical rates of returns, where the
 columns are `'date'`, `symbol1`, `symbol2`, etc.
 
 
 *Returns:* `None`
 
-[TOP](Kelly_th_doc_base)
+[TOP](#TOP)
 
-(Kelly_Engine_set_rtype)=
+---
+
+<a name="set_rtype"></a>
+
 #### <span style="color:green">set_rtype</span>
 
 Sets the optimization type. It will overwrite the value set in the
@@ -295,11 +304,12 @@ set_rtype(rtype)
 
 *Returns:* `None`
 
-[TOP](Kelly_th_doc_base)
- 
-(KellyEngine_class_example)= 
+[TOP](#TOP)
+
+---
 
 ### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/KellyEngine_examples.py)
+
 ```
 # Examples
 import pandas as pd
@@ -355,11 +365,13 @@ print(f" Full: New position report\n {pos1}")
 
 pos2 = cr2.getPositions(nshares=ns, cash=0.)
 print(f" Order2: New position report\n {pos2}")
+
 ```
- 
-[TOP](Kelly_th_doc_base) 
- 
-(Kelly_Port_class)= 
+
+[TOP](#TOP)
+
+---
+
 ## Port_Kelly class
 
 Out-of-sample (backtesting) simulation of Kelly optimal portfolio periodically
@@ -368,18 +380,18 @@ rebalanced.
 
 **Methods:**
 
-* [<span style="color:green">set_model</span>](Kelly_Port_set_model)
-* [<span style="color:green">port_view</span>](Kelly_Port_port_view)
-* [<span style="color:green">port_view_all</span>](Kelly_Port_port_view_all)
-* [<span style="color:green">port_drawdown</span>](Kelly_Port_port_drawdown)
-* [<span style="color:green">port_perf</span>](Kelly_Port_port_perf)
-* [<span style="color:green">port_annual_returns</span>](Kelly_Port_port_annual_returns)
-* [<span style="color:green">port_monthly_returns</span>](Kelly_Port_port_monthly_returns)
-* [<span style="color:green">port_period_returns</span>](Kelly_Port_port_period_returns)
-* [<span style="color:green">get_nshares</span>](Kelly_Port_get_nshares)
-* [<span style="color:green">get_weights</span>](Kelly_Port_get_weights)
-* [<span style="color:green">get_account</span>](Kelly_Port_get_account)
-* [<span style="color:green">get_mktdata</span>](Kelly_Port_get_mktdata)
+* [<span style="color:green">set_model</span>](#set_model)
+* [<span style="color:green">port_view</span>](#port_view)
+* [<span style="color:green">port_view_all</span>](#port_view_all)
+* [<span style="color:green">port_drawdown</span>](#port_drawdown)
+* [<span style="color:green">port_perf</span>](#port_perf)
+* [<span style="color:green">port_annual_returns</span>](#port_annual_returns)
+* [<span style="color:green">port_monthly_returns</span>](#port_monthly_returns)
+* [<span style="color:green">port_period_returns</span>](#port_period_returns)
+* [<span style="color:green">get_nshares</span>](#get_nshares)
+* [<span style="color:green">get_weights</span>](#get_weights)
+* [<span style="color:green">get_account</span>](#get_account)
+* [<span style="color:green">get_mktdata</span>](#get_mktdata)
 
 
 The most important method is **set_model**. It must be called before any
@@ -394,7 +406,7 @@ Port_Kelly(mktdata, symb=None, sdate=None, edate=None, col_price='close',
            freq='Q', noffset=-3, fixoffset=-1, calendar=None)
 ```
 
-* `mktdata` : `pandas.DataFrame`;
+* `mktdata` : `pd.DataFrame`;
 Market data in the format `"symbol"`, `"date"`, `"open"`, `"high"`,
 `"low"`, `"close"`, `"volume"`, `"adjusted"`, `"divd"`, `"split"`
 (e.g. as returned by `azapy.readMkT`).
@@ -403,39 +415,39 @@ List of symbols of portfolio components. All symbols
 should be present in `mktdata`. If set to `None` the `symb` will be
 set to the full set of symbols present in `mktdata`. The default
 is `None`.
-* `sdate` : date-like;
+* `sdate` : date like;
 Start date for historical simulation. If set to `None` the `sdate` will
 be set to the earliest date in `mktdata`. The default is `None`.
-* `edate` : date-like;
+* `edate` : date like;
 End date for historical simulation. Must be
 greater than  `sdate`. If it is `None` then `edate` will be set
 to the latest date in `mktdata`. The default is `None`.
-* `col_price` : `str`;
+* `col_price` : `string`;
 Column name in the `mktdata` DataFrame that will be considered
 for portfolio aggregation. The default is `'close'`.
-* `col_divd` : `str`;
+* `col_divd` : `string`;
 Column name in the `mktdata` DataFrame that holds the dividend
 information. The default is `'dvid'`.
-* `col_ref` : `str`;
+* `col_ref` : `string`;
 Column name in the `mktdata` DataFrame that will be used as a price
 reference for portfolio components (used for various comparisons and graphs).
 The default is `'adjusted'`.
-* `col_calib` : `str`;
+* `col_calib` : `string`;
 Column name used for historical weights calibrations. The default is
 `'adjusted'`.
-* `pname` : `str`;
+* `pname` : `string`;
 The name of the portfolio. The default is `'Port'`.
-* `pcolname` : `str`;
+* `pcolname` : `string`;
 Name of the portfolio price column. If it is set to `None` than
 `pcolname=pname`. The default is `None`.
 * `capital` : `float`;
 Initial portfolio Capital in dollars. The default is `100000`.
-* `schedule` : `pandas.DataFrame`;
+* `schedule` : `pd.DataFrame`;
 Rebalancing schedule, with columns for `'Droll'` rolling date and
 `'Dfix'` fixing date. If it is `None` than the schedule will be set
 using the `freq`, `nsoffset`, `fixoffset`, `hlength` and `calendar`
 information. The default is `None`.
-* `freq` : `str`;
+* `freq` : `string`;
 Rebalancing frequency. It can be `'Q'` for quarterly or `'M'` for
 monthly rebalancing. It is relevant only if schedule
 is `None`. The default is `'Q'`.
@@ -449,15 +461,15 @@ a negative value subtract business days. It is relevant only if
 Number of business days offset of fixing date `'Dfix'` relative to
 the rebalancing date `'Droll'`. It cane be `0` or negative. It is
 relevant only if `schedule` is `None`. The default is `-1`.
-* `calendar` : `numpy.busdaycalendar`;
+* `calendar` : `np.busdaycalendar`;
 Business calendar. If it is `None` then it will be set to NYSE
 business calendar. The default is `None`.
- 
-[TOP](Kelly_th_doc_base) 
+
+[TOP](#TOP)
 
 ### Methods:
- 
-(Kelly_Port_set_model)= 
+<a name="set_model"></a>
+
 #### <span style="color:green">set_model</span>
 
 Sets model parameters and evaluates portfolio time-series.
@@ -471,27 +483,30 @@ set_model(rtype='Full', hlength=1.25, method='ecos')
 ```
 
 *Inputs:*
-* `rtype` : `str`, optional; Optimization approximation. It can be:
+* `rtype` : Optimization approximation. It can be:
 
-  - `'Full'` : non-linear original Kelly problem,
-  - `'Order2'` : second order Taylor (quadratic) approximation of original Kelly
+  - 'Full' : non-linear original Kelly problem,
+  - 'Order2' : second order Taylor (quadratic) approximation of original Kelly
   problem.
 
-* `hlength` : `float`, optional;
+* `hlength` :
 The length in years of the historical calibration period relative
-to `'Dfix'`. A fractional number will be rounded to an integer number
+to ``'Dfix'``. A fractional number will be rounded to an integer number
 of months. The default is `1.25` years.
-* `method` : `str`, optional; QP numerical methods. It is relevant only if
+* `method` : QP numerical methods. It is relevant only if
 `rtype='Order2'`. It could be `'ecos'` or `'cvxopt'`.
 The default is `'ecos'`.
 
 
-*Returns:* `pandas.DataFrame` containing the portfolio time-series in the format
+*Returns:* `pd.DataFrame` containing the portfolio time-series in the format
 `'date'`, `'pcolname'`.
- 
-[TOP](Kelly_th_doc_base) 
- 
-(Kelly_Port_port_view)= 
+
+[TOP](#TOP)
+
+---
+
+<a name="port_view"></a>
+
 #### <span style="color:green">port_view</span>
 
 Plots the optimal portfolio time series together with some technical
@@ -500,7 +515,7 @@ indicators.
 *Call:*
 
 ```
-port_view(emas=[30, 200], bollinger=False, **opt)
+port_view(emas=[30, 200], bollinger=False, **randomport)
 ```
 
 *Inputs:*
@@ -508,23 +523,26 @@ port_view(emas=[30, 200], bollinger=False, **opt)
 * `emas` : `list` of int. List of EMA durations. The default is [30, 200].
 * `bollinger` : Boolean flag. If it is set `True` then the Bollinger bands are
 added. The default is `False`.    
-* `opt` : Other optional parameters:
-    * `fancy` : `Boolean`, optional;
+* `opt` : other parameters
+    * `fancy` : Boolean flag.
         - `False` : it uses the matplotlib capabilities.
         - `True` : it uses plotly library for interactive time-series view.
 
         The default is `False`.
-    * `title` : `str`, optional; The plot title. The default is `None`.
-    * `xaxis` : `str`, optional; The name of x-axis. The default is `'date'`.
-    * `yaxis` : `srt`, optional; The name of y-axis. The default is `None`.
-    * `saveto` : `str`, optional;
+    * `title` : `str`. The plot title. The default is `None`.
+    * `xaxis` : `str`. The name of x-axis. The default is `'date'`.
+    * `yaxis` : `srt`. The name of y-axis. The default is `None`.
+    * `saveto` : `str`.
         The name of the file where to save the plot. The default is `None`.
 
 *Returns:* `pandas.DataFrame` containing the time-series included in the plot.
- 
-[TOP](Kelly_th_doc_base) 
- 
-(Kelly_Port_port_view_all)= 
+
+[TOP](#TOP)
+
+---
+
+<a name="port_view_all"></a>
+
 #### <span style="color:green">port_view_all</span>
 
 Plots in a relative bases the optimal portfolio and its components time-series.
@@ -539,37 +557,40 @@ port_view_all(sdate=None, edate=None, componly=False, **opt)
 
 *Inputs:*
 
-* `sdate` : `date-like`, optional;
+* `sdate` : date-like.
     Start date of plotted time-series. If it is set to `None`
     then the `sdate` is set to the earliest date in the time-series.
     The default is `None`.
-* `edate` : `date-like`, optional;
+* `edate` : date-like.
     End date of plotted time-series. If it set to `None` then
     the `edate`
     is set to the most recent date of the time-series.
     The default is `None`.
-* `componly` : `Boolean`, optional;
+* `componly` : Boolean flag.
     - `True` : only the portfolio components time-series are plotted.
     - `False`: the portfolio and its components times-series are plotted.
 
     The default is `True`.
-* `opt` : Other optional parameters:
-    * `fancy` : `Boolean`, optional;
+* `opt` : Other parameters:
+    * `fancy` : Boolean flag.
         - `False` : it uses the pandas plot (matplotlib) capabilities.
         - `True` : it uses plotly library for interactive time-series view.
 
         The default is `False`.
-    * `title` : `str`, optional; The plot title. The default is `None`.
-    * `xaxis` : `str`, optional; The name of x-axis. The default is `'date'`.
-    * `yaxis` : `srt`, optional; The name of y-axis. The default is `None`.
-    * `saveto` : `str`, optional;
+    * `title` : `str`. The plot title. The default is `None`.
+    * `xaxis` : `str`. The name of x-axis. The default is `'date'`.
+    * `yaxis` : `srt`. The name of y-axis. The default is `None`.
+    * `saveto` : `str`.
         The name of the file where to save the plot. The default is `None`.
 
 *Returns:* `pandas.DataFrame` containing the time-series included in the plot.
- 
-[TOP](Kelly_th_doc_base) 
- 
-(Kelly_Port_port_drawdown)= 
+
+[TOP](#TOP)
+
+---
+
+<a name="port_drawdown"></a>
+
 #### <span style="color:green">port_drawdown</span>
 
 Computes the portfolio drawdowns.
@@ -598,10 +619,13 @@ drawdown events. Columns:
 * `'End'` : end date of the drawdown. A `NaN` value indicates that the
 drawdown event is in progress and the values of `'DD'` and `'Date'` are
 provisional only.
- 
-[TOP](Kelly_th_doc_base) 
- 
-(Kelly_Port_port_perf)= 
+
+[TOP](#TOP)
+
+---
+
+<a name="port_perf"></a>
+
 #### <span style="color:green">port_perf</span>
 
 Brief description of optimal portfolio and its components performances
@@ -631,10 +655,13 @@ performance information. Columns:
 * `'DD_date'` : recorded date of maximum drawdown,
 * `'DD_start'` : start date of maximum drawdown,
 * `'DD_end'` : end date of maximum drawdown.
- 
-[TOP](Kelly_th_doc_base) 
- 
-(Kelly_Port_port_annual_returns)= 
+
+[TOP](#TOP)
+
+---
+
+<a name="port_annual_returns"></a>
+
 #### <span style="color:green">port_annual_returns</span>
 
 Computes optimal portfolio and its components annual (calendar) rates of returns.
@@ -661,10 +688,13 @@ are reported. The default is `False`.
     to 2 decimals and presented is color style.
 
 *Returns:* `pandas.DataFrame`
- 
-[TOP](Kelly_th_doc_base) 
- 
-(Kelly_Port_port_monthly_returns)= 
+
+[TOP](#TOP)
+
+---
+
+<a name="port_monthly_returns"></a>
+
 #### <span style="color:green">port_monthly_returns</span>
 
 Computes optimal portfolio and its components monthly (calendar) rate of
@@ -690,10 +720,13 @@ are reported. The default is `False`.
     to 2 decimals and presented is color style.
 
 *Returns:* `pandas.DataFrame`
- 
-[TOP](Kelly_th_doc_base) 
- 
-(Kelly_Port_port_period_returns)= 
+
+[TOP](#TOP)
+
+---
+
+<a name="port_period_returns"></a>
+
 #### <span style="color:green">port_period_returns</span>
 
 Computes the rolling periods rate of returns.
@@ -716,10 +749,13 @@ port_period_returns(fancy=False)
 Each rolling period is indicated by its start date, `Droll`.
 For reference, the values of `Dfix` and components weights are
 included in the report.
- 
-[TOP](Kelly_th_doc_base) 
- 
-(Kelly_Port_get_nshares)= 
+
+[TOP](#TOP)
+
+---
+
+<a name="get_nshares"></a>
+
 #### <span style="color:green">get_nshares</span>
 
 Returns the number of shares hold after each rolling date.
@@ -736,32 +772,14 @@ get_nshares()
 *Returns:* `pandas.DataFrame`
 
 Each rolling period is indicated by its start date, `Droll`.
- 
-[TOP](Kelly_th_doc_base) 
- 
-(Kelly_Port_get_weights)= 
-#### <span style="color:green">get_weights</span>
 
-Returns the portfolio weights for each rebalancing period.
 
-*Call:*
+[TOP](#TOP)
 
-```
-get_weights(fancy=False)
-```
+---
 
-*Inputs:*
+<a name="get_account"></a>
 
-* `fancy` : Boolean flag with default value `False`.
-    - `False` : The values are reported in unaltered algebraic format.
-    - `True` : The values are reported in percent rounded
-    to 2 decimals.
-
-*Returns:* `pandas.DataFrame`
- 
-[TOP](Kelly_th_doc_base) 
- 
-(Kelly_Port_get_account)= 
 #### <span style="color:green">get_account</span>
 
 Returns additional bookkeeping information regarding rebalancing
@@ -780,7 +798,7 @@ get_account(fancy=False)
     - `False` : the values are reported in unaltered algebraic format.
     - `True` : the values are reported rounded.
 
-*Returns:* `pandas.DataFrame`
+*Returns:* `pd.DataFrame`
 
 Accounting report; each rolling period is identified by `'Droll'`. Columns:
 
@@ -798,10 +816,13 @@ the fixing (computation) and rolling (execution) dates. In general it
 has a small positive or negative value.
 The finance of the `'cash_roll'` (if it has a negative value) is assumed
 to be done separately by the investor.
- 
-[TOP](Kelly_th_doc_base) 
- 
-(Kelly_Port_get_mktdata)= 
+
+[TOP](#TOP)
+
+---
+
+<a name="get_mktdata"></a>
+
 #### <span style="color:green">get_mktdata</span>
 
 Returns the actual market data used for portfolio evaluations.
@@ -816,12 +837,13 @@ get_mktdata()
 
 
 *Returns:* `pandas.DataFrame`
- 
-[TOP](Kelly_th_doc_base) 
- 
-(Kelly_Port_class_example)= 
+
+[TOP](#TOP)
+
+---
 
 ### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_Kelly_examples.py)
+
 ```
 # Examples
 import azapy as az
@@ -877,6 +899,6 @@ print(f"time get_port 2-nd order aprox Kelly criterion: {toc-tic}")
 pp = az.Port_Simple([port4, port5])
 _ = pp.set_model()
 _ = pp.port_view_all(componly=True)
+
 ```
- 
-[TOP](Kelly_th_doc_base) 
+[TOP](#TOP)

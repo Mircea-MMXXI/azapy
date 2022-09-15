@@ -1,3 +1,6 @@
+
+<a name="port_monthly_returns"></a>
+
 #### <span style="color:green">port_monthly_returns</span>
 
 Computes optimal portfolio and its components monthly (calendar) rate of
@@ -23,3 +26,7 @@ are reported. The default is `False`.
     to 2 decimals and presented is color style.
 
 *Returns:* `pandas.DataFrame`
+
+[TOP](#TOP)
+
+---

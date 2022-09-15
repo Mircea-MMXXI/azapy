@@ -1,9 +1,9 @@
-# Constant weighted portfolio
 
+# Constant weighted portfolio <a name="TOP"></a>
 Portfolio with constant weights periodically rebalanced.
 
 A remarkable member of this class is _equal weighted portfolio_.
-It is a popular benchmark to assess a portfolio performance.
+It is a very important benchmark to assess a portfolio performance.
 
 Relative to a risk based optimal portfolio, the equal weighted portfolio
 is always inefficient. It means that in-sample there is always an efficient

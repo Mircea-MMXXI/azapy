@@ -1,6 +1,5 @@
- 
-(InvDD_Port_th_doc_base)= 
-# Inverse drawdowns portfolio
+
+# Inverse drawdowns portfolio <a name="TOP"></a>
 
 Portfolio with weights proportional to the inverse of the portfolio
 component maximum drawdowns, periodically rebalanced.
@@ -15,10 +14,7 @@ rebalancing events.
 There is 1 support class:
 
 * **Port_InvDD** : performs portfolio back testing, out-of-sample analyzes.
- 
-[TOP](InvDD_Port_th_doc_base) 
- 
-(InvDD_Port_class)= 
+
 ## Port_InvDD class
 
 Out-of-sample (backtesting) simulation of inverse drawdown portfolio,
@@ -27,18 +23,18 @@ periodically rebalanced.
 
 **Methods:**
 
-* [<span style="color:green">set_model</span>](InvDD_Port_set_model)
-* [<span style="color:green">port_view</span>](InvDD_Port_port_view)
-* [<span style="color:green">port_view_all</span>](InvDD_Port_port_view_all)
-* [<span style="color:green">port_drawdown</span>](InvDD_Port_port_drawdown)
-* [<span style="color:green">port_perf</span>](InvDD_Port_port_perf)
-* [<span style="color:green">port_annual_returns</span>](InvDD_Port_port_annual_returns)
-* [<span style="color:green">port_monthly_returns</span>](InvDD_Port_port_monthly_returns)
-* [<span style="color:green">port_period_returns</span>](InvDD_Port_port_period_returns)
-* [<span style="color:green">get_nshares</span>](InvDD_Port_get_nshares)
-* [<span style="color:green">get_weights</span>](InvDD_Port_get_weights)
-* [<span style="color:green">get_account</span>](InvDD_Port_get_account)
-* [<span style="color:green">get_mktdata</span>](InvDD_Port_get_mktdata)
+* [<span style="color:green">set_model</span>](#set_model)
+* [<span style="color:green">port_view</span>](#port_view)
+* [<span style="color:green">port_view_all</span>](#port_view_all)
+* [<span style="color:green">port_drawdown</span>](#port_drawdown)
+* [<span style="color:green">port_perf</span>](#port_perf)
+* [<span style="color:green">port_annual_returns</span>](#port_annual_returns)
+* [<span style="color:green">port_monthly_returns</span>](#port_monthly_returns)
+* [<span style="color:green">port_period_returns</span>](#port_period_returns)
+* [<span style="color:green">get_nshares</span>](#get_nshares)
+* [<span style="color:green">get_weights</span>](#get_weights)
+* [<span style="color:green">get_account</span>](#get_account)
+* [<span style="color:green">get_mktdata</span>](#get_mktdata)
 
 
 The most important method is **set_model**. It must be called before any
@@ -65,10 +61,10 @@ List of symbols of portfolio components. All symbols
 should be present in `mktdata`. If it is `None`, then `symb` will default
 to the full set of symbols present in `mktdata`. The default
 is `None`.
-* `sdate` : date-like;
+* `sdate` : date like;
 Start date for historical simulation. If it is `None`, then `sdate` will
 default to the earliest date in `mktdata`. The default is `None`.
-* `edate` : date-like;
+* `edate` : date like;
 End date for historical simulation. Must be
 greater than  `sdate`. If it is `None`, then `edate` will default
 to the latest date in `mktdata`. The default is `None`.
@@ -114,12 +110,13 @@ relevant only if `schedule` is `None`. The default is `-1`.
 * `calendar` : `numpy.busdaycalendar`;
 Business calendar. If it is `None`, then it will be set to NYSE
 business calendar. The default is `None`.
- 
-[TOP](InvDD_Port_th_doc_base) 
+
+[TOP](#TOP)
 
 ### Methods:
- 
-(InvDD_Port_set_model)= 
+
+<a name="set_model">
+
 #### <span style="color:green">set_model</span>
 
 Sets model parameters and evaluates portfolio time-series.
@@ -133,17 +130,20 @@ set_model(hlength=3.25)
 
 *Inputs:*
 
-* `hlength` : `float`, optional;
+* `hlength` :
 The length in years of the historical calibration period ending on
 `'Dfix'`. A fractional number will be rounded to an integer number
 of months. The default is `3.25` years.
 
-*Returns:* `pandas.DataFrame` containing the portfolio time-series in the format
+*Returns:* `pd.DataFrame` containing the portfolio time-series in the format
 `'date'`, `'pcolname'`.
- 
-[TOP](InvDD_Port_th_doc_base) 
- 
-(InvDD_Port_port_view)= 
+
+[TOP](#TOP)
+
+---
+
+<a name="port_view"></a>
+
 #### <span style="color:green">port_view</span>
 
 Plots the optimal portfolio time series together with some technical
@@ -152,7 +152,7 @@ indicators.
 *Call:*
 
 ```
-port_view(emas=[30, 200], bollinger=False, **opt)
+port_view(emas=[30, 200], bollinger=False, **randomport)
 ```
 
 *Inputs:*
@@ -160,23 +160,26 @@ port_view(emas=[30, 200], bollinger=False, **opt)
 * `emas` : `list` of int. List of EMA durations. The default is [30, 200].
 * `bollinger` : Boolean flag. If it is set `True` then the Bollinger bands are
 added. The default is `False`.    
-* `opt` : Other optional parameters:
-    * `fancy` : `Boolean`, optional;
+* `opt` : other parameters
+    * `fancy` : Boolean flag.
         - `False` : it uses the matplotlib capabilities.
         - `True` : it uses plotly library for interactive time-series view.
 
         The default is `False`.
-    * `title` : `str`, optional; The plot title. The default is `None`.
-    * `xaxis` : `str`, optional; The name of x-axis. The default is `'date'`.
-    * `yaxis` : `srt`, optional; The name of y-axis. The default is `None`.
-    * `saveto` : `str`, optional;
+    * `title` : `str`. The plot title. The default is `None`.
+    * `xaxis` : `str`. The name of x-axis. The default is `'date'`.
+    * `yaxis` : `srt`. The name of y-axis. The default is `None`.
+    * `saveto` : `str`.
         The name of the file where to save the plot. The default is `None`.
 
 *Returns:* `pandas.DataFrame` containing the time-series included in the plot.
- 
-[TOP](InvDD_Port_th_doc_base) 
- 
-(InvDD_Port_port_view_all)= 
+
+[TOP](#TOP)
+
+---
+
+<a name="port_view_all"></a>
+
 #### <span style="color:green">port_view_all</span>
 
 Plots in a relative bases the optimal portfolio and its components time-series.
@@ -191,37 +194,40 @@ port_view_all(sdate=None, edate=None, componly=False, **opt)
 
 *Inputs:*
 
-* `sdate` : `date-like`, optional;
+* `sdate` : date-like.
     Start date of plotted time-series. If it is set to `None`
     then the `sdate` is set to the earliest date in the time-series.
     The default is `None`.
-* `edate` : `date-like`, optional;
+* `edate` : date-like.
     End date of plotted time-series. If it set to `None` then
     the `edate`
     is set to the most recent date of the time-series.
     The default is `None`.
-* `componly` : `Boolean`, optional;
+* `componly` : Boolean flag.
     - `True` : only the portfolio components time-series are plotted.
     - `False`: the portfolio and its components times-series are plotted.
 
     The default is `True`.
-* `opt` : Other optional parameters:
-    * `fancy` : `Boolean`, optional;
+* `opt` : Other parameters:
+    * `fancy` : Boolean flag.
         - `False` : it uses the pandas plot (matplotlib) capabilities.
         - `True` : it uses plotly library for interactive time-series view.
 
         The default is `False`.
-    * `title` : `str`, optional; The plot title. The default is `None`.
-    * `xaxis` : `str`, optional; The name of x-axis. The default is `'date'`.
-    * `yaxis` : `srt`, optional; The name of y-axis. The default is `None`.
-    * `saveto` : `str`, optional;
+    * `title` : `str`. The plot title. The default is `None`.
+    * `xaxis` : `str`. The name of x-axis. The default is `'date'`.
+    * `yaxis` : `srt`. The name of y-axis. The default is `None`.
+    * `saveto` : `str`.
         The name of the file where to save the plot. The default is `None`.
 
 *Returns:* `pandas.DataFrame` containing the time-series included in the plot.
- 
-[TOP](InvDD_Port_th_doc_base) 
- 
-(InvDD_Port_port_drawdown)= 
+
+[TOP](#TOP)
+
+---
+
+<a name="port_drawdown"></a>
+
 #### <span style="color:green">port_drawdown</span>
 
 Computes the portfolio drawdowns.
@@ -250,10 +256,13 @@ drawdown events. Columns:
 * `'End'` : end date of the drawdown. A `NaN` value indicates that the
 drawdown event is in progress and the values of `'DD'` and `'Date'` are
 provisional only.
- 
-[TOP](InvDD_Port_th_doc_base) 
- 
-(InvDD_Port_port_perf)= 
+
+[TOP](#TOP)
+
+---
+
+<a name="port_perf"></a>
+
 #### <span style="color:green">port_perf</span>
 
 Brief description of optimal portfolio and its components performances
@@ -283,10 +292,13 @@ performance information. Columns:
 * `'DD_date'` : recorded date of maximum drawdown,
 * `'DD_start'` : start date of maximum drawdown,
 * `'DD_end'` : end date of maximum drawdown.
- 
-[TOP](InvDD_Port_th_doc_base) 
- 
-(InvDD_Port_port_annual_returns)= 
+
+[TOP](#TOP)
+
+---
+
+<a name="port_annual_returns"></a>
+
 #### <span style="color:green">port_annual_returns</span>
 
 Computes optimal portfolio and its components annual (calendar) rates of returns.
@@ -313,10 +325,13 @@ are reported. The default is `False`.
     to 2 decimals and presented is color style.
 
 *Returns:* `pandas.DataFrame`
- 
-[TOP](InvDD_Port_th_doc_base) 
- 
-(InvDD_Port_port_monthly_returns)= 
+
+[TOP](#TOP)
+
+---
+
+<a name="port_monthly_returns"></a>
+
 #### <span style="color:green">port_monthly_returns</span>
 
 Computes optimal portfolio and its components monthly (calendar) rate of
@@ -342,10 +357,13 @@ are reported. The default is `False`.
     to 2 decimals and presented is color style.
 
 *Returns:* `pandas.DataFrame`
- 
-[TOP](InvDD_Port_th_doc_base) 
- 
-(InvDD_Port_port_period_returns)= 
+
+[TOP](#TOP)
+
+---
+
+<a name="port_period_returns"></a>
+
 #### <span style="color:green">port_period_returns</span>
 
 Computes the rolling periods rate of returns.
@@ -368,10 +386,13 @@ port_period_returns(fancy=False)
 Each rolling period is indicated by its start date, `Droll`.
 For reference, the values of `Dfix` and components weights are
 included in the report.
- 
-[TOP](InvDD_Port_th_doc_base) 
- 
-(InvDD_Port_get_nshares)= 
+
+[TOP](#TOP)
+
+---
+
+<a name="get_nshares"></a>
+
 #### <span style="color:green">get_nshares</span>
 
 Returns the number of shares hold after each rolling date.
@@ -388,32 +409,14 @@ get_nshares()
 *Returns:* `pandas.DataFrame`
 
 Each rolling period is indicated by its start date, `Droll`.
- 
-[TOP](InvDD_Port_th_doc_base) 
- 
-(InvDD_Port_get_weights)= 
-#### <span style="color:green">get_weights</span>
 
-Returns the portfolio weights for each rebalancing period.
 
-*Call:*
+[TOP](#TOP)
 
-```
-get_weights(fancy=False)
-```
+---
 
-*Inputs:*
+<a name="get_account"></a>
 
-* `fancy` : Boolean flag with default value `False`.
-    - `False` : The values are reported in unaltered algebraic format.
-    - `True` : The values are reported in percent rounded
-    to 2 decimals.
-
-*Returns:* `pandas.DataFrame`
- 
-[TOP](InvDD_Port_th_doc_base) 
- 
-(InvDD_Port_get_account)= 
 #### <span style="color:green">get_account</span>
 
 Returns additional bookkeeping information regarding rebalancing
@@ -432,7 +435,7 @@ get_account(fancy=False)
     - `False` : the values are reported in unaltered algebraic format.
     - `True` : the values are reported rounded.
 
-*Returns:* `pandas.DataFrame`
+*Returns:* `pd.DataFrame`
 
 Accounting report; each rolling period is identified by `'Droll'`. Columns:
 
@@ -450,10 +453,13 @@ the fixing (computation) and rolling (execution) dates. In general it
 has a small positive or negative value.
 The finance of the `'cash_roll'` (if it has a negative value) is assumed
 to be done separately by the investor.
- 
-[TOP](InvDD_Port_th_doc_base) 
- 
-(InvDD_Port_get_mktdata)= 
+
+[TOP](#TOP)
+
+---
+
+<a name="get_mktdata"></a>
+
 #### <span style="color:green">get_mktdata</span>
 
 Returns the actual market data used for portfolio evaluations.
@@ -468,12 +474,13 @@ get_mktdata()
 
 
 *Returns:* `pandas.DataFrame`
- 
-[TOP](InvDD_Port_th_doc_base) 
- 
-(InvDD_Port_class_example)= 
+
+[TOP](#TOP)
+
+---
 
 ### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_InvDD_examples.py)
+
 ```
 # Examples
 import time
@@ -518,6 +525,6 @@ port2  = p2.set_model(ww)
 pp = az.Port_Simple([port2, port4])
 _ = pp.set_model()
 _ = pp.port_view_all(componly=True)
-                 ```
- 
-[TOP](InvDD_Port_th_doc_base) 
+                 
+```
+[TOP](#TOP)

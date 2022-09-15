@@ -1,3 +1,6 @@
+
+<a name="get_account"></a>
+
 #### <span style="color:green">get_account</span>
 
 Returns additional bookkeeping information regarding rebalancing
@@ -16,7 +19,7 @@ get_account(fancy=False)
     - `False` : the values are reported in unaltered algebraic format.
     - `True` : the values are reported rounded.
 
-*Returns:* `pandas.DataFrame`
+*Returns:* `pd.DataFrame`
 
 Accounting report; each rolling period is identified by `'Droll'`. Columns:
 
@@ -34,3 +37,7 @@ the fixing (computation) and rolling (execution) dates. In general it
 has a small positive or negative value.
 The finance of the `'cash_roll'` (if it has a negative value) is assumed
 to be done separately by the investor.
+
+[TOP](#TOP)
+
+---

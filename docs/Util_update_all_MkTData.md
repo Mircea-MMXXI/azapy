@@ -1,5 +1,5 @@
-(Util_update_all_MkTData_TOP)= 
-# update_all_mkTData
+
+# update_all_mkTData <a name="TOP"></a>
 
 ## Update all the MkT data saved in a directory
 
@@ -29,7 +29,7 @@ The default is `None`.
 List of symbols to be omitted from the update. The default is [].
 * `verbose` : Boolean, <br>
 
-  - `True` will print a progress report,
+  -`True` will print a progress report,
   - `False` suppress any printing to the terminal.
 
 The default is `True`.
@@ -46,6 +46,7 @@ Error code (int):
 are silently omitted from the update.
 
 ### [Examples:](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/util/update_all_MkTData_example.py)
+
 ```
 import azapy as az
 
@@ -56,5 +57,6 @@ ercode = az.update_all_MkTData(mktdir)
 # error code 200 is OK (see docs)
 print(f"error code: {ercode}")
 
+
 ```
-[TOP](Util_update_all_MkTData_TOP) 
+[TOP](#TOP)
