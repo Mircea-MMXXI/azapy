@@ -1,140 +1,99 @@
-
 OUTDIR=../docs
 INDIR=.
+TEMPDIR=../work/temp_docs
+ANALYZEREX=../scripts/analyzers
+PORTFOLIOSEX=../scripts/portfolios
+UTILEX=../scripts/util
 
-# gen risk-based docs
+# rules
 
-F_RB = CVaR MAD SMCR LSD MV SD GINI BTAD BTSD \
+include Makefile_risk_base.mk Makefile_naive.mk Makefile_simple.mk
+include Makefile_greedy.mk Makefile_single.mk Makefile_single_ex.mk
 
-RISK_RB = Risk_getWeights.md Risk_getRisk.md Risk_getPositions.md \
-Risk_ViewFrontiers.md Risk_set_mktdata.md Risk_set_rrate.md \
-Risk_set_rtype.md Risk_set_random_seed.md \
+# build
 
-PORT_RB = Port_port_view.md Port_port_view_all.md Port_port_drawdown.md \
-Port_port_perf.md Port_port_annual_returns.md Port_port_monthly_returns.md \
-Port_port_period_returns.md Port_get_nshares.md \
-Port_get_account.md Port_get_mktdata.md \
+all: $(RB_RISK_temp_Target) $(RB_back_temp_Target) $(RB_PORT_temp_Target) $(RB_DOCS_RISK_temp_Target) \
+	$(RB_DOCS_PORT_temp_Target) $(RB_here_temp_Target) $(RB_DOCS_out) \
+	$(NAIVE_back_temp_Target) $(NAIVE_PORT_temp_Target) $(NAIVE_DOCS_PORT_temp_Target) \
+	$(NAIVE_DOCS_out) \
+	$(SIMPLE_back_temp_Target) $(SIMPLE_PORT_temp_Target) $(SIMPLE_DOCS_PORT_temp_Target) \
+	$(SIMPLE_DOCS_out) \
+	$(GREEDY_ENGINE_temp_Target) $(GREEDY_back_temp_Target) $(GREEDY_PORT_temp_Target) \
+	$(GREEDY_DOCS_ENGINE_temp_Target) $(GREEDY_DOCS_ENGINE_temp_Target) $(GREEDY_DOCS_out) \
+	$(SINGLE_DOCS_out) \
+	$(SINGLE_EX_temp_Target) $(SINGLE_EX_back_temp_Target) $(SINGLE_EX_DOCS_out)
 
-ANALYZEREX=../scripts/analyzers/
-PORTFOLIOSEX=../scripts/portfolios/
+$(foreach ff, $(RB_RISK_temp_Target), $(eval $(call RB_RISK_temp_make,$(ff))))
+$(foreach ff, $(RB_back_temp_Target), $(eval $(call RB_back_temp_make,$(ff))))
+$(foreach ff, $(RB_PORT_temp_Target), $(eval $(call RB_RISK_temp_make,$(ff))))
+$(foreach ff, $(RB_DOCS_RISK_temp_Target), $(eval $(call RB_DOCS_RISK_temp_make,$(ff))))
+$(foreach ff, $(RB_DOCS_PORT_temp_Target), $(eval $(call RB_DOCS_PORT_temp_make,$(ff))))
+$(foreach ff, $(RB_here_temp_Target), $(eval $(call RB_here_temp_make,$(ff))))
+$(foreach ff, $(RB_DOCS_out), $(eval $(call RB_DOCS_make,$(ff))))
 
-define f_br_in_gen
-	$(addprefix $(INDIR)/, $(1)_th_doc_base.md $(1)Analyzer_class.md $(RISK_RB) \
-	$(1)Analyzer_class_example.md $(ANALYZEREX)$(1)Analyzer_examples.py ex_1_end.md \
-	Port_$(1)_class.md Port_constructor.md Port_$(1)_set_model.md $(PORT_RB) \
-	Port_$(1)_class_example.md $(PORTFOLIOSEX)Port_$(1)_examples.py ex_2_end.md)
-endef
+$(foreach ff, $(NAIVE_back_temp_Target), $(eval $(call NAIVE_back_temp_make,$(ff))))
+$(foreach ff, $(NAIVE_PORT_temp_Target), $(eval $(call NAIVE_PORT_temp_make,$(ff))))
+$(foreach ff, $(NAIVE_DOCS_PORT_temp_Target), $(eval $(call NAIVE_DOCS_PORT_temp_make,$(ff))))
+$(foreach ff, $(NAIVE_DOCS_out), $(eval $(call NAIVE_DOCS_make,$(ff))))
 
-define f_out_gen
-	$(OUTDIR)/$(1)_th_doc.md
-endef
+$(foreach ff, $(SIMPLE_back_temp_Target), $(eval $(call SIMPLE_back_temp_make,$(ff))))
+$(foreach ff, $(SIMPLE_PORT_temp_Target), $(eval $(call SIMPLE_PORT_temp_make,$(ff))))
+$(foreach ff, $(SIMPLE_DOCS_PORT_temp_Target), $(eval $(call SIMPLE_DOCS_PORT_temp_make,$(ff))))
+$(foreach ff, $(SIMPLE_DOCS_out), $(eval $(call SIMPLE_DOCS_make,$(ff))))
 
-$(foreach ff, $(F_RB), $(eval $(ff)_in=$(call f_br_in_gen,$(ff))) )
-$(foreach ff, $(F_RB), $(eval $(ff)_out=$(call f_out_gen,$(ff))) )
+#$(foreach ff, $(GREEDY_ENGINE_temp_Target), $(eval $(call GREEDY_ENGINE_temp_make,$(ff))))
+$(foreach ff, $(GREEDY_back_temp_Target), $(eval $(call GREEDY_back_temp_make,$(ff))))
+$(foreach ff, $(GREEDY_PORT_temp_Target), $(eval $(call GREEDY_ENGINE_temp_make,$(ff))))
+$(foreach ff, $(GREEDY_DOCS_ENGINE_temp_Target), $(eval $(call GREEDY_DOCS_ENGINE_temp_make,$(ff))))
+$(foreach ff, $(GREEDY_DOCS_PORT_temp_Target), $(eval $(call GREEDY_DOCS_PORT_temp_make,$(ff))))
+$(foreach ff, $(GREEDY_DOCS_out), $(eval $(call GREEDY_DOCS_make,$(ff))))
 
-# gen Simple doc
+$(foreach ff, $(SINGLE_DOCS_out), $(eval $(call SINGLE_DOCS_make,$(ff))))
 
-F_SIMPLE = Simple \
-
-PORT_SIMPLE = Port_port_view.md Port_port_view_all.md Port_port_drawdown.md \
-Port_port_perf.md Port_port_annual_returns.md Port_port_monthly_returns.md \
-Port_get_mktdata.md \
-
-define f_sp_in_gen
-	$(addprefix $(INDIR)/, $(1)_th_doc_base.md \
-	Port_$(1)_class.md Port_$(1)_set_model.md $(PORT_SIMPLE) \
-	Port_$(1)_class_example_1.md \
-	$(PORTFOLIOSEX)Port_$(1)_examples.py ex_2_end.md \
-	Port_$(1)_class_example_2.md \
-	$(PORTFOLIOSEX)Port_$(1)_examples2.py ex_2_end.md)
-endef
-
-$(foreach ff, $(F_SIMPLE), $(eval $(ff)_in=$(call f_sp_in_gen,$(ff))) )
-$(foreach ff, $(F_SIMPLE), $(eval $(ff)_out=$(call f_out_gen,$(ff))) )
-
-# gen naive docs
-
-F_NAIVE = InvVol InvVar InvDD ConstW \
-
-PORT_NAIVE = Port_port_view.md Port_port_view_all.md Port_port_drawdown.md \
-Port_port_perf.md Port_port_annual_returns.md  Port_port_monthly_returns.md \
-Port_port_period_returns.md Port_get_nshares.md Port_get_account.md \
-Port_get_mktdata.md \
-
-define f_naive_in_gen
-	$(addprefix $(INDIR)/, $(1)_th_doc_base.md Port_$(1)_class.md \
-	Port_constructor.md Port_$(1)_set_model.md \
-	$(PORT_NAIVE) Port_$(1)_class_example.md \
-	$(PORTFOLIOSEX)Port_$(1)_examples.py ex_2_end.md)
-endef
-
-$(foreach ff, $(F_NAIVE), $(eval $(ff)_in=$(call f_naive_in_gen,$(ff))) )
-$(foreach ff, $(F_NAIVE), $(eval $(ff)_out=$(call f_out_gen,$(ff))) )
-
-# gen singles
-
-F_SINGLES = RiskBased_intro.md Naive_intro.md Greedy_intro.md \
-Util_readMkT.md Util_NYSEgen.md \
+$(foreach ff, $(SINGLE_EX_temp_Target), $(eval $(call SINGLE_EX_temp_make,$(ff))))
+$(foreach ff, $(SINGLE_EX_back_temp_Target), $(eval $(call SINGLE_EX_back_temp_make,$(ff))))
+$(foreach ff, $(SINGLE_EX_DOCS_out), $(eval $(call SINGLE_EX_DOCS_make,$(ff))))
 
 
-$(foreach ff, $(F_SINGLES), $(eval $(ff)_in=$(INDIR)/$(ff)))
-$(foreach ff, $(F_SINGLES), $(eval $(ff)_out=$(OUTDIR)/$(ff)))
-
-# gen single with examples
-
-UTILEX=../scripts/util/
-
-F_SINGLES_EX = summary_MkTData add_cash_security \
-update_all_MkTData \
-
-define f_single_ex_in_gen
-	$(addprefix $(INDIR)/, Util_$(1).md $(UTILEX)$(1)_examples.py ex_2_end.md)
-endef
-
-define f_single_ex_out_gen
-	$(OUTDIR)/Util_$(1).md
-endef
-
-$(foreach ff, $(F_SINGLES_EX), $(eval $(ff)_in=$(call f_single_ex_in_gen,$(ff))) )
-$(foreach ff, $(F_SINGLES_EX), $(eval $(ff)_out=$(call f_single_ex_out_gen,$(ff))) )
-
-# gen greedy docs
-
-F_GR = Kelly \
-
-RISK_GR =
-
-PORT_GR = Port_port_view.md Port_port_view_all.md Port_port_drawdown.md \
-Port_port_perf.md Port_port_annual_returns.md Port_port_monthly_returns.md \
-Port_port_period_returns.md Port_get_nshares.md \
-Port_get_account.md Port_get_mktdata.md \
-
-define f_gr_in_gen
-	$(addprefix $(INDIR)/, $(1)_th_doc_base.md $(1)Engine_class.md $(RISK_GR) \
-	$(1)Engine_class_example.md $(ANALYZEREX)$(1)Engine_examples.py ex_1_end.md \
-	Port_$(1)_class.md Port_$(1)_set_model.md $(PORT_GR) \
-	Port_$(1)_class_example.md $(PORTFOLIOSEX)Port_$(1)_examples.py ex_2_end.md)
-endef
-
-$(foreach ff, $(F_GR), $(eval $(ff)_in=$(call f_gr_in_gen,$(ff))) )
-$(foreach ff, $(F_GR), $(eval $(ff)_out=$(call f_out_gen,$(ff))) )
-
-# make targets
-
-Target := $(F_RB), $(F_SIMPLE), $(F_NAIVE), $(F_SINGLES), $(F_SINGLES_EX), $(F_GR)
-
-Target_out := $(foreach ff, $(addsuffix _out, $(Target)), $($(ff)))
-
-define frule
-$(1): $(2)
-	@echo $(1)
-	@cat $(2) > $(1)
-endef
-
-all:  $(Target_out)
-
-$(foreach ff, $(Target), $(eval $(call frule, $($(ff)_out), $($(ff)_in))))
-
-.PHONY: clean
+.PHONY: clean cleandoc
 clean:
-	rm -f $(Target_out)
+	@rm -f $(RB_RISK_temp_Target)
+	@rm -f $(RB_back_temp_Target)
+	@rm -f $(RB_PORT_temp_Target)
+	@rm -f $(RB_DOCS_RISK_temp_Target)
+	@rm -f $(RB_DOCS_PORT_temp_Target)
+	@rm -f $(RB_here_temp_Target)
+	@rm -f $(RB_DOCS_out)
+
+
+	@rm -f $(NAIVE_back_temp_Target)
+	@rm -f $(NAIVE_PORT_temp_Target)
+	@rm -f $(NAIVE_DOCS_PORT_temp_Target)
+	@rm -f $(NAIVE_DOCS_out)
+
+	@rm -f $(SIMPLE_back_temp_Target)
+	@rm -f $(SIMPLE_PORT_temp_Target)
+	@rm -f $(SIMPLE_DOCS_PORT_temp_Target)
+	@rm -f $(SIMPLE_DOCS_out)
+
+	@rm -f $(GREEDY_ENGINE_temp_Target)
+	@rm -f $(GREEDY_back_temp_Target)
+	@rm -f $(GREEDY_PORT_temp_Target)
+	@rm -f $(GREEDY_DOCS_ENGINE_temp_Target)
+	@rm -f $(GREEDY_DOCS_PORT_temp_Target)
+	@rm -f $(GREEDY_DOCS_out)
+
+	@rm -f $(SINGLE_DOCS_out)
+
+	@rm -f $(SINGLE_EX_temp_Target)
+	@rm -f $(SINGLE_EX_back_temp_Target)
+	@rm -f $(SINGLE_EX_DOCS_out)
+
+
+cleandoc:
+	@rm -f $(RB_DOCS_out)
+	@rm -f $(NAIVE_DOCS_out)
+	@rm -f $(SIMPLE_DOCS_out)
+	@rm -f $(GREEDY_DOCS_out)
+	@rm -f $(SINGLE_DOCS_out)
+	@rm -f $(SINGLE_EX_DOCS_out)

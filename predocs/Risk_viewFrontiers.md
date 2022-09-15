@@ -1,6 +1,3 @@
-
-<a name="viewFrontiers"></a>
-
 #### <span style="color:green">viewFrontiers</span>
 
 Produces a graphical representation of the portfolio frontiers.
@@ -75,7 +72,3 @@ The default is `None`.
 *Returns:* Dictionary containing numerical data used to make the plots.
 It can be passed back as `data` argument to reconstruct the plots without
 reevaluations.
-
-[TOP](#TOP)
-
----

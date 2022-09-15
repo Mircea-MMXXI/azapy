@@ -1,6 +1,3 @@
-
-<a name="getPositions"></a>
-
 #### <span style="color:green">getPositions</span>
 
 Computes the rebalanced and delta numbers of shares for each portfolio
@@ -15,38 +12,38 @@ getPositions(nshares=None, cash=0, ww=None, rtype=None, mu=None, mu0=0.,
 
 *Inputs:*
 
-* `nshares` : `panda.Series`, optional
+* `nshares` : `panda.Series`, optional;
     Initial number of shares per portfolio component.
     A missing component
     entry will be considered 0. A `None` value assumes that all
     components entries are 0. The name of the components must be
     present in the mrkdata. The default is `None`.
-* `cash` : float, optional
+* `cash` : `float`, optional;
     Additional cash to be added to the capital. A
     negative entry assumes a reduction in the total capital
     available for rebalance. The total capital cannot be < 0.
     The default is `0`.
-* `ww` : `panda.Series`, optional
+* `ww` : `panda.Series`, optional;
     External overwrite portfolio weights.
     If it not set to `None` these
     weights will overwrite the calibrated.
     The default is `None`.
-* `rtype` : str, optional
+* `rtype` : `str`, optional;
     Optimization type. If is not `None` it will overwrite the value
     set by the constructor. The default is `None`.
-* `mu` : float, optional
+* `mu` : `float`, optional
     Targeted portfolio expected rate of return.
     Relevant only if `rtype='Risk'`
     The default is `None`.
-* `mu0` : float, optional
+* `mu0` : `float`, optional;
     Risk-free rate accessible to the investor.
     Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
     The default is `0`.
-* `aversion` : float, optional
+* `aversion` : `float`, optional;
     The value of the risk-aversion coefficient.
     Must be positive. Relevant only if `rtype='RiskAvers'`.
     The default is `None`.
-* `ww0` : list (also `np.array` or `pandas.Series`), optional
+* `ww0` : `list` (also `numpy.array` or `pandas.Series`), optional;
     Targeted portfolio weights
     Relevant only if `rype='InvNrisk'`.
     Its length must be equal to the number of
@@ -78,7 +75,3 @@ is the new portfolio value (invested capital).
 >Note: Since the prices are closing prices, the rebalance can be executed next
 business day. Additional cash slippage may occur due to share price differential
 between the previous day closing and  execution time.
-
-[TOP](#TOP)
-
----

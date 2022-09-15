@@ -1,12 +1,11 @@
-<a name="HistMkTData"></a>
 
-
-# Read historical market data <a name="TOP"></a>
+(Util_readMkT_MkTreader)=
+# Read historical market data
 
 There are 2 ways to get historical time series. Using:
-1. [`readMkT`](#readMkT) function. It is a coinvent wrapper around `MkTreader`
+1. [`readMkT`](readMkT) function. It is a coinvent wrapper around `MkTreader`
 class,
-2. [`MkTreader`](#MkTreader) class.
+2. [`MkTreader`](MkTreader) class.
 
 In both cases the user has the abilities to:
 * save the collected historical time
@@ -49,8 +48,8 @@ Python and R
 In addition of the marker information, the source and acquisition date and time
 are also saved.
 
-<a name="readMkT">
 
+(readMkT)=
 ## **readMkT function**
 It is a convenient wrapper of `MkTreader` class. It returns an object
 (`pandas.DataFrame` or `dict` of `pandas.DataFrames`) containing the
@@ -70,12 +69,12 @@ readMkT(symbol=[], sdate="2012-01-01", edate='today', calendar=None,
 * `symbol` : `str, list`. <br>
 A `str` containing a single stock symbol or a list of stock symbols.
 The default is `[]`.
-* `sdate` : `date like`. <br>
+* `sdate` : date-like. <br>
 Start date of historical time series requested.
 If `sdate` is not a valid exchange business day then it will
 be adjusted forward to the next business day.
 The default is `'2012-01-01'`.   
-* `edate` : `date like`. <br>
+* `edate` : date-like. <br>
 End date of historical time-series requested. This is the date
 relative to which the adjusted data is computed. If `edate` is not a
 valid exchange business day then it will be adjusted backwards to the
@@ -182,7 +181,7 @@ an existing old data file in `file_dir`.
 - the combination `force=False` and `save=True` will update an existing
 old data file present in `file_dir`.
 
-[TOP](#TOP)
+[TOP](Util_readMkT_MkTreader)
 
 ### Examples:
 
@@ -224,17 +223,19 @@ symb = ['VGT', 'PSJ']
 mktdata = az.readMkT(symb, sdata=sdate, sdata=edate, source=source,
                      file_dir=mktdir, file_format='csv')
 ```
-[TOP](#TOP)
 
+[TOP](Util_readMkT_MkTreader)
+
+(MkTreader)=
 ## **class MkTreader**
 
 Process historical market data requests.
 
 **Methods:**
 
-* [<span style="color:green">get</span>](#get)
-* [<span style="color:green">get_request_status</span>](#get_request_status)
-* [<span style="color:green">get_error_log</span>](#get_error_log)
+* [<span style="color:green">get</span>](MkTreader_get)
+* [<span style="color:green">get_request_status</span>](MkTreader_get_request_status)
+* [<span style="color:green">get_error_log</span>](MkTreader_get_error_log)
 
 ### Constructor
 ```
@@ -242,12 +243,11 @@ Process historical market data requests.
 ```
 There are no variables to be passed to the constructor.
 
-[TOP](#TOP)
+[TOP](Util_readMkT_MkTreader)
 
 ### Methods:
 
-<a name="get">
-
+(MkTreader_get)=
 #### <span style="color:green">get</span>
 
 It is the main function that executes the data request.
@@ -263,12 +263,11 @@ get(symbol=[], sdate="2012-01-01", edate='today', calendar=None,
 
 *Inputs:*
 
-The inputs are the same as for [`readMkT` function](#readMkT).
+The inputs are the same as for [`readMkT`](readMkT) function.
 
-[TOP](#TOP)
+[TOP](Util_readMkT_MkTreader)
 
-<a name="get_request_status">
-
+(MkTreader_get_request_status)=
 #### <span style="color:green">get_request_status</span>
 
 Returns the request status per symbol.
@@ -295,10 +294,9 @@ A `'Yes'` means that everything is OK.
 A value of `None` occurs if the request was not completed (other warning
 messages may clarify these situations).
 
-[TOP](#TOP)
+[TOP](Util_readMkT_MkTreader)
 
-<a name="get_error_log">
-
+(MkTreader_get_error_log)=
 #### <span style="color:green">get_error_log</span>
 
 Returns the lists of missing observations dates per symbol.
@@ -329,7 +327,7 @@ date in the time series,
 
 Only the keys with non-empty lists of missing dates will be present.
 
-[TOP](#TOP)
+[TOP](Util_readMkT_MkTreader)
 
 ### Examples:
 
@@ -351,4 +349,4 @@ req_status = mkt.get_request_status()
 # missing observation dates
 error_date = mkt.get_error_log()
 ```
-[TOP](#TOP)
+[TOP](Util_readMkT_MkTreader)
