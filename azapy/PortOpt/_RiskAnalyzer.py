@@ -1115,7 +1115,7 @@ class _RiskAnalyzer:
     def _plot_f3(self, res):
         fig = plt.figure()
         ax = fig.add_subplot(111)
-        
+
         opt = defaultdict(lambda: None, 
                           {'title': "Portfolio frontiers", 
                            'xlabel': 'rate of return',

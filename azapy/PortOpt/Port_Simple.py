@@ -248,7 +248,7 @@ class Port_Simple:
                 df.plot(title=options['title'], 
                         xlabel=options['xlabel'], 
                         ylabel=options['ylabel']).get_figure().savefig(saveto)
-
+                        
         return df
 
     def port_view_all(self, sdate=None, edate=None, componly=False, **opt):
