@@ -50,7 +50,7 @@ class Port_Simple:
         sdate : date like, optional
             Start date for historical data. If set to `None` the `sdate` will
             be set to the earliest date in `mktdata`. The default is `None`.
-        edate : date like, optional
+        edate : date-like, optional
             End date for historical dates and so the simulation. Must be
             greater than `sdate`. If it is `None` then `edate` will be set
             to the latest date in `mktdata`. The default is `None`.
@@ -126,7 +126,7 @@ class Port_Simple:
 
         Parameters
         ----------
-        ww : list (also numpy.array or pandas.Series), optional
+        ww : `list` (also `numpy.array` or `pandas.Series`), optional
             List of weights. If it is pandas.Series the index should match
             the basket `symb`. Otherwise the weights are considered in the 
             `symb` order. If it is set to `None` than `ww` will be set 
@@ -202,9 +202,9 @@ class Port_Simple:
                 - `True` : it uses plotly library for interactive time-series view.
     
                 The default is `False`.
-            * `title` : `str`, optional; plot title. The default is `None`.
-            * `xaxis` : `str`, optional; name of x-axis. The default is `'date'`.
-            * `yaxis` : `srt`; optional; name of y-axis. The default is `None`.
+            * `title` : `str`, optional; plot title. The default is `'Port performance'`.
+            * `xlabel` : `str`, optional; name of x-axis. The default is `'date'`.
+            * `ylabel` : `srt`; optional; name of y-axis. The default is `None`.
             * `saveto` : `str`, optional
                 The name of the file where to save the plot. The default is `None`.
         Returns
@@ -212,12 +212,14 @@ class Port_Simple:
         `pandas.DataFrame`
             Contains the time-series included in plot.
         """
-        options = defaultdict(lambda: None)
-        options['xaxis'] = 'date';
+        options = defaultdict(lambda: None, 
+                              {'title': "Port performance",
+                               'xlabel': "date", 
+                               'fancy': False})
         options.update(opt)
         fancy = options['fancy']
         saveto = options['saveto']
-        
+
         df = self.port.copy()
 
         if isinstance(emas, list):
@@ -240,13 +242,13 @@ class Port_Simple:
         else:
             if saveto is None:
                 df.plot(title=options['title'], 
-                        xlabel=options['xaxis'], 
-                        ylabel=options['yaxis'])
+                        xlabel=options['xlabel'], 
+                        ylabel=options['ylabel'])
             else:
                 df.plot(title=options['title'], 
-                        xlabel=options['xaxis'], 
-                        ylabel=options['yaxis']).get_figure().savefig(saveto)
-
+                        xlabel=options['xlabel'], 
+                        ylabel=options['ylabel']).get_figure().savefig(saveto)
+                        
         return df
 
     def port_view_all(self, sdate=None, edate=None, componly=False, **opt):
@@ -276,9 +278,9 @@ class Port_Simple:
                 - `True` : it uses plotly library for interactive time-series view.
 
                 The default is `False`.
-            * `title` : `str`, optional; plot title. The default is `None`.
-            * `xaxis` : `str`, optional; name of x-axis. The default is `'date'`.
-            * `yaxis` : `srt`; optional; name of y-axis. The default is `None`.
+            * `title` : `str`, optional; plot title. The default is `'Relative performance'`.
+            * `xlabel` : `str`, optional; name of x-axis. The default is `'date'`.
+            * `ylabel` : `srt`; optional; name of y-axis. The default is `None`.
             * `saveto` : `str`, optional;
                 The name of the file where to save the plot. The default is `None`.
 
@@ -287,9 +289,10 @@ class Port_Simple:
         `pandas.DataFrame`
             A Data Frame containing the time-series.
         """
-        options = defaultdict(lambda: None)
-        options['xaxis'] = 'date';
-        options['fancy'] = False
+        options = defaultdict(lambda: None, 
+                              {'title': "Relative perfromance",
+                               'xlable': "date", 
+                               'fancy': False})
         options.update(opt)
         fancy = options['fancy']
         saveto = options['saveto']
@@ -316,12 +319,12 @@ class Port_Simple:
         else:
             if saveto is None:
                 df.plot(title=options['title'], 
-                        xlabel=options['xaxis'], 
-                        ylabel=options['yaxis'])
+                        xlabel=options['xlabel'], 
+                        ylabel=options['ylabel'])
             else:
                 df.plot(title=options['title'], 
-                        xlabel=options['xaxis'], 
-                        ylabel=options['yaxis']).get_figure().savefig(saveto)
+                        xlabel=options['xlabel'], 
+                        ylabel=options['ylabel']).get_figure().savefig(saveto)
 
         return df
 
@@ -527,8 +530,8 @@ class Port_Simple:
         # Set title
         fig.update_layout(
             title_text=options['title'],
-            xaxis_title=options['xaxis'],
-            yaxis_title=options['yaxis']
+            xaxis_title=options['xlabel'],
+            yaxis_title=options['ylabel']
         )
 
         # Add range slider

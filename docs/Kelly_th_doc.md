@@ -471,17 +471,17 @@ set_model(rtype='Full', hlength=1.25, method='ecos')
 ```
 
 *Inputs:*
-* `rtype` : Optimization approximation. It can be:
+* `rtype` : `str`, optional; Optimization approximation. It can be:
 
   - `'Full'` : non-linear original Kelly problem,
   - `'Order2'` : second order Taylor (quadratic) approximation of original Kelly
   problem.
 
-* `hlength` :
+* `hlength` : `float`, optional;
 The length in years of the historical calibration period relative
 to `'Dfix'`. A fractional number will be rounded to an integer number
 of months. The default is `1.25` years.
-* `method` : QP numerical methods. It is relevant only if
+* `method` : `str`, optional; QP numerical methods. It is relevant only if
 `rtype='Order2'`. It could be `'ecos'` or `'cvxopt'`.
 The default is `'ecos'`.
 
@@ -505,19 +505,19 @@ port_view(emas=[30, 200], bollinger=False, **randomport)
 
 *Inputs:*
 
-* `emas` : `list` of int. List of EMA durations. The default is [30, 200].
-* `bollinger` : Boolean flag. If it is set `True` then the Bollinger bands are
+* `emas` : `list` of int, optional; List of EMA durations. The default is [30, 200].
+* `bollinger` : `Boolean`, optional; If it is `True` then the Bollinger bands are
 added. The default is `False`.    
 * `opt` : other parameters
-    * `fancy` : Boolean flag.
+    * `fancy` : `Boolean`, optional;
         - `False` : it uses the matplotlib capabilities.
         - `True` : it uses plotly library for interactive time-series view.
 
         The default is `False`.
-    * `title` : `str`. The plot title. The default is `None`.
-    * `xaxis` : `str`. The name of x-axis. The default is `'date'`.
-    * `yaxis` : `srt`. The name of y-axis. The default is `None`.
-    * `saveto` : `str`.
+    * `title` : `str`, optional; The plot title. The default is `'Relative performance'`.
+    * `xaxis` : `str`, optional; The name of x-axis. The default is `'date'`.
+    * `yaxis` : `str`, optional; The name of y-axis. The default is `None`.
+    * `saveto` : `str`, optional;
         The name of the file where to save the plot. The default is `None`.
 
 *Returns:* `pandas.DataFrame` containing the time-series included in the plot.
@@ -539,29 +539,29 @@ port_view_all(sdate=None, edate=None, componly=False, **opt)
 
 *Inputs:*
 
-* `sdate` : date-like;
+* `sdate` : `date-like`, optional;
 Start date of plotted time-series. If it is `None`,
 then `sdate` is set to the earliest date in the time-series.
 The default is `None`.
-* `edate` : date-like;
+* `edate` : `date-like`, optional;
 End date of plotted time-series. If it is `None`, then `edate`
 is set to the most recent date of the time-series.
 The default is `None`.
-* `componly` : Boolean flag.
+* `componly` : `Boolean`, optional;
     - `True` : only the portfolio components time-series are plotted.
     - `False`: the portfolio and its components times-series are plotted.
 
     The default is `True`.
 * `opt` : Other parameters:
-    * `fancy` : Boolean flag.
+    * `fancy` : `Boolean`, optional;
         - `False` : it uses the pandas plot (matplotlib) capabilities.
         - `True` : it uses plotly library for interactive time-series view.
 
         The default is `False`.
-    * `title` : `str`. The plot title. The default is `None`.
-    * `xaxis` : `str`. The name of x-axis. The default is `'date'`.
-    * `yaxis` : `srt`. The name of y-axis. The default is `None`.
-    * `saveto` : `str`.
+    * `title` : `str`, optimal; The plot title. The default is `'Port performance'`.
+    * `xaxis` : `str`, optimal; The name of x-axis. The default is `'date'`.
+    * `yaxis` : `str`, optimal; The name of y-axis. The default is `None`.
+    * `saveto` : `str`, optimal;
         The name of the file where to save the plot. The default is `None`.
 
 *Returns:* `pandas.DataFrame` containing the time-series included in the plot.

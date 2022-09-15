@@ -47,8 +47,8 @@ The default is `None`.
     * `'Divers_RR'` : diversification vs expected rate of return.
 
     The default is `'RR_risk'`.
-* `opt` : Additonal parameters:
-    * `'title'` : The default is 'Portfolio frontiers'
+* `opt` : Other optional parameters:
+    * `'title'` : The default is `"Portfolio frontiers"`
     * `'xlabel'` : The default is
         - `'risk'` if `fig_type='RR_risk'`
         - `'rate of returns'` otherwise

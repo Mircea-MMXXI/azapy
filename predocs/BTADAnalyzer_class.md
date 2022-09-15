@@ -22,7 +22,9 @@ During its computations the following class members are also set:
   * _secondary_risk_comp_ : The list of thresholds $\alpha_l$ (the input values),
   * _sharpe_ : Omega ration if `rtype` is set to `'Shapre'` or `'Sharpe2'`
   otherwise `None`. This is the Omega ratio.
-  * _RR_ : optimal portfolio expected rate of return.
+  * _RR_ : optimal portfolio expected rate of return,
+  * _divers_ : diversification factor if `rtype` is set to `'Divers'` or `'MaxDivers'`
+  otherwise `None` <span style="color:red">(alpha version)</span>.
 
 * **getPositions** : Provides practical information regarding the portfolio
 rebalancing delta positions and costs.  
@@ -57,13 +59,16 @@ The default is `3.25` years.
 then the calendar will be set to NYSE business calendar.
 The default is `None`.
 * `rtype` : Optimization type:
-    - `'Risk'` : minimization of risk for fixed expected rate of return value.
+    - `'Risk'` : minimization of risk for targeted expected rate of return value.
     - `'MinRisk'` : minimum risk portfolio.
     - `'InvNRisk'` : optimal portfolio with the same risk as a benchmark
-     portfolio (*e.g.* equal weighted portfolio).
-    - `'RiskAverse'` : optimal portfolio for fixed risk-aversion value.
+     portfolio (*e.g.* same risk as equal weighted portfolio).
+    - `'RiskAverse'` : optimal portfolio for fixed risk-aversion factor.
     - `'Sharpe'` : maximization of Omega ratio.
     - `'Sharpe2'` : minimization of the inverse Omega ratio.
+    - `'Divers'` : maximization of diversification factor for targeted expected
+    rate of return value <span style="color:red">(alpha version)</span>.
+    - `'MaxDivers'` : maximum diversified portfolio <span style="color:red">(alpha version)</span>.
 
   The default is `'Sharpe'`.
 * `detrended` : Boolean flag:

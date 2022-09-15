@@ -39,7 +39,10 @@ The following portfolio optimization strategies are available:
 benchmark portfolio (*e.g.* same risk as equal weighted portfolio),
 * Maximization of expected rate of return for fixed risk-aversion factor,
 * Maximization of mCVaR-Sharpe ratio,
-* Minimization of the inverse of mCVaR-Sharpe ratio.
+* Minimization of the inverse of mCVaR-Sharpe ratio,
+* Maximization of diversification factor for targeted expected rate of return
+value <span style="color:red">(alpha version)</span>,
+* Maximum diversified portfolio <span style="color:red">(alpha version)</span>,
 
 There are 2 support classes:
 
