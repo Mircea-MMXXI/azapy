@@ -1,5 +1,4 @@
-
-# Buy and Hold portfolio <a name="TOP"></a>
+# Buy and Hold portfolio 
 
 A *Buy and Hold* strategy assumes that at some point in time
 the entire capital is invested in a portfolio with fixed composition

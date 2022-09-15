@@ -1,5 +1,4 @@
-
-# add_cash_security <a name="TOP"></a>
+# add_cash_security
 
 ## Add a cash like security to an existing MkT data object.
 
@@ -11,7 +10,7 @@
 
 ### Inputs:
 
-* `data` : pandas.DataFrame or dict <br>
+* `data` : `pandas.DataFrame` or `dict` <br>
 A valid MkT data object as returned by the function `azapy.readMkT`.
 * `name` : str <br>
 The name of the cash like security. It must be different than the other
@@ -25,10 +24,8 @@ default is 1.
 If the MkT data input, `data`, is a
 * `pandas.DataFrame` then the
   function returns a new `pandas.DataFame` containing the
-  original MkT data and the cash like securit,
+  original MkT data and the cash like security,
 * `dict` then the cash like security will be appended to the initial `data`
 `dict`.
 
 ### [Examples:](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/util/add_cash_security_example.py)
-
-```

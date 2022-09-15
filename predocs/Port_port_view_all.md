@@ -1,6 +1,3 @@
-
-<a name="port_view_all"></a>
-
 #### <span style="color:green">port_view_all</span>
 
 Plots in a relative bases the optimal portfolio and its components time-series.
@@ -15,15 +12,14 @@ port_view_all(sdate=None, edate=None, componly=False, **opt)
 
 *Inputs:*
 
-* `sdate` : date-like.
-    Start date of plotted time-series. If it is set to `None`
-    then the `sdate` is set to the earliest date in the time-series.
-    The default is `None`.
-* `edate` : date-like.
-    End date of plotted time-series. If it set to `None` then
-    the `edate`
-    is set to the most recent date of the time-series.
-    The default is `None`.
+* `sdate` : date-like;
+Start date of plotted time-series. If it is `None`,
+then `sdate` is set to the earliest date in the time-series.
+The default is `None`.
+* `edate` : date-like;
+End date of plotted time-series. If it is `None`, then `edate`
+is set to the most recent date of the time-series.
+The default is `None`.
 * `componly` : Boolean flag.
     - `True` : only the portfolio components time-series are plotted.
     - `False`: the portfolio and its components times-series are plotted.
@@ -42,7 +38,3 @@ port_view_all(sdate=None, edate=None, componly=False, **opt)
         The name of the file where to save the plot. The default is `None`.
 
 *Returns:* `pandas.DataFrame` containing the time-series included in the plot.
-
-[TOP](#TOP)
-
----

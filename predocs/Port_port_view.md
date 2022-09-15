@@ -1,6 +1,3 @@
-
-<a name="port_view"></a>
-
 #### <span style="color:green">port_view</span>
 
 Plots the optimal portfolio time series together with some technical
@@ -30,7 +27,3 @@ added. The default is `False`.
         The name of the file where to save the plot. The default is `None`.
 
 *Returns:* `pandas.DataFrame` containing the time-series included in the plot.
-
-[TOP](#TOP)
-
----

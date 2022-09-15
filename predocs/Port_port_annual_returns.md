@@ -1,6 +1,3 @@
-
-<a name="port_annual_returns"></a>
-
 #### <span style="color:green">port_annual_returns</span>
 
 Computes optimal portfolio and its components annual (calendar) rates of returns.
@@ -27,7 +24,3 @@ are reported. The default is `False`.
     to 2 decimals and presented is color style.
 
 *Returns:* `pandas.DataFrame`
-
-[TOP](#TOP)
-
----
