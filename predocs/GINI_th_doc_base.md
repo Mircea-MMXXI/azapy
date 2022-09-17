@@ -32,6 +32,9 @@ benchmark portfolio (*e.g.* same risk as equal weighted portfolio),
 value <span style="color:red">(alpha version)</span>,
 * Maximum diversified portfolio <span style="color:red">(alpha version)</span>,
 
+__The rigorous mathematical description of these strategies is presented
+[here](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4205165).__
+
 There are 2 support classes:
 
 * **GINIAnalyzer** : computes the portfolio weights and performs in-sample
