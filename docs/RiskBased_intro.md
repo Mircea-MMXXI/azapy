@@ -202,6 +202,9 @@ to make available this implementation under the setting `rtype='Sharpe2'`.
 optimization strategies,
 in total 54 risk-based portfolio optimization strategies.[^strat]
 
+__The rigorous mathematical description of these strategies is presented
+[here](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4205165).__
+
 The natural question that arises is: which one is the best?
 
 There is no absolute answer to this question and so there is no
