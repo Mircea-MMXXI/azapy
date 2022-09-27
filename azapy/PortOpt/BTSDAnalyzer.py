@@ -616,7 +616,7 @@ class BTSDAnalyzer(BTADAnalyzer):
             
         t = res['x'][-1]
         # BTSD-Divers
-        self.divers = 1. - res['pcost']
+        self.diverse = 1. - res['pcost']
         # mBTSD
         self.risk =  res['pcost'] / t
         # optimal weights
@@ -632,3 +632,92 @@ class BTSDAnalyzer(BTADAnalyzer):
         
         return self.ww
     
+    
+    def _rr_max_diversification(self):
+        # Order of variables:
+        # w <- [0 : mm]
+        # then for l <- [0:ll]
+        #   u_l <- mm + l(nn+1), 
+        #   s_l <- [mm + l(nn + 1) + 1: mm + (l + 1)(nn + 1)]
+        # in total dim = mm + ll(nn + 1)
+        nn = self.nn
+        mm = self.mm
+        ll = self.ll
+        
+        # build c
+        c_data = list(-self.muk) + [0.] * (ll * (nn + 1))
+        
+        # build G
+        # linear
+        G_icol = list(range(mm)) * (nn * ll)
+        G_irow = [k  for k in range(nn * ll) for _ in range(mm)]
+        G_data = list(np.ravel(-self.rrate)) * ll
+        for l in range(ll):
+            G_icol += \
+                   list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
+            G_irow += list(range(l * nn, (l + 1) * nn))
+            G_data += [-1.] * nn 
+
+        G_icol += list(range(mm + ll * (nn + 1)))
+        G_irow += list(range(nn * ll, nn * ll + mm + ll * (nn + 1)))
+        G_data += [-1.] * (mm + ll * (nn + 1))
+        # cone
+        for l in range(ll):
+            G_icol += list(range(mm + l * (nn + 1), mm + (l + 1) * (nn + 1)))
+            G_irow += \
+                list(range(nn * ll + mm + ll * (nn + 1) + l * (nn + 1), 
+                     nn * ll + mm + ll * (nn + 1) + (l + 1) * (nn + 1)))
+            G_data += [-np.sqrt(nn)] + [-1.] * nn
+            
+        G_shape = (nn * ll + mm + 2 * ll * (nn + 1), mm + ll * (nn + 1))
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
+        
+        # build h
+        h_data = []
+        for l in range(ll):
+            h_data += [-self.alpha[l]] * nn
+        h_data += [0.] * (mm + 2 * ll * (nn + 1))
+               
+        # build dims
+        dims = {'l': (mm + ll * (2 * nn + 1)), 'q': [nn + 1] * ll}
+        
+        # build A
+        A_icol = [mm + l * (nn + 1) for l in range(ll)] + list(range(mm))
+        A_irow = [0] * (ll + mm)
+        A_data = list(self.coef) + list((self.diverse - 1.) * self.risk_comp)
+        
+        A_icol += list(range(mm))
+        A_irow += [1] * mm
+        A_data += [1.] * mm
+
+        A_shape = (2, mm + ll * (nn + 1))
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
+        
+        # build b
+        b_data = [0., 1.]
+        
+        # calc
+        res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
+            return np.array([np.nan] * mm)
+            
+        # rate of return
+        self.RR = -res['pcost']
+        # optimal weights
+        self.ww = np.array(res['x'][:mm])
+        self.ww.shape = mm
+        # BTSD components
+        self.primary_risk_comp = \
+            np.array([res['x'][mm + l * (nn + 1)] for l in range(ll)])
+        # risk
+        self.risk = np.dot(self.primary_risk_comp, self.coef)
+        # BTSD thresholds
+        self.secondary_risk_comp = self.alpha.copy()
+        # diversification
+        self.diverse= 1 - self.risk / np.dot(self.ww, self.risk_comp)
+        
+        return self.ww

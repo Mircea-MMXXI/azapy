@@ -150,7 +150,8 @@ class MVAnalyzer(_RiskAnalyzer):
 
         # biuld G
         # ww > 0 and t > 0
-        dd = np.diag([-1.] * (nn + 1))
+        dd = sps.diags([-1] * (nn + 1), format='coo')
+        
         # cone
         xx = sps.coo_matrix(([-1.], ([0], [nn])), shape=(1, nn + 1))
         
@@ -217,7 +218,8 @@ class MVAnalyzer(_RiskAnalyzer):
 
         # build G
         # ww > 0 and u > 0 and t > 0
-        dd = np.diag([-1.] * (nn + 2))
+        dd = sps.diags([-1] * (nn + 2), format='coo')
+        
         # cone
         xx = sps.coo_matrix(([sq2, sq2], ([0, 0], [nn, nn + 1])), 
                             shape=(1, nn + 2))
@@ -283,10 +285,8 @@ class MVAnalyzer(_RiskAnalyzer):
         c_data = list(-self.muk)
         
         # build G
-        # ww >= 0
-        dd = np.diag([-1.] * nn)
-        # cone
-        dd.resize((nn + 1, nn))
+        # ww >= 0 + 1 cone
+        dd = sps.diags([-1.] * nn, shape=(nn + 1, nn), format='coo')
         
         if any(np.diag(P) < _tol_cholesky):
             G = sps.vstack([dd, -la.sqrtm(P)])
@@ -393,7 +393,8 @@ class MVAnalyzer(_RiskAnalyzer):
         yy = sps.coo_matrix(list(-self.muk * d) + [0., self.mu * d])
         
         # ww > 0 and u > 0 and t > 0
-        dd = np.diag([-1.] * (nn + 2))
+        dd = sps.diags([-1] * (nn + 2))
+        
         # cone
         xx = sps.coo_matrix(([sq2, sq2], ([0, 0], [nn, nn + 1])), 
                             shape=(1, nn + 2))
@@ -432,8 +433,8 @@ class MVAnalyzer(_RiskAnalyzer):
         # optimal weights
         self.ww = np.array(res['x'][:nn]) / t
         self.ww.shape = nn
-        # MV-Divers
-        self.divers = 1. - res['pcost']
+        # MV-Diverse
+        self.diverse = 1. - res['pcost']
         # variance
         self.risk = res['pcost'] / t
         # variance
@@ -442,6 +443,72 @@ class MVAnalyzer(_RiskAnalyzer):
         self.secondary_risk_comp = np.array([np.sqrt(self.risk)])
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
-        #self.RR = np.dot(self.ww, self.muk)
+        
+        return self.ww   
+
+
+    def _rr_max_diversification(self):
+        # Computes the maximization of returns (for fixed volatility)
+        # Order of variables
+        # w <- [0:nn]
+        # t <- nn
+        # in total dim = nn + 1
+        P = self.rrate.cov().to_numpy()
+        nn = P.shape[0]
+        
+        # build c
+        c_data = list(-self.muk) +[0.]
+        
+        # build G
+        # ww >= 0 snd t > 0
+        dd = sps.diags([-1.] * (nn + 1), shape=(nn + 1, nn  + 1), format='coo')
+        
+        # cone
+        xx = sps.coo_matrix(([-1.], ([0], [nn])), shape=(1, nn + 1))
+        
+        if any(np.diag(P) < _tol_cholesky):
+            pp = sps.block_diag((-la.sqrtm(P), [-1.]), format='coo')
+        else:
+            pp = sps.block_diag((-la.cholesky(P, overwrite_a=True), [-1.]), format='coo')
+            
+        G = sps.vstack([dd, xx, pp])
+        
+        # biuld dims
+        dims = {'l': nn + 1, 'q': [nn + 2]}
+        
+        # build h
+        h_data = [0.] * (nn + 1) + [0.25] + [0.] * nn + [-0.25]
+        
+        # build A_eq
+        A_icol = list(range(nn)) + list(range(nn + 1))
+        A_irow = [0] * nn + [1] * (nn + 1)
+        A_data = [1.] * nn + list((1. - self.diverse) * self.risk_comp) + [-1.]
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), shape=(2, nn + 1)) 
+        
+        # build b_eq
+        b_data = [1., 0.]
+        
+        # calc
+        res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+    
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
+            return np.array([np.nan] * nn)
+        
+        # optimal weights
+        self.ww = np.array(res['x'][:-1])
+        self.ww.shape = nn
+        # rate of return
+        self.RR = -res['pcost']
+        # risk
+        self.risk = np.dot(np.dot(self.ww, P), self.ww)
+        # variance
+        self.primary_risk_comp = np.array([self.risk])
+        # volatility
+        self.secondary_risk_comp = np.array([np.sqrt(self.risk)])
+        # diversification
+        self.diverse = 1. - self.risk / np.dot(self.ww, self.risk_comp)
         
         return self.ww   

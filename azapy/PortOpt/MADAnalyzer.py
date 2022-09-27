@@ -567,8 +567,8 @@ class MADAnalyzer(_RiskAnalyzer):
         # Order of variables:
         # w <- [0:mm]
         # then for l <- [0:ll]
-        # u_l <- mm + l(nn+1),
-        # s_l <- [mm + l(nn + 1) + 1: mm + (l + 1)(nn + 1)]
+        #   u_l <- mm + l(nn+1),
+        #   s_l <- [mm + l(nn + 1) + 1: mm + (l + 1)(nn + 1)]
         # and last t <- [mm + ll(nn + 1)]
         # in total dim = mm + ll(nn + 1) + 1
         ll = self.ll
@@ -611,6 +611,7 @@ class MADAnalyzer(_RiskAnalyzer):
         A_icol = list(range(mm))
         A_irow = [0] * mm
         A_data = list(self.risk_comp)
+        
         for l in range(ll):
             A_icol += list(range(mm + l * (nn + 1), mm + (l + 1) * (nn + 1)))
             A_irow += [l + 1] * (nn + 1)
@@ -637,7 +638,189 @@ class MADAnalyzer(_RiskAnalyzer):
     
         t = res['x'][-1]
         # mMAD-Divers
-        self.divers = 1. - res['pcost']
+        self.diverse= 1. - res['pcost']
+        # mMAD
+        self.risk = res['pcost'] / t
+        # delta-risk values
+        self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] / t \
+                                           for l in range(ll)])
+        # delta-risk strikes
+        self.secondary_risk_comp = \
+            np.cumsum(np.insert(self.primary_risk_comp, 0, 0))[:-1]
+        # optimal weights
+        self.ww = np.array(res['x'][:mm] / t)
+        self.ww.shape = mm
+        # rate of return
+        self.RR = np.dot(self.ww, self.muk)
+    
+        return self.ww
+    
+    
+    def _rr_max_diversification(self):
+        # Order of variables:
+        # w <- [0:mm]
+        # then for l <- [0:ll]
+        #   u_l <- mm + l(nn+1),
+        #   s_l <- [mm + l(nn + 1) + 1: mm + (l + 1)(nn + 1)]
+        # in total dim = mm + ll(nn + 1)
+        nn = self.nn
+        mm = self.mm
+        ll = self.ll
+
+        # build c
+        c_data = list(-self.muk) + [0.] * (ll * (nn + 1))
+
+        # build G
+        G_icol = list(range(mm)) * (nn * ll)
+        G_irow = [k  for k in range(nn * ll) for _ in range(mm)]
+        G_data = list(np.ravel(-self.rrate)) * ll
+        for l in range(ll):
+            G_icol += [mm + k * (nn + 1) for k in range(l)] * nn \
+                  + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
+            G_irow += \
+                  [k for k in range(l * nn, (l + 1) * nn) for _ in range(l)] \
+                  + list(range(l * nn, (l + 1) * nn))
+            G_data += [-1.] * ((l + 1) * nn)
+            
+        G_icol += list(range(mm + ll * (nn + 1)))
+        G_irow += list(range(ll * nn, ll * nn + mm + ll * (nn + 1)))
+        G_data += [-1.] * (mm + ll * (nn + 1))
+
+        G_shape = (nn * ll + mm + ll * (nn + 1), mm + (nn + 1) * ll)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
+
+        # build h
+        h_data = [0.] * (nn * ll + mm + ll * (nn + 1))
+
+        # build A
+        A_icol = [mm + l * (nn + 1) for l in range(ll)] + list(range(mm))   
+        A_irow = [0] * (ll + mm)
+        A_data = list(self.coef) + list((self.diverse- 1) * self.risk_comp)  
+        
+        A_icol += list(range(mm))
+        A_irow += [1] * mm
+        A_data += [1.] * mm
+        for l in range(ll):
+            A_icol += list(range(mm + l * (nn + 1), mm + (l + 1) * (nn + 1)))
+            A_irow += [l + 2] * (nn + 1)
+            A_data += [-1.] + [1. / nn] * nn
+
+        A_shape = (ll + 2, mm + (nn + 1) * ll)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
+
+        # build b
+        b_data = [0., 1.]  + [0.] * ll
+
+        # calc
+        res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
+
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
+            return np.array([np.nan] * mm)
+
+        # delta-risk values
+        self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
+                                           for l in range(ll)])
+        # risk
+        self.risk = np.dot(self.primary_risk_comp, self.coef)
+        # delta-risk strikes
+        self.secondary_risk_comp = \
+            np.cumsum(np.insert(self.primary_risk_comp, 0, 0))[:-1]
+        # optimal weights
+        self.ww = np.array(res['x'][:mm])
+        self.ww.shape = mm
+        # rate of return
+        self.RR = -res['pcost']
+        # diversification
+        self.diverse= 1 - self.risk / np.dot(self.ww, self.risk_comp)
+
+        return self.ww
+    
+    
+    
+    def _risk_diversification2(self, d=1):
+        # Order of variables:
+        # w <- [0:mm]
+        # then for l <- [0:ll]
+        #   u_l <- mm + l(nn+1),
+        #   s_l <- [mm + l(nn + 1) + 1: mm + (l + 1)(nn + 1)]
+        # and last t <- [mm + ll(nn + 1)]
+        # in total dim = mm + ll(nn + 1) + 1
+        ll = self.ll
+        nn = self.nn
+        mm = self.mm
+    
+        # build c
+        c_data = [0.] * mm
+        for l in range(ll):
+            c_data += [self.coef[l]] + [0.] * nn
+        c_data += [0.]
+    
+        # build G
+        G_icol = list(range(mm)) * (nn * ll)
+        G_irow = [k  for k in range(nn * ll) for _ in range(mm)]
+        G_data = list(np.ravel(-self.rrate)) * ll
+        for l in range(ll):
+            G_icol += [mm + k * (nn + 1) for k in range(l)] * nn \
+                  + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
+            G_irow += \
+                [k for k in range(l * nn, (l + 1) * nn) for _ in range(l)] \
+                + list(range(l * nn, (l + 1) * nn))
+            G_data += [-1.] * ((l + 1) * nn)
+            
+        # G_icol += list(range(mm)) + [mm + ll * (nn + 1)]
+        # G_irow += [nn * ll] * (mm + 1)
+        # G_data += list(-self.muk * d) + [self.mu * d]
+            
+        G_icol += list(range(mm + ll * (nn + 1) + 1))
+        G_irow += list(range(ll * nn, ll * nn + mm + ll * (nn + 1) + 1))
+        G_data += [-1.] * (mm + ll * (nn + 1) + 1)
+    
+        G_shape = (nn * ll + mm + ll * (nn + 1) + 1, mm + (nn + 1) * ll + 1)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
+    
+        # build h
+        h_data = [0.] * (nn * ll + mm + ll * (nn + 1) + 1)
+    
+        # build A
+        A_icol = list(range(mm))
+        A_irow = [0] * mm
+        A_data = list(self.risk_comp)
+        
+        for l in range(ll):
+            A_icol += list(range(mm + l * (nn + 1), mm + (l + 1) * (nn + 1)))
+            A_irow += [l + 1] * (nn + 1)
+            A_data += [-1.] + [1. / nn] * nn
+        
+        A_icol += list(range(mm)) + [mm + ll * (nn + 1)]
+        A_irow += [ll + 1] * (mm + 1)
+        A_data += [1.] * mm + [-1.]
+        
+        A_icol += list(range(mm)) + [mm + ll * (nn + 1)]
+        A_irow += [ll + 2] * (mm + 1)
+        d = 0
+        A_data += list(-self.muk * d) + [self.mu * d]
+    
+        A_shape = (ll + 3, mm + (nn + 1) * ll + 1)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
+    
+        # build b
+        b_data = [1.] + [0.] * (ll + 1) + [0.]
+    
+        # calc
+        res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
+    
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
+            return np.array([np.nan] * mm)
+    
+        t = res['x'][-1]
+        # mMAD-Divers
+        self.diverse= 1. - res['pcost']
         # mMAD
         self.risk = res['pcost'] / t
         # delta-risk values

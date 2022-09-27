@@ -444,7 +444,7 @@ class LSDAnalyzer(MADAnalyzer):
         # rate of return
         self.RR = -res['pcost']
         # delta-risk values
-        self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 2)] \
+        self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
                                            for l in range(ll)])
         # delta-risk strikes
         self.secondary_risk_comp = \
@@ -622,7 +622,7 @@ class LSDAnalyzer(MADAnalyzer):
             return np.array([np.nan] * mm)
         
         # mLSD-Divers
-        self.divers = 1. - res['pcost']
+        self.diverse= 1. - res['pcost']
         # mLSD
         t = res['x'][-1]
         self.risk = res['pcost'] / t
@@ -639,4 +639,90 @@ class LSDAnalyzer(MADAnalyzer):
         self.secondary_risk_comp = \
             np.cumsum(np.insert(self.primary_risk_comp, 0, 0))[:-1]
         
+        return self.ww
+    
+    
+    def _rr_max_diversification(self):
+        # Order of variables:
+        # w <- [0:mm] 
+        # then for l <- [0:ll]
+        #   u_l <- mm + l(nn+1), 
+        #   s_l <- [mm + l(nn + 1) + 1: mm + (l + 1)(nn + 1)]
+        # in total dim = mm + ll(nn + 1)
+        nn = self.nn
+        mm = self.mm
+        ll = self.ll 
+        
+        # build c
+        c_data = list(-self.muk) + [0.] * (ll * (nn + 1))
+        
+        # build G
+        # linear
+        G_icol = list(range(mm)) * (nn * ll)
+        G_irow = [k  for k in range(nn * ll) for _ in range(mm)]
+        G_data = list(np.ravel(-self.rrate)) * ll
+        for l in range(ll):
+            G_icol += [mm + k * (nn + 1) for k in range(l)] * nn \
+                  + list(range(mm + l * (nn + 1) + 1, mm + (l + 1) * (nn + 1)))
+            G_irow += [k for k in range(l * nn, (l + 1) * nn) \
+                       for _ in range(l)] \
+                  + list(range(l * nn, (l + 1) * nn))
+            G_data += [-1.] * ((l + 1) * nn)
+
+        G_icol += list(range(mm + ll * (nn + 1)))
+        G_irow += list(range(nn * ll, mm + 2 * nn * ll + ll))
+        G_data += [-1.] * (mm + ll * (nn + 1))
+        # cone
+        for l in range(ll):
+            G_icol += list(range((nn + 1) * l + mm , 
+                                 (nn + 1) * l + mm + 1 + nn))
+            G_irow += list(range(mm + 2 * nn * ll + ll + l * (nn + 1), 
+                                 mm + 2 * nn * ll + ll + (l + 1) * (nn + 1)))
+            G_data += [-np.sqrt(nn)] + [-1.] * nn
+            
+        G_shape = (3 * nn * ll + mm + 2 * ll, mm + ll * (nn + 1))
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
+        
+        # build h
+        h_data = [0.] * (3 * nn * ll + mm + 2 * ll)
+        
+        # build dims
+        dims = {'l': (2 * ll * nn + mm + ll), 'q': [nn + 1] * ll}
+        
+        # build A
+        A_icol = list(range(mm)) + [mm + l * (nn + 1) for l in range(ll)] + list(range(mm))
+        A_irow = [0] * mm + [1] * (ll + mm)
+        A_data = [1.] * mm + list(self.coef) + list((self.diverse- 1) * self.risk_comp)
+        
+        A_shape = (2, mm + ll * (nn + 1))
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
+        
+        # build b
+        b_data = [1., 0.]
+        
+        # calc
+        res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+ 
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
+            return np.array([np.nan] * mm)
+        
+        # rate of return
+        self.RR = -res['pcost']
+        # delta-risk values
+        self.primary_risk_comp = np.array([res['x'][mm + l * (nn + 1)] \
+                                           for l in range(ll)])
+        # risk
+        self.risk = np.dot(self.primary_risk_comp, self.coef)
+        # delta-risk strikes
+        self.secondary_risk_comp = \
+            np.cumsum(np.insert(self.primary_risk_comp, 0, 0))[:-1]
+        # optimal weights
+        self.ww = np.array(res['x'][:mm])
+        self.ww.shape = mm
+        # diversification
+        self.diverse= 1 - self.risk / np.dot(self.ww, self.risk_comp)
+
         return self.ww

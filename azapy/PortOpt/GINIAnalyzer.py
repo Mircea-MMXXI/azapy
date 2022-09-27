@@ -516,7 +516,7 @@ class GINIAnalyzer(_RiskAnalyzer):
             
         t = res['x'][-1]
         # Gini-Divers
-        self.divers = 1. - res['pcost']
+        self.diverse= 1. - res['pcost']
         # Gini
         self.risk = res['pcost'] / t
         # optimal weights
@@ -530,3 +530,69 @@ class GINIAnalyzer(_RiskAnalyzer):
         
         return self.ww
         
+    
+    def _rr_max_diversification(self):
+        # Order of variables (mm - no of symb, nn - no of observations)
+        # w <- [0 : mm]
+        # s <- [mm : mm + nn2]
+        # in total dim = mm + nn2
+        # where nn2 = nn * (nn - 1) / 2
+        mm = self.mm
+        nn2 = self.nn2
+        norm = 1 / self.nn ** 2
+        
+        # build c
+        c_data = list(-self.muk) + [0.] * nn2
+        
+        # build G
+        G_icol = [m for m in range(mm) for _ in range(nn2)] * 2
+        G_irow = list(range(nn2)) * mm + list(range(nn2, 2 * nn2)) * mm
+        G_data = list(self.drate) + list(-self.drate)
+        
+        G_icol += list(range(mm, mm + nn2)) * 2
+        G_irow += list(range(nn2 * 2))
+        G_data += [-1.] * (nn2 * 2)
+        
+        G_icol += list(range(mm))
+        G_irow += list(range(nn2 * 2, nn2 * 2 + mm))
+        G_data += [-1.] * mm
+        
+        G_shape = (nn2 * 2 + mm, mm + nn2)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
+        
+        # build h
+        h_data = [0.] * (nn2 * 2 + mm) 
+        
+        # build A
+        A_icol = list(range(mm)) + list(range(mm, mm + nn2)) + list(range(mm))
+        A_irow = [0] * mm + [1] * (nn2 + mm)
+        A_data = [1.] * mm + [norm] * nn2 + list((self.diverse- 1.) * self.risk_comp)
+        
+        A_shape = (2, mm + nn2)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
+        
+        # build b
+        b_data = [1., 0.]
+        
+        # calc
+        res = _lp_solver(self.method, c_data, G, h_data, A, b_data)
+ 
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
+            return np.array([np.nan] * mm)
+            
+        # optimal weights
+        self.ww = np.array(res['x'][:mm])
+        self.ww.shape = mm
+        # rate of return
+        self.RR = -res['pcost']
+        # risk
+        self.risk = norm * np.sum(res['x'][mm:])
+        self.primary_risk_comp = np.array([self.risk])
+        self.secondary_risk_comp = np.array([self.risk])
+        # diversification
+        self.diverse= 1 - self.risk / np.dot(self.ww, self.risk_comp)
+        
+        return self.ww

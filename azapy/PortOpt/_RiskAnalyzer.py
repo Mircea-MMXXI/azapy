@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from collections import defaultdict
+import copy as copy
 import warnings
 
 from azapy.MkT.MkTcalendar import NYSEgen
@@ -43,35 +44,42 @@ class _RiskAnalyzer:
 
         Parameters
         ----------
-        `mktdata` : `pandas.DataFrame`, optional
+        `mktdata` : `pandas.DataFrame`, optional;
             Historic daily market data for portfolio components in the format
             returned by `azapy.mktData` function. The default is `None`.
         `colname` : string, optional
             Name of the price column from mktdata used in the weights
             calibration. The default is 'adjusted'.
-        `freq` : string, optional
+        `freq` : `str`, optional;
             Rate of return horizon in number of business day. it could be
             'Q' for quarter or 'M' for month. The default is `'Q'`.
-        `hlength` : float, optional
+        `hlength` : `float`, optional;
             History length in number of years used for calibration. A
             fractional number will be rounded to an integer number of months.
             The default is `3.25` year.
-        `calendar` : `numpy.busdaycalendar`, optional
+        `calendar` : `numpy.busdaycalendar`, optional;
             Business days calendar. If is it `None` then the calendar will be 
             set to NYSE business calendar. The default is `None`.
-        `rtype` : string, optional
+        `rtype` : `str`, optional;
             Optimization type. Possible values \n
-                'Risk' : optimal portfolio for targeted expected rate of return.\n
+                'Risk' : optimal portfolio for targeted expected rate of 
+                return.\n
                 'Sharpe' : optimal Sharpe portfolio - maximization solution.\n
                 'Sharpe2' : optimal Sharpe portfolio - minimization solution.\n
                 'MinRisk' : minimum risk portfolio.\n
-                'InvNrisk' : optimal portfolio with the same risk value as a 
-                benchmark portfolio (e.g. equal weighted portfolio).\n
                 'RiskAverse' : optimal portfolio for a fixed risk-aversion
                 factor.\n
-                `MaxDivers` : portfolio with maximum diversification.\n
-                `Divers` : optimal diversified portfolio for targeted
+                `Diverse` : optimal diversified portfolio for targeted
                 expected rate of return.\n
+                `MaxDiverse` : portfolio with maximum diversification.\n
+                'InvNrisk' : optimal portfolio with the same risk value as a 
+                benchmark portfolio (e.g. same as equal weighted portfolio).\n
+                `InvNdiverse` : optimal diversifeid portfolio with the same
+                diversification fctor as a benchmark portfolio 
+                (e.g. same as equal weighted portfolio).\n
+                `InvNrr` : optimal diversified portfolio with the same 
+                expected rate of return as a benchmark portfolio
+                (e.g. same as equal weighted portfolio).\n
             The default is 'Sharpe'.
 
         Returns
@@ -105,7 +113,7 @@ class _RiskAnalyzer:
        
         self.method = None
         
-        self.divers = None
+        self.diverse = None
         self.risk_comp = None
         self._flag_risk_comp_calc = False
         
@@ -147,10 +155,10 @@ class _RiskAnalyzer:
         `ww0` : `list`, `numpy.array` or `pandas.Series`, optional;
             Targeted portfolio weights. 
             Relevant only if `rype='InvNrisk'`.
-            Its length must be equal to the number of symbols in `rrate` (mktdata). 
-            All weights must be >= 0 with sum > 0.
-            If it is a `list` or a `numpy.array` then the weights are assumed to
-            by in order of `rrate.columns`. If it is a `pandas.Series` then 
+            Its length must be equal to the number of symbols in `rrate` 
+            (mktdata). All weights must be >= 0 with sum > 0.
+            If it is a `list` or a `numpy.array` then the weights are assumed 
+            to be in order of `rrate.columns`. If it is a `pandas.Series` then 
             the index should be compatible with the `rrate.columns` or mktdata 
             symbols (same symbols, not necessary in the same order).
             If it is `None` then it will be set to equal weights.
@@ -170,6 +178,9 @@ class _RiskAnalyzer:
         self.secondary_risk_comp = None
         self.sharpe = None
         self.RR = None
+        self.diverse = None
+        
+        d = 1 if d == 1 else -1
         
         if rrate is not None:
             self.set_rrate(rrate)
@@ -229,8 +240,18 @@ class _RiskAnalyzer:
                     raise ValueError("At least one ww0 must be non zero")
                 ww = ww / sww
                 
+            self.getRiskComp()
             self.getRisk(ww)
-            self._rr_max()  
+            
+            symb_max = self.muk.idxmax()
+            if self.risk < self.risk_comp[symb_max]:
+                self._rr_max()  
+            else:
+                w = pd.Series(0, index=self.rrate.columns)
+                w[symb_max] = 1
+                self.getRisk(w)
+                warnings.warn(
+                    f"InvNrisk defaulted to single portfolio [{symb_max}]")
             
         elif self.rtype == "RiskAverse":          
             if aversion is None:
@@ -242,9 +263,9 @@ class _RiskAnalyzer:
             self.Lambda = aversion
             self._risk_averse()
             
-        elif self.rtype == "Divers":
+        elif self.rtype == "Diverse":
             if mu is None:
-                raise ValueError("for rtype='Divers' mu must have a value")
+                raise ValueError("for rtype='Diverse' mu must have a value")
             elif mu > self.muk.max():
                 self.mu = self.muk.max()
             elif mu < self.muk.min():
@@ -255,11 +276,51 @@ class _RiskAnalyzer:
             self.getRiskComp()
             self._risk_diversification(d=d)
             
-        elif self.rtype == "MaxDivers":  
+        elif self.rtype == "MaxDiverse":  
             self.mu = self.muk.min()
             self.getRiskComp()
-            self._risk_diversification()
+            self._risk_diversification(d=1)
             
+        elif self.rtype == "InvNdiverse":
+            if ww0 is None:
+                ww = np.full(len(self.rrate.columns), 
+                             1/len(self.rrate.columns))
+            else:
+                if isinstance(ww0, pd.core.series.Series):
+                    ww = np.array(ww0[self.rrate.columns])
+                else:
+                    ww = np.array(ww0)
+                if any(ww < 0.):
+                    raise ValueError("All ww0 must be non-negative")
+                sww = ww.sum()
+                if sww <= 0:
+                    raise ValueError("At least one ww0 must be non zero")
+                ww = ww / sww
+                
+            self.getDiversification(ww)
+            self._rr_max_diversification()  
+            
+        elif self.rtype == "InvNrr":
+            if ww0 is None:
+                ww = np.full(len(self.rrate.columns), 
+                             1/len(self.rrate.columns))
+            else:
+                if isinstance(ww0, pd.core.series.Series):
+                    ww = np.array(ww0[self.rrate.columns])
+                else:
+                    ww = np.array(ww0)
+                if any(ww < 0.):
+                    raise ValueError("All ww0 must be non-negative")
+                sww = ww.sum()
+                if sww <= 0:
+                    raise ValueError("At least one ww0 must be non zero")
+                ww = ww / sww
+                
+            self.mu = np.dot(ww, self.muk)
+            self.getRiskComp()
+            self._risk_diversification(d=1)
+            if np.abs(self.mu - self.RR) >= 1.e-8:
+                self._risk_diversification(d=-1)
             
         else:
             raise ValueError("you should not be here")
@@ -283,8 +344,8 @@ class _RiskAnalyzer:
             Portfolio weights. Its length must be equal to the number of
             symbols in `rrate` (mktdata). All weights must be >=0 with 
             sum > 0.
-            If it is a `list` or a `numpy.array` then the weights are assumed to
-            by in order of `rrate.columns`. If it is a `pandas.Series` than 
+            If it is a `list` or a `numpy.array` then the weights are assumed 
+            to be in order of `rrate.columns`. If it is a `pandas.Series` than 
             the index should be compatible with the `rrate.columns` or mktdata 
             symbols (not necessary in the same order).
         `rrate` : `pandas.DataFrame`, optional;
@@ -378,7 +439,7 @@ class _RiskAnalyzer:
             symbols in `rrate` (mktdata). 
             All weights must be >= 0 with sum > 0.
             If it is a list or a `numpy.array` then the weights are assumed to
-            by in order of `rrate.columns`. If it is a `pandas.Series` then the 
+            be in order of `rrate.columns`. If it is a `pandas.Series` then the 
             index should be compatible with the `rrate.columns` or mktdata 
             symbols (same symbols, not necessary in the same order).
             If it is `None` then it will be set to equal weights.
@@ -424,7 +485,7 @@ class _RiskAnalyzer:
             ns = ns.add(nshares, fill_value=0)
 
         if len(self.rrate.columns) != len(ns):
-            raise ValueError("nshares must by a subset "
+            raise ValueError("nshares must be a subset " + \
                              f"of {self.rrate.columns}")
 
         pp = self.last_data[self.rrate.columns.to_list()]
@@ -466,6 +527,7 @@ class _RiskAnalyzer:
         `rrate` : `pandas.DataFrame`;
             Portfolio components historical rates of returns. The
             columns are: "date", "symbol1", "symbol2", etc.
+            
         Returns
         -------
         None
@@ -542,7 +604,8 @@ class _RiskAnalyzer:
         `None`
         """
         rtypes = ["Sharpe", "Risk", "MinRisk", "Sharpe2", "InvNrisk",
-                  "RiskAverse", "Divers", "MaxDivers"]
+                  "RiskAverse", "Diverse", "MaxDiverse", "InvNdiverse",
+                  "InvNrr"]
 
         if not rtype in rtypes:
             raise ValueError(f"rtype must be one of {rtypes}")
@@ -550,10 +613,11 @@ class _RiskAnalyzer:
 
 
     def viewFrontiers(self, minrisk=True, efficient=20, inefficient=20, 
-                      sharpe=True, musharpe=0.,
-                      component=True, randomport=20, inverseN=True,
-                      maxdivers=False, divers_efficient=0, divers_inefficient=0,
-                      addport=None, fig_type='RR_risk', **opt):
+                      sharpe=True, musharpe=0., maxdiverse=False, 
+                      diverse_efficient=0, diverse_inefficient=0, invN=True, 
+                      invNrisk=True, invNdiverse=False, invNrr=False,
+                      component=True, randomport=20, addport=None, 
+                      fig_type='RR_risk', **opt):
         """
         Computes the elements of the portfolio frontiers.
 
@@ -574,27 +638,39 @@ class _RiskAnalyzer:
         `musharpe` : float, optional;
             Risk-free rate value used in the evaluation of
             generalized Sharpe ratio. The default is `0`.
+        `maxdiverse`: Boolean, optional;
+            If it is `True` then the maximum diversified portfolio will be 
+            visible. The default is `True`.
+        `diverse_efficient`: int, optional;
+            Number of points along the diversified efficient frontier
+            (equally spaced along the rate of return axis).
+            The default is 20.
+        `diverse_inefficient`: int, optional;
+            Number of points along the diversified inefficient frontier
+            (equally spaced along the rate of return axis).
+            The default is 20.
+        `invN` : Boolean, optional;
+            If it is `True`, then the equal weighted portfolio and the optimal 
+            portfolio with the same risk value are added to
+            the plot. The default is `True`.
+        `invNrisk` : Boolena, optional;
+            If it is `True`, then the efficient portfolio with same risk as 
+            equal weighth portfolio is added to the plot.
+            The defualt is `False`.
+        `invNdiverse` : Boolean, optional:
+            If it is `True`, then the deverse-efficient portfolio with the 
+            same diversification factor as the equal weighted portfolio is
+            added to the plot. The default is `False`.
+        `invNrr` : Boolena, optional;
+            If it is `True`, then the deverse-efficient portfolio with the same
+            expected rate of return as the equal weighted portfolio is
+            added to the plot. The default value is `False`.
         `component` : Boolean, optional;
-            If it is `True` then the single component portfolios added to 
+            If it is `True`, then the single component portfolios are added to 
             the plot. The default is `True`.
         `randomport` : int, optional;
             Number of portfolios with random weights (inefficient) to be
             added to the plot (for reference). The default is `20`.
-        `inverseN` : boolean, optional;
-            If it is `True` then the equally weighted portfolio and the optimal 
-            portfolio  with the same dispersion (risk) value are added to
-            the plot. The default is `True`.
-        `maxdivers`: Boolean, optional;
-            If it is `True` then the maximum diversified portfolio will be 
-            visible. The default is `True`.
-        `divers_efficient`: int, optional;
-            Number of points along the diversified efficient frontier
-            (equally spaced along the rate of return axis).
-            The default is 20.
-        `divers_inefficient`: int, optional;
-            Number of points along the diversified inefficient frontier
-            (equally spaced along the rate of return axis).
-            The default is 20.
         `addport` : `dict` or `pandas.DataFrame`, optional;
             The weights of additional portfolio to be added to the plot.
             If it is a `dict` then the keys are the labels, and the values are 
@@ -606,31 +682,61 @@ class _RiskAnalyzer:
             Graphical representation format. \n
                 * `'RR_risk'` : expected rate of return vs risk
                 * `'Sharpe_RR'` : sharpe vs expected rate of return
-                * `'Divers_RR'` : diversification vs expected rate of return
+                * `'diverse_RR'` : diversification vs expected rate of return
                 
             The default is `'RR_risk'`.
         `opt` : optional;
             Additonal parameters:\n
-                * `'title'` : The default is 'Portfolio frontiers'
-                * `'xlabel'` : The default is \n
-                    - `'risk'` if `fig_type='RR_risk'`
-                    - `'rate of returns'` otherwise
-                * `'ylabel'` : The default is \n
-                    - `'rate of returns'` if `fig_type='RR_risk'`
-                    - `'sharpe'` if `fig_type='RR_sharpe'`
-                    - `'diversification'` if `fig_type=RR_divers` 
-                * `'tangent'` : Boolean flag. If set to `True` the tangent
-                    (to sharpe point) is added. It has effect only  if
+                * `'title'` : `str`; 
+                    The default is 'Portfolio frontiers'
+                * `'xlabel'` : `str`; 
+                    The default is \n
+                    - `'risk'` if `fig_type='RR_risk'`,
+                    - `'rate of returns'` otherwise.
+                * `'ylabel'` : `str`; 
+                    The default is \n
+                        - `'rate of returns'` if `fig_type='RR_risk'`
+                        - `'sharpe'` if `fig_type='Sharpe_RR'`
+                        - `'diversification'` if `fig_type=diverse_RR`
+                    
+                * `'tangent'` : Boolean; 
+                    If set to `True`, then the tangent
+                    (to max sharpe point) is added. It has effect only  if
                     `fig_type='RR_risk'`. The default is `True`.
-                * `saveto` : `str`, optional; \n
-                    File name to save the figure. The extension dictates the format:
-                    png, pdf, svg, etc. For more details see the `mathplotlib`
-                    documentation for `savefig`. The default is `None`.
-                * `data` : `dict`, optional; \n
-                    Numerical data to construct the plot. If it is not `None` it
-                    will take precedence and no other numerical evaluations will be
-                    performed. It is meant to produce different plot representations
+                * `saveto` : `str`; 
+                    File name to save the figure. The extension dictates the 
+                    format: png, pdf, svg, etc. For more details see the 
+                    `mathplotlib` documentation for `savefig`. 
+                    The default is `None`.
+                * `data` : `defaultdict`; 
+                    Numerical data to construct the plot. If it is not `None`,
+                    then it will take precedence and no other numerical 
+                    evaluations will be performed. 
+                    It is meant to produce different plot representations
                     without reevaluations. The default is `None`.
+                * `invN_label` : `str`;
+                    The label for equal weighted portfolio. 
+                    The default is `'1/N'`.
+                * `invNrisk_label` : `str`;
+                    The lable for efficient portfolio with same risk as 
+                    equal weighted portfolio. The default is `invNrisk`.
+                * `invNdiverse_label` : `str`;
+                    The label for diverse-efficient portfolio with the same
+                    diversificeation factor as equal weighted porfolio.
+                    The default is `'invNdiv'`.
+                * `invNrr_label` : `str`;
+                    The label of diverse-efficient portfolio with the same
+                    expected rate of return as equal weighted portolio.
+                    The defualt is `'invNrr'`.
+                * `maxdiverse_label` : `str`;
+                    The label of maximum diverified portfolio. 
+                    The default is `'MaxD'`.
+                * `minrisk_label` : `'str'`;
+                    The label of minimum risk portfolio.
+                    The default is `'MinR'`.
+                * `sharpe_label` : `str`;
+                    The label of maximum Sharpe portfolio. 
+                    The default is `'Sharpe'`.
 
         Returns
         -------
@@ -638,33 +744,61 @@ class _RiskAnalyzer:
             Numerical data used to make the plots. It can be passed back to
             reconstruct the plots without reevaluations.
         """
-        options = defaultdict(lambda: None)
+        if fig_type == 'RR_risk':
+            xlabel = 'risk'
+            ylabel = 'rate of return'
+            plot_ff = self._plot_f1
+        elif fig_type == 'Sharpe_RR':
+            xlabel = 'rate of return'
+            ylabel = 'sharpe'
+            plot_ff = self._plot_f2
+        elif fig_type == 'Diverse_RR':
+            xlabel = 'rate of return'
+            ylabel = 'diversification'
+            plot_ff = self._plot_f3
+        else:
+            fty = ['RR_risk', 'Sharpe_RR', 'Diverse_RR']
+            raise ValueError(f"fig_type={fig_type} ; must be one of {fty}")
+                
+        options_default = {'invN_label': '1/N',
+                           'invNrisk_label': 'InvNrisk',
+                           'invNdiverse_label' : 'InvNdiv',
+                           'invNrr_label' : 'InvNrr',
+                           'maxdiverse_label' : 'MaxD',
+                           'minrisk_label' : 'MinR',
+                           'sharpe_label' : 'Sharpe',
+                           'comp_label': True,
+                           'addport_label': True,
+                           'tangent' : True,
+                           'title' : 'Portfolio frontiers',
+                           'xlabel' : xlabel,
+                           'ylabel' : ylabel,
+                           }
+        options = defaultdict(lambda: None, options_default)
         for k, v in opt.items():
             if isinstance(v, dict) & (k != 'data'):
                 options.update(v)
             else:
                 options[k] = v
-                
-        saveto = options['saveto']
-        del options['saveto']
-        res = options['data']
+
+        resout = options['data']
         del options['data']
  
         # calc
-        if res is None:
-            res = defaultdict(lambda: None)
+        if resout is None:
+            res = defaultdict(lambda: defaultdict(lambda: None))
             
             minrisk_calc = False
             if minrisk | (efficient != 0) | (inefficient != 0):
                 minrisk_calc = True
             
-            maxdivers_calc = False
+            maxdiverse_calc = False
             self.getRiskComp()
-            if maxdivers | (divers_efficient != 0) | (divers_inefficient !=0): 
-                maxdivers_calc = True
+            if maxdiverse | (diverse_efficient != 0) | \
+                (diverse_inefficient !=0): 
+                maxdiverse_calc = True
   
             # min risk
-            res['risk_min'] = defaultdict(lambda: None)
             res['risk_min']['risk_min'] = minrisk
             if minrisk_calc:
                 ww_min = self.getWeights(rtype='MinRisk')
@@ -673,12 +807,13 @@ class _RiskAnalyzer:
                 res['risk_min']['risk'] = risk_min
                 res['risk_min']['rr'] = rr_min
                 res['risk_min']['ww'] = ww_min
-                res['risk_min']['sharpe'] = (np.dot(ww_min, self.muk) - musharpe) / risk_min
-                res['risk_min']['divers'] = 1 - risk_min / np.dot(ww_min, self.risk_comp)
-                res['risk_min']['label'] = 'MinR'
+                res['risk_min']['sharpe'] = \
+                    (np.dot(ww_min, self.muk) - musharpe) / risk_min \
+                        if risk_min != 0 else 0
+                res['risk_min']['diverse'] = self.getDiversification(ww_min)
+                res['risk_min']['label'] = options['minrisk_label']
     
             # efficient frontier
-            res['efficient'] = defaultdict(lambda: None)
             res['efficient']['efficient'] = efficient
             if efficient > 0:
                 rr_eff = np.linspace(rr_min, self.muk.max(), efficient)
@@ -686,21 +821,21 @@ class _RiskAnalyzer:
                 ww_eff = []
                 RR_eff = []
                 sharpe_eff = []
-                divers_eff = []
+                diverse_eff = []
                 for rr in rr_eff:
                     ww_eff.append(self.getWeights(rtype='Risk', mu=rr))
                     risk_eff.append(self.risk)
                     RR_eff.append(self.RR)
-                    sharpe_eff.append((np.dot(self.ww, self.muk) - musharpe) / self.risk)
-                    divers_eff.append(1 - self.risk / np.dot(self.ww, self.risk_comp))
+                    sharpe_eff.append(
+                        (np.dot(self.ww, self.muk) - musharpe) / self.risk)
+                    diverse_eff.append(self.getDiversification(self.ww))
                 res['efficient']['risk'] = np.array(risk_eff)
                 res['efficient']['rr'] = np.array(RR_eff)
                 res['efficient']['ww'] = ww_eff
                 res['efficient']['sharpe'] = np.array(sharpe_eff)
-                res['efficient']['divers'] = np.array(divers_eff)
+                res['efficient']['diverse'] = np.array(diverse_eff)
     
             # inefficient frontier
-            res['inefficient'] = defaultdict(lambda: None)
             res['inefficient']['inefficient'] = inefficient
             if inefficient > 0 :
                 rr_ineff = np.linspace(self.muk.min(), rr_min, inefficient)
@@ -708,38 +843,37 @@ class _RiskAnalyzer:
                 ww_ineff = []
                 RR_ineff = []
                 sharpe_ineff = []
-                divers_ineff = []
+                diverse_ineff = []
                 for rr in rr_ineff:
                     ww_ineff.append(self.getWeights(rtype='Risk', mu=rr, d=-1))
                     risk_ineff.append(self.risk)
                     RR_ineff.append(self.RR)
-                    sharpe_ineff.append((np.dot(self.ww, self.muk) - musharpe) / self.risk)
-                    divers_ineff.append(1 - self.risk / np.dot(self.ww, self.risk_comp))
+                    sharpe_ineff.append(
+                        (np.dot(self.ww, self.muk) - musharpe) / self.risk)
+                    diverse_ineff.append(self.getDiversification(self.ww))
                 res['inefficient']['risk'] = np.array(risk_ineff)
                 res['inefficient']['rr'] = np.array(RR_ineff)
                 res['inefficient']['ww'] = ww_ineff
                 res['inefficient']['sharpe'] = np.array(sharpe_ineff)
-                res['inefficient']['divers'] = np.array(divers_ineff)
+                res['inefficient']['diverse'] = np.array(diverse_ineff)
     
             # sharpe point
-            res['sharpe'] = defaultdict(lambda: None)
             res['sharpe']['sharpe'] = sharpe
             if sharpe:
                 ww_sharpe = self.getWeights(rtype='Sharpe', mu0=musharpe)
                 rr_sharpe = self.RR
                 risk_sharpe = self.risk
                 sharpe_sharpe = self.sharpe
-                divers_sharpe = 1 - risk_sharpe / np.dot(ww_sharpe, self.risk_comp)
+                diverse_sharpe = self.getDiversification(ww_sharpe)
                 res['sharpe']['mu'] = musharpe
                 res['sharpe']['risk'] = risk_sharpe
                 res['sharpe']['rr'] = rr_sharpe
                 res['sharpe']['ww'] = ww_sharpe
                 res['sharpe']['sharpe'] = sharpe_sharpe
-                res['sharpe']['divers'] = divers_sharpe
-                res['sharpe']['label'] = 'Sharpe'
+                res['sharpe']['diverse'] = diverse_sharpe
+                res['sharpe']['label'] = options['sharpe_label']
     
             # portfolio components
-            res['component'] = defaultdict(lambda: None)
             res['component']['component'] = component
             if component:
                 risk_comp = []
@@ -747,7 +881,6 @@ class _RiskAnalyzer:
                 label_comp = []
                 ww_comp = []
                 sharpe_comp = []
-                divers_comp = []
                 for k in range(self.mm):
                     ww = [0.] * self.mm
                     ww[k] = 1.
@@ -755,144 +888,170 @@ class _RiskAnalyzer:
                     rr_comp.append(self.muk[k])
                     label_comp.append(self.muk.index[k])
                     ww_comp.append(ww)
-                    sharpe_comp.append((self.muk[k] - musharpe) / self.risk)
-                    divers_comp.append(1 - self.risk / self.risk_comp[k])
+                    sharpe_comp.append(
+                        (self.muk[k] - musharpe) / self.risk \
+                            if self.risk != 0 else 0)
                 res['component']['risk'] = np.array(risk_comp)
                 res['component']['rr'] = np.array(rr_comp)
                 res['component']['ww'] = ww_comp
-                res['component']['label'] = label_comp
+                res['component']['label'] = label_comp \
+                    if options['comp_label'] else [None] * self.mm
                 res['component']['sharpe'] = np.array(sharpe_comp)
-                res['component']['divers'] = np.array(divers_comp)
+                res['component']['diverse'] = np.zeros(self.mm)
     
             # random portfolios
-            res['randomport'] = defaultdict(lambda: None)
             res['randomport']['randomport'] = randomport
             if randomport > 0:
                 risk_rp = []
                 rr_rp = []
                 ww_rp = []
                 sharpe_rp = []
-                divers_rp = []
+                diverse_rp = []
                 for _ in range(randomport):
                     ww = self._ww_gen()
-                    risk_rp.append(self.getRisk(ww))
+                    diverse_rp.append(self.getDiversification(ww))
+                    risk_rp.append(self.risk)
                     rr_rp.append(self.RR)
                     ww_rp.append(ww)
-                    sharpe_rp.append((np.dot(self.ww, self.muk) - musharpe) / self.risk)
-                    divers_rp.append(1 - self.risk / np.dot(self.ww, self.risk_comp))
+                    sharpe_rp.append(
+                        (np.dot(self.ww, self.muk) - musharpe) / self.risk)
                 res['randomport']['risk'] = np.array(risk_rp)
                 res['randomport']['rr'] = np.array(rr_rp)
                 res['randomport']['ww'] = ww_rp
                 res['randomport']['sharpe'] = np.array(sharpe_rp)
-                res['randomport']['divers'] = np.array(divers_rp)
+                res['randomport']['diverse'] = np.array(diverse_rp)
     
-            # inverse N
-            res['inverseN'] = defaultdict(lambda: None)
-            res['inverseN']['inverseN'] = inverseN
-            if inverseN:
-                risk_n = []
-                rr_n = []
-                ww_n = []
-                sharpe_n = []
-                divers_n = []
+            # invN
+            res['invN']['invN'] = invN
+            if invN:
+                res['invN']['ww'] = np.full(self.mm, 1 / self.mm)
+                res['invN']['diverse'] = self.getDiversification(res['invN']['ww'])
+                res['invN']['risk'] = self.risk
+                res['invN']['rr'] = self.RR
+                res['invN']['label'] = options['invN_label']
+                res['invN']['sharpe'] = \
+                    (np.dot(self.ww, self.muk) - musharpe) / self.risk
                 
-                # 1/N portfolio
-                wwn = np.full(self.mm, 1 / self.mm)
-                risk_n.append(self.getRisk(wwn))
-                rr_n.append(self.RR)
-                ww_n.append(wwn)
-                sharpe_n.append((np.dot(self.ww, self.muk) - musharpe) / self.risk)
-                divers_n.append(1 - self.risk / np.dot(self.ww, self.risk_comp))
+            # invNrisk
+            res['invNrisk']['invNrisk'] = invNrisk
+            if invNrisk:
+                res['invNrisk']['ww'] = self.getWeights(rtype="InvNrisk")
+                res['invNrisk']['risk'] = self.risk
+                res['invNrisk']['rr'] = self.RR
+                res['invNrisk']['label'] = options['invNrisk_label']
+                res['invNrisk']['sharpe'] = \
+                    (np.dot(self.ww, self.muk) - musharpe) / self.risk
+                res['invNrisk']['diverse'] = \
+                    self.getDiversification(res['invNrisk']['ww'])
+                    
+            # invNdiverse
+            res['invNdiverse']['invNdiverse'] = invNdiverse
+            if invNdiverse:
+                res['invNdiverse']['ww'] = self.getWeights(rtype="InvNdiverse")
+                res['invNdiverse']['risk'] = self.risk
+                res['invNdiverse']['rr'] = self.RR
+                res['invNdiverse']['label'] = options['invNdiverse_label']
+                res['invNdiverse']['sharpe'] = \
+                    (np.dot(self.ww, self.muk) - musharpe) / self.risk
+                res['invNdiverse']['diverse'] = self.diverse
                 
-                # optimal 1/N risk portfolio
-                ww_n.append(self.getWeights(rtype="InvNrisk"))
-                risk_n.append(self.risk)
-                rr_n.append(self.RR)
-                sharpe_n.append((np.dot(self.ww, self.muk) - musharpe) / self.risk)
-                divers_n.append(1 - self.risk / np.dot(self.ww, self.risk_comp))
+            # invNrr
+            res['invNrr']['invNrr'] = invNrr
+            if invNrr:
+                res['invNrr']['ww'] = self.getWeights(rtype="InvNrr")
+                res['invNrr']['risk'] = self.risk
+                res['invNrr']['rr'] = self.RR
+                res['invNrr']['label'] = options['invNrr_label']
+                res['invNrr']['sharpe'] = \
+                    (np.dot(self.ww, self.muk) - musharpe) / self.risk
+                res['invNrr']['diverse'] = self.diverse
                 
-                res['inverseN']['risk'] = np.array(risk_n)
-                res['inverseN']['rr'] = np.array(rr_n)
-                res['inverseN']['ww'] = ww_n
-                res['inverseN']['label'] = ['1/N', 'InvNrisk']
-                res['inverseN']['sharpe'] = np.array(sharpe_n)
-                res['inverseN']['divers'] = np.array(divers_n)
+            # maxdiverse
+            res['maxdiverse']['maxdiverse'] = maxdiverse
+            if maxdiverse_calc:
+                ww_d = self.getWeights('MaxDiverse')  
+                res['maxdiverse']['risk'] = self.risk 
+                rr_maxdiverse = self.RR 
+                res['maxdiverse']['rr'] = rr_maxdiverse
+                res['maxdiverse']['ww'] = ww_d
+                res['maxdiverse']['diverse'] = self.diverse
+                res['maxdiverse']['label'] = options['maxdiverse_label']
+                res['maxdiverse']['sharpe'] = \
+                    (np.dot(ww_d, self.muk) - musharpe) / self.risk
                 
-            # MaxDivers
-            res['maxdivers'] = defaultdict(lambda: None)
-            res['maxdivers']['maxdivers'] = maxdivers
-            if maxdivers_calc:
-                ww_d = self.getWeights('MaxDivers')  
-                res['maxdivers']['risk'] = self.risk 
-                rr_maxdivers = self.RR 
-                res['maxdivers']['rr'] = rr_maxdivers
-                res['maxdivers']['ww'] = ww_d
-                res['maxdivers']['divers'] = self.divers
-                res['maxdivers']['label'] = 'MaxD'
-                res['maxdivers']['sharpe'] = (np.dot(ww_d, self.muk) - musharpe) / self.risk
-                
-            # divers efficient frontier
-            res['divers_efficient'] = defaultdict(lambda: None)
-            res['divers_efficient']['divers_efficient'] = divers_efficient
-            if divers_efficient > 0:
-                rr_d_eff = np.linspace(rr_maxdivers, self.muk.max(), divers_efficient)
+            # diverse-efficient frontier
+            res['diverse_efficient']['diverse_efficient'] = diverse_efficient
+            if diverse_efficient > 0 :
+                rr_d_eff = np.linspace(rr_maxdiverse, 
+                                       self.muk.max() - 1.e-7, 
+                                       diverse_efficient)
                 risk_d_eff = []
                 ww_d_eff = []
                 RR_d_eff = []
                 sharpe_d_eff = []
-                divers_d_eff = []
+                diverse_d_eff = []
                 for rr in rr_d_eff:
-                    ww_d_eff.append(self.getWeights(rtype='Divers', mu=rr))
+                    ww_d_eff.append(self.getWeights(rtype='Diverse', mu=rr))
                     risk_d_eff.append(self.risk)
                     RR_d_eff.append(self.RR)
-                    sharpe_d_eff.append((np.dot(self.ww, self.muk) - musharpe) / self.risk)
-                    divers_d_eff.append(1 - self.risk / np.dot(self.ww, self.risk_comp))
-                res['divers_efficient']['risk'] = np.array(risk_d_eff)
-                res['divers_efficient']['rr'] = np.array(RR_d_eff)
-                res['divers_efficient']['ww'] = ww_d_eff
-                res['divers_efficient']['sharpe'] = np.array(sharpe_d_eff)
-                res['divers_efficient']['divers'] = np.array(divers_d_eff)
+                    sharpe_d_eff.append(
+                        (np.dot(self.ww, self.muk) - musharpe) / self.risk \
+                            if self.risk != 0 else 0)
+                    diverse_d_eff.append(self.getDiversification(self.ww))
+                res['diverse_efficient']['risk'] = np.array(risk_d_eff)
+                res['diverse_efficient']['rr'] = np.array(RR_d_eff)
+                res['diverse_efficient']['ww'] = ww_d_eff
+                res['diverse_efficient']['sharpe'] = np.array(sharpe_d_eff)
+                res['diverse_efficient']['diverse'] = np.array(diverse_d_eff)
                 
-            # divers inefficient frontier
-            res['divers_inefficient'] = defaultdict(lambda: None)
-            res['divers_inefficient']['divers_inefficient'] = divers_inefficient
-            if divers_inefficient > 0 :
-                rr_d_ineff = np.linspace(self.muk.min(), rr_maxdivers, divers_inefficient)
+            # diverse-inefficient frontier
+            res['diverse_inefficient']['diverse_inefficient'] = diverse_inefficient
+            if diverse_inefficient > 0 :
+                rr_d_ineff = np.linspace(self.muk.min(), 
+                                         rr_maxdiverse, 
+                                         diverse_inefficient)
                 risk_d_ineff = []
                 ww_d_ineff = []
                 RR_d_ineff = []
                 sharpe_d_ineff = []
-                divers_d_ineff = []
+                diverse_d_ineff = []
                 for rr in rr_d_ineff:
-                    ww_d_ineff.append(self.getWeights(rtype='Divers', mu=rr, d=-1))
+                    ww_d_ineff.append(self.getWeights(rtype='Diverse', mu=rr, d=-1))
                     risk_d_ineff.append(self.risk)
                     RR_d_ineff.append(self.RR)
-                    sharpe_d_ineff.append((np.dot(self.ww, self.muk) - musharpe) / self.risk)
-                    divers_d_ineff.append(1 - self.risk / np.dot(self.ww, self.risk_comp))
-                res['divers_inefficient']['risk'] = np.array(risk_d_ineff)
-                res['divers_inefficient']['rr'] = np.array(RR_d_ineff)
-                res['divers_inefficient']['ww'] = ww_d_ineff
-                res['divers_inefficient']['sharpe'] = np.array(sharpe_d_ineff)
-                res['divers_inefficient']['divers'] = np.array(divers_d_ineff)
+                    sharpe_d_ineff.append(
+                        (np.dot(self.ww, self.muk) - musharpe) / self.risk \
+                            if self.risk != 0 else 0)
+                    diverse_d_ineff.append(self.getDiversification(self.ww))
+                res['diverse_inefficient']['risk'] = np.array(risk_d_ineff)
+                res['diverse_inefficient']['rr'] = np.array(RR_d_ineff)
+                res['diverse_inefficient']['ww'] = ww_d_ineff
+                res['diverse_inefficient']['sharpe'] = np.array(sharpe_d_ineff)
+                res['diverse_inefficient']['diverse'] = \
+                    np.array(diverse_d_ineff)
                 
             # addport
-            res['addport'] = defaultdict(lambda: None)
             res['addport']['addport'] = False
             if addport is not None:
                 if isinstance(addport, dict):
-                    aport = pd.DataFrame().from_dict(addport, 'index', columns=self.rrate.columns)
+                    aport = pd.DataFrame().from_dict(addport, 'index', 
+                                                    columns=self.rrate.columns)
                 elif isinstance(addport, pd.core.frame.DataFrame):
                     aport = addport[self.rrate.columns]
                 else:
-                    raise ValueError("addport must be a dict or a pandas.DataFrame, see doc")
+                    raise ValueError("addport must be a dict or a "
+                                     + "pandas.DataFrame, see doc")
      
                 def ff_addport(x):
-                    risk_addport = self.getRisk(x)
+                    diverse_addport = self.getDiversification(x)
+                    risk_addport = self.risk
                     RR_addport = self.RR
-                    sharpe_addport = (np.dot(x, self.muk) - musharpe) / risk_addport
-                    divers_addport = 1 - risk_addport / np.dot(x, self.risk_comp) 
-                    return pd.Series([risk_addport, RR_addport, sharpe_addport, divers_addport],
-                                     index=['risk', 'rr', 'sharpe', 'divers'])
+                    sharpe_addport = (
+                        np.dot(x, self.muk) - musharpe) / risk_addport \
+                        if risk_addport != 0  else 0 
+                    return pd.Series([risk_addport, RR_addport, 
+                                      sharpe_addport, diverse_addport],
+                                     index=['risk', 'rr', 'sharpe', 'diverse'])
                 
                 res_addport = aport.apply(lambda x: ff_addport(x), axis=1)
                 
@@ -900,42 +1059,55 @@ class _RiskAnalyzer:
                 res['addport']['risk'] = res_addport['risk'].to_list()
                 res['addport']['rr'] = res_addport['rr'].to_list()
                 res['addport']['sharpe'] = res_addport['sharpe'].to_list()
-                res['addport']['divers'] = res_addport['divers'].to_list()
+                res['addport']['diverse'] = res_addport['diverse'].to_list()
                 res['addport']['ww'] = aport.to_numpy().tolist()
-                res['addport']['label'] = aport.index.to_list()
-
-        # Plot
-        res['options'] = options
-        res['saveto'] = saveto
-        if fig_type == 'RR_risk':
-            self._plot_f1(res)
-        elif fig_type == 'Sharpe_RR':
-            self._plot_f2(res)
-        elif fig_type == 'Divers_RR':
-            self._plot_f3(res)
+                res['addport']['label'] = \
+                    aport.index.to_list() if options['addport_label'] \
+                        else [None] * aport.shape[0]
+                res['addport']['hidden_label'] = aport.index.to_list()
+                
+            resout = res
+            res['options'] = options
         else:
-            raise ValueError(f"fig_type={fig_type} ; must be 'RR_risk', 'Sharpe_RR' or 'Divers_RR'")
+            res = copy.deepcopy(resout)
+
+            res['options'] = options
+            res['risk_min']['label'] = options['minrisk_label']
+            res['sharpe']['label'] = options['sharpe_label']
+            res['component']['label'] = self.muk.index.tolist() \
+                if options['comp_label'] else [None] * self.mm
+            res['invN']['label'] = options['invN_label']
+            res['invNrisk']['label'] = options['invNrisk_label']
+            res['invNdiverse']['label'] = options['invNdiverse_label']
+            res['invNrr']['label'] = options['invNrr_label']
+            res['maxdiverse']['label'] = options['maxdiverse_label']
+            if res['addport']['addport']:
+                if options['addport_label']:
+                    res['addport']['label'] = res['addport']['hidden_label']
+                else:
+                    res['addport']['label'] = [None] * \
+                        len(res['addport']['hidden_label'])
             
-        return res
+        # Plot
+        plot_ff(res)
+
+        return resout
 
 
     def _plot_f1(self, res):
         fig = plt.figure()
         ax = fig.add_subplot(111)
         
-        opt = defaultdict(lambda: None, 
-                          {'title': "Portfolio frontiers", 
-                           'xlabel': 'risk',
-                           'ylabel': 'rate of return', 
-                           'tangent': True})
-        if res['options'] is not None:
-            opt.update(res['options'])
-
-        ax.set(title=opt['title'], xlabel=opt['xlabel'], ylabel=opt['ylabel'])
+        ax.set(title=res['options']['title'], 
+               xlabel=res['options']['xlabel'], 
+               ylabel=res['options']['ylabel'])
 
         if res['risk_min']['risk_min']:
             ax.scatter(x=res['risk_min']['risk'], y=res['risk_min']['rr'],
                        marker='D', c='g', s=36)
+            ax.annotate(res['risk_min']['label'],
+                        (res['risk_min']['risk'] * 0.92,
+                         res['risk_min']['rr'] * 1.04))
 
         if res['efficient']['efficient'] > 0:
             ax.plot(res['efficient']['risk'], res['efficient']['rr'],
@@ -959,29 +1131,31 @@ class _RiskAnalyzer:
             ax.scatter(x=res['randomport']['risk'], y=res['randomport']['rr'],
                        marker='o', s=9, edgecolors='b', alpha=0.5)
 
-        if res['inverseN']['inverseN']:
-            ax.scatter(x=res['inverseN']['risk'], y=res['inverseN']['rr'],
-                      marker='x', c='g', s=36)
-            lf = 1.01
-            for k in range(len(res['inverseN']['label'])):
-                ax.annotate(res['inverseN']['label'][k],
-                            (res['inverseN']['risk'][k] * lf,
-                             res['inverseN']['rr'][k] * lf))
-                
-        if res['maxdivers']['maxdivers']:
-            ax.scatter(x=res['maxdivers']['risk'], y=res['maxdivers']['rr'],
+        for invstr in ['invN', 'invNrisk', 'invNdiverse', 'invNrr']:
+            if res[invstr][invstr]:
+                ax.scatter(x=res[invstr]['risk'], y=res[invstr]['rr'],
+                          marker='x', c='g', s=36)
+                lf = 1.01
+                ax.annotate(res[invstr]['label'],
+                            (res[invstr]['risk'] * lf,
+                             res[invstr]['rr'] * lf))
+  
+        if res['maxdiverse']['maxdiverse']:
+            ax.scatter(x=res['maxdiverse']['risk'], y=res['maxdiverse']['rr'],
                        marker='x', c='b', s=36)
             lf = 1.01
-            ax.annotate(res['maxdivers']['label'],
-                        (res['maxdivers']['risk'] * lf,
-                         res['maxdivers']['rr'] * lf))
+            ax.annotate(res['maxdiverse']['label'],
+                        (res['maxdiverse']['risk'] * lf,
+                         res['maxdiverse']['rr'] * lf))
     
-        if res['divers_efficient']['divers_efficient'] > 0:
-            ax.plot(res['divers_efficient']['risk'], res['divers_efficient']['rr'],
+        if res['diverse_efficient']['diverse_efficient'] > 0:
+            ax.plot(res['diverse_efficient']['risk'], 
+                    res['diverse_efficient']['rr'],
                     color='lightblue', linewidth=1, linestyle=':')
 
-        if res['divers_inefficient']['divers_inefficient'] > 0:
-            ax.plot(res['divers_inefficient']['risk'], res['divers_inefficient']['rr'],
+        if res['diverse_inefficient']['diverse_inefficient'] > 0:
+            ax.plot(res['diverse_inefficient']['risk'], 
+                    res['diverse_inefficient']['rr'],
                     color='red', linewidth=1, linestyle=':')
             
         if res['addport']['addport']:
@@ -1004,7 +1178,10 @@ class _RiskAnalyzer:
         if res['sharpe']['sharpe']:
             ax.scatter(x=res['sharpe']['risk'], y=res['sharpe']['rr'],
                        marker='D', c='g', s=26)
-            if opt['tangent']:
+            ax.annotate(res['sharpe']['label'],
+                        (res['sharpe']['risk'] * 0.91,
+                         res['sharpe']['rr'] * 1.04))
+            if res['options']['tangent']:
                 sharpe = res['sharpe']['sharpe']
                 musharpe = res['sharpe']['mu']
                 if np.abs(sharpe) < 1.e-5:
@@ -1022,8 +1199,8 @@ class _RiskAnalyzer:
                         x2 = (y2 - musharpe) / sharpe
                     ax.plot([x1, x2], [y1, y2], color='black', linewidth=1)
                     
-        if res['saveto'] is not None:
-            plt.savefig(res['saveto'])
+        if res['options']['saveto'] is not None:
+            plt.savefig(res['options']['saveto'])
         plt.show()
 
 
@@ -1031,17 +1208,16 @@ class _RiskAnalyzer:
         fig = plt.figure()
         ax = fig.add_subplot(111)
         
-        opt = defaultdict(lambda: None, 
-                          {'title': "Portfolio frontiers", 
-                           'xlabel': 'rate of return',
-                           'ylabel': 'sharpe'})
-        if res['options'] is not None:
-            opt.update(res['options'])
-
-        ax.set(title=opt['title'], xlabel=opt['xlabel'], ylabel=opt['ylabel'])
+        ax.set(title=res['options']['title'], 
+               xlabel=res['options']['xlabel'], 
+               ylabel=res['options']['ylabel'])
 
         if res['risk_min']['risk_min']:
-            ax.scatter(x=res['risk_min']['rr'], y=res['risk_min']['sharpe'], marker='D', c='g', s=36)
+            ax.scatter(x=res['risk_min']['rr'], y=res['risk_min']['sharpe'], 
+                       marker='D', c='g', s=36)
+            ax.annotate(res['risk_min']['label'],
+                        (res['risk_min']['rr'] * 0.92,
+                         res['risk_min']['sharpe'] * 1.04))
 
         if res['efficient']['efficient'] > 0:
             ax.plot(res['efficient']['rr'], res['efficient']['sharpe'],
@@ -1054,40 +1230,51 @@ class _RiskAnalyzer:
         if res['component']['component']:
             lf = 1.01
             for k in range(len(res['component']['risk'])):
-                ax.scatter(x=res['component']['rr'][k], y=res['component']['sharpe'][k],
+                ax.scatter(x=res['component']['rr'][k], 
+                           y=res['component']['sharpe'][k],
                            marker='s', c='b', s=16)
                 ax.annotate(res['component']['label'][k],
-                            (res['component']['rr'][k] * lf, res['component']['sharpe'][k] * lf))
+                            (res['component']['rr'][k] * lf, 
+                             res['component']['sharpe'][k] * lf))
             
         if res['sharpe']['sharpe']:
             ax.scatter(x=res['sharpe']['rr'], y=res['sharpe']['sharpe'],
                        marker='D', c='g', s=26)
+            ax.annotate(res['sharpe']['label'],
+                        (res['sharpe']['rr'] * 0.93,
+                         res['sharpe']['sharpe'] * 1.02))
 
         if res['randomport']['randomport'] > 0:
-            ax.scatter(x=res['randomport']['rr'], y=res['randomport']['sharpe'],
+            ax.scatter(x=res['randomport']['rr'], 
+                       y=res['randomport']['sharpe'],
                        marker='o', s=9, edgecolors='b', alpha=0.5 )
 
-        if res['inverseN']['inverseN']:
-            ax.scatter(x=res['inverseN']['rr'], y=res['inverseN']['sharpe'],
-                       marker='x', c='g', s=36)
-            lf = 1.01
-            for k in range(len(res['inverseN']['label'])):
-                ax.annotate(res['inverseN']['label'][k],
-                            (res['inverseN']['rr'][k] * lf, res['inverseN']['sharpe'][k] * lf))
-                
-        if res['maxdivers']['maxdivers']:
-            ax.scatter(x=res['maxdivers']['rr'], y=res['maxdivers']['sharpe'],
+        for invstr in ['invN', 'invNrisk', 'invNdiverse', 'invNrr']:
+            if res[invstr][invstr]:
+                ax.scatter(x=res[invstr]['rr'], y=res[invstr]['sharpe'],
+                          marker='x', c='g', s=36)
+                lf = 1.01
+                ax.annotate(res[invstr]['label'],
+                            (res[invstr]['rr'] * lf,
+                             res[invstr]['sharpe'] * lf))
+   
+        if res['maxdiverse']['maxdiverse']:
+            ax.scatter(x=res['maxdiverse']['rr'], 
+                       y=res['maxdiverse']['sharpe'],
                        marker='x', c='b', s=36)
             lf = 1.01
-            ax.annotate(res['maxdivers']['label'],
-                       (res['maxdivers']['rr'] * lf, res['maxdivers']['sharpe'] * lf))
+            ax.annotate(res['maxdiverse']['label'],
+                       (res['maxdiverse']['rr'] * lf, 
+                        res['maxdiverse']['sharpe'] * lf))
 
-        if res['divers_efficient']['divers_efficient'] > 0:
-            ax.plot(res['divers_efficient']['rr'], res['divers_efficient']['sharpe'],
+        if res['diverse_efficient']['diverse_efficient'] > 0:
+            ax.plot(res['diverse_efficient']['rr'], 
+                    res['diverse_efficient']['sharpe'],
                     color='lightblue', linewidth=1, linestyle=':')
 
-        if res['divers_inefficient']['divers_inefficient'] > 0:
-            ax.plot(res['divers_inefficient']['rr'], res['divers_inefficient']['sharpe'],
+        if res['diverse_inefficient']['diverse_inefficient'] > 0:
+            ax.plot(res['diverse_inefficient']['rr'], 
+                    res['diverse_inefficient']['sharpe'],
                     color='red', linewidth=1, linestyle=':')
             
         if res['addport']['addport']:
@@ -1107,8 +1294,8 @@ class _RiskAnalyzer:
         yl2 *= lff
         ax.set(xlim=(xl1, xl2), ylim=(yl1, yl2))
 
-        if res['saveto'] is not None:
-            plt.savefig(res['saveto'])
+        if res['options']['saveto'] is not None:
+            plt.savefig(res['options']['saveto'])
         plt.show()
 
 
@@ -1116,80 +1303,88 @@ class _RiskAnalyzer:
         fig = plt.figure()
         ax = fig.add_subplot(111)
 
-        opt = defaultdict(lambda: None, 
-                          {'title': "Portfolio frontiers", 
-                           'xlabel': 'rate of return',
-                           'ylabel': 'diversification'})
-        if res['options'] is not None:
-            opt.update(res['options'])
-    
-        ax.set(title=opt['title'], xlabel=opt['xlabel'], ylabel=opt['ylabel'])
+        ax.set(title=res['options']['title'], 
+               xlabel=res['options']['xlabel'], 
+               ylabel=res['options']['ylabel'])
 
         if res['risk_min']['risk_min']:
-            ax.scatter(x=res['risk_min']['rr'], y=res['risk_min']['divers'], marker='D', c='g', s=36)
+            ax.scatter(x=res['risk_min']['rr'], y=res['risk_min']['diverse'], 
+                       marker='D', c='g', s=36)
             lf = 0.95
             ax.annotate(res['risk_min']['label'],
-                       (res['risk_min']['rr'] * lf, res['risk_min']['divers'] * lf))
+                       (res['risk_min']['rr'] * lf, 
+                        res['risk_min']['diverse'] * lf))
     
         if res['efficient']['efficient'] > 0:
-            ax.plot(res['efficient']['rr'], res['efficient']['divers'],
+            ax.plot(res['efficient']['rr'], res['efficient']['diverse'],
                     color='lightblue', linewidth=1, linestyle=':')
     
         if res['inefficient']['inefficient'] > 0:
-            ax.plot(res['inefficient']['rr'], res['inefficient']['divers'],
+            ax.plot(res['inefficient']['rr'], res['inefficient']['diverse'],
                     color='red', linewidth=1, linestyle=':')
     
         if res['component']['component']:
             lf = 1.01
             for k in range(len(res['component']['risk'])):
-                ax.scatter(x=res['component']['rr'][k], y=res['component']['divers'][k],
+                ax.scatter(x=res['component']['rr'][k], 
+                           y=res['component']['diverse'][k],
                            marker='s', c='b', s=16)
                 ax.annotate(res['component']['label'][k],
-                            (res['component']['rr'][k] * lf, res['component']['divers'][k] * lf))
+                            (res['component']['rr'][k] * lf, 
+                             res['component']['diverse'][k] * lf))
     
         if res['sharpe']['sharpe']:
-            ax.scatter(x=res['sharpe']['rr'], y=res['sharpe']['divers'],
+            ax.scatter(x=res['sharpe']['rr'], 
+                       y=res['sharpe']['diverse'],
                        marker='D', c='g', s=26)
             lf = 1.01
             ax.annotate(res['sharpe']['label'],
-                       (res['sharpe']['rr'] * lf, res['sharpe']['divers'] * lf))
+                       (res['sharpe']['rr'] * lf, 
+                        res['sharpe']['diverse'] * lf))
     
         if res['randomport']['randomport'] > 0:
-            ax.scatter(x=res['randomport']['rr'], y=res['randomport']['divers'],
+            ax.scatter(x=res['randomport']['rr'], 
+                       y=res['randomport']['diverse'],
                        marker='o', s=9, edgecolors='b', alpha=0.5 )
     
-        if res['inverseN']['inverseN']:
-            ax.scatter(x=res['inverseN']['rr'], y=res['inverseN']['divers'],
-                       marker='x', c='g', s=36)
-            lf = 1.01
-            for k in range(len(res['inverseN']['label'])):
-                ax.annotate(res['inverseN']['label'][k],
-                            (res['inverseN']['rr'][k] * lf, res['inverseN']['divers'][k] * lf))
-                
-        if res['maxdivers']['maxdivers']:
-            ax.scatter(x=res['maxdivers']['rr'], y=res['maxdivers']['divers'],
+        for invstr in ['invN', 'invNrisk', 'invNdiverse', 'invNrr']:
+            if res[invstr][invstr]:
+                ax.scatter(x=res[invstr]['rr'], 
+                           y=res[invstr]['diverse'],
+                           marker='x', c='g', s=36)
+                lf = 1.01
+                ax.annotate(res[invstr]['label'],
+                            (res[invstr]['rr'] * lf,
+                             res[invstr]['diverse'] * lf))
+ 
+        if res['maxdiverse']['maxdiverse']:
+            ax.scatter(x=res['maxdiverse']['rr'], 
+                       y=res['maxdiverse']['diverse'],
                        marker='x', c='b', s=36)
             lf = 1.01
-            ax.annotate(res['maxdivers']['label'],
-                       (res['maxdivers']['rr'] * lf, res['maxdivers']['divers'] * lf))
+            ax.annotate(res['maxdiverse']['label'],
+                       (res['maxdiverse']['rr'] * lf, 
+                        res['maxdiverse']['diverse'] * lf))
             
-        if res['divers_efficient']['divers_efficient'] > 0:
-            ax.plot(res['divers_efficient']['rr'], res['divers_efficient']['divers'],
+        if res['diverse_efficient']['diverse_efficient'] > 0:
+            ax.plot(res['diverse_efficient']['rr'], 
+                    res['diverse_efficient']['diverse'],
                     color='lightblue', linewidth=2)
     
-        if res['divers_inefficient']['divers_inefficient'] > 0:
-            ax.plot(res['divers_inefficient']['rr'], res['divers_inefficient']['divers'],
+        if res['diverse_inefficient']['diverse_inefficient'] > 0:
+            ax.plot(res['diverse_inefficient']['rr'], 
+                    res['diverse_inefficient']['diverse'],
                     color='red', linewidth=2)
             
         if res['addport']['addport']:
             lf = 1.01
             for k in range(len(res['addport']['risk'])):
                 ax.scatter(x=res['addport']['rr'][k],
-                           y=res['addport']['divers'][k],
+                           y=res['addport']['diverse'][k],
                            marker='o', s=9, edgecolors='r', alpha=0.5)
                 ax.annotate(res['addport']['label'][k],
                             (res['addport']['rr'][k] * lf,
-                             res['addport']['divers'][k] * lf))
+                             res['addport']['diverse'][k] * lf))
             
         xl1, xl2 = plt.xlim()
         yl1, yl2 = plt.ylim()
@@ -1198,8 +1393,8 @@ class _RiskAnalyzer:
         yl2 *= lff
         ax.set(xlim=(xl1, xl2), ylim=(yl1, yl2))
     
-        if res['saveto'] is not None:
-            plt.savefig(res['saveto'])
+        if res['options']['saveto'] is not None:
+            plt.savefig(res['options']['saveto'])
         plt.show()
 
 
@@ -1322,11 +1517,11 @@ class _RiskAnalyzer:
         crisk = np.dot(self.risk_comp, w)
 
         if crisk == 0:
-            self.divers = 1
+            self.diverse = 0
         else:
-            self.divers = 1 - wrisk / crisk
+            self.diverse = 1 - wrisk / crisk
         
-        return self.divers
+        return self.diverse
     
     
     def _norm_weights(self):
@@ -1348,5 +1543,7 @@ class _RiskAnalyzer:
     def _risk_averse(self):
         pass
     def _risk_diversification(self, d=1):
+        pass
+    def _rr_max_diversification(self):
         pass
     
