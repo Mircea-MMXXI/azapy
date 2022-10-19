@@ -7,6 +7,7 @@ from .SDAnalyzer import *
 from .BTADAnalyzer import *
 from .BTSDAnalyzer import *
 from .LSDAnalyzer import *
+from .EVaRAnalyzer import *
 from .KellyEngine import *
 
 from .Port_Simple import *

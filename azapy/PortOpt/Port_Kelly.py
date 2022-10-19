@@ -20,7 +20,7 @@ class Port_Kelly(Port_InvVol):
         * port_monthly_returns
         * port_period_returns
     """
-    def set_model(self, rtype='Full', hlength=1.25, method='ecos'):
+    def set_model(self, rtype='ExpCone', hlength=1.25, method='ecos'):
         """
         Sets model parameters and evaluates portfolio time-series.
 
@@ -28,10 +28,11 @@ class Port_Kelly(Port_InvVol):
         ----------
         `rtype` : str, optional
             Type of optimization. It could take the values:\n
-                `'Full'` - Non-linear (full) Kelly selection algorithm. \n
-                `'Order2'` - Second order approximation of Kelly selection 
-                algorithm. \n
-            The default is `'Full'`.
+                `'ExpCone'` - Exponential cone constraint programming solution
+                for full Kelly problem. \n
+                `'Full'` - Non-linear solver for full Kelly problem. \n
+                `'Order2'` - Second order Tayler approximation of Kelly problem. \n
+            The default is `'ExpCone'`.
         `hlength` : float, optional
             The length in year of the historical calibration period relative 
             to 'Dfix'. A fractional number will be rounded to an integer number 
@@ -46,18 +47,13 @@ class Port_Kelly(Port_InvVol):
         `pandas.DataFrame`
             The portfolio time-series in the format "date", "pcolname".
         """
-        self._set_rtype(rtype)
+        self.rtype= rtype
         self.method = method
         
         return super().set_model(hlength)
-    
-    def _set_rtype(self, rtype):
-        valid_rtypes = ['Full', 'Order2']
-        if rtype in valid_rtypes:
-            self.rtype = rtype
-        else:
-            ValueError(f"Wrong rtype - must be one of {valid_rtypes}")
+ 
             
     def _ww_calc(self, data):
-        return KellyEngine().getWeights(rrate=data, rtype=self.rtype, 
+        return KellyEngine().getWeights(rrate=data, 
+                                        rtype=self.rtype, 
                                         method=self.method)

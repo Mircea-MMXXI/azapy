@@ -263,7 +263,7 @@ class _RiskAnalyzer:
             self.Lambda = aversion
             self._risk_averse()
             
-        elif self.rtype == "Diverse":
+        elif self.rtype == "Diverse2":
             if mu is None:
                 raise ValueError("for rtype='Diverse' mu must have a value")
             elif mu > self.muk.max():
@@ -275,6 +275,19 @@ class _RiskAnalyzer:
 
             self.getRiskComp()
             self._risk_diversification(d=d)
+            
+        elif self.rtype == "Diverse":
+            if mu is None:
+                raise ValueError("for rtype='Diverse2' mu must have a value")
+            elif mu > self.muk.max():
+                self.mu = self.muk.max()
+            elif mu < self.muk.min():
+                self.mu = self.muk.min()
+            else:
+                self.mu = mu
+
+            self.getRiskComp()
+            self._risk_inv_diversification(d=d)
             
         elif self.rtype == "MaxDiverse":  
             self.mu = self.muk.min()
@@ -605,7 +618,7 @@ class _RiskAnalyzer:
         """
         rtypes = ["Sharpe", "Risk", "MinRisk", "Sharpe2", "InvNrisk",
                   "RiskAverse", "Diverse", "MaxDiverse", "InvNdiverse",
-                  "InvNrr"]
+                  "InvNrr", "Diverse2"]
 
         if not rtype in rtypes:
             raise ValueError(f"rtype must be one of {rtypes}")
@@ -682,7 +695,7 @@ class _RiskAnalyzer:
             Graphical representation format. \n
                 * `'RR_risk'` : expected rate of return vs risk
                 * `'Sharpe_RR'` : sharpe vs expected rate of return
-                * `'diverse_RR'` : diversification vs expected rate of return
+                * `'Diverse_RR'` : diversification vs expected rate of return
                 
             The default is `'RR_risk'`.
         `opt` : optional;
@@ -1525,7 +1538,7 @@ class _RiskAnalyzer:
     
     
     def _norm_weights(self):
-        self.ww = self.ww.apply(lambda x: x if x >= _WW_TOL else 0)
+        self.ww[self.ww < _WW_TOL] = 0.
         self.ww /= self.ww.sum()
 
 
