@@ -5,6 +5,7 @@ import scipy.optimize as spo
 import cvxopt as cx
 import warnings
 from statsmodels.distributions.empirical_distribution import ECDF
+import time
 
 from ._RiskAnalyzer import _RiskAnalyzer
 from ._solvers import _exp_cone_solver
@@ -18,23 +19,25 @@ class EVaRAnalyzer(_RiskAnalyzer):
         * getWeights
         * getRisk
         * getPositions
+        * getRiskComp
+        * getDiversification
         * viewForntiers
         * set_rrate
         * set_mktdata
         * set_rtype
         * set_random_seed
     """
-    def __init__(self, alpha=[0.95], coef=None, 
+    def __init__(self, alpha=[0.65], coef=None, 
                  mktdata=None, colname='adjusted', freq='Q', 
-                 hlength=1.25, calendar=None,
-                 rtype='Sharpe', method='ecos'):
+                 hlength=3.25, calendar=None,
+                 rtype='Sharpe', method='cnl'):
         """
         Constructor
 
         Parameters
         ----------
         `alpha` : list, optional
-            List of distinct confidence levels. The default is `[0.975]`.
+            List of distinct confidence levels. The default is `[0.65]`.
         `coef` : list, optional
             List of positive mixture coefficients. Must have the same size with 
             `alpha`. A `None` value assumes an equal weighted risk mixture.
@@ -43,12 +46,12 @@ class EVaRAnalyzer(_RiskAnalyzer):
         `mktdata` : `pandas.DataFrame`, optional
             Historic daily market data for portfolio components in the format
             returned by `azapy.mktData` function. The default is `None`.
-        `colname` : str, optional
+        `colname` : `str`, optional
             Name of the price column from mktdata used in the weights 
             calibration. The default is `'adjusted'`.
-        `freq` : str, optional
+        `freq` : `str`, optional
             Rate of return horizon. It could be 
-            'Q' for quarter or 'M' for month. The default is `'Q'`.
+            `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
         `hlength` : float, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
@@ -57,25 +60,35 @@ class EVaRAnalyzer(_RiskAnalyzer):
             Business days calendar. If is it `None` then the calendar will 
             be set to NYSE business calendar. 
             The default is `None`.
-        `rtype` : str, optional
+        `rtype` : `str`, optional
             Optimization type. Possible values \n
-                'Risk' : minimization of dispersion (risk) measure for  
-                targeted rate of return. \n
-                'Sharpe' : maximization of generalized Sharpe ratio.\n
-                'Sharpe2' : minimization of the inverse generalized Sharpe 
-                ratio.\n
-                'MinRisk' : minimum dispersion (risk) portfolio.\n
-                'InvNrisk' : optimal portfolio with the same dispersion (risk)
-                value as a benchmark portfolio 
-                (e.g. equal weighted portfolio).\n
-                'RiskAverse' : optimal portfolio for a fixed value of 
-                risk-aversion factor.
-            The default is `'Sharpe'`.
-        `method` : str, optional
-            Linear programming numerical method. 
-            Could be: 'ecos', 'highs-ds', 'highs-ipm', 'highs', 
-            'interior-point', 'glpk' and 'cvxopt'.
-            The default is 'ecos'.
+                `'Risk'` : optimal portfolio for targeted expected rate of 
+                return.\n
+                `'Sharpe'` : optimal Sharpe portfolio - maximization solution.\n
+                `'Sharpe2'` : optimal Sharpe portfolio - minimization solution.\n
+                `'MinRisk'` : minimum risk portfolio.\n
+                `'RiskAverse'` : optimal portfolio for a fixed risk-aversion
+                factor.\n
+                `'Diverse'` : optimal diversified portfolio for targeted
+                expected rate of return (max of inverse 1-Diverse).\n
+                `'Diverse2'` : optimal diversified portfolio for targeted
+                expected rate of return (min of 1-Diverse).\n
+                `'MaxDiverse'` : portfolio with maximum diversification.\n
+                'InvNrisk' : optimal portfolio with the same risk value as a 
+                benchmark portfolio (e.g. same as equal weighted portfolio).\n
+                `'InvNdiverse'` : optimal diversified portfolio with the same
+                diversification factor as a benchmark portfolio 
+                (e.g. same as equal weighted portfolio).\n
+                `'InvNrr'` : optimal diversified portfolio with the same 
+                expected rate of return as a benchmark portfolio
+                (e.g. same as equal weighted portfolio).\n
+        `method` : `str`, optional
+            Numerical optimization method:
+                `'exp_cone'` : exponential cone programming (using ecos).\n
+                `'cnl'` : convex nonlinear programming (using cvxopt).\n
+                `'cnl2'` : convex nonlinear programming (using cvxopt) 
+                alternative to `'cnl2'`
+            The default is `'cnl'`.
             
         Returns
         -------
@@ -108,18 +121,22 @@ class EVaRAnalyzer(_RiskAnalyzer):
 
 
     def _set_method(self, method):
-        methods = ['ecos', 'cvxopt', 'cvxopt2']
+        methods = ['exp_cone', 'cnl', 'cnl2']
         if not method in methods:
             raise ValueError(f"method must be one of {methods}")
         self.method = method
         
+        
     def _risk_calc(self, prate, alpha):
-        if self.method == 'ecos':
+        if self.method == 'exp_cone':
             return self._risk_calc_exp_cone(prate, alpha)
-        elif (self.method == 'cvxopt') | (self.method == 'cvxopt2')  :
-            return self._risk_calc_cvxopt(prate, alpha)
+        elif self.method == 'cnl':
+            return self._risk_calc_scipy(prate, alpha)
+        elif self.method == 'cnl2':
+            return self._risk_calc_scipy(prate, alpha)
         else:
             raise ValueError(f"unkwon method {self.method}")
+        
         
     def _risk_calc_exp_cone(self, prate, alpha):
         # exp cone formulation of EVaR
@@ -166,7 +183,9 @@ class EVaRAnalyzer(_RiskAnalyzer):
         dims = {'l': lrow, 'q': [], 'e': nn}
         
         # calc
+        toc = time.perf_counter()
         res = _exp_cone_solver('ecos', c_data, G, h_data, dims)
+        self.time_level2 = time.perf_counter() - toc
      
         self.status = res['status']
         if self.status != 0:
@@ -180,7 +199,7 @@ class EVaRAnalyzer(_RiskAnalyzer):
         return 0, astar, EVaR
     
     
-    def _risk_calc_cvxopt(self, prate, alpha):
+    def _risk_calc_scipy(self, prate, alpha):
         
         def fb(uu, *data):
             MinU = 1.e-6
@@ -188,7 +207,9 @@ class EVaRAnalyzer(_RiskAnalyzer):
             res = np.log(np.mean(np.exp(-u * data[1])) / (1 - data[0])) / u 
             return res
         
+        toc = time.perf_counter()
         res = spo.minimize_scalar(fb, args=(alpha, prate))
+        self.time_level2 = time.perf_counter() - toc
         
         self.status = 0 if res['success'] else 2
         if self.status != 0:
@@ -201,12 +222,117 @@ class EVaRAnalyzer(_RiskAnalyzer):
         
         return 0, astar, EVaR
     
+    
+    def _risk_calc_cvxopt2(self, prate, alpha):
+        nn = self.nn
+        bN = nn * (1 - alpha)
+        Umin = 1.e-6
+               
+        # calc function
+        def F(x=None, z0=None):
+            if x is None:
+                return 0, cx.matrix([0.5], tc='d')
+        
+            uu = x[0]
+            if np.abs(uu) < Umin:
+                uu = Umin
+            eru = np.exp(-prate * uu)
+            
+            z = np.sum(eru)
+            z1z = np.sum(eru * prate) / z
+            
+            lz = np.log(z / bN)
+            g = lz / uu
+            Dg = -(g + bN * z1z) / uu
+            
+            if z0 is None:
+                return g, cx.matrix(Dg)
+            
+            z2z = np.sum(eru * prate**2) / z
+            gg = 2 * (g + bN * z1z) / uu**2 - bN / uu * (z1z**2 - z2z) * z0[0]
+            
+            return g, cx.matrix(Dg), cx.matrix(gg)
+        
+        G = cx.matrix([-1.])
+        h = cx.matrix([0.])
+        #dims = {'l': 1, 'q': [], 's': []}
+        
+        toc = time.perf_counter()
+        res = cx.solvers.cp(F, G=G, h=h, #dims=dims, 
+                            options={'show_progress': False, 'maxiters': 200})
+        self.time_level2 = time.perf_counter() - toc
+        
+        self.status = 0
+        if 'optimal' not in res['status']:
+            self.status = 2
+            warnings.warn(f"Warning {res['status']}\n{res}\n{res['x']}")
+            return pd.Series(np.nan, index=self.rrate.columns)
+        
+        EVaR = res['primal objective']
+        astar = 1 - ECDF(prate)(-EVaR)
+        
+        return 0, astar, EVaR
+    
+    
+    def _risk_calc_cvxopt(self, prate, alpha):
+        nn = self.nn
+        bN = nn * (1 - alpha)
+        Umin = 1.e-6
+        
+        # calc function
+        def F(x=None, z0=None):
+            if x is None:
+                return 0, cx.matrix([10.], tc='d')
+        
+            uu = x[0]
+            if np.abs(uu) < Umin:
+                uu = Umin
+            eru = np.exp(-prate / uu)
+            
+            z = np.sum(eru)
+            z1 = np.sum(eru * prate)
+            z1z = z1 / z
+            
+            lz = np.log(z / bN)
+            g = lz * uu
+            Dg = lz + bN / uu * z1z
+               
+            if z0 is None:
+                return g, cx.matrix([Dg])
+            
+            z2z = np.sum(eru * prate**2) / z
+            
+            gg = bN / uu**3 * (z2z - z1z**2) * z0[0]
+   
+            return g, cx.matrix([Dg]), cx.matrix([gg])
+        
+        G = cx.matrix([-1.])
+        h = cx.matrix([0.])
+        #dims = {'l': 1, 'q': [], 's': []}
+        
+        toc = time.perf_counter()
+        res = cx.solvers.cp(F, G=G, h=h, #dims=dims, 
+                            options={'show_progress': False, 'maxiters': 200})
+        self.time_level2 = time.perf_counter() - toc
+        
+        self.status = 0
+        if 'optimal' not in res['status']:
+            self.status = 2
+            warnings.warn(f"Warning {res['status']}\n{res}\n{res['x']}")
+            return pd.Series(np.nan, index=self.rrate.columns)
+        
+        EVaR = res['primal objective']
+        astar = 1 - ECDF(prate)(-EVaR)
+        
+        return 0, astar, EVaR
+    
+    
     def _risk_min(self, d=1):
-        if self.method == 'ecos':
+        if self.method == 'exp_cone':
             return self._risk_min_exp_cone(d)
-        elif self.method == 'cvxopt':
+        elif self.method == 'cnl':
             return self._risk_min_cvxopt(d)
-        elif self.method == 'cvxopt2':
+        elif self.method == 'cnl2':
             return self._risk_min_cvxopt2(d)
         else:
             raise ValueError(f"unkwon method {self.method}")
@@ -293,8 +419,11 @@ class EVaRAnalyzer(_RiskAnalyzer):
         
         dims = {'l': mm + ll + 1, 'q': [], 's': []}
         
+        # calc
+        toc = time.perf_counter()
         res = cx.solvers.cp(F, G=G, h=h_data, dims=dims, A=A, b=b_data,
                             options={'show_progress': False, 'maxiters': 1000})
+        self.time_level2 = time.perf_counter() - toc
 
         self.status = 0
         if 'optimal' not in res['status']:
@@ -319,6 +448,7 @@ class EVaRAnalyzer(_RiskAnalyzer):
         
         return self.ww
 
+    
     def _risk_min_cvxopt(self, d):
         # Order of varaibles:
         # w <- [0:mm]
@@ -402,8 +532,11 @@ class EVaRAnalyzer(_RiskAnalyzer):
         
         dims = {'l': mm + ll + 1, 'q': [], 's': []}
         
+        # calc
+        toc = time.perf_counter()
         res = cx.solvers.cp(F, G=G, h=h_data, dims=dims, A=A, b=b_data,
                             options={'show_progress': False, 'maxiters': 1000})
+        self.time_level2 = time.perf_counter() - toc
       
         self.status = 0
         if 'optimal' not in res['status']:
@@ -479,7 +612,7 @@ class EVaRAnalyzer(_RiskAnalyzer):
                 G_data += [-1.]
                 
         G_shape = (lrow + 3 * nn * ll, mm + ll * (nn + 2))
-        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape).tocsc()
 
         # build h
         h_data = [-self.mu * d] + [0.] * (lrow + 3 * nn * ll - 1)
@@ -490,7 +623,7 @@ class EVaRAnalyzer(_RiskAnalyzer):
         A_data = [1.] * mm
         
         A_shape = (1, mm + ll * (nn + 2))
-        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape).tocsc()
 
         # build b
         b_data = [1.]
@@ -498,7 +631,9 @@ class EVaRAnalyzer(_RiskAnalyzer):
         dims = {'l': lrow, 'q': [], 'e': nn * ll}
         
         # calc
+        toc = time.perf_counter()
         res = _exp_cone_solver('ecos', c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
      
         self.status = res['status']
         if self.status != 0:
@@ -526,11 +661,11 @@ class EVaRAnalyzer(_RiskAnalyzer):
     
     
     def _sharpe_max(self):
-        if self.method == 'ecos':
+        if self.method == 'exp_cone':
             return self._sharpe_max_exp_cone()
-        elif self.method == 'cvxopt':
+        elif self.method == 'cnl':
             return self._sharpe_max_cvxopt()
-        elif self.method == 'cvxopt2':
+        elif self.method == 'cnl2':
             return self._sharpe_max_cvxopt2()
         else:
             raise ValueError(f"unkwon method {self.method}")
@@ -617,8 +752,11 @@ class EVaRAnalyzer(_RiskAnalyzer):
         
         dims = {'l': mm + ll + 1, 'q': [], 's': []}
         
+        # calc
+        toc = time.perf_counter()
         res = cx.solvers.cpl(c_data, F, G, h_data, dims, A, b_data,
                             options={'show_progress': False, 'maxiters': 1000})
+        self.time_level2 = time.perf_counter() - toc
 
         self.status = 0
         if 'optimal' not in res['status']:
@@ -731,8 +869,11 @@ class EVaRAnalyzer(_RiskAnalyzer):
         
         dims = {'l': mm + ll + 1, 'q': [], 's': []}
         
+        # calc
+        toc = time.perf_counter()
         res = cx.solvers.cpl(c_data, F, G, h_data, dims, A, b_data,
                             options={'show_progress': False, 'maxiters': 1000})
+        self.time_level2 = time.perf_counter() - toc
 
         self.status = 0
         if 'optimal' not in res['status']:
@@ -831,7 +972,9 @@ class EVaRAnalyzer(_RiskAnalyzer):
         dims = {'l': lrow, 'q': [], 'e': nn * ll}
         
         # calc
+        toc = time.perf_counter()
         res = _exp_cone_solver('ecos', c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
      
         self.status = res['status']
         if self.status != 0:
@@ -860,11 +1003,11 @@ class EVaRAnalyzer(_RiskAnalyzer):
     
     
     def _sharpe_inv_min(self):
-        if self.method == 'ecos':
+        if self.method == 'exp_cone':
             return self._sharpe_inv_min_exp_cone()
-        elif self.method == 'cvxopt':
+        elif self.method == 'cnl':
             return self._sharpe_inv_min_cvxopt()
-        elif self.method == 'cvxopt2':
+        elif self.method == 'cnl2':
             return self._sharpe_inv_min_cvxopt2()
         else:
             raise ValueError(f"unkwon method {self.method}")
@@ -952,8 +1095,11 @@ class EVaRAnalyzer(_RiskAnalyzer):
         
         dims = {'l': mm + ll + 1, 'q': [], 's': []}
         
+        # calc
+        toc = time.perf_counter()
         res = cx.solvers.cp(F, G=G, h=h_data, dims=dims, A=A, b=b_data,
                             options={'show_progress': False, 'maxiters': 1000})
+        self.time_level2 = time.perf_counter() - toc
 
         self.status = 0
         if 'optimal' not in res['status']:
@@ -1066,8 +1212,11 @@ class EVaRAnalyzer(_RiskAnalyzer):
         
         dims = {'l': mm + ll + 1, 'q': [], 's': []}
         
+        # calc
+        toc = time.perf_counter()
         res = cx.solvers.cp(F, G=G, h=h_data, dims=dims, A=A, b=b_data,
                             options={'show_progress': False, 'maxiters': 1000})
+        self.time_level2 = time.perf_counter() - toc
       
         self.status = 0
         if 'optimal' not in res['status']:
@@ -1167,7 +1316,9 @@ class EVaRAnalyzer(_RiskAnalyzer):
         dims = {'l': lrow, 'q': [], 'e': nn * ll}
         
         # calc
+        toc = time.perf_counter()
         res = _exp_cone_solver('ecos', c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
      
         self.status = res['status']
         if self.status != 0:
@@ -1197,11 +1348,11 @@ class EVaRAnalyzer(_RiskAnalyzer):
         
 
     def _rr_max(self):
-        if self.method == 'ecos':
+        if self.method == 'exp_cone':
             return self._rr_max_exp_cone()
-        elif self.method == 'cvxopt':
+        elif self.method == 'cnl':
             return self._rr_max_cvxopt()
-        elif self.method == 'cvxopt2':
+        elif self.method == 'cnl2':
             return self._rr_max_cvxopt2()
         else:
             raise ValueError(f"unkwon method {self.method}")
@@ -1288,8 +1439,11 @@ class EVaRAnalyzer(_RiskAnalyzer):
         
         dims = {'l': mm + ll, 'q': [], 's': []}
         
+        # calc
+        toc = time.perf_counter()
         res = cx.solvers.cpl(c_data, F, G, h_data, dims, A, b_data,
                             options={'show_progress': False, 'maxiters': 1000})
+        self.time_level2 = time.perf_counter() - toc
 
         if 'optimal' not in res['status']:
             warnings.warn(f"Warning {res['status']}\n{res}\n{res['x']}")
@@ -1312,6 +1466,7 @@ class EVaRAnalyzer(_RiskAnalyzer):
         
         return self.ww
 
+    
     def _rr_max_cvxopt(self):
         # Order of varaibles:
         # w <- [0:mm]
@@ -1395,8 +1550,11 @@ class EVaRAnalyzer(_RiskAnalyzer):
         
         dims = {'l': mm + ll, 'q': [], 's': []}
         
+        # calc
+        toc = time.perf_counter()
         res = cx.solvers.cpl(c_data, F, G, h_data, dims, A, b_data,
                             options={'show_progress': False, 'maxiters': 1000})
+        self.time_level2 = time.perf_counter() - toc
 
         if 'optimal' not in res['status']:
             warnings.warn(f"Warning {res['status']}\n{res}\n{res['x']}")
@@ -1488,7 +1646,9 @@ class EVaRAnalyzer(_RiskAnalyzer):
         dims = {'l': lrow, 'q': [], 'e': nn * ll}
         
         # calc
+        toc = time.perf_counter()
         res = _exp_cone_solver('ecos', c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
      
         self.status = res['status']
         if self.status != 0:
@@ -1512,12 +1672,13 @@ class EVaRAnalyzer(_RiskAnalyzer):
 
         return self.ww 
     
+    
     def _risk_averse(self):
-        if self.method == 'ecos':
+        if self.method == 'exp_cone':
             return self._risk_averse_exp_cone()
-        elif self.method == 'cvxopt':
+        elif self.method == 'cnl':
             return self._risk_averse_cvxopt()
-        elif self.method == 'cvxopt2':
+        elif self.method == 'cnl2':
             return self._risk_averse_cvxopt2()
         else:
             raise ValueError(f"unkwon method {self.method}")
@@ -1602,8 +1763,11 @@ class EVaRAnalyzer(_RiskAnalyzer):
         
         dims = {'l': mm + ll, 'q': [], 's': []}
         
+        # calc
+        toc = time.perf_counter()
         res = cx.solvers.cp(F, G=G, h=h_data, dims=dims, A=A, b=b_data,
                             options={'show_progress': False, 'maxiters': 1000})
+        self.time_level2 = time.perf_counter() - toc
 
         if 'optimal' not in res['status']:
             warnings.warn(f"Warning {res['status']}\n{res}\n{res['x']}")
@@ -1626,6 +1790,7 @@ class EVaRAnalyzer(_RiskAnalyzer):
         
         return self.ww
 
+    
     def _risk_averse_cvxopt(self):
         # Order of varaibles:
         # w <- [0:mm]
@@ -1707,8 +1872,11 @@ class EVaRAnalyzer(_RiskAnalyzer):
         
         dims = {'l': mm + ll, 'q': [], 's': []}
         
+        # calc
+        toc = time.perf_counter()
         res = cx.solvers.cp(F, G=G, h=h_data, dims=dims, A=A, b=b_data,
                             options={'show_progress': False, 'maxiters': 1000})
+        self.time_level2 = time.perf_counter() - toc
       
         if 'optimal' not in res['status']:
             warnings.warn(f"Warning {res['status']}\n{res}\n{res['x']}")
@@ -1731,6 +1899,7 @@ class EVaRAnalyzer(_RiskAnalyzer):
         self.risk = np.sum(self.coef * self.primary_risk_comp)
         
         return self.ww
+    
     
     def _risk_averse_exp_cone(self):
         # Order of variables:
@@ -1797,7 +1966,9 @@ class EVaRAnalyzer(_RiskAnalyzer):
         dims = {'l': lrow, 'q': [], 'e': nn * ll}
         
         # calc
+        toc = time.perf_counter()
         res = _exp_cone_solver('ecos', c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
      
         self.status = res['status']
         if self.status != 0:
@@ -1823,11 +1994,11 @@ class EVaRAnalyzer(_RiskAnalyzer):
     
 
     def _risk_diversification(self, d=1):
-        if self.method == 'ecos':
+        if self.method == 'exp_cone':
             return self._risk_diversification_exp_cone(d)
-        elif self.method == 'cvxopt':
+        elif self.method == 'cnl':
             return self._risk_diversification_cvxopt(d)
-        elif self.method == 'cvxopt2':
+        elif self.method == 'cnl2':
             return self._risk_diversification_cvxopt2(d)
         else:
             raise ValueError(f"unkwon method {self.method}")
@@ -1921,8 +2092,11 @@ class EVaRAnalyzer(_RiskAnalyzer):
         
         dims = {'l': mm + ll + 2, 'q': [], 's': []}
         
+        # calc
+        toc = time.perf_counter()
         res = cx.solvers.cp(F, G=G, h=h_data, dims=dims, A=A, b=b_data,
                             options={'show_progress': False, 'maxiters': 1000})
+        self.time_level2 = time.perf_counter() - toc
 
         self.status = 0
         if 'optimal' not in res['status']:
@@ -2039,8 +2213,11 @@ class EVaRAnalyzer(_RiskAnalyzer):
         
         dims = {'l': mm + ll + 2, 'q': [], 's': []}
         
+        # calc
+        toc = time.perf_counter()
         res = cx.solvers.cp(F, G=G, h=h_data, dims=dims, A=A, b=b_data,
                             options={'show_progress': False, 'maxiters': 1000})
+        self.time_level2 = time.perf_counter() - toc
       
         self.status = 0
         if 'optimal' not in res['status']:
@@ -2068,6 +2245,7 @@ class EVaRAnalyzer(_RiskAnalyzer):
         
         return self.ww    
 
+    
     def _risk_diversification_exp_cone(self, d):
         # Order of variables:
         # w <- [0:mm] 
@@ -2140,7 +2318,9 @@ class EVaRAnalyzer(_RiskAnalyzer):
         dims = {'l': lrow, 'q': [], 'e': nn * ll}
         
         # calc
+        toc = time.perf_counter()
         res = _exp_cone_solver('ecos', c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
      
         self.status = res['status']
         if self.status != 0:
@@ -2168,11 +2348,11 @@ class EVaRAnalyzer(_RiskAnalyzer):
     
     
     def _rr_max_diversification(self):
-        if self.method == 'ecos':
+        if self.method == 'exp_cone':
             return self._rr_max_diversification_exp_cone()
-        elif self.method == 'cvxopt':
+        elif self.method == 'cnl':
             return self._rr_max_diversification_cvxopt()
-        elif self.method == 'cvxopt2':
+        elif self.method == 'cnl2':
             return self._rr_max_diversification_cvxopt2()
         else:
             raise ValueError(f"unkwon method {self.method}")
@@ -2260,8 +2440,11 @@ class EVaRAnalyzer(_RiskAnalyzer):
         
         dims = {'l': mm + ll, 'q': [], 's': []}
         
+        # calc
+        toc = time.perf_counter()
         res = cx.solvers.cpl(c_data, F, G, h_data, dims, A, b_data,
                             options={'show_progress': False, 'maxiters': 1000})
+        self.time_level2 = time.perf_counter() - toc
 
         if 'optimal' not in res['status']:
             warnings.warn(f"Warning {res['status']}\n{res}\n{res['x']}")
@@ -2286,6 +2469,7 @@ class EVaRAnalyzer(_RiskAnalyzer):
         
         return self.ww
 
+    
     def _rr_max_diversification_cvxopt(self):
         # Order of varaibles:
         # w <- [0:mm]
@@ -2370,8 +2554,11 @@ class EVaRAnalyzer(_RiskAnalyzer):
         
         dims = {'l': mm + ll, 'q': [], 's': []}
         
+        # calc
+        toc = time.perf_counter()
         res = cx.solvers.cpl(c_data, F, G, h_data, dims, A, b_data,
                             options={'show_progress': False, 'maxiters': 1000})
+        self.time_level2 = time.perf_counter() - toc
 
         if 'optimal' not in res['status']:
             warnings.warn(f"Warning {res['status']}\n{res}\n{res['x']}")
@@ -2395,6 +2582,7 @@ class EVaRAnalyzer(_RiskAnalyzer):
         self.diverse = 1 - self.risk / (self.ww @ self.risk_comp)
         
         return self.ww
+    
     
     def _rr_max_diversification_exp_cone(self):
         # Order of variables:
@@ -2464,7 +2652,9 @@ class EVaRAnalyzer(_RiskAnalyzer):
         dims = {'l': lrow, 'q': [], 'e': nn * ll}
         
         # calc
+        toc = time.perf_counter()
         res = _exp_cone_solver('ecos', c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
      
         self.status = res['status']
         if self.status != 0:
@@ -2492,11 +2682,11 @@ class EVaRAnalyzer(_RiskAnalyzer):
     
     
     def _risk_inv_diversification(self, d=1):
-        if self.method == 'ecos':
+        if self.method == 'exp_cone':
             return self._risk_inv_diversification_exp_cone(d)
-        elif self.method == 'cvxopt':
+        elif self.method == 'cnl':
             return self._risk_inv_diversification_cvxopt(d)
-        elif self.method == 'cvxopt2':
+        elif self.method == 'cnl2':
             return self._risk_inv_diversification_cvxopt2(d)
         else:
             raise ValueError(f"unkwon method {self.method}")
@@ -2587,8 +2777,11 @@ class EVaRAnalyzer(_RiskAnalyzer):
         
         dims = {'l': mm + ll + 2, 'q': [], 's': []}
         
+        # calc
+        toc = time.perf_counter()
         res = cx.solvers.cpl(c_data, F, G, h_data, dims, A, b_data,
                             options={'show_progress': False, 'maxiters': 1000})
+        self.time_level2 = time.perf_counter() - toc
 
         self.status = 0
         if 'optimal' not in res['status']:
@@ -2704,8 +2897,11 @@ class EVaRAnalyzer(_RiskAnalyzer):
         
         dims = {'l': mm + ll + 2, 'q': [], 's': []}
         
+        # calc
+        toc = time.perf_counter()
         res = cx.solvers.cpl(c_data, F, G, h_data, dims, A, b_data,
                             options={'show_progress': False, 'maxiters': 1000})
+        self.time_level2 = time.perf_counter() - toc
 
         self.status = 0
         if 'optimal' not in res['status']:
@@ -2806,7 +3002,9 @@ class EVaRAnalyzer(_RiskAnalyzer):
         dims = {'l': lrow, 'q': [], 'e': nn * ll}
         
         # calc
+        toc = time.perf_counter()
         res = _exp_cone_solver('ecos', c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
      
         self.status = res['status']
         if self.status != 0:

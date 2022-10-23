@@ -2,6 +2,7 @@ import numpy as np
 import scipy.linalg as la
 import scipy.sparse as sps
 import warnings
+import time
 
 from ._RiskAnalyzer import _RiskAnalyzer
 from ._solvers import _socp_solver, _qp_solver, _tol_cholesky
@@ -15,6 +16,8 @@ class MVAnalyzer(_RiskAnalyzer):
         * getWeights
         * getRisk
         * getPositions
+        * getRiskComp
+        * getDiversification
         * viewForntiers
         * set_rrate
         * set_mktdata
@@ -29,38 +32,46 @@ class MVAnalyzer(_RiskAnalyzer):
         Parameters
         ----------
        `mktdata` : `pandas.DataFrame`, optional
-            Historic daily market data for portfolio components in the format
-            returned by `azapy.mktData` function. The default is `None`.
-        `colname` : str, optional
-            Name of the price column from mktdata used in the weights 
-            calibration. The default is `'adjusted'`.
-        `freq` : str, optional
-            Rate of return horizon in number of business day. it could be 
-            'Q' for quarter or 'M' for month. The default is `'Q'`.
-        `hlength` : float, optional
-            History length in number of years used for calibration. A 
-            fractional number will be rounded to an integer number of months.
-            The default is `3.25` years.
-        `calendar` : `numpy.busdaycalendar`, optional
-            Business days calendar. If is it `None` then the calendar will be 
-            set to NYSE business calendar.
-            The default is `None`.
-        `rtype` : str, optional
-            Optimization type. Possible values \n
-                'Risk' : minimization of dispersion (risk) measure for  
-                targeted rate of return. \n
-                'Sharpe' : maximization of generalized Sharpe ratio.\n
-                'Sharpe2' : minimization of the inverse generalized Sharpe 
-                ratio.\n
-                'MinRisk' : minimum dispersion (risk) portfolio.\n
-                'InvNrisk' : optimal portfolio with the same dispersion (risk)
-                value as a benchmark portfolio 
-                (e.g. equal weighted portfolio).\n
-                'RiskAverse' : optimal portfolio for a fixed value of 
-                risk-aversion factor.
-            The default is 'Sharpe'.
-        `method` : str, optional
-            Quadratic programming numerical method. Could be 'ecos' or
+           Historic daily market data for portfolio components in the format
+           returned by `azapy.mktData` function. The default is `None`.
+       `colname` : `str`, optional
+           Name of the price column from mktdata used in the weights 
+           calibration. The default is `'adjusted'`.
+       `freq` : `str`, optional
+           Rate of return horizon. It could be 
+           `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
+       `hlength` : float, optional
+           History length in number of years used for calibration. A 
+           fractional number will be rounded to an integer number of months.
+           The default is `3.25` years.
+       `calendar` : `numpy.busdaycalendar`, optional
+           Business days calendar. If is it `None` then the calendar will 
+           be set to NYSE business calendar. 
+           The default is `None`.
+       `rtype` : `str`, optional
+           Optimization type. Possible values \n
+               `'Risk'` : optimal portfolio for targeted expected rate of 
+               return.\n
+               `'Sharpe'` : optimal Sharpe portfolio - maximization solution.\n
+               `'Sharpe2'` : optimal Sharpe portfolio - minimization solution.\n
+               `'MinRisk'` : minimum risk portfolio.\n
+               `'RiskAverse'` : optimal portfolio for a fixed risk-aversion
+               factor.\n
+               `'Diverse'` : optimal diversified portfolio for targeted
+               expected rate of return (max of inverse 1-Diverse).\n
+               `'Diverse2'` : optimal diversified portfolio for targeted
+               expected rate of return (min of 1-Diverse).\n
+               `'MaxDiverse'` : portfolio with maximum diversification.\n
+               'InvNrisk' : optimal portfolio with the same risk value as a 
+               benchmark portfolio (e.g. same as equal weighted portfolio).\n
+               `'InvNdiverse'` : optimal diversified portfolio with the same
+               diversification factor as a benchmark portfolio 
+               (e.g. same as equal weighted portfolio).\n
+               `'InvNrr'` : optimal diversified portfolio with the same 
+               expected rate of return as a benchmark portfolio
+               (e.g. same as equal weighted portfolio).\n
+        `method` : `str`, optional
+            Quadratic programming numerical method. Could be `'ecos'` or
             'cvxopt'. The default is `'ecos'`.
             
         Returns
@@ -113,7 +124,9 @@ class MVAnalyzer(_RiskAnalyzer):
         b_data = [1.]
         
         # calc
+        toc = time.perf_counter()
         res = _qp_solver(self.method, P, q_data, G, h_data, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
         
         self.status = res['status']
         if self.status != 0:
@@ -174,8 +187,10 @@ class MVAnalyzer(_RiskAnalyzer):
         # build b
         b_data = [0.]
         
-         # calc
+        # calc
+        toc = time.perf_counter()
         res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
         
         self.status = res['status']
         if self.status != 0:
@@ -246,7 +261,9 @@ class MVAnalyzer(_RiskAnalyzer):
         b_data = [0., 1.]
         
         # calc
+        toc = time.perf_counter()
         res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
  
         self.status = res['status']
         if self.status != 0:
@@ -306,7 +323,9 @@ class MVAnalyzer(_RiskAnalyzer):
         b_data = [1.]
         
         # calc
+        toc = time.perf_counter()
         res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
  
         self.status = res['status']
         if self.status != 0:
@@ -352,7 +371,9 @@ class MVAnalyzer(_RiskAnalyzer):
         b_data = [1.]
         
         # calc
+        toc = time.perf_counter()
         res = _qp_solver(self.method, P, q_data, G, h_data, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
         
         self.status = res['status']
         if self.status != 0:
@@ -421,7 +442,9 @@ class MVAnalyzer(_RiskAnalyzer):
         b_data = [0., 1.]
         
         # calc
+        toc = time.perf_counter()
         res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
  
         self.status = res['status']
         if self.status != 0:
@@ -437,6 +460,76 @@ class MVAnalyzer(_RiskAnalyzer):
         self.diverse = 1. - res['pcost']
         # variance
         self.risk = res['pcost'] / t
+        # variance
+        self.primary_risk_comp = np.array([self.risk])
+        # volatility
+        self.secondary_risk_comp = np.array([np.sqrt(self.risk)])
+        # rate of return
+        self.RR = np.dot(self.ww, self.muk)
+        
+        return self.ww   
+    
+    
+    def _risk_inv_diversification(self, d=1):
+        # Computes the minimum of inverse Sharpe
+        # Order of variables
+        # w <- [0:nn]
+        # u <- nn
+        # t <- nn + 1
+        # in total dim = nn + 2
+        P = self.rrate.cov().to_numpy()
+        nn = P.shape[0]
+        
+        # build c
+        c_data = list(-self.risk_comp) + [0.] 
+        
+        # biuld G
+        icol = list(range(nn + 1)) + list(range(nn + 1))
+        irow = [0] * (nn + 1) + list(range(1, nn + 2)) 
+        data = list(-self.muk * d) + [self.mu * d] + [-1.] * (nn + 1)
+        dd = sps.coo_matrix((data, (irow, icol)), shape=(nn + 2, nn + 1))
+        
+        # cone
+        xx = sps.coo_matrix(([-1.], ([0], [nn])), shape=(1, nn + 1))
+        
+        if any(np.diag(P) < _tol_cholesky):
+            pp = sps.block_diag((-la.sqrtm(P), [-1.]))
+        else:
+            pp = sps.block_diag((-la.cholesky(P, overwrite_a=True), [-1.]))
+            
+        G = sps.vstack([dd, xx, pp])
+        
+        # biuld dims
+        dims = {'l': nn + 2, 'q': [nn + 2]}
+        
+        # build h
+        h_data = [0.] * (nn + 2) + [0.25] + [0.] * nn + [-0.25]
+        
+        # build A
+        A = sps.coo_matrix([1.] * nn + [-1.])
+            
+        # build b
+        b_data = [0.]
+        
+        # calc
+        toc = time.perf_counter()
+        res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
+ 
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
+            return np.array([np.nan] * nn)
+  
+        t = res['x'][-1]
+        # optimal weights
+        self.ww = np.array(res['x'][:nn]) / t
+        self.ww.shape = nn
+        # MV-Diverse
+        self.diverse = 1. + 1. / res['pcost']
+        # variance
+        self.risk = 1. / t
         # variance
         self.primary_risk_comp = np.array([self.risk])
         # volatility
@@ -489,7 +582,9 @@ class MVAnalyzer(_RiskAnalyzer):
         b_data = [1., 0.]
         
         # calc
+        toc = time.perf_counter()
         res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
     
         self.status = res['status']
         if self.status != 0:

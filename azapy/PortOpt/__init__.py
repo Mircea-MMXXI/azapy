@@ -25,4 +25,5 @@ from .Port_BTAD import *
 from .Port_BTSD import *
 from .Port_SMCR import *
 from .Port_LSD import *
+from .Port_EVaR import *
 from .Port_Kelly import *

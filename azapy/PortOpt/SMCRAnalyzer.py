@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.sparse as sps
 import warnings
+import time
 
 from .CVaRAnalyzer import CVaRAnalyzer
 from ._solvers import _socp_solver
@@ -14,6 +15,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
         * getWeights
         * getRisk
         * getPositions
+        * getRiskComp
+        * getDiversification
         * viewForntiers
         * set_rrate
         * set_mktdata
@@ -28,8 +31,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
 
         Parameters
         ----------
-        `alpha` : list, optional
-            List of distinct alpha confidence levels. The default is `[0.9]`.
+        `alpha` : `list`, optional
+            List of distinct confidence levels. The default is `[0.9]`.
         `coef` : list, optional
             List of positive mixture coefficients. Must have the same size with 
             `alpha`. A `None` value assumes an equal weighted risk mixture.
@@ -38,12 +41,12 @@ class SMCRAnalyzer(CVaRAnalyzer):
         `mktdata` : `pandas.DataFrame`, optional
             Historic daily market data for portfolio components in the format
             returned by `azapy.mktData` function. The default is `None`.
-        `colname` : str, optional
+        `colname` : `str`, optional
             Name of the price column from mktdata used in the weights 
             calibration. The default is `'adjusted'`.
-        `freq` : str, optional
-            Rate of returns horizon. It could be 
-            'Q' for quarter or 'M' for month. The default is `'Q'`.
+        `freq` : `str`, optional
+            Rate of return horizon. It could be 
+            `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
         `hlength` : float, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
@@ -52,23 +55,31 @@ class SMCRAnalyzer(CVaRAnalyzer):
             Business days calendar. If is it `None` then the calendar will 
             be set to NYSE business calendar. 
             The default is `None`.
-       `rtype` : str, optional
+        `rtype` : `str`, optional
             Optimization type. Possible values \n
-                'Risk' : minimization of dispersion (risk) measure for  
-                targeted rate of return. \n
-                'Sharpe' : maximization of generalized Sharpe ratio.\n
-                'Sharpe2' : minimization of the inverse generalized Sharpe 
-                ratio.\n
-                'MinRisk' : minimum dispersion (risk) portfolio.\n
-                'InvNrisk' : optimal portfolio with the same dispersion (risk)
-                value as a benchmark portfolio 
-                (e.g. equal weighted portfolio).\n
-                'RiskAverse' : optimal portfolio for a fixed value of 
-                risk-aversion factor.
-            The default is `'Sharpe'`.
+                `'Risk'` : optimal portfolio for targeted expected rate of 
+                return.\n
+                `'Sharpe'` : optimal Sharpe portfolio - maximization solution.\n
+                `'Sharpe2'` : optimal Sharpe portfolio - minimization solution.\n
+                `'MinRisk'` : minimum risk portfolio.\n
+                `'RiskAverse'` : optimal portfolio for a fixed risk-aversion
+                factor.\n
+                `'Diverse'` : optimal diversified portfolio for targeted
+                expected rate of return (max of inverse 1-Diverse).\n
+                `'Diverse2'` : optimal diversified portfolio for targeted
+                expected rate of return (min of 1-Diverse).\n
+                `'MaxDiverse'` : portfolio with maximum diversification.\n
+                'InvNrisk' : optimal portfolio with the same risk value as a 
+                benchmark portfolio (e.g. same as equal weighted portfolio).\n
+                `'InvNdiverse'` : optimal diversified portfolio with the same
+                diversification factor as a benchmark portfolio 
+                (e.g. same as equal weighted portfolio).\n
+                `'InvNrr'` : optimal diversified portfolio with the same 
+                expected rate of return as a benchmark portfolio
+                (e.g. same as equal weighted portfolio).\n
         method : str, optional
             SOCP numerical method. 
-            Could be: 'ecos' or 'cvxopt'.
+            Could be: `'ecos'` or `'cvxopt'`.
             The defualt is `'ecos'`.
             
         Returns
@@ -116,7 +127,9 @@ class SMCRAnalyzer(CVaRAnalyzer):
         dims = {'l': (2 * nn + 1), 'q': [nn + 1]}
         
         # calc
+        toc = time.perf_counter()
         res = _socp_solver(self.method, c_data, G, h_data, dims)
+        self.time_level2 = time.perf_counter() - toc
  
         self.status = res['status']
         if self.status != 0:
@@ -204,7 +217,9 @@ class SMCRAnalyzer(CVaRAnalyzer):
         b_data = [1.]
         
         # calc
+        toc = time.perf_counter()
         res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
  
         self.status = res['status']
         if self.status != 0:
@@ -212,9 +227,6 @@ class SMCRAnalyzer(CVaRAnalyzer):
                         + f"on calibration date {self.rrate.index[-1]}")
             return np.array([np.nan] * mm)
         
-        # SMVaR 
-        self.secondary_risk_comp = np.array([res['x'][mm + l * (nn + 2)] \
-                                             for l in range(ll)])
         # mSMCR
         self.risk = res['pcost']
         # SMCR components
@@ -223,6 +235,9 @@ class SMCRAnalyzer(CVaRAnalyzer):
              + 1 / (1 - self.alpha[l])  / np.sqrt(nn) \
              * res['x'][mm + l * (nn + 2) + 1] \
             for l in range(ll)])
+        # SMVaR 
+        self.secondary_risk_comp = np.array([res['x'][mm + l * (nn + 2)] \
+                                             for l in range(ll)])
         # optimal weights
         self.ww = np.array(res['x'][:mm])
         self.ww.shape = mm
@@ -303,7 +318,9 @@ class SMCRAnalyzer(CVaRAnalyzer):
         b_data = [0.] + [1.]
         
         # calc
+        toc = time.perf_counter()
         res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
  
         self.status = res['status']
         if self.status != 0:
@@ -408,7 +425,9 @@ class SMCRAnalyzer(CVaRAnalyzer):
         b_data = [0.] + [1.]
         
         # calc
+        toc = time.perf_counter()
         res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
  
         self.status = res['status']
         if self.status != 0:
@@ -509,7 +528,9 @@ class SMCRAnalyzer(CVaRAnalyzer):
         b_data = [1., self.risk]
         
         # calc
+        toc = time.perf_counter()
         res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
  
         self.status = res['status']
         if self.status != 0:
@@ -606,7 +627,9 @@ class SMCRAnalyzer(CVaRAnalyzer):
         b_data = [1.]
         
         # calc
+        toc = time.perf_counter()
         res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
  
         self.status = res['status']
         if self.status != 0:
@@ -713,7 +736,9 @@ class SMCRAnalyzer(CVaRAnalyzer):
         b_data = [0.] + [1.]
         
         # calc
+        toc = time.perf_counter()
         res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
  
         self.status = res['status']
         if self.status != 0:
@@ -744,6 +769,115 @@ class SMCRAnalyzer(CVaRAnalyzer):
         return self.ww
     
     
+    def _risk_inv_diversification(self, d=1):
+        # Order of variables:
+        # w <- [0:mm] 
+        # then for l <- [0:ll]
+        #   u_l <- mm + l(nn+2), 
+        #   eta_l <- mm + l(nn+2) + 1,
+        #   s_l <- [mm + l(nn + 2) + 2: mm + (l + 1)(nn + 2)]
+        # and last t <- [mm + ll(nn + 2)]
+        # in total dim = mm + ll(nn + 2) + 1
+        ll = self.ll
+        nn = self.nn
+        mm = self.mm
+        
+        # build c   
+        c_data = list(-self.risk_comp) + [0.] * (ll * (nn + 2) + 1)
+        
+        # build G
+        # linear
+        G_icol = list(range(mm)) * (nn * ll)
+        G_irow = [k  for k in range(nn * ll) for _ in range(mm)]
+        G_data = list(np.ravel(-self.rrate)) * ll
+        for l in range(ll):
+            G_icol += [mm + l * (nn + 2)] * nn \
+                + list(range(mm + l * (nn + 2) + 2, mm + (l + 1) * (nn + 2)))
+            G_irow += list(range(l * nn, (l + 1) * nn)) \
+                + list(range(l * nn, (l + 1) * nn))
+            G_data += [-1] * nn + [-1] * nn
+        
+        G_icol += list(range(mm)) + [mm + ll * (nn + 2)]
+        G_irow += [nn * ll] * (mm + 1)
+        G_data += list(-self.muk * d) + [self.mu * d]
+            
+        G_icol += list(range(mm))
+        G_irow += list(range(nn * ll + 1, mm + nn * ll + 1))
+        G_data += [-1.] * mm
+        for l in range(ll):
+            G_icol += list(range(mm + l * (nn + 2) + 2,\
+                                 mm + (l + 1) * (nn + 2)))
+            G_irow += list(range(mm + nn * ll + 1 + l * nn, \
+                                 mm + nn * ll + 1 + (l + 1) * nn))
+            G_data += [-1.] * nn
+        # cone
+        for l in range(ll):
+            G_icol += list(range((nn + 2) * l + mm + 1, 
+                                 (nn + 2) * l + mm + 1 + nn + 1))
+            G_irow += list(range(mm + 2 * nn * ll + l * (nn + 1) + 1, 
+                                 mm + 2 * nn * ll + (l + 1) * (nn + 1) + 1))
+            G_data += [-1.] * (nn + 1)
+            
+        G_shape = (3 * nn * ll + mm + ll + 1, mm + ll * (nn + 2) + 1)
+        G = sps.coo_matrix((G_data, (G_irow, G_icol)), G_shape)
+  
+        # build h
+        h_data = [0.] * (3 * nn * ll + mm + ll + 1)
+        
+        # define dims
+        dims = {'l': (2 * ll * nn + mm + 1), 'q': [nn + 1] * ll}
+        
+        # build A
+        A_icol = list(range(mm)) + [mm + ll * (nn + 2)]
+        A_irow = [0] * (mm + 1)
+        A_data = [1.] * mm + [-1.]
+        
+        A_icol += [mm + l * (nn + 2) for l in range(ll)] \
+                + [mm + l * (nn + 2) + 1 for l in range(ll)]
+        A_irow += [1] * (2 * ll)
+        A_data += list(self.coef) \
+                + list(self.coef / (1 - self.alpha) / np.sqrt(nn))
+        
+        A_shape = (2, mm + ll * (nn + 2) + 1)
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), A_shape)
+
+        # build b
+        b_data = [0.] + [1.]
+        
+        # calc
+        toc = time.perf_counter()
+        res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
+ 
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
+                        + f"on calibration date {self.rrate.index[-1]}")
+            return np.array([np.nan] * mm)
+        
+        t = res['x'][-1]
+        # mSMCR (1/t)
+        self.risk = 1 / t
+        # SMVaR (=u/t)
+        self.secondary_risk_comp = np.array(
+            [res['x'][mm + l * (nn + 2)] / t for l in range(ll)])
+        # Diversification
+        self.diverse= 1. + 1. / res['pcost']
+        # optimal weights
+        self.ww = np.array(res['x'][:mm]) / t
+        self.ww.shape = mm
+        # rate of returns
+        self.RR = np.dot(self.ww, self.muk)
+        # SMCR component (recomputed)
+        self.primary_risk_comp = np.array(
+            [(res['x'][mm + l * (nn + 2)] \
+              + 1. / (1. - self.alpha[l]) / np.sqrt(nn) \
+              * res['x'][mm + l * (nn + 2) + 1]) / t \
+             for l in range(ll)])
+        
+        return self.ww
+        
+  
     def _rr_max_diversification(self):
         # Order of variables:
         # w <- [0:mm] 
@@ -817,7 +951,9 @@ class SMCRAnalyzer(CVaRAnalyzer):
         b_data = [1., 0.]
         
         # calc
+        toc = time.perf_counter()
         res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
  
         self.status = res['status']
         if self.status != 0:

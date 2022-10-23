@@ -38,6 +38,8 @@ setuptools.setup(
           'pandas_market_calendars',
           'cvxopt',
           'ta',
-          'yfinance'
+          'yfinance',
+          'statsmodels',
+          'time'
       ],
 )
