@@ -14,16 +14,17 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #==============================================================================
-# Define mBTSD measure parameters alpha and coef
-alpha = [-0.01, 0.0, +0.01]
-coef = np.full(len(alpha), 1 / len(alpha))
+# Define mEVaR measure parameters alpha and coef
+alpha = np.array([0.75, 0.65])
+# equal weighted risk mixture
+coef = np.full(len(alpha), 1/len(alpha))
 # set now the title of the frontiers plots
-title_plot = 'mBTSD frontiers'
+title_plot = 'mEVaR frontiers'
 hlength = 3.25
-method = 'ecos' # default choice
+method = 'ncp' # default choice
 
 # build the analyzer object
-cr1 = az.BTSDAnalyzer(alpha, coef, mktdata, hlength=hlength, method=method)
+cr1 = az.EVaRAnalyzer(alpha, coef, mktdata, hlength=hlength, method=method)
 
 #==============================================================================
 # Beyond this point any section can be run independently 

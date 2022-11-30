@@ -85,4 +85,6 @@ class Port_MV(Port_CVaR):
 
 
     def _wwgen(self):
-        return MVAnalyzer(rtype=self.rtype, method=self.method)
+        return MVAnalyzer(rtype=self.rtype, method=self.method, 
+                          name=self.pname)
+    

@@ -87,4 +87,5 @@ class Port_GINI(Port_CVaR):
 
 
     def _wwgen(self):
-        return GINIAnalyzer(rtype=self.rtype, method=self.method)
+        return GINIAnalyzer(rtype=self.rtype, method=self.method,
+                            name=self.pname)

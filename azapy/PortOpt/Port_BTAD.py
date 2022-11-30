@@ -102,4 +102,5 @@ class Port_BTAD(Port_CVaR):
 
     def _wwgen(self):
         return BTADAnalyzer(self.alpha, self.coef, rtype=self.rtype,
-                            detrended=self.detrended, method=self.method)
+                            detrended=self.detrended, method=self.method,
+                            name=self.pname)

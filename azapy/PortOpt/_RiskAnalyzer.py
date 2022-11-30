@@ -8,7 +8,11 @@ import time
 
 from azapy.MkT.MkTcalendar import NYSEgen
 
-_WW_TOL = 1.e-10
+_WW_TOL_ = 1.e-10
+_MU_ABS_TOL_ = 1.e-6
+_RISK_REL_TOL_ = 0.999999
+_RR_ABS_TOL_ = 1.e-4
+
 
 class _RiskAnalyzer:
     """
@@ -23,6 +27,7 @@ class _RiskAnalyzer:
         _risk_diversification(self, d=1) \n
         _risk_inv_diversification(self, d=1) \n
         _rr_max_diversification(self) \n
+        _set_method(self, method) \n
 
     Methods:
         * getWeights
@@ -32,6 +37,7 @@ class _RiskAnalyzer:
         * getDiversification
         * viewForntiers
         * set_rrate
+        * set_method
         * set_mktdata
         * set_rtype
         * set_random_seed
@@ -40,8 +46,8 @@ class _RiskAnalyzer:
         
     """
 
-    def __init__(self, mktdata=None, colname='adjusted',
-                 freq='Q', hlength=3.25, calendar=None, rtype='Sharpe'):
+    def __init__(self, mktdata=None, colname='adjusted', freq='Q', 
+                 hlength=3.25, calendar=None, rtype='Sharpe', name=None):
         """
         Constructor
 
@@ -64,28 +70,31 @@ class _RiskAnalyzer:
             Business days calendar. If is it `None` then the calendar will be 
             set to NYSE business calendar. The default is `None`.
         `rtype` : `str`, optional;
-            Optimization type. Possible values \n
-                `'Risk'` : optimal portfolio for targeted expected rate of 
+            Optimization type. Possible values: \n
+                `'Risk'` : optimal risk portfolio for targeted expected rate of 
                 return.\n
                 `'Sharpe'` : optimal Sharpe portfolio - maximization solution.\n
                 `'Sharpe2'` : optimal Sharpe portfolio - minimization solution.\n
                 `'MinRisk'` : minimum risk portfolio.\n
-                `'RiskAverse'` : optimal portfolio for a fixed risk-aversion
-                factor.\n
+                `'RiskAverse'` : optimal risk portfolio for a fixed 
+                risk-aversion factor.\n
+                `'InvNrisk'` : optimal risk portfolio with the same risk value 
+                as a benchmark portfolio (e.g. same as equal weighted 
+                portfolio).\n
                 `'Diverse'` : optimal diversified portfolio for targeted
                 expected rate of return (max of inverse 1-Diverse).\n
                 `'Diverse2'` : optimal diversified portfolio for targeted
                 expected rate of return (min of 1-Diverse).\n
-                `'MaxDiverse'` : portfolio with maximum diversification.\n
-                'InvNrisk' : optimal portfolio with the same risk value as a 
-                benchmark portfolio (e.g. same as equal weighted portfolio).\n
+                `'MaxDiverse'` : maximum diversified portfolio.\n
                 `'InvNdiverse'` : optimal diversified portfolio with the same
                 diversification factor as a benchmark portfolio 
                 (e.g. same as equal weighted portfolio).\n
-                `'InvNrr'` : optimal diversified portfolio with the same 
+                `'InvNdrr'` : optimal diversified portfolio with the same 
                 expected rate of return as a benchmark portfolio
                 (e.g. same as equal weighted portfolio).\n
             The default is `'Sharpe'`.
+        `name` : `str`, optional;
+            Object name. Deafult value is `None`.
 
         Returns
         -------
@@ -119,12 +128,17 @@ class _RiskAnalyzer:
         self.rng = None
         self.method = None
         
+        self.methods = None
+        self.rtypes = None
+        self.name = None
         
         self.risk_comp = None
         self._flag_risk_comp_calc = False
         self._status_risk_comp_calc = None
         
         self.set_rtype(rtype)
+        
+        self.name = name
 
         if mktdata is not None:
             self.set_mktdata(mktdata, colname, freq, hlength)
@@ -133,6 +147,7 @@ class _RiskAnalyzer:
         
     def _reset_output(self):
         self.status = None
+        self.ww = None
         self.risk = None
         self.primary_risk_comp = None
         self.secondary_risk_comp = None
@@ -145,7 +160,7 @@ class _RiskAnalyzer:
 
         
     def getWeights(self, rtype=None, mu=None, d=1, mu0=0., aversion=None,
-                   ww0=None, rrate=None ):  
+                   ww0=None, rrate=None):  
         """
         Computes the optimal portfolio weights.
 
@@ -154,6 +169,28 @@ class _RiskAnalyzer:
         `rtype` : `str`, optional;
             Optimization type. If is not `None` it will overwrite the value
             set by the constructor. The default is `None`.
+            Other possible values: \n
+                `'Risk'` : optimal risk portfolio for targeted expected rate of 
+                return.\n
+                `'Sharpe'` : optimal Sharpe portfolio - maximization solution.\n
+                `'Sharpe2'` : optimal Sharpe portfolio - minimization solution.\n
+                `'MinRisk'` : minimum risk portfolio.\n
+                `'RiskAverse'` : optimal risk portfolio for a fixed 
+                risk-aversion factor.\n
+                `'InvNrisk'` : optimal risk portfolio with the same risk value 
+                as a benchmark portfolio (e.g. same as equal weighted 
+                portfolio).\n
+                `'Diverse'` : optimal diversified portfolio for targeted
+                expected rate of return (max of inverse 1-Diverse).\n
+                `'Diverse2'` : optimal diversified portfolio for targeted
+                expected rate of return (min of 1-Diverse).\n
+                `'MaxDiverse'` : maximum diversified portfolio.\n
+                `'InvNdiverse'` : optimal diversified portfolio with the same
+                diversification factor as a benchmark portfolio 
+                (e.g. same as equal weighted portfolio).\n
+                `'InvNdrr'` : optimal diversified portfolio with the same 
+                expected rate of return as a benchmark portfolio
+                (e.g. same as equal weighted portfolio).\n
         `mu` : float, optional;
             Targeted portfolio expected rate of return. 
             Relevant only if `rtype` is equalt to `'Risk'` or `'Divers'`.
@@ -194,183 +231,245 @@ class _RiskAnalyzer:
         """
         toc = time.perf_counter()
         self._reset_output()
-        self.ww = None
-        
+ 
         d = 1 if d == 1 else -1
-        
+
         if rrate is not None:
             self.set_rrate(rrate)
-
+            
         if not rtype is None:
             self.set_rtype(rtype)
             
+        # calc - grand dispatch 
         if self.rtype == "Risk":
-            if mu is None:
-                raise ValueError("for rtype='Risk' mu must have a value")
-            elif mu > self.muk.max():
-                self.mu = self.muk.max()
-            elif mu < self.muk.min():
-                self.mu = self.muk.min()
-            else:
-                self.mu = mu
-
-            self._risk_min(d=d)
-            
+            self._calc_Risk(mu, d)
         elif self.rtype == 'Sharpe':           
-            if mu0 is None:
-                raise ValueError("for rtype='Sharpe' mu0 must have a value")
-            if mu0 > self.muk.max():
-                self.mu = self.muk.max() * 0.999
-            else:
-                self.mu = mu0
-
-            self._sharpe_max()
-            
+            self._calc_Sharpe(mu0)
         elif self.rtype == 'Sharpe2':          
-            if mu0 is None:
-                raise ValueError("for rtype='Sharpe2' mu0 must have a value")
-            if mu0 > self.muk.max():
-                self.mu = self.muk.max() * 0.999
-            else:
-                self.mu = mu0
-
-            self._sharpe_inv_min() 
-            
+            self._calc_Sharpe2(mu0)
         elif self.rtype == "MinRisk":
-            self.mu = self.muk.min()
-            self._risk_min(d=1)
-            
+            self._calc_MinRisk()
         elif self.rtype == "InvNrisk":    
-            if ww0 is None:
-                ww = np.full(len(self.rrate.columns), 
-                             1/len(self.rrate.columns))
-            else:
-                if isinstance(ww0, pd.core.series.Series):
-                    ww = np.array(ww0[self.rrate.columns])
-                else:
-                    ww = np.array(ww0)
-                if any(ww < 0.):
-                    raise ValueError("All ww0 must be non-negative")
-                sww = ww.sum()
-                if sww <= 0:
-                    raise ValueError("At least one ww0 must be non zero")
-                ww = ww / sww
-                
-            self.getRiskComp()
-            if self.status == 0:
-                self.getRisk(ww)
-                if self.status == 0:
-                    symb_max = self.muk.idxmax()
-                    if self.risk < self.risk_comp[symb_max]:
-                        self._rr_max()  
-                    else:
-                        w = pd.Series(0, index=self.rrate.columns)
-                        w[symb_max] = 1
-                        self.getRisk(w)
-                        warnings.warn(
-                            f"InvNrisk defaulted to single portfolio [{symb_max}]")
-            
-        elif self.rtype == "RiskAverse":          
-            if aversion is None:
-                raise ValueError("for rtype='RiskAverse'"
-                                 + " aversion must have a value")
-            elif aversion < 0:
-                raise ValueError("aversion must be positive")
-                
-            self.Lambda = aversion
-            self._risk_averse()
-            
+            self._calc_InvNrisk(ww0)
+        elif self.rtype == "RiskAverse":   
+            self._calc_RiskAverse(aversion) 
         elif self.rtype == "Diverse2":
-            if mu is None:
-                raise ValueError("for rtype='Diverse' mu must have a value")
-            elif mu > self.muk.max():
-                self.mu = self.muk.max()
-            elif mu < self.muk.min():
-                self.mu = self.muk.min()
-            else:
-                self.mu = mu
-
-            self.getRiskComp()
-            if self.status == 0:
-                self._risk_diversification(d=d)
-            
+            self._calc_Diverse2(mu, d)
         elif self.rtype == "Diverse":
-            if mu is None:
-                raise ValueError("for rtype='Diverse2' mu must have a value")
-            elif mu > self.muk.max():
-                self.mu = self.muk.max()
-            elif mu < self.muk.min():
-                self.mu = self.muk.min()
-            else:
-                self.mu = mu
-
-            self.getRiskComp()
-            if self.status == 0:
-                self._risk_inv_diversification(d=d)
-            
+            self._calc_Diverse(mu, d)
         elif self.rtype == "MaxDiverse":  
-            self.mu = self.muk.min()
-            self.getRiskComp()
-            if self.status == 0:
-                self._risk_diversification(d=1)
-            
+            self._calc_MaxDiverse()
         elif self.rtype == "InvNdiverse":
-            if ww0 is None:
-                ww = np.full(len(self.rrate.columns), 
-                             1/len(self.rrate.columns))
-            else:
-                if isinstance(ww0, pd.core.series.Series):
-                    ww = np.array(ww0[self.rrate.columns])
-                else:
-                    ww = np.array(ww0)
-                if any(ww < 0.):
-                    raise ValueError("All ww0 must be non-negative")
-                sww = ww.sum()
-                if sww <= 0:
-                    raise ValueError("At least one ww0 must be non zero")
-                ww = ww / sww
-                
-            self.getDiversification(ww)
-            if self.status == 0:
-                self._rr_max_diversification()  
-            
-        elif self.rtype == "InvNrr":
-            if ww0 is None:
-                ww = np.full(len(self.rrate.columns), 
-                             1/len(self.rrate.columns))
-            else:
-                if isinstance(ww0, pd.core.series.Series):
-                    ww = np.array(ww0[self.rrate.columns])
-                else:
-                    ww = np.array(ww0)
-                if any(ww < 0.):
-                    raise ValueError("All ww0 must be non-negative")
-                sww = ww.sum()
-                if sww <= 0:
-                    raise ValueError("At least one ww0 must be non zero")
-                ww = ww / sww
-                
-            self.mu = np.dot(ww, self.muk)
-            self.getRiskComp()
-            if self.status == 0:
-                self._risk_diversification(d=1)
-                if self.status == 0:
-                    if np.abs(self.mu - self.RR) >= 1.e-8:
-                        self._risk_diversification(d=-1)
-            
+            self._calc_InvNdiverse(ww0)
+        elif self.rtype == "InvNdrr":
+            self._calc_InvNdrr(ww0)
         else:
-            raise ValueError("you should not be here")
-        
+            raise ValueError("you should not be here - ever")
+
         if self.status != 0:
-            warnings.warn(f"Warning: status {self.status} for {self.rtype}")
+            warnings.warn(f"Warning: {self.rtype} on {self.rrate.index[-1]} "
+                          f"status {self.status}")
         else:
-            self.ww = pd.Series(self.ww, index=self.rrate.columns, dtype='float64')
+            self.ww = pd.Series(self.ww, index=self.rrate.columns)
             self._norm_weights()
             
         self.time_level1 = time.perf_counter() - toc
         
         return self.ww
-
+    
+    
+    def _calc_Risk(self, mu, d):
+        mu_max = self.muk.max()
+        mu_min = self.muk.min()
+        if mu is None:
+            raise ValueError("for rtype='Risk' mu must have a value")
+        elif d == 1 and mu - mu_max > -np.abs(mu_max) * _MU_ABS_TOL_:
+            self._single_asset_port('max')
+            warnings.warn(f"rtype 'Risk' for mu {mu} for {self.name} on "
+                          f"{self.rrate.index[-1]}, defaulted "
+                          f"to single portfolio [{self.muk.idxmax()}]")
+        elif d == -1 and mu - mu_min < np.abs(mu_min) * _MU_ABS_TOL_:
+            self._single_asset_port('min')
+            warnings.warn(f"rtype 'Risk' for mu {mu} for {self.name} on "
+                          f"{self.rrate.index[-1]}, defaulted "
+                          f"to single portfolio [{self.muk.idxmin()}]")
+        else:
+            self.mu = mu
+            self._risk_min(d=d)
+            
+            
+    def _calc_Sharpe(self, mu0):
+        mu_max = self.muk.max()
+        if mu0 is None:
+            raise ValueError("for rtype='Sharpe' mu0 must have a value")
+        if mu0 - mu_max >= -np.abs(mu_max) * _MU_ABS_TOL_:
+            self._single_asset_port('max')
+            if self.status == 0:
+                self.sharpe = (self.RR - mu0) / self.risk
+            warnings.warn(f"rtype 'Sharpe' for mu0 {mu0} for {self.name} on "
+                          f"{self.rrate.index[-1]}, defaulted "
+                          f"to single portfolio [{self.muk.idxmax()}]")
+        else:
+            self.mu = mu0
+            self._sharpe_max()
+            
+            
+    def _calc_Sharpe2(self, mu0):
+        mu_max = self.muk.max()
+        if mu0 is None:
+            raise ValueError("for rtype='Sharpe' mu0 must have a value")
+        if mu0 - mu_max >= -np.abs(mu_max) * _MU_ABS_TOL_:
+            self._single_asset_port('max')
+            if self.status == 0:
+                self.sharpe = (self.RR - mu0) / self.risk
+            warnings.warn(f"rtype 'Sharpe2' for mu0 {mu0} for {self.name} on "
+                          f"{self.rrate.index[-1]}, defaulted "
+                          f"to single portfolio [{self.muk.idxmax()}]")
+        else:
+            self.mu = mu0
+            self._sharpe_inv_min() 
+            
+            
+    def _calc_MinRisk(self):
+        self._calc_Risk(self.muk.min(), d=1)
+        
+        
+    def _calc_InvNrisk(self, ww0):
+        if ww0 is None:
+            ww = np.full(len(self.rrate.columns), 
+                         1/len(self.rrate.columns))
+        else:
+            if isinstance(ww0, pd.core.series.Series):
+                ww = np.array(ww0[self.rrate.columns])
+            else:
+                ww = np.array(ww0)
+            if any(ww < 0.):
+                raise ValueError("All ww0 must be non-negative")
+            sww = ww.sum()
+            if sww <= 0:
+                raise ValueError("At least one ww0 must be non zero")
+            ww = ww / sww
+            
+        self.getRiskComp()
+        if self.status == 0:
+            self.getRisk(ww)
+            if self.status == 0:
+                symb_max = self.muk.idxmax()
+                if self.risk < self.risk_comp[symb_max] * _RISK_REL_TOL_:
+                    self._rr_max()  
+                else:
+                    w = pd.Series(0., index=self.rrate.columns)
+                    w[symb_max] = 1.
+                    self.getRisk(w)
+                    warnings.warn(f"InvNrisk for {self.name} on "
+                                  f"{self.rrate.index[-1]}, defaulted "
+                                  f"to single portfolio [{symb_max}]")
+                    
+                    
+    def _calc_RiskAverse(self, aversion):
+        if aversion is None:
+            raise ValueError("for rtype='RiskAverse'"
+                             " aversion must have a positive value")
+        elif aversion < 0:
+            raise ValueError("aversion must be positive (>0)")
+            
+        self.Lambda = aversion
+        self._risk_averse()
+        
+        
+    def _calc_Diverse(self, mu, d):
+        mu_max = self.muk.max()
+        mu_min = self.muk.min()
+        if mu is None:
+            raise ValueError("for rtype='Diverse' mu must have a value")
+        elif d == 1 and mu - mu_max > -np.abs(mu_max) * _MU_ABS_TOL_:
+            self._single_asset_port('max')
+            warnings.warn(f"rtype 'Diverse' for mu {mu} for {self.name} on "
+                          f"{self.rrate.index[-1]}, defaulted "
+                          f"to single portfolio [{self.muk.idxmax()}]")
+        elif d == -1 and mu - mu_min < np.abs(mu_min) * _MU_ABS_TOL_:
+            self._single_asset_port('min')
+            warnings.warn(f"rtype 'Diverse' for mu {mu} for {self.name} on "
+                          f"{self.rrate.index[-1]}, defaulted "
+                          f"to single portfolio [{self.muk.idxmin()}]")
+        else:
+            self.mu = mu
+            self.getRiskComp()
+            if self.status == 0:
+                self._risk_inv_diversification(d=d)
+                
+                
+    def _calc_Diverse2(self, mu, d):
+        mu_max = self.muk.max()
+        mu_min = self.muk.min()
+        if mu is None:
+            raise ValueError("for rtype='Diverse2' mu must have a value")
+        elif d == 1 and mu - mu_max > -np.abs(mu_max) * _MU_ABS_TOL_:
+            self._single_asset_port('max')
+            warnings.warn(f"rtype 'Diverse2' for mu {mu} for {self.name} on "
+                          f"{self.rrate.index[-1]}, defaulted "
+                          f"to single portfolio [{self.muk.idxmax()}]")
+        elif d == -1 and mu - mu_min < np.abs(mu_min) * _MU_ABS_TOL_:
+            self._single_asset_port('min')
+            warnings.warn(f"rtype 'Diverse2' for mu {mu} for {self.name} on "
+                          f"{self.rrate.index[-1]}, defaulted "
+                          f"to single portfolio [{self.muk.idxmin()}]")
+        else:
+            self.mu = mu
+            self.getRiskComp()
+            if self.status == 0:
+                self._risk_diversification(d=d)
+                
+                
+    def _calc_MaxDiverse(self):
+        self._calc_Diverse(self.muk.min(), d=1)
+        
+        
+    def _calc_InvNdiverse(self, ww0):
+        if ww0 is None:
+            ww = np.full(len(self.rrate.columns), 
+                         1/len(self.rrate.columns))
+        else:
+            if isinstance(ww0, pd.core.series.Series):
+                ww = np.array(ww0[self.rrate.columns])
+            else:
+                ww = np.array(ww0)
+            if any(ww < 0.):
+                raise ValueError("All ww0 must be non-negative")
+            sww = ww.sum()
+            if sww <= 0:
+                raise ValueError("At least one ww0 must be non zero")
+            ww = ww / sww
+            
+        self.getDiversification(ww)
+        if self.status == 0:
+            self._rr_max_diversification()  
+            
+            
+    def _calc_InvNdrr(self, ww0):
+        if ww0 is None:
+            ww = np.full(len(self.rrate.columns), 
+                         1/len(self.rrate.columns))
+        else:
+            if isinstance(ww0, pd.core.series.Series):
+                ww = np.array(ww0[self.rrate.columns])
+            else:
+                ww = np.array(ww0)
+            if any(ww < 0.):
+                raise ValueError("All ww0 must be non-negative")
+            sww = ww.sum()
+            if sww <= 0:
+                raise ValueError("At least one ww0 must be non zero")
+            ww = ww / sww
+            
+        mu = np.dot(ww, self.muk)
+        self._calc_MaxDiverse()
+        if self.status == 0:
+            if mu > self.RR:
+                self._calc_Diverse(mu, d=1)
+            elif mu < self.RR:
+                self._calc_Diverse(mu, d=-1)
+        
 
     def getRisk(self, ww, rrate=None):
         """
@@ -400,6 +499,7 @@ class _RiskAnalyzer:
         """
         self._reset_output()
         toc = time.perf_counter()
+        
         if rrate is not None:
             self.set_rrate(rrate)
 
@@ -493,22 +593,22 @@ class _RiskAnalyzer:
 
         Columns:
 
-            - "old_nsh" :
+            - `"old_nsh"` :
                 initial number of shares per portfolio component and
                 the additional cash. These are input values.
-            - "new_nsh" :
+            - `"new_nsh"` :
                 the new number of shares per component plus the residual
                 cash (due to the rounding to an integer number of shares).
                 A negative entry means that the investor needs to add more
                 cash to cover for the roundup shortfall.
                 It has a small value.
-            - "diff_nsh" :
+            - `"diff_nsh"` :
                 the number of shares that needs to be both/sold in order
                 to rebalance the portfolio positions.
-            - "weights" :
+            - `"weights"` :
                 portfolio weights used for rebalancing. The cash entry is
                 the new portfolio value (invested capital).
-            - "prices" :
+            - `"prices"` :
                 the share prices used for rebalances evaluations.
 
         Note: Since the prices are closing prices, the rebalance can be
@@ -645,19 +745,20 @@ class _RiskAnalyzer:
         -------
         `None`
         """
-        rtypes = ["Sharpe", "Risk", "MinRisk", "Sharpe2", "InvNrisk",
-                  "RiskAverse", "Diverse", "MaxDiverse", "InvNdiverse",
-                  "InvNrr", "Diverse2"]
+        self.rtypes = ['Risk', 'MinRisk', 'Sharpe', 'Sharpe2', 'RiskAverse',
+                       'InvNrisk', 'Diverse', 'Diverse2', 'MaxDiverse', 
+                       'InvNdiverse', 'InvNdrr']
 
-        if not rtype in rtypes:
-            raise ValueError(f"rtype must be one of {rtypes}")
+        if not rtype in self.rtypes:
+            raise ValueError(f"rtype (value {rtype}) must be "
+                             f"one of {self.rtypes}")
         self.rtype = rtype
 
 
     def viewFrontiers(self, minrisk=True, efficient=20, inefficient=20, 
                       sharpe=True, musharpe=0., maxdiverse=False, 
                       diverse_efficient=0, diverse_inefficient=0, invN=True, 
-                      invNrisk=True, invNdiverse=False, invNrr=False,
+                      invNrisk=True, invNdiverse=False, invNdrr=False,
                       component=True, randomport=20, addport=None, 
                       fig_type='RR_risk', **opt):
         """
@@ -668,16 +769,16 @@ class _RiskAnalyzer:
         `minrisk` : Boolean, optional;
             If it is `True` then the minimum risk portfolio will be visible. 
             The default is `True`.
-        `efficient` : int, optional;
+        `efficient` : `int`, optional;
             Number of points along the optimal frontier (equally spaced along
             the rate of return axis). The default is `20`.
-        `inefficient` : int, optional;
+        `inefficient` : `int`, optional;
             Number of points along the inefficient frontier (equally spaced
             along the rate of returns axis). The default is `20`.
         `sharpe` : Boolean, optional;
             If it is `True` then the maximum Sharpe portfolio will be visible. 
             The default is `True`.
-        `musharpe` : float, optional;
+        `musharpe` : `float`, optional;
             Risk-free rate value used in the evaluation of
             generalized Sharpe ratio. The default is `0`.
         `maxdiverse`: Boolean, optional;
@@ -686,11 +787,11 @@ class _RiskAnalyzer:
         `diverse_efficient`: int, optional;
             Number of points along the diversified efficient frontier
             (equally spaced along the rate of return axis).
-            The default is 20.
+            The default is `20`.
         `diverse_inefficient`: int, optional;
             Number of points along the diversified inefficient frontier
             (equally spaced along the rate of return axis).
-            The default is 20.
+            The default is `20`.
         `invN` : Boolean, optional;
             If it is `True`, then the equal weighted portfolio and the optimal 
             portfolio with the same risk value are added to
@@ -703,14 +804,14 @@ class _RiskAnalyzer:
             If it is `True`, then the deverse-efficient portfolio with the 
             same diversification factor as the equal weighted portfolio is
             added to the plot. The default is `False`.
-        `invNrr` : Boolena, optional;
+        `invNdrr` : Boolena, optional;
             If it is `True`, then the deverse-efficient portfolio with the same
             expected rate of return as the equal weighted portfolio is
             added to the plot. The default value is `False`.
         `component` : Boolean, optional;
             If it is `True`, then the single component portfolios are added to 
             the plot. The default is `True`.
-        `randomport` : int, optional;
+        `randomport` : `int`, optional;
             Number of portfolios with random weights (inefficient) to be
             added to the plot (for reference). The default is `20`.
         `addport` : `dict` or `pandas.DataFrame`, optional;
@@ -766,10 +867,10 @@ class _RiskAnalyzer:
                     The label for diverse-efficient portfolio with the same
                     diversificeation factor as equal weighted porfolio.
                     The default is `'invNdiv'`.
-                * `invNrr_label` : `str`;
+                * `invNdrr_label` : `str`;
                     The label of diverse-efficient portfolio with the same
                     expected rate of return as equal weighted portolio.
-                    The defualt is `'invNrr'`.
+                    The defualt is `'invNdrr'`.
                 * `maxdiverse_label` : `str`;
                     The label of maximum diverified portfolio. 
                     The default is `'MaxD'`.
@@ -805,7 +906,7 @@ class _RiskAnalyzer:
         options_default = {'invN_label': '1/N',
                            'invNrisk_label': 'InvNrisk',
                            'invNdiverse_label' : 'InvNdiv',
-                           'invNrr_label' : 'InvNrr',
+                           'invNdrr_label' : 'InvNdrr',
                            'maxdiverse_label' : 'MaxD',
                            'minrisk_label' : 'MinR',
                            'sharpe_label' : 'Sharpe',
@@ -865,7 +966,9 @@ class _RiskAnalyzer:
                     warnings.warn("Warning: MinRisk -> efficient failed")
                     res['efficient']['efficient'] = 0
                 else:
-                    rr_eff = np.linspace(rr_min, self.muk.max(), efficient)
+                    mu_max = self.muk.max()
+                    rr_upper = mu_max - np.abs(mu_max) * _RR_ABS_TOL_
+                    rr_eff = np.linspace(rr_min, rr_upper, efficient)
                     risk_eff = []
                     ww_eff = []
                     RR_eff = []
@@ -874,7 +977,8 @@ class _RiskAnalyzer:
                     for rr in rr_eff:
                         _ww = self.getWeights(rtype='Risk', mu=rr)
                         if self.status != 0:
-                            warnings.warn(f"Warning: efficient for rr {rr} failed")
+                            warnings.warn(f"Warning: efficient for rr {rr} "
+                                          "failed")
                             continue
                         ww_eff.append(_ww)
                         risk_eff.append(self.risk)
@@ -895,8 +999,10 @@ class _RiskAnalyzer:
                 if rr_min is None:
                     warnings.warn("Warning: MinRisk -> inefficient failed")
                     res['inefficient']['inefficient'] = 0
-                else:  
-                    rr_ineff = np.linspace(self.muk.min(), rr_min, inefficient)
+                else:
+                    mu_min = self.muk.min()
+                    rr_lower = mu_min + np.abs(mu_min) * _RR_ABS_TOL_
+                    rr_ineff = np.linspace(rr_lower, rr_min, inefficient)
                     risk_ineff = []
                     ww_ineff = []
                     RR_ineff = []
@@ -905,7 +1011,8 @@ class _RiskAnalyzer:
                     for rr in rr_ineff:
                         _ww = self.getWeights(rtype='Risk', mu=rr, d=-1)
                         if self.status != 0:
-                            warnings.warn(f"Warning: inefficient for rr {rr} failed")
+                            warnings.warn(f"Warning: inefficient for rr {rr} "
+                                          "failed")
                             continue
                         ww_ineff.append(_ww)
                         risk_ineff.append(self.risk)
@@ -953,7 +1060,8 @@ class _RiskAnalyzer:
                     ww[k] = 1.
                     risk_comp.append(self.getRisk(ww))
                     if self.status != 0:
-                        warnings.warn(f"Warning: component {self.rrate.columns[k]} failed")
+                        warnings.warn("Warning: component "
+                                      f"{self.rrate.columns[k]} failed")
                         continue
                     rr_comp.append(self.muk[k])
                     label_comp.append(self.muk.index[k])
@@ -1048,21 +1156,21 @@ class _RiskAnalyzer:
                         (np.dot(self.ww, self.muk) - musharpe) / self.risk
                     res['invNdiverse']['diverse'] = self.diverse
                 
-            # invNrr
-            res['invNrr']['invNrr'] = invNrr
-            if invNrr:
-                _ww = self.getWeights(rtype="InvNrr")
+            # invNdrr
+            res['invNdrr']['invNdrr'] = invNdrr
+            if invNdrr:
+                _ww = self.getWeights(rtype="InvNdrr")
                 if self.status != 0:
-                    res['invNrr']['invNrr'] = False
+                    res['invNdrr']['invNdrr'] = False
                     warnings.warn("Warning: maxdiverse failed")
                 else:
-                    res['invNrr']['ww'] = _ww
-                    res['invNrr']['risk'] = self.risk
-                    res['invNrr']['rr'] = self.RR
-                    res['invNrr']['label'] = options['invNrr_label']
-                    res['invNrr']['sharpe'] = \
+                    res['invNdrr']['ww'] = _ww
+                    res['invNdrr']['risk'] = self.risk
+                    res['invNdrr']['rr'] = self.RR
+                    res['invNdrr']['label'] = options['invNdrr_label']
+                    res['invNdrr']['sharpe'] = \
                         (np.dot(self.ww, self.muk) - musharpe) / self.risk
-                    res['invNrr']['diverse'] = self.diverse
+                    res['invNdrr']['diverse'] = self.diverse
                 
             # maxdiverse
             res['maxdiverse']['maxdiverse'] = maxdiverse
@@ -1085,11 +1193,13 @@ class _RiskAnalyzer:
             res['diverse_efficient']['diverse_efficient'] = 0
             if diverse_efficient > 0 :
                 if rr_maxdiverse is None:
-                    warnings.warn("Warning: maxdiverse -> diverse_efficient failed")
+                    warnings.warn("Warning: maxdiverse -> diverse_efficient "
+                                  "failed")
                     res['diverse_efficient']['diverse_efficient'] = 0
                 else:
-                    rr_d_eff = np.linspace(rr_maxdiverse, 
-                                           self.muk.max() - 1.e-7, 
+                    mu_max = self.muk.max() 
+                    rr_upper = mu_max - np.abs(mu_max) * _RR_ABS_TOL_
+                    rr_d_eff = np.linspace(rr_maxdiverse, rr_upper,
                                            diverse_efficient)
                     risk_d_eff = []
                     ww_d_eff = []
@@ -1099,7 +1209,8 @@ class _RiskAnalyzer:
                     for rr in rr_d_eff:
                         _ww = self.getWeights(rtype='Diverse', mu=rr)
                         if self.status != 0:
-                            warnings.warn("Warning: diverse_efficient for rr {rr} failed")
+                            warnings.warn("Warning: diverse_efficient "
+                                          f"for rr {rr} failed")
                             continue
                         ww_d_eff.append(_ww)
                         risk_d_eff.append(self.risk)
@@ -1119,11 +1230,13 @@ class _RiskAnalyzer:
             res['diverse_inefficient']['diverse_inefficient'] = 0
             if diverse_inefficient > 0 :
                 if rr_maxdiverse is None:
-                    warnings.warn("Warning: maxdiverse -> diverse_inefficient failed")
+                    warnings.warn("Warning: maxdiverse -> diverse_inefficient "
+                                  "failed")
                     res['diverse_inefficient']['diverse_inefficient'] = 0
                 else:
-                    rr_d_ineff = np.linspace(self.muk.min(), 
-                                             rr_maxdiverse, 
+                    rr_min = self.muk.min()
+                    rr_lower = rr_min + np.abs(mu_min) * _RR_ABS_TOL_
+                    rr_d_ineff = np.linspace(rr_lower, rr_maxdiverse, 
                                              diverse_inefficient)
                     risk_d_ineff = []
                     ww_d_ineff = []
@@ -1133,7 +1246,8 @@ class _RiskAnalyzer:
                     for rr in rr_d_ineff:
                         _ww = self.getWeights(rtype='Diverse', mu=rr, d=-1)
                         if self.status != 0:
-                            warnings.warn(f"Warning: diverse_inefficient for rr {rr} failed")
+                            warnings.warn(f"Warning: diverse_inefficient "
+                                          f"for rr {rr} failed")
                             continue
                         ww_d_ineff.append(_ww)
                         risk_d_ineff.append(self.risk)
@@ -1142,11 +1256,13 @@ class _RiskAnalyzer:
                             (np.dot(self.ww, self.muk) - musharpe) / self.risk \
                                 if self.risk != 0 else 0)
                         diverse_d_ineff.append(self.getDiversification(self.ww))
-                    res['diverse_inefficient']['diverse_inefficient'] = len(risk_d_ineff)
+                    res['diverse_inefficient']['diverse_inefficient'] = \
+                        len(risk_d_ineff)
                     res['diverse_inefficient']['risk'] = np.array(risk_d_ineff)
                     res['diverse_inefficient']['rr'] = np.array(RR_d_ineff)
                     res['diverse_inefficient']['ww'] = ww_d_ineff
-                    res['diverse_inefficient']['sharpe'] = np.array(sharpe_d_ineff)
+                    res['diverse_inefficient']['sharpe'] = \
+                        np.array(sharpe_d_ineff)
                     res['diverse_inefficient']['diverse'] = \
                         np.array(diverse_d_ineff)
                 
@@ -1205,7 +1321,7 @@ class _RiskAnalyzer:
             res['invN']['label'] = options['invN_label']
             res['invNrisk']['label'] = options['invNrisk_label']
             res['invNdiverse']['label'] = options['invNdiverse_label']
-            res['invNrr']['label'] = options['invNrr_label']
+            res['invNdrr']['label'] = options['invNdrr_label']
             res['maxdiverse']['label'] = options['maxdiverse_label']
             if res['addport']['addport']:
                 if options['addport_label']:
@@ -1257,7 +1373,7 @@ class _RiskAnalyzer:
             ax.scatter(x=res['randomport']['risk'], y=res['randomport']['rr'],
                        marker='o', s=9, edgecolors='b', alpha=0.5)
 
-        for invstr in ['invN', 'invNrisk', 'invNdiverse', 'invNrr']:
+        for invstr in ['invN', 'invNrisk', 'invNdiverse', 'invNdrr']:
             if res[invstr][invstr]:
                 ax.scatter(x=res[invstr]['risk'], y=res[invstr]['rr'],
                           marker='x', c='g', s=36)
@@ -1375,7 +1491,7 @@ class _RiskAnalyzer:
                        y=res['randomport']['sharpe'],
                        marker='o', s=9, edgecolors='b', alpha=0.5 )
 
-        for invstr in ['invN', 'invNrisk', 'invNdiverse', 'invNrr']:
+        for invstr in ['invN', 'invNrisk', 'invNdiverse', 'invNdrr']:
             if res[invstr][invstr]:
                 ax.scatter(x=res[invstr]['rr'], y=res[invstr]['sharpe'],
                           marker='x', c='g', s=36)
@@ -1473,7 +1589,7 @@ class _RiskAnalyzer:
                        y=res['randomport']['diverse'],
                        marker='o', s=9, edgecolors='b', alpha=0.5 )
     
-        for invstr in ['invN', 'invNrisk', 'invNdiverse', 'invNrr']:
+        for invstr in ['invN', 'invNrisk', 'invNdiverse', 'invNdrr']:
             if res[invstr][invstr]:
                 ax.scatter(x=res[invstr]['rr'], 
                            y=res[invstr]['diverse'],
@@ -1533,7 +1649,7 @@ class _RiskAnalyzer:
         ----------
         `seed` : int, optional;
             The random generator seed, in case you want to set it to a weird
-            value other than 42 :). The default is `42`.
+            value other than `42` :). The default is `42`.
 
         Returns
         -------
@@ -1547,27 +1663,27 @@ class _RiskAnalyzer:
     
     
     def _set_lp_method(self, method):
-        lp_methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs',
+        self.methods = ['ecos', 'highs-ds', 'highs-ipm', 'highs',
                        'interior-point', 'glpk', 'cvxopt']
-        if not method in lp_methods:
-            raise ValueError("unknown method {method} - "
-                             + f"must be one of {lp_methods}")
+        if not method in self.methods:
+            raise ValueError(f"unknown method {method} - "
+                             f"must be one of {self.methods}")
         self.method = method
         
         
     def _set_qp_method(self, method):
-        qp_methods = ['ecos', 'cvxopt']
-        if not method in qp_methods:
-            raise ValueError("unknown method {method} - "
-                             + f"must be one of {qp_methods}")
+        self.methods = ['ecos', 'cvxopt']
+        if not method in self.methods:
+            raise ValueError(f"unknown method {method} - "
+                             f"must be one of {self.methods}")
         self.method = method
         
         
     def _set_socp_method(self, method):
-        socp_methods = ['ecos', 'cvxopt']
-        if not method in socp_methods:
-            raise ValueError("unknown method {method} - "
-                             + f"must be one of {socp_methods}")
+        self.methods = ['ecos', 'cvxopt']
+        if not method in self.methods:
+            raise ValueError(f"unknown method {method} - "
+                             f"must be one of {self.methods}")
         self.method = method
         
 
@@ -1600,10 +1716,10 @@ class _RiskAnalyzer:
         self._status_risk_comp_calc = self.status
         
         if self.status != 0:
-            warnings.warn(f"Fail to compute all risk coml\n{self.risk_comp}")
+            warnings.warn(f"Fail to compute for edate {self.rrate.index[-1]} "
+                          f"all risk coml\n{self.risk_comp}")
 
         return self.risk_comp
-        
         
     
     def getDiversification(self, ww, rrate=None):
@@ -1634,6 +1750,7 @@ class _RiskAnalyzer:
         
         """
         self._reset_output()
+        
         if rrate is not None:
             self.set_rrate(rrate)
 
@@ -1649,7 +1766,8 @@ class _RiskAnalyzer:
         
         self.getRiskComp()
         if self.status != 0:
-            warnings.warn(f"Warning: Fail to compute all risk comp\n{self.risk_comp}")
+            warnings.warn("Warning: Fail to compute all risk comp\n"
+                          f"{self.risk_comp}")
             return None
             
         wrisk = self.getRisk(w)
@@ -1667,9 +1785,43 @@ class _RiskAnalyzer:
         return self.diverse
     
     
+    def set_method(self, method):
+        """
+        Set computation method
+
+        Parameters
+        ----------
+        `method` : `str`
+            Must be a valid method name. It will overright the value 
+            set by the constructor.
+
+        Returns
+        -------
+        None.
+
+        """
+        self._set_method(method)
+    
+    
     def _norm_weights(self):
-        self.ww[self.ww < _WW_TOL] = 0.
+        self.ww[self.ww < _WW_TOL_] = 0.
         self.ww /= self.ww.sum()
+        
+        
+    def _single_asset_port(self, port):
+        if port == 'min':
+            psymb = self.muk.idxmin()
+        elif port == 'max':
+            psymb = self.muk.idxmax()
+        elif port in self.rrate.columns:
+            psymb = port
+        else:
+            raise ValueError(f"argumkent ({port}) must be "
+                             f"one of 'min', 'max', {self.symb}")
+        w = pd.Series(0., index=self.rrate.columns)
+        w[psymb] = 1.
+        self.getRisk(w) 
+        self.diverse = 0.
 
 
     # to be implemented in the deriv classes
@@ -1707,5 +1859,8 @@ class _RiskAnalyzer:
     def _risk_inv_diversification(self, d=1):
         # computes te optimal diversified portfolio for fixed risk by 
         # maximizing the invers of 1-D ratio
+        pass
+    def _set_method(self, method):
+        # sets method
         pass
     

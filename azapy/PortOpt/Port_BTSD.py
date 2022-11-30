@@ -101,4 +101,5 @@ class Port_BTSD(Port_BTAD):
     
     def _wwgen(self):
         return BTSDAnalyzer(self.alpha, self.coef, rtype=self.rtype,
-                            detrended=self.detrended, method=self.method)
+                            detrended=self.detrended, method=self.method,
+                            name=self.pname)

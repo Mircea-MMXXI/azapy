@@ -25,7 +25,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
     """
     def __init__(self, alpha=[0.9], coef=None, mktdata=None, 
                  colname='adjusted', freq='Q', hlength=3.25, calendar=None,
-                 rtype='Sharpe', method='ecos'):
+                 rtype='Sharpe', method='ecos', name='SMCR'):
         """
         Constructor
 
@@ -55,40 +55,43 @@ class SMCRAnalyzer(CVaRAnalyzer):
             Business days calendar. If is it `None` then the calendar will 
             be set to NYSE business calendar. 
             The default is `None`.
-        `rtype` : `str`, optional
-            Optimization type. Possible values \n
-                `'Risk'` : optimal portfolio for targeted expected rate of 
+        `rtype` : `str`, optional;
+            Optimization type. Possible values: \n
+                `'Risk'` : optimal risk portfolio for targeted expected rate of 
                 return.\n
                 `'Sharpe'` : optimal Sharpe portfolio - maximization solution.\n
                 `'Sharpe2'` : optimal Sharpe portfolio - minimization solution.\n
                 `'MinRisk'` : minimum risk portfolio.\n
-                `'RiskAverse'` : optimal portfolio for a fixed risk-aversion
-                factor.\n
+                `'RiskAverse'` : optimal risk portfolio for a fixed 
+                risk-aversion factor.\n
+                `'InvNrisk'` : optimal risk portfolio with the same risk value 
+                as a benchmark portfolio (e.g. same as equal weighted 
+                portfolio).\n
                 `'Diverse'` : optimal diversified portfolio for targeted
                 expected rate of return (max of inverse 1-Diverse).\n
                 `'Diverse2'` : optimal diversified portfolio for targeted
                 expected rate of return (min of 1-Diverse).\n
-                `'MaxDiverse'` : portfolio with maximum diversification.\n
-                'InvNrisk' : optimal portfolio with the same risk value as a 
-                benchmark portfolio (e.g. same as equal weighted portfolio).\n
+                `'MaxDiverse'` : maximum diversified portfolio.\n
                 `'InvNdiverse'` : optimal diversified portfolio with the same
                 diversification factor as a benchmark portfolio 
                 (e.g. same as equal weighted portfolio).\n
-                `'InvNrr'` : optimal diversified portfolio with the same 
+                `'InvNdrr'` : optimal diversified portfolio with the same 
                 expected rate of return as a benchmark portfolio
                 (e.g. same as equal weighted portfolio).\n
         method : str, optional
             SOCP numerical method. 
             Could be: `'ecos'` or `'cvxopt'`.
             The defualt is `'ecos'`.
+        `name` : `str`, optional;
+            Object name. The default is `'SMCR'`.
             
         Returns
         -------
         The object.
 
         """
-        super().__init__(alpha, coef, mktdata, 
-                         colname, freq, hlength, calendar, rtype, method)
+        super().__init__(alpha, coef, mktdata, colname, freq, hlength, 
+                         calendar, rtype, method, name)
         
         
     def _set_method(self, method):
@@ -133,8 +136,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
             return self.status, np.nan, np.nan
         
         HMVaR = res['x'][0]
@@ -223,8 +226,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
         
         # mSMCR
@@ -324,8 +327,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
         
         # mSMCR 
@@ -431,8 +434,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
         
         t = res['x'][-1]
@@ -534,8 +537,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
         
         # SMVaR
@@ -633,8 +636,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
         
         # optimal weights
@@ -742,8 +745,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
         
         t = res['x'][-1]
@@ -851,8 +854,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
         
         t = res['x'][-1]
@@ -957,8 +960,8 @@ class SMCRAnalyzer(CVaRAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
         
         # SMVaR

@@ -91,4 +91,4 @@ class Port_MAD(Port_CVaR):
 
     def _wwgen(self):
         return MADAnalyzer(coef=self.coef, rtype=self.rtype,
-                           method=self.method)
+                           method=self.method, name=self.pname)

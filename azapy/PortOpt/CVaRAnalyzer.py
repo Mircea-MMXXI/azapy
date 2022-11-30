@@ -25,7 +25,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
     def __init__(self, alpha=[0.975], coef=None, 
                  mktdata=None, colname='adjusted', freq='Q', 
                  hlength=3.25, calendar=None,
-                 rtype='Sharpe', method='ecos'):
+                 rtype='Sharpe', method='ecos', name='CVaR'):
         """
         Constructor
 
@@ -55,26 +55,27 @@ class CVaRAnalyzer(_RiskAnalyzer):
             Business days calendar. If is it `None` then the calendar will 
             be set to NYSE business calendar. 
             The default is `None`.
-        `rtype` : `str`, optional
-            Optimization type. Possible values \n
-                `'Risk'` : optimal portfolio for targeted expected rate of 
+        `rtype` : `str`, optional;
+            Optimization type. Possible values: \n
+                `'Risk'` : optimal risk portfolio for targeted expected rate of 
                 return.\n
                 `'Sharpe'` : optimal Sharpe portfolio - maximization solution.\n
                 `'Sharpe2'` : optimal Sharpe portfolio - minimization solution.\n
                 `'MinRisk'` : minimum risk portfolio.\n
-                `'RiskAverse'` : optimal portfolio for a fixed risk-aversion
-                factor.\n
+                `'RiskAverse'` : optimal risk portfolio for a fixed 
+                risk-aversion factor.\n
+                `'InvNrisk'` : optimal risk portfolio with the same risk value 
+                as a benchmark portfolio (e.g. same as equal weighted 
+                portfolio).\n
                 `'Diverse'` : optimal diversified portfolio for targeted
                 expected rate of return (max of inverse 1-Diverse).\n
                 `'Diverse2'` : optimal diversified portfolio for targeted
                 expected rate of return (min of 1-Diverse).\n
-                `'MaxDiverse'` : portfolio with maximum diversification.\n
-                'InvNrisk' : optimal portfolio with the same risk value as a 
-                benchmark portfolio (e.g. same as equal weighted portfolio).\n
+                `'MaxDiverse'` : maximum diversified portfolio.\n
                 `'InvNdiverse'` : optimal diversified portfolio with the same
                 diversification factor as a benchmark portfolio 
                 (e.g. same as equal weighted portfolio).\n
-                `'InvNrr'` : optimal diversified portfolio with the same 
+                `'InvNdrr'` : optimal diversified portfolio with the same 
                 expected rate of return as a benchmark portfolio
                 (e.g. same as equal weighted portfolio).\n
         `method` : `str`, optional
@@ -82,12 +83,15 @@ class CVaRAnalyzer(_RiskAnalyzer):
             Could be: `'ecos'`, `'highs-ds'`, `'highs-ipm'`, `'highs'`, 
             `'interior-point'`, `'glpk'` and `'cvxopt'`.
             The default is `'ecos'`.
+        `name` : `str`, optional;
+            Object name, Default value is `'CVaR'`.
             
         Returns
         -------
         The object.
         """
-        super().__init__(mktdata, colname, freq, hlength, calendar, rtype)
+        super().__init__(mktdata, colname, freq, hlength, calendar, 
+                         rtype, name)
         
         self._set_method(method)
 
@@ -223,8 +227,8 @@ class CVaRAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         # VaR (u)
@@ -307,8 +311,8 @@ class CVaRAnalyzer(_RiskAnalyzer):
        
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
 
         # mCVaR (1/t)
@@ -396,8 +400,8 @@ class CVaRAnalyzer(_RiskAnalyzer):
        
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
 
         t = res['x'][-1]
@@ -479,8 +483,8 @@ class CVaRAnalyzer(_RiskAnalyzer):
        
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
 
         # VaR (u)
@@ -559,8 +563,8 @@ class CVaRAnalyzer(_RiskAnalyzer):
        
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
 
         # optimal weights
@@ -650,8 +654,8 @@ class CVaRAnalyzer(_RiskAnalyzer):
        
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
 
         t = res['x'][-1]
@@ -742,8 +746,8 @@ class CVaRAnalyzer(_RiskAnalyzer):
        
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
 
         t = res['x'][-1]
@@ -826,8 +830,8 @@ class CVaRAnalyzer(_RiskAnalyzer):
        
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
 
         # VaR (u)

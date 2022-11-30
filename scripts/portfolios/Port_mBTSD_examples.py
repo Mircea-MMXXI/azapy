@@ -13,12 +13,15 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ', 'OIH']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #==============================================================================
-# Define SD measure parameters alpha and coef
+# Define mBTSD measure parameters alpha and coef
+alpha = [-0.01, 0.0, +0.01]
+coef = [1.] * len(alpha)
+detrended = True
 hlength = 1.25
-portname = 'SD'
+portname = 'mBTSD'
 
-# set Port_SD class
-p4 = az.Port_SD(mktdata, pname=portname)
+# set Port_BTSD class
+p4 = az.Port_BTSD(mktdata, pname=portname)
  
 #==============================================================================
 # Beyond this point any section can be run independently 
@@ -26,7 +29,8 @@ p4 = az.Port_SD(mktdata, pname=portname)
 # Sharpe optimal portfolio for 0 risk free rate
 rtype = 'Sharpe'
 mu0 = 0.
-port4 = p4.set_model(rtype=rtype, mu0=mu0, hlength=hlength)   
+port4 = p4.set_model(alpha=alpha, coef=coef, rtype=rtype, mu0=mu0, 
+                     detrended=detrended, hlength=hlength)   
 
 # plots
 _ = p4.port_view(title=portname + "-Sharpe", ylabel="price ($)")
@@ -69,7 +73,8 @@ rtypes = ['MaxDiverse', 'MinRisk', 'Sharpe',
 
 port = []
 for rtype in rtypes:
-    port4 = p4.set_model(rtype=rtype, hlength=hlength) 
+    port4 = p4.set_model(alpha=alpha, coef=coef, rtype=rtype, 
+                         detrended=detrended, hlength=hlength)
     port4.columns = [rtype]
     port.append(port4)
     
@@ -95,7 +100,8 @@ print(f"Annual Returns\n{arets.round(4) * 100}")
 # Optimal-risk portfolio for fixed aversion factor
 rtype = 'RiskAverse'
 aversion = 0.4
-port4 = p4.set_model(rtype=rtype, aversion=aversion, hlength=hlength)   
+port4 = p4.set_model(alpha=alpha, coef=coef, rtype=rtype, aversion=aversion, 
+                     detrended=detrended, hlength=hlength)   
 
 # plots
 _ = p4.port_view(title=portname + " aversion = " + str(aversion), 
@@ -128,7 +134,8 @@ with pd.option_context('display.max_columns', None):
 # Optimal-risk portfolio for targeted expected rate of return
 rtype = 'Risk'
 mu = 0.06
-port4 = p4.set_model(rtype=rtype, mu=mu, hlength=hlength)   
+port4 = p4.set_model(alpha=alpha, coef=coef, rtype=rtype, mu=mu, 
+                     detrended=detrended, hlength=hlength)   
 
 # plots
 _ = p4.port_view(title=portname + " - Optimal Risk for mu = " + str(mu), 
@@ -161,7 +168,8 @@ with pd.option_context('display.max_columns', None):
 # Optimal-diversified portfolio for targeted expected rate of return
 rtype = 'Diverse'
 mu = 0.06
-port4 = p4.set_model(rtype=rtype, mu=mu, hlength=hlength)   
+port4 = p4.set_model(alpha=alpha, coef=coef, rtype=rtype, mu=mu, 
+                     detrended=detrended, hlength=hlength)   
 
 # plots
 _ = p4.port_view(title=portname + " - Optimal Diverse. for mu = " + str(mu), 

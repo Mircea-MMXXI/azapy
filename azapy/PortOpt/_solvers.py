@@ -222,10 +222,10 @@ def _exp_cone_ecos(c, G, h, dims, A, b):
     rout['status'] = res['info']['exitFlag']
     # accept 10 Close to optimal as optimal
     if rout['status'] == 10: rout['status'] = 0
-    rout['infostring'] = res['info']['infostring']
+    rout['infostring'] = res['info']
     rout['pcost'] = res['info']['pcost']
     rout['x'] = res['x']
-    
+ 
     return rout
 
 

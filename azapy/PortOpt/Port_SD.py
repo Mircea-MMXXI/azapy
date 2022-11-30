@@ -21,5 +21,6 @@ class Port_SD(Port_MV):
         * port_period_returns
     """
     def _wwgen(self):
-        return SDAnalyzer(rtype=self.rtype, method=self.method)
+        return SDAnalyzer(rtype=self.rtype, method=self.method,
+                          name=self.pname)
     

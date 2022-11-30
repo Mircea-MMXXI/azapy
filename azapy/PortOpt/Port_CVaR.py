@@ -122,7 +122,7 @@ class Port_CVaR(Port_InvVol):
 
     def _wwgen(self):
         return CVaRAnalyzer(self.alpha, self.coef, rtype=self.rtype,
-                            method=self.method)
+                            method=self.method, name=self.pname)
 
 
     def _ww_calc(self, data):
