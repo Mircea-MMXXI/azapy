@@ -33,10 +33,13 @@ then the calendar will be set to NYSE business calendar.
 The default is `None`.
 * `rtype` : Optimization approximation. It can be:
 
-  - 'Full' : non-linear original Kelly problem,
-  - 'Order2' : second order Taylor (quadratic) approximation of original Kelly
+  - `'ExpCone'` : exponential cone constraint programming solution for full
+  Kelly problem
+  - `'Full'` : non-linear convex solver for full Kelly problem,
+  - `'Order2'` : second order Taylor (quadratic) approximation for Kelly
   problem.
 
+  The default is `'ExpCone'`.
 * `method` : QP numerical methods. It is relevant only if
 `rtype='Order2'`. It could be `'ecos'` or `'cvxopt'`.
 The default is `'ecos'`.
@@ -183,7 +186,7 @@ set_rtype(rtype)
 
 *Inputs:*
 
-* `rtype` : Optimization type, `Full` or `Order2`.
+* `rtype` : Optimization type, `'ExpCone'`, `'Full'` or `'Order2'`.
 
 *Returns:* `None`
 

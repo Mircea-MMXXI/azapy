@@ -29,38 +29,38 @@ class Port_Rebalanced(Port_Simple):
 
         Parameters
         ----------
-        `mktdata` : `pandas.DataFrame`
+        `mktdata` : `pandas.DataFrame`;
             MkT data in the format "symbol", "date", "open", "high", "low",
             "close", "volume", "adjusted", "divd", "split" (e.g. as returned
             by `azapy.readMkT` function).
-        `symb` : list, optional
+        `symb` : `list`, optional;
             List of symbols for the basket components. All symbols MkT data
             should be included in `mktdata`. If set to `None` the `symb` will  
             be set to the full set of symbols included in `mktdata`. 
             The default is `None`.
-        `sdate` : date like, optional
+        `sdate` : date-like, optional;
             Start date for historical data. If set to `None` then the `sdate` 
             will  be set to the earliest date in mktdata. 
             The default is `None`.
-        `edate` : date like, optional
+        `edate` : date-like, optional;
             End date for historical dates and so the simulation. Must be 
             greater than  `sdate`. If it is `None` then `edate` will be set
             to the latest date in `mktdata`. The default is `None`.
-        `col_price` : str, optional
+        `col_price` : `str`, optional;
             Column name in the mktdata DataFrame that will be considered 
             for portfolio aggregation. The default is `'close'`.
-        `col_divd` :  str, optional
+        `col_divd` :  `str`, optional;
             Column name in the mktdata DataFrame that holds the dividend 
             information. The default is `'dvid'`.
-        `col_ref` : str, optional
+        `col_ref` : `str`, optional;
             Column name in the mktdata DataFrame that will be used as a price 
             reference for portfolio components. The default is `'adjusted'`.
-        `pname` : str, optional
+        `pname` : `str`, optional;
             The name of the portfolio. The default is `'Port'`.
-        `pcolname` : str, optional
+        `pcolname` : `str`, optional;
             Name of the portfolio price column. If it set to `None` then 
             `pcolname=pname`. The default is `None`.
-        `capital` : float, optional
+        `capital` : `float`, optional;
             Initial portfolio Capital in dollars. The default is `100000`.
 
         Returns
@@ -85,7 +85,7 @@ class Port_Rebalanced(Port_Simple):
 
         Parameters
         ----------
-        ww : `pandas.DataFrame`
+        `ww` : `pandas.DataFrame`;
             Rebalance schedule. The following columns must be present: \n
                 "Droll" : rolling date (rebalancing day) \n
                 "Dfix" : fixing date (day when the close price are recorded) \n
@@ -96,7 +96,7 @@ class Port_Rebalanced(Port_Simple):
             
         Returns
         -------
-        `pandas.DataFrame`
+        `pandas.DataFrame`;
             The portfolio time-series in the format "date", "pcolname".
         """
         # Make sure that the weights are normalized
@@ -124,7 +124,7 @@ class Port_Rebalanced(Port_Simple):
         
         Parameters
         ----------
-        `fancy` : Boolean, optional
+        `fancy` : Boolean, optional;
             * `False`: reports the weights in algebraic format.
             * `True`: reports the weights in percent rounded to 2 decimals.
             
@@ -191,7 +191,7 @@ class Port_Rebalanced(Port_Simple):
 
         Parameters
         ----------
-        `fancy` : Boolean, optional
+        `fancy` : Boolean, optional;
             * `False`: the values are reported in unaltered algebraic format. 
             * `True` : the values are reported rounded.
             
@@ -199,8 +199,8 @@ class Port_Rebalanced(Port_Simple):
 
         Returns
         -------
-        `pandas.DataFrame`
-            Reports, for each rolling period identified by 'Droll': 
+        `pandas.DataFrame`;
+            Reports, for each rolling period identified by `'Droll'`: 
 
             * number of shares hold for each symbol,
             * 'cash_invst' : cash invested at the beginning of period,
@@ -234,16 +234,16 @@ class Port_Rebalanced(Port_Simple):
 
         Parameters
         ----------
-        `fancy` : Boolean, optional
+        `fancy` : Boolean, optional;
            * `False`: returns in algebraic form.
            * `True`: returns in percent rounded to 2 decimals.
         The default is `False`.
 
         Returns
         -------
-        `pandas.DataFrame`
-            Each rolling period is indicated by its start date, Droll. 
-            Included are the fixing data, Dfix, and the 
+        `pandas.DataFrame`;
+            Each rolling period is indicated by its start date, `'Droll'`. 
+            Included are the fixing data, `'Dfix'`, and the 
             portfolio weights.
         """
         # local function

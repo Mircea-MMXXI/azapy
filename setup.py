@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as readme:
 
 setuptools.setup(
     name="azapy",
-    version="1.0.1",
+    version="1.1.0",
     author="Mircea Marinescu",
     author_email="mircea.marinescu@outlook.com",
     description="Financial Portfolio Optimization Algorithms",
@@ -38,6 +38,10 @@ setuptools.setup(
           'pandas_market_calendars',
           'cvxopt',
           'ta',
-          'yfinance'
+          'yfinance',
+          'statsmodels',
+          'time',
+          'collections',
+          'copy'
       ],
 )

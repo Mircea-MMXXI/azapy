@@ -2,12 +2,13 @@
 # they should be identical up to machine precision 
 import pandas as pd
 import azapy as az
+print(f"azapy version {az.version()} >= 1.1.0", flush=True)
 
 #=============================================================================
 # Collect some market data
-mktdir = "../../MkTdata"
-sdate = "2012-01-01"
-edate = "2021-07-27"
+mktdir = '../../MkTdata'
+sdate = '2012-01-01'
+edate = '2021-07-27'
 symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
@@ -25,7 +26,7 @@ sharpe_ = cr1.sharpe
 
 # rtype collection
 rtype_collection = ['Risk', 'MinRisk', 'InvNrisk', 'RiskAverse', 'Sharpe', 
-                    'Sharpe2' ]
+                    'Sharpe2', 'Diverse', 'Diverse2', 'InvNdiverse', 'InvNdrr']
 
 # loop over all rtype's and compare
 for rtype in rtype_collection:
@@ -39,7 +40,7 @@ for rtype in rtype_collection:
     
     print("\nComparisons: BTSD (alpha0=0) vs. LSD (first level) "
           + f"rtype = {rtype} \n")
-    print(f"risk: BTSD {risk1} LSD {risk2} Diff {risk1-risk2}")
-    print(f"RR: BTSD {RR1} LSD {RR2} Diff {RR1 - RR2}")
+    print(f"risk: BTSD {risk1:f} LSD {risk2:f} Diff {risk1-risk2:f}")
+    print(f"RR: BTSD {RR1:f} LSD {RR2:f} Diff {RR1 - RR2:f}")
     ww = pd.DataFrame({'BTSD': ww1, 'LSD': ww2, 'Diff': ww1 - ww2})
-    print(f"weights:\n{ww}")
+    print(f"weights:\n{ww.round(4)}")

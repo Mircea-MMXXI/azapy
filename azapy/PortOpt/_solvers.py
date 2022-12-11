@@ -24,7 +24,7 @@ def _lp_scipy(c, G, h, A, b, method):
     rout = {}
     rout['status'] = res.status
     rout['infostring'] = res.message
-    rout['pcost'] = res.fun
+    rout['pcost'] = np.float64(res.fun)
     rout['x'] = res.x
     
     return rout
@@ -50,7 +50,7 @@ def _lp_cvxopt(c, G, h, A, b, method):
     rout = {}
     rout['status'] = 0 if 'optimal' in res['status'] else 2
     rout['infostring'] = res['status']
-    rout['pcost'] = res['primal objective']
+    rout['pcost'] = np.float64(res['primal objective'])
     rout['x'] = res['x']
     
     return rout
@@ -73,7 +73,7 @@ def _lp_ecos(c, G, h, A, b, method):
     # accept 10 Close to optimal as optimal
     if rout['status'] == 10: rout['status'] = 0
     rout['infostring'] = res['info']['infostring']
-    rout['pcost'] = res['info']['pcost']
+    rout['pcost'] = np.float64(res['info']['pcost'])
     rout['x'] = res['x']
     
     return rout
@@ -102,7 +102,7 @@ def _socp_cvxopt(c, G, h, dims, A, b):
     rout = {}
     rout['status'] = 0 if 'optimal' in res['status'] else 2
     rout['infostring'] = res['status']
-    rout['pcost'] = res['primal objective']
+    rout['pcost'] = np.float64(res['primal objective'])
     rout['x'] = res['x']
     
     return rout
@@ -125,7 +125,7 @@ def _socp_ecos(c, G, h, dims, A, b):
     # accept 10 Close to optimal as optimal
     if rout['status'] == 10: rout['status'] = 0
     rout['infostring'] = res['info']['infostring']
-    rout['pcost'] = res['info']['pcost']
+    rout['pcost'] = np.float(res['info']['pcost'])
     rout['x'] = res['x']
     
     return rout
@@ -137,22 +137,25 @@ def _socp_solver(method, c_data, G, h_data,dims, A=None, b_data=None):
         return _socp_cvxopt(c_data, G, h_data, dims, A, b_data)
 
 def _qp_cvxopt(P, q, G, h, A, b):
-    PP = cx.matrix(P)
-    qq = cx.matrix(q)
-    GG = cx.spmatrix(G.data, G.row, G.col, size=G.shape)
-    hh = cx.matrix(h)
+    P = cx.matrix(P)
+    q = cx.matrix(q)
+    G = cx.spmatrix(G.data, G.row, G.col, size=G.shape)
+    h = cx.matrix(h)
     if A is not None:
-        AA = cx.spmatrix(A.data, A.row, A.col, size=A.shape)
-        bb = cx.matrix(b)
+        A = cx.spmatrix(A.data, A.row, A.col, size=A.shape)
+        b = cx.matrix(b)
+    # else:
+    #     AA = None
+    #     bb = None
     
-    res = cx.solvers.qp(PP, qq, GG, hh, AA, bb, 
+    res = cx.solvers.qp(P, q, G, h, A, b, 
                         options={'show_progress': False})
     
     # gather the results
     rout = {}
     rout['status'] = 0 if 'optimal' in res['status'] else 2
     rout['infostring'] = res['status']
-    rout['pcost'] = res['primal objective']
+    rout['pcost'] = np.float64(res['primal objective'])
     rout['x'] = res['x']
     
     return rout
@@ -190,7 +193,7 @@ def _qp_ecos(P, q, G, h, A, b):
     # accept 10 Close to optimal as optimal
     if rout['status'] == 10: rout['status'] = 0
     rout['infostring'] = res['info']['infostring']
-    rout['pcost'] = res['info']['pcost'] + 0.5
+    rout['pcost'] = np.float64(res['info']['pcost'] + 0.5)
     rout['x'] = res['x'][:-1]
     
     return rout
@@ -200,3 +203,33 @@ def _qp_solver(method, P, q_data, G, h_data, A=None, b=None):
         return _qp_ecos(P, q_data, G, h_data, A, b)
     else:
         return _qp_cvxopt(P, q_data, G, h_data, A, b)
+    
+    
+def _exp_cone_ecos(c, G, h, dims, A, b):
+    c = np.array(c)
+    G = G.tocsc()
+    h = np.array(h)
+
+    if A is not None:
+        A = A.tocsc()
+        b = np.array(b)
+    
+    kwargs = {'verbose': False, 'max_iters': 1000}
+    res = ecos.solve(c, G, h, dims, A, b, **kwargs)
+    
+    # gather the results
+    rout = {}
+    rout['status'] = res['info']['exitFlag']
+    # accept 10 Close to optimal as optimal
+    if rout['status'] == 10: rout['status'] = 0
+    rout['infostring'] = res['info']
+    rout['pcost'] = np.float64(res['info']['pcost'])
+    rout['x'] = res['x']
+ 
+    return rout
+
+
+def _exp_cone_solver(method, c, G, h, dims, A=None, b=None):
+    # only ecos so far - don't check for method
+    return _exp_cone_ecos(c, G, h, dims, A, b)
+    

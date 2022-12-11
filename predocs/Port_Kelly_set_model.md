@@ -11,12 +11,15 @@ set_model(rtype='Full', hlength=1.25, method='ecos')
 ```
 
 *Inputs:*
-* `rtype` : `str`, optional; Optimization approximation. It can be:
+* `rtype` : Optimization approximation. It can be:
 
-  - `'Full'` : non-linear original Kelly problem,
-  - `'Order2'` : second order Taylor (quadratic) approximation of original Kelly
+  - `'ExpCone'` : exponential cone constraint programming solution for full
+  Kelly problem
+  - `'Full'` : non-linear convex solver for full Kelly problem,
+  - `'Order2'` : second order Taylor (quadratic) approximation for Kelly
   problem.
 
+  The default is `'ExpCone'`.
 * `hlength` : `float`, optional;
 The length in years of the historical calibration period relative
 to `'Dfix'`. A fractional number will be rounded to an integer number

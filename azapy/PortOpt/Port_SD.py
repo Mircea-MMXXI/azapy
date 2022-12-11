@@ -3,7 +3,7 @@ from .SDAnalyzer import SDAnalyzer
 
 class Port_SD(Port_MV):
     """
-    Back testing the SD optimal portfolio periodically rebalanced.
+    Backtesting the SD optimal portfolio periodically rebalanced.
     
     Methods:
         * set_model
@@ -21,5 +21,6 @@ class Port_SD(Port_MV):
         * port_period_returns
     """
     def _wwgen(self):
-        return SDAnalyzer(rtype=self.rtype, method=self.method)
+        return SDAnalyzer(rtype=self.rtype, method=self.method,
+                          name=self.pname)
     

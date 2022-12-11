@@ -14,13 +14,13 @@ def NYSEgen(sdate='1980-01-01', edate='2050-12-31'):
 
     Parameters
     ----------
-    `sdate` : str date, optional
+    `sdate` : date like, optional;
         Calendar start date. The default is `'1980-01-01'`.
-    `edate` : str date, optional
+    `edate` : date lik, optional
         Calendar end date. The default is `'2050-12-31'`.
     Returns
     -------
-    `numpy.busdaycalendar`
+    `numpy.busdaycalendar`;
         NYSE business calendar.
     """
     sdate_ = np.datetime64(sdate)
@@ -28,7 +28,7 @@ def NYSEgen(sdate='1980-01-01', edate='2050-12-31'):
     # get the NYSE holiday list from standard pandas_market_calendars
     ldates = list(mcal.get_calendar('NYSE').holidays().holidays)
     # append here additional holidays 
-    # already added to pandas_market_calendars new version
+    # already added to the new version of pandas_market_calendars 
     # ldates.append(np.datetime64('2012-10-29'))
     # ldates.append(np.datetime64('2012-10-30'))
     # ldates.append(np.datetime64('2001-09-11'))

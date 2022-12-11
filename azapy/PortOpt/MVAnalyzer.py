@@ -2,6 +2,7 @@ import numpy as np
 import scipy.linalg as la
 import scipy.sparse as sps
 import warnings
+import time
 
 from ._RiskAnalyzer import _RiskAnalyzer
 from ._solvers import _socp_solver, _qp_solver, _tol_cholesky
@@ -15,6 +16,8 @@ class MVAnalyzer(_RiskAnalyzer):
         * getWeights
         * getRisk
         * getPositions
+        * getRiskComp
+        * getDiversification
         * viewForntiers
         * set_rrate
         * set_mktdata
@@ -22,53 +25,66 @@ class MVAnalyzer(_RiskAnalyzer):
         * set_random_seed
     """
     def __init__(self, mktdata=None, colname='adjusted', freq='Q', 
-                 hlength=3.25, calendar=None, rtype='Sharpe', method = 'ecos'):
+                 hlength=3.25, calendar=None, rtype='Sharpe', method = 'ecos',
+                 name='MV'):
         """
         Constructor
 
         Parameters
         ----------
-       `mktdata` : `pandas.DataFrame`, optional
-            Historic daily market data for portfolio components in the format
-            returned by `azapy.mktData` function. The default is `None`.
-        `colname` : str, optional
-            Name of the price column from mktdata used in the weights 
-            calibration. The default is `'adjusted'`.
-        `freq` : str, optional
-            Rate of return horizon in number of business day. it could be 
-            'Q' for quarter or 'M' for month. The default is `'Q'`.
-        `hlength` : float, optional
-            History length in number of years used for calibration. A 
-            fractional number will be rounded to an integer number of months.
-            The default is `3.25` years.
-        `calendar` : `numpy.busdaycalendar`, optional
-            Business days calendar. If is it `None` then the calendar will be 
-            set to NYSE business calendar.
-            The default is `None`.
-        `rtype` : str, optional
-            Optimization type. Possible values \n
-                'Risk' : minimization of dispersion (risk) measure for  
-                targeted rate of return. \n
-                'Sharpe' : maximization of generalized Sharpe ratio.\n
-                'Sharpe2' : minimization of the inverse generalized Sharpe 
-                ratio.\n
-                'MinRisk' : minimum dispersion (risk) portfolio.\n
-                'InvNrisk' : optimal portfolio with the same dispersion (risk)
-                value as a benchmark portfolio 
-                (e.g. equal weighted portfolio).\n
-                'RiskAverse' : optimal portfolio for a fixed value of 
-                risk-aversion factor.
-            The default is 'Sharpe'.
-        `method` : str, optional
-            Quadratic programming numerical method. Could be 'ecos' or
+       `mktdata` : `pandas.DataFrame`, optional;
+           Historic daily market data for portfolio components in the format
+           returned by `azapy.mktData` function. The default is `None`.
+       `colname` : `str`, optional;
+           Name of the price column from mktdata used in the weights 
+           calibration. The default is `'adjusted'`.
+       `freq` : `str`, optional;
+           Rate of return horizon. It could be 
+           `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
+       `hlength` : `float`, optional;
+           History length in number of years used for calibration. A 
+           fractional number will be rounded to an integer number of months.
+           The default is `3.25` years.
+       `calendar` : `numpy.busdaycalendar`, optional;
+           Business days calendar. If is it `None` then the calendar will 
+           be set to NYSE business calendar. 
+           The default is `None`.
+       `rtype` : `str`, optional;
+           Optimization type. Possible values: \n
+               `'Risk'` : optimal-risk portfolio for targeted expected rate of 
+               return.\n
+               `'Sharpe'` : Sharpe-optimal portfolio - maximization solution.\n
+               `'Sharpe2'` : Sharpe-optimal portfolio - minimization solution.\n
+               `'MinRisk'` : minimum risk portfolio.\n
+               `'RiskAverse'` : optimal-risk portfolio for a fixed 
+               risk-aversion factor.\n
+               `'InvNrisk'` : optimal-risk portfolio with the same risk value 
+               as a benchmark portfolio (e.g., same as equal weighted 
+               portfolio).\n
+               `'Diverse'` : optimal-diversified portfolio for targeted
+               expected rate of return (maximum of inverse 1-D).\n
+               `'Diverse2'` : optimal-diversified portfolio for targeted
+               expected rate of return (minmum of 1-D).\n
+               `'MaxDiverse'` : maximum diversified portfolio.\n
+               `'InvNdiverse'` : optimal-diversified portfolio with the same
+               diversification factor as a benchmark portfolio 
+               (e.g., same as equal weighted portfolio).\n
+               `'InvNdrr'` : optima- diversified portfolio with the same 
+               expected rate of return as a benchmark portfolio
+               (e.g., same as equal weighted portfolio).\n
+           The defauls is `'Sharpe'`.
+        `method` : `str`, optional;
+            Quadratic programming numerical method. Could be `'ecos'` or
             'cvxopt'. The default is `'ecos'`.
+        `name` : `str`, optional;
+            Object name. The default is `'MV'`.
             
         Returns
         -------
         The object.
-
         """
-        super().__init__(mktdata, colname, freq, hlength, calendar, rtype)
+        super().__init__(mktdata, colname, freq, hlength, calendar, 
+                         rtype, name)
         
         self._set_method(method)
         
@@ -113,12 +129,14 @@ class MVAnalyzer(_RiskAnalyzer):
         b_data = [1.]
         
         # calc
+        toc = time.perf_counter()
         res = _qp_solver(self.method, P, q_data, G, h_data, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * nn)
  
         # optimal weights
@@ -150,7 +168,8 @@ class MVAnalyzer(_RiskAnalyzer):
 
         # biuld G
         # ww > 0 and t > 0
-        dd = np.diag([-1.] * (nn + 1))
+        dd = sps.diags([-1] * (nn + 1), format='coo')
+        
         # cone
         xx = sps.coo_matrix(([-1.], ([0], [nn])), shape=(1, nn + 1))
         
@@ -173,13 +192,15 @@ class MVAnalyzer(_RiskAnalyzer):
         # build b
         b_data = [0.]
         
-         # calc
+        # calc
+        toc = time.perf_counter()
         res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * nn)
  
         t = res['x'][-1]
@@ -217,7 +238,8 @@ class MVAnalyzer(_RiskAnalyzer):
 
         # build G
         # ww > 0 and u > 0 and t > 0
-        dd = np.diag([-1.] * (nn + 2))
+        dd = sps.diags([-1] * (nn + 2), format='coo')
+        
         # cone
         xx = sps.coo_matrix(([sq2, sq2], ([0, 0], [nn, nn + 1])), 
                             shape=(1, nn + 2))
@@ -244,12 +266,14 @@ class MVAnalyzer(_RiskAnalyzer):
         b_data = [0., 1.]
         
         # calc
+        toc = time.perf_counter()
         res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * nn)
   
         t = res['x'][-1]
@@ -283,10 +307,8 @@ class MVAnalyzer(_RiskAnalyzer):
         c_data = list(-self.muk)
         
         # build G
-        # ww >= 0
-        dd = np.diag([-1.] * nn)
-        # cone
-        dd.resize((nn + 1, nn))
+        # ww >= 0 + 1 cone
+        dd = sps.diags([-1.] * nn, shape=(nn + 1, nn), format='coo')
         
         if any(np.diag(P) < _tol_cholesky):
             G = sps.vstack([dd, -la.sqrtm(P)])
@@ -306,12 +328,14 @@ class MVAnalyzer(_RiskAnalyzer):
         b_data = [1.]
         
         # calc
+        toc = time.perf_counter()
         res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * nn)
         
         # optimal weights
@@ -352,12 +376,14 @@ class MVAnalyzer(_RiskAnalyzer):
         b_data = [1.]
         
         # calc
+        toc = time.perf_counter()
         res = _qp_solver(self.method, P, q_data, G, h_data, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * nn)
         
         # optimal weights
@@ -393,7 +419,8 @@ class MVAnalyzer(_RiskAnalyzer):
         yy = sps.coo_matrix(list(-self.muk * d) + [0., self.mu * d])
         
         # ww > 0 and u > 0 and t > 0
-        dd = np.diag([-1.] * (nn + 2))
+        dd = sps.diags([-1] * (nn + 2))
+        
         # cone
         xx = sps.coo_matrix(([sq2, sq2], ([0, 0], [nn, nn + 1])), 
                             shape=(1, nn + 2))
@@ -420,20 +447,22 @@ class MVAnalyzer(_RiskAnalyzer):
         b_data = [0., 1.]
         
         # calc
+        toc = time.perf_counter()
         res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * nn)
   
         t = res['x'][-1]
         # optimal weights
         self.ww = np.array(res['x'][:nn]) / t
         self.ww.shape = nn
-        # MV-Divers
-        self.divers = 1. - res['pcost']
+        # MV-Diverse
+        self.diverse = 1. - res['pcost']
         # variance
         self.risk = res['pcost'] / t
         # variance
@@ -442,6 +471,144 @@ class MVAnalyzer(_RiskAnalyzer):
         self.secondary_risk_comp = np.array([np.sqrt(self.risk)])
         # rate of return
         self.RR = np.dot(self.ww, self.muk)
-        #self.RR = np.dot(self.ww, self.muk)
+        
+        return self.ww   
+    
+    
+    def _risk_inv_diversification(self, d=1):
+        # Computes the minimum of inverse Sharpe
+        # Order of variables
+        # w <- [0:nn]
+        # u <- nn
+        # t <- nn + 1
+        # in total dim = nn + 2
+        P = self.rrate.cov().to_numpy()
+        nn = P.shape[0]
+        
+        # build c
+        c_data = list(-self.risk_comp) + [0.] 
+        
+        # biuld G
+        icol = list(range(nn + 1)) + list(range(nn + 1))
+        irow = [0] * (nn + 1) + list(range(1, nn + 2)) 
+        data = list(-self.muk * d) + [self.mu * d] + [-1.] * (nn + 1)
+        dd = sps.coo_matrix((data, (irow, icol)), shape=(nn + 2, nn + 1))
+        
+        # cone
+        xx = sps.coo_matrix(([-1.], ([0], [nn])), shape=(1, nn + 1))
+        
+        if any(np.diag(P) < _tol_cholesky):
+            pp = sps.block_diag((-la.sqrtm(P), [-1.]))
+        else:
+            pp = sps.block_diag((-la.cholesky(P, overwrite_a=True), [-1.]))
+            
+        G = sps.vstack([dd, xx, pp])
+        
+        # biuld dims
+        dims = {'l': nn + 2, 'q': [nn + 2]}
+        
+        # build h
+        h_data = [0.] * (nn + 2) + [0.25] + [0.] * nn + [-0.25]
+        
+        # build A
+        A = sps.coo_matrix([1.] * nn + [-1.])
+            
+        # build b
+        b_data = [0.]
+        
+        # calc
+        toc = time.perf_counter()
+        res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
+ 
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
+            return np.array([np.nan] * nn)
+  
+        t = res['x'][-1]
+        # optimal weights
+        self.ww = np.array(res['x'][:nn]) / t
+        self.ww.shape = nn
+        # MV-Diverse
+        self.diverse = 1. + 1. / res['pcost']
+        # variance
+        self.risk = 1. / t
+        # variance
+        self.primary_risk_comp = np.array([self.risk])
+        # volatility
+        self.secondary_risk_comp = np.array([np.sqrt(self.risk)])
+        # rate of return
+        self.RR = np.dot(self.ww, self.muk)
+        
+        return self.ww   
+
+
+    def _rr_max_diversification(self):
+        # Computes the maximization of returns (for fixed volatility)
+        # Order of variables
+        # w <- [0:nn]
+        # t <- nn
+        # in total dim = nn + 1
+        P = self.rrate.cov().to_numpy()
+        nn = P.shape[0]
+        
+        # build c
+        c_data = list(-self.muk) +[0.]
+        
+        # build G
+        # ww >= 0 snd t > 0
+        dd = sps.diags([-1.] * (nn + 1), shape=(nn + 1, nn  + 1), format='coo')
+        
+        # cone
+        xx = sps.coo_matrix(([-1.], ([0], [nn])), shape=(1, nn + 1))
+        
+        if any(np.diag(P) < _tol_cholesky):
+            pp = sps.block_diag((-la.sqrtm(P), [-1.]), format='coo')
+        else:
+            pp = sps.block_diag((-la.cholesky(P, overwrite_a=True), [-1.]), format='coo')
+            
+        G = sps.vstack([dd, xx, pp])
+        
+        # biuld dims
+        dims = {'l': nn + 1, 'q': [nn + 2]}
+        
+        # build h
+        h_data = [0.] * (nn + 1) + [0.25] + [0.] * nn + [-0.25]
+        
+        # build A_eq
+        A_icol = list(range(nn)) + list(range(nn + 1))
+        A_irow = [0] * nn + [1] * (nn + 1)
+        A_data = [1.] * nn + list((1. - self.diverse) * self.risk_comp) + [-1.]
+        A = sps.coo_matrix((A_data, (A_irow, A_icol)), shape=(2, nn + 1)) 
+        
+        # build b_eq
+        b_data = [1., 0.]
+        
+        # calc
+        toc = time.perf_counter()
+        res = _socp_solver(self.method, c_data, G, h_data, dims, A, b_data)
+        self.time_level2 = time.perf_counter() - toc
+    
+        self.status = res['status']
+        if self.status != 0:
+            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                          f"status {res['status']} :: {res['infostring']}")
+            return np.array([np.nan] * nn)
+        
+        # optimal weights
+        self.ww = np.array(res['x'][:-1])
+        self.ww.shape = nn
+        # rate of return
+        self.RR = -res['pcost']
+        # risk
+        self.risk = np.dot(np.dot(self.ww, P), self.ww)
+        # variance
+        self.primary_risk_comp = np.array([self.risk])
+        # volatility
+        self.secondary_risk_comp = np.array([np.sqrt(self.risk)])
+        # diversification
+        self.diverse = 1. - self.risk / np.dot(self.ww, self.risk_comp)
         
         return self.ww   

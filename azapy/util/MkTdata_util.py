@@ -16,23 +16,22 @@ def add_cash_security(data, name='_CASH_', value=1.):
 
     Parameters
     ----------
-    `data` : `pandas.DataFrame` or dict
+    `data` : `pandas.DataFrame` or `dict`;
         MkT data to add a cash like positions.
-    `name` : str, optional
+    `name` : `str`, optional;
         The symbol of the cash like security. Must be different than any 
         symbol in data. Note that CASH is a valid stock symbol.
         The default is '_CASH_'.
-    `value` : float, optional
+    `value` : `float`, optional;
         Nominal value of the cash like security. It is 
         constant over time (no dividends and no splits).
         The default is `1`.
 
     Returns
     -------
-    `pandas.DataFrame` (if input data was a `pandas.DataFame`)
-        The new MkT data updated with the cash like security.
-    dict (if input data was a dict)
-        Append to initial MkT data dict a cash like security.
+    The new MkT data updated with the cash like security 
+    (in the same format of 'data' input format, i.e. `pandas.DataFrame or 
+     'dict').
     '''
     if isinstance(data, pd.core.frame.DataFrame):
         cash = pd.DataFrame(value, index=data.index.unique(), 
@@ -61,23 +60,23 @@ def update_all_MkTData(mktdir, source=None, api_key=None, param=None,
 
     Parameters
     ----------
-    `mktdir` : str
+    `mktdir` : `str`;
         Mkt data directory.
-    `source` : str, optional
+    `source` : `str`, optional;
         Mkt data provider. 
         For more details see the `azapy.MkTreader.get` function doc. 
         The default is `None`.
-    `api_key` : str, optional
+    `api_key` : `str`, optional;
         Mkt data provider API key.
         For more details see the `azapy.MkTreader.get` function doc. 
         The default is `None`
-    `param` : dict, optional
+    `param` : `dict`, optional;
         Additional parameters required by mkt data provider.
         For more details see the `azapy.MkTreader.get` function doc. 
         The default is `None`.
-    `except_file` : list, optional
+    `except_file` : `list`, optional;
         List of symbols to be omitted from the update. The default is [].
-    `verbose` : Boolean, optional
+    `verbose` : Boolean, optional;
     
         - `True` will print a progress report,
         - `False` suppress any printing to the terminal.
