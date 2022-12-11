@@ -2,7 +2,7 @@
 # they should be identical up to machine precision 
 import pandas as pd
 import azapy as az
-print(f"azapy version {az.getVersion()} >= 1.1.0", flush=True)
+print(f"azapy version {az.version()} >= 1.1.0", flush=True)
 
 #=============================================================================
 # Collect some market data

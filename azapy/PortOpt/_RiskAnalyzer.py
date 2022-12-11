@@ -56,16 +56,16 @@ class _RiskAnalyzer:
         `mktdata` : `pandas.DataFrame`, optional;
             Historic daily market data for portfolio components in the format
             returned by `azapy.mktData` function. The default is `None`.
-        `colname` : string, optional
+        `colname` : `str`, optional;
             Name of the price column from mktdata used in the weights
-            calibration. The default is 'adjusted'.
+            calibration. The default is `'adjusted'`.
         `freq` : `str`, optional;
-            Rate of return horizon in number of business day. it could be
+            Rate of return horizon in number of business day. It could be
             `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
         `hlength` : `float`, optional;
             History length in number of years used for calibration. A
             fractional number will be rounded to an integer number of months.
-            The default is `3.25` year.
+            The default is `3.25` years.
         `calendar` : `numpy.busdaycalendar`, optional;
             Business days calendar. If is it `None` then the calendar will be 
             set to NYSE business calendar. The default is `None`.
@@ -144,6 +144,8 @@ class _RiskAnalyzer:
             self.set_mktdata(mktdata, colname, freq, hlength)
         self.set_random_seed()
         
+        self.verbose = False
+        
         
     def _reset_output(self):
         self.status = None
@@ -160,7 +162,7 @@ class _RiskAnalyzer:
 
         
     def getWeights(self, rtype=None, mu=None, d=1, mu0=0., aversion=None,
-                   ww0=None, rrate=None):  
+                   ww0=None, rrate=None, verbose=False):  
         """
         Computes the optimal portfolio weights.
 
@@ -191,21 +193,21 @@ class _RiskAnalyzer:
                 `'InvNdrr'` : optimal diversified portfolio with the same 
                 expected rate of return as a benchmark portfolio
                 (e.g. same as equal weighted portfolio).\n
-        `mu` : float, optional;
+        `mu` : `float`, optional;
             Targeted portfolio expected rate of return. 
             Relevant only if `rtype` is equalt to `'Risk'` or `'Divers'`.
             The default is `None`.
-        `d` : int, optional;
+        `d` : `int`, optional;
             Frontier type. Active only if `rtype='Risk'`. A value of `1` will
             trigger the evaluation of optimal portfolio along the efficient
             frontier. Otherwise, it will find the portfolio with the lowest
             rate of return along the inefficient portfolio frontier.
             The default is `1`.
-        `mu0` : float, optional;
+        `mu0` : `float`, optional;
             Risk-free rate accessible to the investor.
             Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
             The default is `0`.
-        `aversion` : float, optional;
+        `aversion` : `float`, optional;
             The value of the risk-aversion coefficient.
             Must be positive. Relevant only if `rtype='RiskAverse'`.
             The default is `None`.
@@ -224,6 +226,11 @@ class _RiskAnalyzer:
             The portfolio components historical rates of returns.
             If it is not `None`, it will overwrite the `rrate` computed in the
             constructor from mktdata. The default is `None`. 
+        `verbose` : Boolean, optiona;
+            If it set to `True` then it will print messages when the optimal
+            portfolio degenerates to a single asset portfolio as a limited 
+            case. 
+            The default is `False`.
 
        Returns
         -------
@@ -231,6 +238,7 @@ class _RiskAnalyzer:
         """
         toc = time.perf_counter()
         self._reset_output()
+        self.verbose = verbose
  
         d = 1 if d == 1 else -1
 
@@ -285,14 +293,16 @@ class _RiskAnalyzer:
             raise ValueError("for rtype='Risk' mu must have a value")
         elif d == 1 and mu - mu_max > -np.abs(mu_max) * _MU_ABS_TOL_:
             self._single_asset_port('max')
-            warnings.warn(f"rtype 'Risk' for mu {mu} for {self.name} on "
-                          f"{self.rrate.index[-1]}, defaulted "
-                          f"to single portfolio [{self.muk.idxmax()}]")
+            if self.verbose:
+                print(f"rtype 'Risk' for mu {mu} for {self.name} on "
+                      f"{self.rrate.index[-1]}, defaulted "
+                      f"to single portfolio [{self.muk.idxmax()}]")
         elif d == -1 and mu - mu_min < np.abs(mu_min) * _MU_ABS_TOL_:
             self._single_asset_port('min')
-            warnings.warn(f"rtype 'Risk' for mu {mu} for {self.name} on "
-                          f"{self.rrate.index[-1]}, defaulted "
-                          f"to single portfolio [{self.muk.idxmin()}]")
+            if self.verbose:
+                print(f"rtype 'Risk' for mu {mu} for {self.name} on "
+                      f"{self.rrate.index[-1]}, defaulted "
+                      f"to single portfolio [{self.muk.idxmin()}]")
         else:
             self.mu = mu
             self._risk_min(d=d)
@@ -306,7 +316,8 @@ class _RiskAnalyzer:
             self._single_asset_port('max')
             if self.status == 0:
                 self.sharpe = (self.RR - mu0) / self.risk
-            warnings.warn(f"rtype 'Sharpe' for mu0 {mu0} for {self.name} on "
+                if self.verbose:
+                    print(f"rtype 'Sharpe' for mu0 {mu0} for {self.name} on "
                           f"{self.rrate.index[-1]}, defaulted "
                           f"to single portfolio [{self.muk.idxmax()}]")
         else:
@@ -322,7 +333,8 @@ class _RiskAnalyzer:
             self._single_asset_port('max')
             if self.status == 0:
                 self.sharpe = (self.RR - mu0) / self.risk
-            warnings.warn(f"rtype 'Sharpe2' for mu0 {mu0} for {self.name} on "
+                if self.verbose:
+                    print(f"rtype 'Sharpe2' for mu0 {mu0} for {self.name} on "
                           f"{self.rrate.index[-1]}, defaulted "
                           f"to single portfolio [{self.muk.idxmax()}]")
         else:
@@ -361,9 +373,10 @@ class _RiskAnalyzer:
                     w = pd.Series(0., index=self.rrate.columns)
                     w[symb_max] = 1.
                     self.getRisk(w)
-                    warnings.warn(f"InvNrisk for {self.name} on "
-                                  f"{self.rrate.index[-1]}, defaulted "
-                                  f"to single portfolio [{symb_max}]")
+                    if self.verbose:
+                        print(f"InvNrisk for {self.name} on "
+                              f"{self.rrate.index[-1]}, defaulted "
+                              f"to single portfolio [{symb_max}]")
                     
                     
     def _calc_RiskAverse(self, aversion):
@@ -384,14 +397,16 @@ class _RiskAnalyzer:
             raise ValueError("for rtype='Diverse' mu must have a value")
         elif d == 1 and mu - mu_max > -np.abs(mu_max) * _MU_ABS_TOL_:
             self._single_asset_port('max')
-            warnings.warn(f"rtype 'Diverse' for mu {mu} for {self.name} on "
-                          f"{self.rrate.index[-1]}, defaulted "
-                          f"to single portfolio [{self.muk.idxmax()}]")
+            if self.verbose:
+                print(f"rtype 'Diverse' for mu {mu} for {self.name} on "
+                      f"{self.rrate.index[-1]}, defaulted "
+                      f"to single portfolio [{self.muk.idxmax()}]")
         elif d == -1 and mu - mu_min < np.abs(mu_min) * _MU_ABS_TOL_:
             self._single_asset_port('min')
-            warnings.warn(f"rtype 'Diverse' for mu {mu} for {self.name} on "
-                          f"{self.rrate.index[-1]}, defaulted "
-                          f"to single portfolio [{self.muk.idxmin()}]")
+            if self.verbose:
+                print(f"rtype 'Diverse' for mu {mu} for {self.name} on "
+                      f"{self.rrate.index[-1]}, defaulted "
+                      f"to single portfolio [{self.muk.idxmin()}]")
         else:
             self.mu = mu
             self.getRiskComp()
@@ -406,14 +421,16 @@ class _RiskAnalyzer:
             raise ValueError("for rtype='Diverse2' mu must have a value")
         elif d == 1 and mu - mu_max > -np.abs(mu_max) * _MU_ABS_TOL_:
             self._single_asset_port('max')
-            warnings.warn(f"rtype 'Diverse2' for mu {mu} for {self.name} on "
-                          f"{self.rrate.index[-1]}, defaulted "
-                          f"to single portfolio [{self.muk.idxmax()}]")
+            if self.verbose:
+                print(f"rtype 'Diverse2' for mu {mu} for {self.name} on "
+                      f"{self.rrate.index[-1]}, defaulted "
+                      f"to single portfolio [{self.muk.idxmax()}]")
         elif d == -1 and mu - mu_min < np.abs(mu_min) * _MU_ABS_TOL_:
             self._single_asset_port('min')
-            warnings.warn(f"rtype 'Diverse2' for mu {mu} for {self.name} on "
-                          f"{self.rrate.index[-1]}, defaulted "
-                          f"to single portfolio [{self.muk.idxmin()}]")
+            if self.verbose:
+                print(f"rtype 'Diverse2' for mu {mu} for {self.name} on "
+                      f"{self.rrate.index[-1]}, defaulted "
+                      f"to single portfolio [{self.muk.idxmin()}]")
         else:
             self.mu = mu
             self.getRiskComp()
@@ -494,7 +511,7 @@ class _RiskAnalyzer:
 
         Returns
         -------
-        float
+        `float`
             The dispersion (risk) measure value.
         """
         self._reset_output()
@@ -549,7 +566,7 @@ class _RiskAnalyzer:
             entry will be considered 0. A `None` value assumes that all
             components entries are 0. The name of the components must be
             present in the mrkdata. The default is `None`.
-        `cash` : float, optional;
+        `cash` : `float`, optional;
             Additional cash to be added to the capital. A
             negative entry assumes a reduction in the total capital
             available for rebalance. The total capital cannot be < 0.
@@ -557,30 +574,30 @@ class _RiskAnalyzer:
         `ww` : `panda.Series`, optional;
             External overwrite portfolio weights. 
             If it not set to `None` these
-            weights will overwrite the calibrated.
+            weights will overwrite the calibration results.
             The default is `None`. 
-        `rtype` : str, optional;
+        `rtype` : `str`, optional;
             Optimization type. If is not `None` it will overwrite the value
             set by the constructor. The default is `None`.
-        `mu` : float, optional
+        `mu` : `float`, optional
             Targeted portfolio expected rate of return. 
             Relevant only if `rtype='Risk'` and `rtype='Divers'`.
             The default is `None`.
-        `mu0` : float, optional;
+        `mu0` : `float`, optional;
             Risk-free rate accessible to the investor.
             Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
             The default is `0`.
-        `aversion` : float, optional;
+        `aversion` : `float`, optional;
             The value of the risk-aversion coefficient.
             Must be positive. Relevant only if `rtype='RiskAvers'`.
             The default is `None`.
-        `ww0` : list (also `np.array` or `pandas.Series`), optional;
+        `ww0` : list (also `numpy.array` or `pandas.Series`), optional;
             Targeted portfolio weights 
             Relevant only if `rype='InvNrisk'`.
             Its length must be equal to the number of
             symbols in `rrate` (mktdata). 
             All weights must be >= 0 with sum > 0.
-            If it is a list or a `numpy.array` then the weights are assumed to
+            If it is a `list` or a `numpy.array` then the weights are assumed to
             be in order of `rrate.columns`. If it is a `pandas.Series` then the 
             index should be compatible with the `rrate.columns` or mktdata 
             symbols (same symbols, not necessary in the same order).
@@ -691,7 +708,7 @@ class _RiskAnalyzer:
         `mktdata` : `pandas.DataFrame`;
             Historic daily market data for portfolio components in the format
             returned by `azapy.mktData` function.
-        `colname` : `str`, optional
+        `colname` : `str`, optional;
             Name of the price column from mktdata used in the weights
             calibration. The default is 'adjusted'.
         `freq` : `str`, optional;
@@ -708,7 +725,7 @@ class _RiskAnalyzer:
 
         Returns
         -------
-        None
+        `None`
         """
         if mktdata is None:
             return
@@ -738,7 +755,7 @@ class _RiskAnalyzer:
 
         Parameters
         ----------
-        `rtype` : `str`
+        `rtype` : `str`;
             Optimization type.
             
         Returns
@@ -770,11 +787,13 @@ class _RiskAnalyzer:
             If it is `True` then the minimum risk portfolio will be visible. 
             The default is `True`.
         `efficient` : `int`, optional;
-            Number of points along the optimal frontier (equally spaced along
-            the rate of return axis). The default is `20`.
+            Number of points along the efficient risk frontier 
+            (equally spaced along the rate of return axis). 
+            The default is `20`.
         `inefficient` : `int`, optional;
-            Number of points along the inefficient frontier (equally spaced
-            along the rate of returns axis). The default is `20`.
+            Number of points along the inefficient risk frontier 
+            (equally spaced along the rate of returns axis). 
+            The default is `20`.
         `sharpe` : Boolean, optional;
             If it is `True` then the maximum Sharpe portfolio will be visible. 
             The default is `True`.
@@ -784,12 +803,12 @@ class _RiskAnalyzer:
         `maxdiverse`: Boolean, optional;
             If it is `True` then the maximum diversified portfolio will be 
             visible. The default is `True`.
-        `diverse_efficient`: int, optional;
-            Number of points along the diversified efficient frontier
+        `diverse_efficient`: `int`, optional;
+            Number of points along the efficient diversification frontier
             (equally spaced along the rate of return axis).
             The default is `20`.
-        `diverse_inefficient`: int, optional;
-            Number of points along the diversified inefficient frontier
+        `diverse_inefficient`: `int`, optional;
+            Number of points along the inefficient diversification frontier
             (equally spaced along the rate of return axis).
             The default is `20`.
         `invN` : Boolean, optional;
@@ -797,16 +816,16 @@ class _RiskAnalyzer:
             portfolio with the same risk value are added to
             the plot. The default is `True`.
         `invNrisk` : Boolena, optional;
-            If it is `True`, then the efficient portfolio with same risk as 
-            equal weighth portfolio is added to the plot.
+            If it is `True`, then the efficient risk portfolio with same risk 
+            as equal weighth portfolio is added to the plot.
             The defualt is `False`.
         `invNdiverse` : Boolean, optional:
-            If it is `True`, then the deverse-efficient portfolio with the 
+            If it is `True`, then the efficient diversified portfolio with the 
             same diversification factor as the equal weighted portfolio is
             added to the plot. The default is `False`.
         `invNdrr` : Boolena, optional;
-            If it is `True`, then the deverse-efficient portfolio with the same
-            expected rate of return as the equal weighted portfolio is
+            If it is `True`, then the efficient diversified portfolio with the 
+            same expected rate of return as the equal weighted portfolio is
             added to the plot. The default value is `False`.
         `component` : Boolean, optional;
             If it is `True`, then the single component portfolios are added to 
@@ -840,8 +859,7 @@ class _RiskAnalyzer:
                     The default is \n
                         - `'rate of returns'` if `fig_type='RR_risk'`
                         - `'sharpe'` if `fig_type='Sharpe_RR'`
-                        - `'diversification'` if `fig_type=diverse_RR`
-                    
+                        - `'diversification'` if `fig_type=diverse_RR`   
                 * `'tangent'` : Boolean; 
                     If set to `True`, then the tangent
                     (to max sharpe point) is added. It has effect only  if
@@ -1643,17 +1661,17 @@ class _RiskAnalyzer:
     def set_random_seed(self, seed = 42):
         """
         Sets the seed for Dirichlet random generator used in viewFrontiers
-        to select the inefficient portfolios.
+        to select the random inefficient portfolios.
 
         Parameters
         ----------
-        `seed` : int, optional;
+        `seed` : `int`, optional;
             The random generator seed, in case you want to set it to a weird
             value other than `42` :). The default is `42`.
 
         Returns
         -------
-        None
+        `None`
         """
         self.rng = np.random.RandomState(seed)
 
@@ -1734,20 +1752,18 @@ class _RiskAnalyzer:
             symbols in `rrate` (mktdata). All weights must be >=0 with 
             sum > 0.
             If it is a list or a `numpy.array` then the weights are assumed to
-            be in order of `rrate.columns`. If it is a `pandas.Series` than 
+            be in order of `rrate.columns`. If it is a `pandas.Series` then 
             the index should be compatible with the `rrate.columns` or mktdata 
             symbols (not necessary in the same order).
         `rrate` : `pandas.DataFrame`, optional;
             Contains the portfolio components historical
             rates of returns. If it is not `None` then it will overwrite the
-            rrate computed in the constructor from mktdata.
+            `rrate` computed in the constructor from `mktdata`.
             The default is `None`.
 
         Returns
         -------
         `float` : The diversification value. \n
-        
-        
         """
         self._reset_output()
         
@@ -1791,14 +1807,13 @@ class _RiskAnalyzer:
 
         Parameters
         ----------
-        `method` : `str`
+        `method` : `str`;
             Must be a valid method name. It will overright the value 
             set by the constructor.
 
         Returns
         -------
-        None.
-
+        `None`
         """
         self._set_method(method)
     
@@ -1826,39 +1841,42 @@ class _RiskAnalyzer:
 
     # to be implemented in the deriv classes
     def _risk_calc(self, prate, alpha):
-        # computes a simple risk measure for `prate` time series and `alpha`
+        # Computes a simple risk measure for `prate` time series and `alpha`
         # parameter (where is the case)
         pass
     def _risk_min(self, d=1):
-        # computes the optimal portfolio with minimum risk for fixed expected 
-        # rate of return where `d` define the frontier type: +1 for efficient 
-        # and -1 of inefficient 
+        # Computes the optimal portfolio with minimum risk for fixed expected 
+        # rate of return where `d` define the risk frontier type: 
+        # +1 for efficient and -1 for inefficient 
         pass
     def _sharpe_max(self):
-        # computes the optimal portfolio with maximum Sharpe ratio
+        # Computes the optimal portfolio with maximum Sharpe ratio
         pass
     def _sharpe_inv_min(self):
-        # computes the optimal portfolio with minimum inverse Sharpe ratio
+        # Computes the optimal portfolio with minimum inverse Sharpe ratio
         pass
     def _rr_max(self):
-        # computes the optimal portfolio with maximum expected rate of return 
-        # for fixed risk
+        # Computes the optimal-risk portfolio with maximum expected rate of 
+        # return for fixed risk
         pass
     def _risk_averse(self):
-        # computes the optimal portfolio for fixed risk aversion factor
+        # Computes the optimal-risk portfolio for fixed risk-aversion factor
         pass
     def _risk_diversification(self, d=1):
-        # computes the optimal diversified portfolio for fixed expected
-        # rate of return where `d` define the frontier type: +1 for efficient 
-        # and -1 of inefficient 
-        pass
-    def _rr_max_diversification(self):
-        # computes the optimal diversified portfolio for fixed risk by 
-        # minimizing the 1-D ratio
+        # Computes the optimal-diversified portfolio for fixed expected
+        # rate of return where `d` define the diversified frontier type: 
+        # +1 for efficient and -1 for inefficient.
+        # Minimum of 1-D.
         pass
     def _risk_inv_diversification(self, d=1):
-        # computes te optimal diversified portfolio for fixed risk by 
-        # maximizing the invers of 1-D ratio
+        # Computes the optimal diversified portfolio for fixed expected
+        # rate of return where `d` define the diversified frontier type: 
+        # +1 for efficient and -1 for inefficient.
+        # Maximum of inverse 1-D. 
+        pass
+    def _rr_max_diversification(self):
+        # Computes the optimal diversified portfolio for fixed diversification
+        # factor. Maximization of expected rate of return.
         pass
     def _set_method(self, method):
         # sets method

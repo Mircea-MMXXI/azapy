@@ -22,22 +22,22 @@ def schedule_simple(sdate='2010-01-01',
 
     Parameters
     ----------
-    `sdate` : str, optional
+    `sdate` : `str`, optional;
         Start date (reference) of the schedule.
         The default is `'2010-01-01'`.
-    `edate` : str, optional
+    `edate` : `str`, optional;
         End date (reference) of the schedule. 
         The default is `'today'`.
-    `freq` : string, optional
-        Rolling period. It can take 2 values: 'Q' for quarterly and 'M' for
+    `freq` : `str`, optional;
+        Rolling period. It can take 2 values: `'Q'` for quarterly and `'M'` for
         monthly rolling periods. The default is `'Q'`.
-    `noffset` : int, optional
+    `noffset` : `int`, optional;
         Offset in number of business days for `Droll` relative to the end of 
         calendar period (quarter or month). The default is `-3`.
-    `fixoffset` : int, optional
-        Offset in number of business days for `Dfix` relative to Droll. It 
-        can be zero or negative. The default is `-1`.
-    `calendar` : `numpy.busdaycalendar`, optional
+    `fixoffset` : `int`, optional
+        Offset in number of business days for `Dfix` relative to `Droll`. It 
+        must be <=0. The default is `-1`.
+    `calendar` : `numpy.busdaycalendar`, optional;
         Business days calendar. If is it `None` then the calendar will be set
         to NYSE business calendar.
         The default is `None`.
@@ -76,39 +76,34 @@ def schedule_roll(sdate='2010-01-01',
 
     Parameters
     ----------
-    `sdate` : str, optional
+    `sdate` : `str`, optional;
         Start date (reference) of the schedule.
         The default is `'2010-01-01'`.
-    `edate` : str, optional
+    `edate` : `str`, optional;
         End date (reference) of the schedule. 
         The default is `'today'`.
-    `freq` : str, optional
-        Rolling period. It can take 2 values: 'Q' for quarterly and 'M' for
+    `freq` : `str`, optional;
+        Rolling period. It can take 2 values: `'Q'` for quarterly and `'M'` for
         monthly rolling periods. The default is `'Q'`.
-    `noffset` : int, optional
+    `noffset` : `int`, optional;
         Offset in number of business days for Droll relative to the end of 
         calendar period (quarter or month). The default is `-3`.
-    `fixoffset` : int, optional
+    `fixoffset` : `int`, optional;
         Offset in number of business days for `Dfix` relative to `Droll`. It 
         can be zero or negative. The default is `-1`.
-    `calendar` : `numpy.busdaycalendar`, optional
+    `calendar` : `numpy.busdaycalendar`, optional;
         Business days calendar. If is it `None` then the calendar will be set
         to NYSE business calendar.
         The default is `None`.
-    `hlength` : float, optional
+    `hlength` : `float`, optional;
         Offset in number of years for 'Dhist' relative to 'Dfix'. A fractional 
         value will be rounded to an integer number of months via
         `round(hlength * 12, 0)`. `hlength` must be non-negative.
         The default is `1.25` years.
 
-    Raises
-    ------
-    ValueError
-        The schedule cannot be built with the present input parameters. 
-
     Returns
     -------
-    `pandas.DataFrame`
+    `pandas.DataFrame`;
         Table containing 2 datetime columns: 'Droll' the rolling date,
         'Dfix' the fixing date and 'Dhist' start day for a calibration period.
     """

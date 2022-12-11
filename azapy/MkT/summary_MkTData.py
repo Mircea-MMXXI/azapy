@@ -12,23 +12,23 @@ def summary_MkTData(mktdata, calendar=None, sdate=None, edate=None):
 
     Parameters
     ----------
-    `mktdata` :`pandas.DataFrame` or a dict of `pndas.DataFrame'
+    `mktdata` :`pandas.DataFrame` or a dict of `pndas.DataFrame';
         Market Data in the format returned by `azapy.readMkT` function.
-    `calendar` : `numpy.busdaycalendar`, optional
+    `calendar` : `numpy.busdaycalendar`, optional;
         Business days calendar. If is set to None it will 
         default to NYSE business calendar.
-    `sdate` : `pandas.Timestamp`, optional
+    `sdate` : `pandas.Timestamp`, optional;
         Time-series start date. If it is `None` then `sdate` will be set to the 
         earliest date in mktdata.
         The default is `None`.
-    `edate` : `pandas.Timestamp`, optional
+    `edate` : `pandas.Timestamp`, optional;
         Time-series end date. If it is `None` then edate will be set to 
         the most recent date in mktdata.
         The default is `None`.
 
     Returns
     -------
-    `pandas.DataFrame`: a table with columns:
+    `pandas.DataFrame`; A table with columns:
         - `symbol` : time-series symbol
         - `begin` : start date
         - `end` : end date

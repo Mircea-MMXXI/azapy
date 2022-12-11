@@ -30,50 +30,51 @@ class MADAnalyzer(_RiskAnalyzer):
 
         Parameters
         ----------
-        `coef` : `list`, optional
+        `coef` : `list`, optional;
             Positive non-increasing list of mixture coefficients. 
             The default is `[1.]`.
-        `mktdata` : `pandas.DataFrame`, optional
+        `mktdata` : `pandas.DataFrame`, optional;
             Historic daily market data for portfolio components in the format
             returned by `azapy.mktData` function. The default is `None`.
-        `colname` : `str`, optional
+        `colname` : `str`, optional;
             Name of the price column from mktdata used in the weights 
             calibration. The default is `'adjusted'`.
-        `freq` : `str`, optional
+        `freq` : `str`, optional;
             Rate of return horizon. It could be 
             `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
-        `hlength` : float, optional
+        `hlength` : `float`, optional;
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
             The default is `3.25` years.
-        `calendar` : `numpy.busdaycalendar`, optional
+        `calendar` : `numpy.busdaycalendar`, optional;
             Business days calendar. If is it `None` then the calendar will 
             be set to NYSE business calendar. 
             The default is `None`.
         `rtype` : `str`, optional;
             Optimization type. Possible values: \n
-                `'Risk'` : optimal risk portfolio for targeted expected rate of 
+                `'Risk'` : optimal-risk portfolio for targeted expected rate of 
                 return.\n
-                `'Sharpe'` : optimal Sharpe portfolio - maximization solution.\n
-                `'Sharpe2'` : optimal Sharpe portfolio - minimization solution.\n
+                `'Sharpe'` : Sharpe-optimal portfolio - maximization solution.\n
+                `'Sharpe2'` : Sharpe-optimal portfolio - minimization solution.\n
                 `'MinRisk'` : minimum risk portfolio.\n
-                `'RiskAverse'` : optimal risk portfolio for a fixed 
+                `'RiskAverse'` : optimal-risk portfolio for a fixed 
                 risk-aversion factor.\n
-                `'InvNrisk'` : optimal risk portfolio with the same risk value 
-                as a benchmark portfolio (e.g. same as equal weighted 
+                `'InvNrisk'` : optimal-risk portfolio with the same risk value 
+                as a benchmark portfolio (e.g., same as equal weighted 
                 portfolio).\n
-                `'Diverse'` : optimal diversified portfolio for targeted
-                expected rate of return (max of inverse 1-Diverse).\n
-                `'Diverse2'` : optimal diversified portfolio for targeted
-                expected rate of return (min of 1-Diverse).\n
+                `'Diverse'` : optimal-diversified portfolio for targeted
+                expected rate of return (maximum of inverse 1-D).\n
+                `'Diverse2'` : optimal-diversified portfolio for targeted
+                expected rate of return (minmum of 1-D).\n
                 `'MaxDiverse'` : maximum diversified portfolio.\n
-                `'InvNdiverse'` : optimal diversified portfolio with the same
+                `'InvNdiverse'` : optimal-diversified portfolio with the same
                 diversification factor as a benchmark portfolio 
-                (e.g. same as equal weighted portfolio).\n
-                `'InvNdrr'` : optimal diversified portfolio with the same 
+                (e.g., same as equal weighted portfolio).\n
+                `'InvNdrr'` : optima- diversified portfolio with the same 
                 expected rate of return as a benchmark portfolio
-                (e.g. same as equal weighted portfolio).\n
-        `method` : `str`, optional
+                (e.g., same as equal weighted portfolio).\n
+            The defauls is `'Sharpe'`.
+        `method` : `str`, optional;
             Linear programming numerical method. 
             Could be: `'ecos'`, `'highs-ds'`, `'highs-ipm'`, `'highs'`, 
             `'interior-point'`, `'glpk'` and `'cvxopt'`.
@@ -84,7 +85,6 @@ class MADAnalyzer(_RiskAnalyzer):
         Returns
         -------
         The object.
-
         """
         super().__init__(mktdata, colname, freq, hlength, calendar, 
                          rtype, name)

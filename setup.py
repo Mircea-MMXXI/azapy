@@ -40,6 +40,8 @@ setuptools.setup(
           'ta',
           'yfinance',
           'statsmodels',
-          'time'
+          'time',
+          'collections',
+          'copy'
       ],
 )

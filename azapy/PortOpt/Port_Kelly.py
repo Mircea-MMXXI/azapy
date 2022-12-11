@@ -26,25 +26,25 @@ class Port_Kelly(Port_InvVol):
 
         Parameters
         ----------
-        `rtype` : str, optional
+        `rtype` : `str`, optional;
             Type of optimization. It could take the values:\n
                 `'ExpCone'` - Exponential cone constraint programming solution
                 for full Kelly problem. \n
                 `'Full'` - Non-linear solver for full Kelly problem. \n
                 `'Order2'` - Second order Tayler approximation of Kelly problem. \n
             The default is `'ExpCone'`.
-        `hlength` : float, optional
+        `hlength` : `float`, optional;
             The length in year of the historical calibration period relative 
-            to 'Dfix'. A fractional number will be rounded to an integer number 
+            to `'Dfix'`. A fractional number will be rounded to an integer number 
             of months. The default is `1.25` years. 
-        `method` : str, optional
+        `method` : `str`, optional;
             The QP solver class. It is relevant only if `rtype='Order2'`.
-            It takes 2 values: 'ecos' or 'cvxopt'.
+            It takes 2 values: `'ecos'` or `'cvxopt'`.
             The default is `'ecos'`.
 
         Returns
         -------
-        `pandas.DataFrame`
+        `pandas.DataFrame`;
             The portfolio time-series in the format "date", "pcolname".
         """
         self.rtype= rtype

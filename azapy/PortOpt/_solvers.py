@@ -24,7 +24,7 @@ def _lp_scipy(c, G, h, A, b, method):
     rout = {}
     rout['status'] = res.status
     rout['infostring'] = res.message
-    rout['pcost'] = res.fun
+    rout['pcost'] = np.float64(res.fun)
     rout['x'] = res.x
     
     return rout
@@ -50,7 +50,7 @@ def _lp_cvxopt(c, G, h, A, b, method):
     rout = {}
     rout['status'] = 0 if 'optimal' in res['status'] else 2
     rout['infostring'] = res['status']
-    rout['pcost'] = res['primal objective']
+    rout['pcost'] = np.float64(res['primal objective'])
     rout['x'] = res['x']
     
     return rout
@@ -73,7 +73,7 @@ def _lp_ecos(c, G, h, A, b, method):
     # accept 10 Close to optimal as optimal
     if rout['status'] == 10: rout['status'] = 0
     rout['infostring'] = res['info']['infostring']
-    rout['pcost'] = res['info']['pcost']
+    rout['pcost'] = np.float64(res['info']['pcost'])
     rout['x'] = res['x']
     
     return rout
@@ -102,7 +102,7 @@ def _socp_cvxopt(c, G, h, dims, A, b):
     rout = {}
     rout['status'] = 0 if 'optimal' in res['status'] else 2
     rout['infostring'] = res['status']
-    rout['pcost'] = res['primal objective']
+    rout['pcost'] = np.float64(res['primal objective'])
     rout['x'] = res['x']
     
     return rout
@@ -125,7 +125,7 @@ def _socp_ecos(c, G, h, dims, A, b):
     # accept 10 Close to optimal as optimal
     if rout['status'] == 10: rout['status'] = 0
     rout['infostring'] = res['info']['infostring']
-    rout['pcost'] = res['info']['pcost']
+    rout['pcost'] = np.float(res['info']['pcost'])
     rout['x'] = res['x']
     
     return rout
@@ -155,7 +155,7 @@ def _qp_cvxopt(P, q, G, h, A, b):
     rout = {}
     rout['status'] = 0 if 'optimal' in res['status'] else 2
     rout['infostring'] = res['status']
-    rout['pcost'] = res['primal objective']
+    rout['pcost'] = np.float64(res['primal objective'])
     rout['x'] = res['x']
     
     return rout
@@ -193,7 +193,7 @@ def _qp_ecos(P, q, G, h, A, b):
     # accept 10 Close to optimal as optimal
     if rout['status'] == 10: rout['status'] = 0
     rout['infostring'] = res['info']['infostring']
-    rout['pcost'] = res['info']['pcost'] + 0.5
+    rout['pcost'] = np.float64(res['info']['pcost'] + 0.5)
     rout['x'] = res['x'][:-1]
     
     return rout
@@ -223,7 +223,7 @@ def _exp_cone_ecos(c, G, h, dims, A, b):
     # accept 10 Close to optimal as optimal
     if rout['status'] == 10: rout['status'] = 0
     rout['infostring'] = res['info']
-    rout['pcost'] = res['info']['pcost']
+    rout['pcost'] = np.float64(res['info']['pcost'])
     rout['x'] = res['x']
  
     return rout

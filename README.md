@@ -31,30 +31,33 @@ A. Risk-based portfolio optimization algorithms:
 For each class of portfolio the following optimization strategies are
 available:
   1. Optimal-risk portfolio for targeted expected rate of return value
-  2. Optimal Sharpe portfolio - maximization of generalized Sharpe ratio
-  3. Optimal Sharpe portfolio - minimization of inverse generalized Sharpe
+  2. Sharpe-optimal portfolio - maximization of generalized Sharpe ratio
+  3. Sharpe-optimal portfolio - minimization of inverse generalized Sharpe
   ratio
   4. Minimum risk portfolio
   5. Optimal-risk portfolio for a fixed risk-aversion factor
   6. Optimal-risk portfolio with the same risk value as a benchmark portfolio
+  (e.g., same as equal weighted portfolio)
   7. Optimal-diversified portfolio for targeted expected rate of return
-  (minimization of inverse *1-D*) <span style="color:red">(alpha version)</span>
+  (minimization of inverse *1-D* ratio) <span style="color:blue">(beta version)</span>
   8. Optimal-diversified portfolio for targeted expected rate of return
-  (maximization of *1-D*) <span style="color:red">(alpha version)</span>
-  9. Maximum diversified portfolio <span style="color:red">(alpha version)</span>
+  (maximization of *1-D* ratio) <span style="color:blue">(beta version)</span>
+  9. Maximum diversified portfolio <span style="color:blue">(beta version)</span>
   10. Optimal-diversified portfolio with the same diversification factor as
-  a benchmark portfolio <span style="color:red">(alpha version)</span>
-  11. Optimal diversified portfolio with the same expected rate of return as
-  a benchmark portfolio <span style="color:red">(alpha version)</span>
+  a benchmark portfolio (e.g., same as equal weighted portfolio)
+  <span style="color:blue">(beta version)</span>
+  11. Optimal-diversified portfolio with the same expected rate of return as
+  a benchmark portfolio (e.g., same as equal weighted portfolio)
+  <span style="color:blue">(beta version)</span>
 
 B. "Naïve" portfolio strategies:
   1. Constant weighted portfolio. A particular case is equal
      weighted portfolio.
-  2. Inverse volatility portfolio (*i.e.* portfolio weights are proportional to
+  2. Inverse volatility portfolio (i.e., portfolio weights are proportional to
      the inverse of asset volatilities)
-  3. Inverse variance portfolio (*i.e.* portfolio weights are proportional to
+  3. Inverse variance portfolio (i.e., portfolio weights are proportional to
      the inverse of asset variances)
-  4. Inverse drawdown portfolio (*i.e.* portfolio weights are proportional to
+  4. Inverse drawdown portfolio (i.e., portfolio weights are proportional to
      the asset absolute value of maximum drawdowns over a predefined
      historical period)
 

@@ -35,16 +35,16 @@ def max_drawdown(mktdata, col=None):
 
     Parameters
     ----------
-    `mktdata` : `pandas.Series` or `pandas.DataFram`
+    `mktdata` : `pandas.Series` or `pandas.DataFram`;
         time-series of prices as a `pandas.Series` or as column in a 
         pandas.DataFrame`
-    `col` : str, optional
+    `col` : `str`, optional;
         column name if mktdata is a DataFrame. If is set to `None` then 
         `mktdata` is assumed to be a Series. The default is `None`.
 
     Returns
     -------
-    `float`
+    `float`;
         The value of the drawdown.
 
             `i_min` : `pandas.Timestamp`
@@ -72,21 +72,21 @@ def drawdown(mktdata, col=None, top=10):
 
     Parameters
     ----------
-    `mktdata` : `pandas.Series` or `pandas.DataFrame`
+    `mktdata` : `pandas.Series` or `pandas.DataFrame`;
         time-series of prices as a `pandas.Series` or as column in a 
         `pandas.DataFrame`
-    `col` : str, optional
+    `col` : `str`, optional;
         Name of the column of price if mktdata is a `pandas.DataFrame`. 
         If its value
         is set to `None` then `mktdata` is assumed to be a `pandas.Series`.
         The default is `None`.
-    `top` : int, optional
+    `top` : `int`, optional;
         Maximum number of the largest drawdowns to be computed.
         The default is `10`.
 
     Returns
     -------
-    `pandas.DataFrama`
+    `pandas.DataFrama`;
         Table containing the drawdowns ordered from the largest to smallest.
         Table columns are:
 

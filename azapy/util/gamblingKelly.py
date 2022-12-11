@@ -9,7 +9,7 @@ def gamblingKelly(pp=[0.6]):
 
     Parameters
     ----------
-    `pp` : list, optional
+    `pp` : `list`, optional;
         List of wining probabilities for each game. The default is `[0.6]`.
 
     Returns

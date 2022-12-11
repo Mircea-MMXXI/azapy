@@ -21,20 +21,20 @@ class _RiskEngine():
 
         Parameters
         ----------
-        `mktdata` : `pandas.DataFrame`, optional
+        `mktdata` : `pandas.DataFrame`, optional;
             Historic daily market data for portfolio components in the format
             returned by `azapy.mktData` function. The default is `None`.
-        `colname` : str, optional
+        `colname` : `str`, optional;
             Name of the price column from mktdata used in the weights
             calibration. The default is 'adjusted'.
-        `freq` : str, optional
+        `freq` : `str`, optional;
             Rate of returns horizon in number of business day. It could be
             'Q' for quarter or 'M' for month. The default is 'Q'.
-        `hlength` : float, optional
+        `hlength` : `float`, optional;
             History length in number of years used for calibration. A
             fractional number will be rounded to an integer number of months.
             The default is `3.25`.
-        `calendar` : `numpy.busdaycalendar`, optional
+        `calendar` : `numpy.busdaycalendar`, optional;
             Business days calendar. If is it `None` then the calendar will 
             be set to NYSE business calendar.
             The default is `None`.
@@ -53,13 +53,13 @@ class _RiskEngine():
 
         Parameters
         ----------
-        `rrate` : `pandas.DataFrame`
+        `rrate` : `pandas.DataFrame`;
             The portfolio components historical rates of returns.
             If it is not `None`, it will overwrite the rrate computed in the
             constructor from mktdata. The default is `None`.
         Returns
         -------
-        None
+        `None`
         """
         self.nn, self.mm = rrate.shape
         self.muk = rrate.mean()
@@ -73,27 +73,27 @@ class _RiskEngine():
 
         Parameters
         ----------
-        `mktdata` : `pandas.DataFrame`
+        `mktdata` : `pandas.DataFrame`;
             Historic daily market data for portfolio components in the format
             returned by `azapy.mktData` function.
-        `colname` : str, optional
+        `colname` : `str`, optional;
             Name of the price column from mktdata used in the weights
             calibration. The default is `'adjusted'`.
-        `freq` : str, optional
+        `freq` : `str`, optional;
             Rate of returns horizon in number of business day. it could be
             'Q' for quarter or 'M' for month. The default is `'Q'`.
-        `hlength` : float, optional
+        `hlength` : `float`, optional;
             History length in number of years used for calibration. A
             fractional number will be rounded to an integer number of months.
             The default is `3.25` years.
-        `calendar` : `numpy.busdaycalendar`, optional
+        `calendar` : `numpy.busdaycalendar`, optional;
             Business days calendar. If is it `None` then the calendar will 
             be set to NYSE business calendar.
             The default is `None`.
 
         Returns
         -------
-        None
+        `None`
         """
         if mktdata is None:
             return
@@ -121,45 +121,45 @@ class _RiskEngine():
 
         Parameters
         ----------
-        `nshares` : `pandas.Series`, optional
+        `nshares` : `pandas.Series`, optional;
             Number of shares per portfolio component. A missing component
             entry will be considered `0`. A `None` value assumes that all
             components entries are `0`. The name of the components must be
             present in the mrkdata. The default is `None`.
-        `cash` : float, optional
+        `cash` : `float`, optional;
             Additional cash to be considered in the overall capital. A
             negative entry assumes a reduction in the total capital
             available for rebalance. The remaining capital must be >0.
             The default is `0`.
-        `ww` : `pandas.Series`, optional
+        `ww` : `pandas.Series`, optional;
             External portfolio weights. If it not set to `None` these
             weights will overwrite the calibrated weights.
             The default is `None`.
 
         Returns
         -------
-        `pandas.DataFrame`:
-        the rolling information.
+        `pandas.DataFrame`;
+            The rolling information.
 
         Columns:
 
-            - 'old_nsh' :
+            - `'old_nsh'` :
                 the initial number of shares per portfolio
                 component as well as additional cash position. These are
                 present in the input.
-            - 'new_nsh' :
+            - `'new_nsh'` :
                 the new number of shares per component plus the
                 residual cash (due to the rounding to an integer number of
                 shares). A negative entry means that the investor needs to
                 add more cash to cover for the number of share
                 roundup shortfall. It has a small value.
-            - 'diff_nsh' :
+            - `'diff_nsh'` :
                 the number of shares that needs to be
                 both/sold to rebalance the portfolio positions.
-            - 'weights' :
+            - `'weights'` :
                 portfolio weights used for rebalancing. The 'cash'
                 entry is the new portfolio value.
-            - 'prices' :
+            - `'prices'` :
                 the share prices used for rebalances evaluations.
 
         Note: Since the prices are closing prices, the rebalance can be
