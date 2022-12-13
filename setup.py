@@ -39,9 +39,6 @@ setuptools.setup(
           'cvxopt',
           'ta',
           'yfinance',
-          'statsmodels',
-          'time',
-          'collections',
-          'copy'
+          'statsmodels'
       ],
 )
