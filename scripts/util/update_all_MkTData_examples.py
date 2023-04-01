@@ -1,6 +1,6 @@
 import azapy as az
 
-mktdir = "../../MkTdata_test"
+mktdir = "../../MkTdata"
 
 ercode = az.update_all_MkTData(mktdir)
 

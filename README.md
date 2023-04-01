@@ -28,7 +28,7 @@ A. Risk-based portfolio optimization algorithms:
   10. mEVaR - mixture EVaR (Entropic Value at Risk)
   <span style="color:red">(alpha version)</span>
 
-For each class of portfolio the following optimization strategies are
+For each risk-based class the following optimization strategies are
 available:
   1. Optimal-risk portfolio for targeted expected rate of return value
   2. Sharpe-optimal portfolio - maximization of generalized Sharpe ratio

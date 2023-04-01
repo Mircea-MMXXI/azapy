@@ -79,7 +79,7 @@ class Port_Simple:
         if sdate is None:
             self.sdate = mkt_sdate
         else:
-            v_date = pd.to_datetime(sdate)
+            v_date = pd.to_datetime(sdate).normalize().tz_localize(None)
             if v_date < mkt_sdate:
                 self.sdate = mkt_sdate
             else:
@@ -90,7 +90,7 @@ class Port_Simple:
         if edate is None:
             self.edate = mkt_edate
         else:
-            v_date = pd.to_datetime(edate)
+            v_date = pd.to_datetime(edate).normalize().tz_localize(None)
             if v_date > mkt_edate:
                 self.edate = mkt_edate
             else:
@@ -105,6 +105,7 @@ class Port_Simple:
                                  f" with mktdata {mkt_symb}")
 
             self.symb = pd.Series(symb)
+
         # set mktdata
         self.mktdata = mktdata[(mktdata.index >= self.sdate) &
                                (mktdata.index <= self.edate) &
