@@ -28,7 +28,7 @@ A. Risk-based portfolio optimization algorithms:
   10. mEVaR - mixture EVaR (Entropic Value at Risk)
   <span style="color:red">(alpha version)</span>
 
-For each risk-based class the following optimization strategies are
+For each risk-based optimization class the following strategies are
 available:
   1. Optimal-risk portfolio for targeted expected rate of return value
   2. Sharpe-optimal portfolio - maximization of generalized Sharpe ratio
@@ -79,3 +79,19 @@ Utility functions:
   * Generate rebalancing portfolio schedules.
   * Append a cash-like security to an existing market data object.
   * Update market data saved in a directory.
+
+
+The pollowing third-party packages were used with azapy 1.1.1
+* python 3.11.2
+* pandas 1.5.3
+* numpy 1.23.5
+* scipy 1.10.0
+* statsmodels 0.13.5
+* matplotlib 3.7.1
+* plotly 5.9.0
+* requests 2.28.1
+* pandas_market_calendars 4.1.4
+* ecos 2.0.12
+* cvxopt 1.3.0.1
+* ta 0.10.2
+* yfinance 0.2.14
