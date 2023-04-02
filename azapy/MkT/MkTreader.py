@@ -221,7 +221,7 @@ class MkTreader:
         
         self.sdate = pd.to_datetime(sdate).normalize()
         self.edate = pd.to_datetime(edate).normalize()
-        if sdate > edate:
+        if self.sdate > self.edate:
             warnings.warn("Wrong rage of dates -"
                           + f" start date {sdate} > end date {edate} !!")
             return pd.DataFrame()
@@ -494,7 +494,7 @@ class MkTreader:
                     print(f"save {symbol} data to file")
                 rout_web['adjusetd'] = self._adjustDividend(rout_web)
                 self._writer_disk(rout_web, symbol, file_dir, file_format)
-            
+
             rout = rout_web.loc[sdate_adj:edate_adj].copy()
             if rout.empty:
                 warnings.warn("no data in the range "
@@ -563,10 +563,13 @@ class MkTreader:
         if price.empty:
             return pd.DataFrame()
         
+        price.index = pd.to_datetime(price.index.date, utc=False)
+        price.index.name = 'date'
+
         price['symbol'] = symbol
         price['source'] = source
         price['recordDate'] = pd.to_datetime('today').strftime("%Y-%m-%d %X")
-        
+
         if drange is None:
             return price[self._out_col]
         else:

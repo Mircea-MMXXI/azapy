@@ -1,5 +1,6 @@
 from .Port_CVaR import Port_CVaR
-from .GINIAnalyzer import GINIAnalyzer
+#from .GINIAnalyzer import GINIAnalyzer
+from azapy.Analyzers.GINIAnalyzer import GINIAnalyzer
 
 class Port_GINI(Port_CVaR):
     """
@@ -101,5 +102,11 @@ class Port_GINI(Port_CVaR):
 
 
     def _wwgen(self):
-        return GINIAnalyzer(rtype=self.rtype, method=self.method,
-                            name=self.pname)
+        # return GINIAnalyzer(rtype=self.rtype, method=self.method,
+        #                     name=self.pname)
+        return GINIAnalyzer(freq=self.freq, 
+                            hlength=self.hlength, calendar=self.calendar,
+                            name=self.pname,
+                            rtype=self.rtype, mu=self.mu, mu0=self.mu0,
+                            aversion=self.aversion, ww0=self.ww0,
+                            method=self.method)

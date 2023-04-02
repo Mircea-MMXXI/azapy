@@ -1,5 +1,5 @@
 from .Port_CVaR import Port_CVaR
-from .BTADAnalyzer import BTADAnalyzer
+from azapy.Analyzers.BTADAnalyzer import BTADAnalyzer
 
 class Port_BTAD(Port_CVaR):
     """
@@ -22,7 +22,7 @@ class Port_BTAD(Port_CVaR):
     """
     def set_model(self, alpha=[0.], coef=None, rtype='Sharpe', 
                   mu=None, mu0=0., aversion=None, ww0=None,
-                  detrended=False, hlength=3.25, method='ecos', 
+                  detrended=True, hlength=3.25, method='ecos', 
                   verbose=False):
         """
         Sets model parameters and evaluates portfolio time-series.
@@ -85,6 +85,9 @@ class Port_BTAD(Port_CVaR):
             symbols (same symbols, not necessary in the same order).
             If it is `None` then it will be set to equal weights.
             The default is `None`.
+        `detrendent` : Boolean, optional;
+            If it set to `True` then the rates of return are detrended 
+            (mean=0). The default value is `True`. 
         `hlength` : `float`, optional;
             The length in year of the historical calibration period relative
             to `'Dfix'`. A fractional number will be rounded to an integer 
@@ -113,6 +116,12 @@ class Port_BTAD(Port_CVaR):
 
 
     def _wwgen(self):
-        return BTADAnalyzer(self.alpha, self.coef, rtype=self.rtype,
-                            detrended=self.detrended, method=self.method,
-                            name=self.pname)
+        # return BTADAnalyzer(self.alpha, self.coef, rtype=self.rtype,
+        #                     detrended=self.detrended, method=self.method,
+        #                     name=self.pname)
+        return BTADAnalyzer(self.alpha, self.coef, freq=self.freq, 
+                            hlength=self.hlength, calendar=self.calendar,
+                            name=self.pname,
+                            rtype=self.rtype, mu=self.mu, mu0=self.mu0,
+                            aversion=self.aversion, ww0=self.ww0,
+                            detrended=self.detrended, method=self.method)

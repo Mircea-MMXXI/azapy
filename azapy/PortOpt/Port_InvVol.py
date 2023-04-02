@@ -130,15 +130,17 @@ class Port_InvVol(Port_ConstW):
         return self.port
     
     def _set_weights(self):
-        mktdata = self.mktdata.pivot(columns='symbol', values=self.col_calib)
-        periods = 63 if self.freq == 'Q' else 21
+        #mktdata = self.mktdata.pivot(columns='symbol', values=self.col_calib)
+        #periods = 63 if self.freq == 'Q' else 21
         
         # local function
         def _fww(rr):
             if rr.Dfix > self.edate:
-                return pd.Series(np.nan, index=mktdata.columns)
+                # return pd.Series(np.nan, index=mktdata.columns)
+                return pd.Series(np.nan, index=self.mktdata['symbol'].unique())
             
-            mm = mktdata[rr.Dhist:rr.Dfix].pct_change(periods=periods).dropna()
+            #mm = mktdata[rr.Dhist:rr.Dfix].pct_change(periods=periods).dropna()
+            mm = self.mktdata.loc[self.mktdata.index <= rr.Dfix]
             return self._ww_calc(mm)
         
         w = self.schedule.apply(_fww, axis=1)

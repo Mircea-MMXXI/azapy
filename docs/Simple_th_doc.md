@@ -328,20 +328,19 @@ get_mktdata()
 [script 1](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_Simple_examples.py)
 ```
 # Examples
-
 import azapy as az
 
 #=============================================================================
-# Collect some market data
-mktdir = "../../MkTdata"
-sdate = "2012-01-01"
-edate = "2021-07-27"
-symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
+# Collect market data
+mktdir = '../../MkTdata'
+sdate = '2012-01-01'
+edate = 'today'
+symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ', 'OIH']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# define some weights
+# define some weights 
 ww = list(range(1,len(symb) + 1))
 
 print(f"weights:\n{ww}\n")
@@ -350,12 +349,18 @@ print(f"weights:\n{ww}\n")
 p1 = az.Port_Simple(mktdata, pname='SimplePort')
 port = p1.set_model(ww)
 
-p1.port_view()
-p1.port_view_all()
-p1.port_drawdown(fancy=True)
-p1.port_perf(fancy=True)
-p1.port_annual_returns()
-p1.port_monthly_returns()
+_ = p1.port_view()
+_ = p1.port_view_all()
+drawdown = p1.port_drawdown(fancy=True)
+perf = p1.port_perf(fancy=True)
+annual = p1.port_annual_returns()
+monthly = p1.port_monthly_returns()
+
+print(f"Portfolio Drawdown\n{drawdown}")
+print(f"Portfokio performance\n{perf}")
+print(f"Annual Returns\n{annual}")
+print(f"Monthly Returns\n{monthly}")
+
 ```
  
 [TOP](Simple_Port_th_doc_base) 
@@ -368,11 +373,11 @@ p1.port_monthly_returns()
 import azapy as az
 
 #=============================================================================
-# Collect some market data
-mktdir = "../../MkTdata"
-sdate = "2012-01-01"
-edate = "2021-07-27"
-symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
+# Collect market data
+mktdir = '../../MkTdata'
+sdate = '2012-01-01'
+edate = 'today'
+symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ', 'OIH']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
@@ -382,6 +387,7 @@ for k, v in mktdata.groupby(by='symbol'):
     lmktdata.append(v.pivot(columns='symbol', values='close'))
 
 # use lmktdata as a collection of price time-series
+# in a real life example lmktdata could be a list of portfolios time-series
 
 #=============================================================================
 # set Port_Simple class
@@ -390,10 +396,13 @@ p1 = az.Port_Simple(lmktdata, pname='SimplePort')
 port = p1.set_model()
 
 # print info about the initial time-sereis
-p1.port_view_all(componly=True)
-print(p1.port_perf(componly=True, fancy=True))
-print(p1.port_annual_returns(withcomp=True, componly=True))
-print(p1.port_monthly_returns(withcomp=True, componly=True))
+_ = p1.port_view_all(componly=True)
+perf = p1.port_perf(componly=True, fancy=True)
+annual = p1.port_annual_returns(withcomp=True, componly=True)
+monthly = p1.port_monthly_returns(withcomp=True, componly=True)
+print(f"Portfolios Performance\n{perf}")
+print(f"Annual Retuns\n{annual.round(4)}")
+print(f"Monthly Retuns\n{monthly.round(4)}")
 ```
  
 [TOP](Simple_Port_th_doc_base) 

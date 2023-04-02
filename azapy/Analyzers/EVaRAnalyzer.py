@@ -29,10 +29,10 @@ class EVaRAnalyzer(_RiskAnalyzer):
         * set_rtype
         * set_random_seed
     """
-    def __init__(self, alpha=[0.65], coef=None, 
-                 mktdata=None, colname='adjusted', freq='Q', 
-                 hlength=3.25, calendar=None,
-                 rtype='Sharpe', method='ncp', name='EVaR'):
+    def __init__(self, alpha=[0.65], coef=None, mktdata=None, 
+                 colname='adjusted', freq='Q', hlength=3.25, calendar=None, 
+                 name='EVaR', rtype='Sharpe', mu=None, d=1, mu0=0., 
+                 aversion=None, ww0=None, method='ncp'):
         """
         Constructor
 
@@ -62,30 +62,61 @@ class EVaRAnalyzer(_RiskAnalyzer):
             Business days calendar. If is it `None` then the calendar will 
             be set to NYSE business calendar. 
             The default is `None`.
+        `name` : `str`, optional;
+            Object name. The default is `'EVaR'`.
         `rtype` : `str`, optional;
             Optimization type. Possible values: \n
-                `'Risk'` : optimal-risk portfolio for targeted expected rate of 
+                `'Risk'` : optimal risk portfolio for targeted expected rate of 
                 return.\n
-                `'Sharpe'` : Sharpe-optimal portfolio - maximization solution.\n
-                `'Sharpe2'` : Sharpe-optimal portfolio - minimization solution.\n
+                `'Sharpe'` : optimal Sharpe portfolio - maximization solution.\n
+                `'Sharpe2'` : optimal Sharpe portfolio - minimization solution.\n
                 `'MinRisk'` : minimum risk portfolio.\n
-                `'RiskAverse'` : optimal-risk portfolio for a fixed 
+                `'RiskAverse'` : optimal risk portfolio for a fixed 
                 risk-aversion factor.\n
-                `'InvNrisk'` : optimal-risk portfolio with the same risk value 
-                as a benchmark portfolio (e.g., same as equal weighted 
+                `'InvNrisk'` : optimal risk portfolio with the same risk value 
+                as a benchmark portfolio (e.g. same as equal weighted 
                 portfolio).\n
-                `'Diverse'` : optimal-diversified portfolio for targeted
-                expected rate of return (maximum of inverse 1-D).\n
-                `'Diverse2'` : optimal-diversified portfolio for targeted
-                expected rate of return (minmum of 1-D).\n
+                `'Diverse'` : optimal diversified portfolio for targeted
+                expected rate of return (max of inverse 1-Diverse).\n
+                `'Diverse2'` : optimal diversified portfolio for targeted
+                expected rate of return (min of 1-Diverse).\n
                 `'MaxDiverse'` : maximum diversified portfolio.\n
-                `'InvNdiverse'` : optimal-diversified portfolio with the same
+                `'InvNdiverse'` : optimal diversified portfolio with the same
                 diversification factor as a benchmark portfolio 
-                (e.g., same as equal weighted portfolio).\n
-                `'InvNdrr'` : optima- diversified portfolio with the same 
+                (e.g. same as equal weighted portfolio).\n
+                `'InvNdrr'` : optimal diversified portfolio with the same 
                 expected rate of return as a benchmark portfolio
-                (e.g., same as equal weighted portfolio).\n
-            The defauls is `'Sharpe'`.
+                (e.g. same as equal weighted portfolio).\n
+            The default is `'Sharpe'`.
+        `mu` : `float`, optional;
+            Targeted portfolio expected rate of return. 
+            Relevant only if `rtype='Risk'` or `rtype='Divers'`.
+            The default is `None`.
+        `d` : `int`, optional;
+            Frontier type. Active only if `rtype='Risk'`. A value of `1` will
+            trigger the evaluation of optimal portfolio along the efficient
+            frontier. Otherwise, it will find the portfolio with the lowest
+            rate of return along the inefficient portfolio frontier.
+            The default is `1`.
+        `mu0` : `float`, optional;
+            Risk-free rate accessible to the investor.
+            Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
+            The default is `0`.
+        `aversion` : `float`, optional;
+            The value of the risk-aversion coefficient.
+            Must be positive. Relevant only if `rtype='RiskAverse'`.
+            The default is `None`.
+        `ww0` : `list`, `numpy.array` or `pandas.Series`, optional;
+            Targeted portfolio weights. 
+            Relevant only if `rype='InvNrisk'`.
+            Its length must be equal to the number of symbols in `rrate` 
+            (mktdata). All weights must be >= 0 with sum > 0.
+            If it is a `list` or a `numpy.array` then the weights are assumed 
+            to be in order of `rrate.columns`. If it is a `pandas.Series` then 
+            the index should be compatible with the `rrate.columns` or mktdata 
+            symbols (same symbols, not necessary in the same order).
+            If it is `None` then it will be set to equal weights.
+            The default is `None`.
         `method` : `str`, optional;
             Numerical optimization method:
                 `'ncp'` : nonlinear convex programming (using cvxopt).\n
@@ -93,15 +124,13 @@ class EVaRAnalyzer(_RiskAnalyzer):
                 alternative to `'ncp'`.\n
                 `'excp'` : exponential cone programming (using ecos).\n
             The default is `'ncp'`.
-        `name` : `str`, optional;
-            Object name. The default is `'EVaR'`.
             
         Returns
         -------
         The object.
         """
-        super().__init__(mktdata, colname, freq, hlength, calendar, 
-                         rtype, name)
+        super().__init__(mktdata, colname, freq, hlength, calendar, name,
+                         rtype, mu, d, mu0, aversion, ww0)
         
         self._set_method(method)
 

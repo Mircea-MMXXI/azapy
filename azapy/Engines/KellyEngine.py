@@ -5,7 +5,7 @@ import scipy.sparse as sps
 import warnings
 
 from ._RiskEngine import _RiskEngine
-from ._solvers import _qp_solver, _exp_cone_solver
+from azapy.Analyzers._solvers import _qp_solver, _exp_cone_solver
 
 class KellyEngine(_RiskEngine):
     """

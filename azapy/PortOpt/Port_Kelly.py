@@ -1,5 +1,6 @@
 from .Port_InvVol import Port_InvVol
-from .KellyEngine import KellyEngine
+#from .KellyEngine import KellyEngine
+from azapy.Engines.KellyEngine import KellyEngine
 
 class Port_Kelly(Port_InvVol):
     """

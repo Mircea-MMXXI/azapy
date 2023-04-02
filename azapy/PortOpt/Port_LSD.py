@@ -1,5 +1,6 @@
 from .Port_MAD import Port_MAD
-from .LSDAnalyzer import LSDAnalyzer
+#from .LSDAnalyzer import LSDAnalyzer
+from azapy.Analyzers.LSDAnalyzer import LSDAnalyzer
 
 class Port_LSD(Port_MAD):
     """
@@ -105,6 +106,9 @@ class Port_LSD(Port_MAD):
     
         
     def _wwgen(self):
-        return LSDAnalyzer(coef=self.coef, rtype=self.rtype, 
-                           method=self.method, name=self.pname)
-    
+        return LSDAnalyzer(self.coef, freq=self.freq, 
+                           hlength=self.hlength, calendar=self.calendar,
+                           name=self.pname,
+                           rtype=self.rtype, mu=self.mu, mu0=self.mu0,
+                           aversion=self.aversion, ww0=self.ww0,
+                           method=self.method)

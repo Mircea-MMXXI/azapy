@@ -17,18 +17,7 @@ _RR_ABS_TOL_ = 1.e-4
 class _RiskAnalyzer:
     """
     Base class for all XXXAnalyzer classes. \n
-    All derive classes need to implement: \n
-        _risk_calc(self, prate, alpha) \n
-        _risk_min(self, d=1) \n
-        _sharpe_max(self) \n
-        _sharpe_inv_min(self) \n
-        _rr_max(self) \n
-        _risk_averse(self) \n
-        _risk_diversification(self, d=1) \n
-        _risk_inv_diversification(self, d=1) \n
-        _rr_max_diversification(self) \n
-        _set_method(self, method) \n
-
+    Public members:
     Methods:
         * getWeights
         * getRisk
@@ -41,13 +30,23 @@ class _RiskAnalyzer:
         * set_mktdata
         * set_rtype
         * set_random_seed
-        
-    Public members:
-        
+    All derive classes need to implement: \n
+        _risk_calc(self, prate, alpha) \n
+        _risk_min(self, d=1) \n
+        _sharpe_max(self) \n
+        _sharpe_inv_min(self) \n
+        _rr_max(self) \n
+        _risk_averse(self) \n
+        _risk_diversification(self, d=1) \n
+        _risk_inv_diversification(self, d=1) \n
+        _rr_max_diversification(self) \n
+        _set_method(self, method) \n
     """
 
     def __init__(self, mktdata=None, colname='adjusted', freq='Q', 
-                 hlength=3.25, calendar=None, rtype='Sharpe', name=None):
+                 hlength=3.25, calendar=None, name=None, 
+                 rtype='Sharpe', mu=None, d=1, mu0=0., aversion=None,
+                 ww0=None):
         """
         Constructor
 
@@ -69,6 +68,8 @@ class _RiskAnalyzer:
         `calendar` : `numpy.busdaycalendar`, optional;
             Business days calendar. If is it `None` then the calendar will be 
             set to NYSE business calendar. The default is `None`.
+        `name` : `str`, optional;
+            Portfolio name. Deafult value is `None`.
         `rtype` : `str`, optional;
             Optimization type. Possible values: \n
                 `'Risk'` : optimal risk portfolio for targeted expected rate of 
@@ -93,13 +94,41 @@ class _RiskAnalyzer:
                 expected rate of return as a benchmark portfolio
                 (e.g. same as equal weighted portfolio).\n
             The default is `'Sharpe'`.
-        `name` : `str`, optional;
-            Object name. Deafult value is `None`.
+        `mu` : `float`, optional;
+            Targeted portfolio expected rate of return. 
+            Relevant only if `rtype='Risk'` or `rtype='Divers'`.
+            The default is `None`.
+        `d` : `int`, optional;
+            Frontier type. Active only if `rtype='Risk'`. A value of `1` will
+            trigger the evaluation of optimal portfolio along the efficient
+            frontier. Otherwise, it will find the portfolio with the lowest
+            rate of return along the inefficient portfolio frontier.
+            The default is `1`.
+        `mu0` : `float`, optional;
+            Risk-free rate accessible to the investor.
+            Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
+            The default is `0`.
+        `aversion` : `float`, optional;
+            The value of the risk-aversion coefficient.
+            Must be positive. Relevant only if `rtype='RiskAverse'`.
+            The default is `None`.
+        `ww0` : `list`, `numpy.array` or `pandas.Series`, optional;
+            Targeted portfolio weights. 
+            Relevant only if `rype='InvNrisk'`.
+            Its length must be equal to the number of symbols in `rrate` 
+            (mktdata). All weights must be >= 0 with sum > 0.
+            If it is a `list` or a `numpy.array` then the weights are assumed 
+            to be in order of `rrate.columns`. If it is a `pandas.Series` then 
+            the index should be compatible with the `rrate.columns` or mktdata 
+            symbols (same symbols, not necessary in the same order).
+            If it is `None` then it will be set to equal weights.
+            The default is `None`.
 
         Returns
         -------
         The object.
         """
+        self._ptype_ = 'Analyzer'
         self.ww = None
         self.status = None
 
@@ -124,25 +153,34 @@ class _RiskAnalyzer:
         self.time_level2 = None
         self.time_level3 = None
 
-        self.rtype = None
         self.rng = None
-        self.method = None
-        
-        self.methods = None
-        self.rtypes = None
-        self.name = None
-        
+ 
         self.risk_comp = None
         self._flag_risk_comp_calc = False
         self._status_risk_comp_calc = None
-        
-        self.set_rtype(rtype)
-        
+       
         self.name = name
-
-        if mktdata is not None:
-            self.set_mktdata(mktdata, colname, freq, hlength)
+        
+        self.freq = None
+        self.hlength = None
+        self.calendar = None
+        
+        self.set_mktdata(mktdata, colname, freq, hlength, calendar)
         self.set_random_seed()
+        
+        self.name = None
+        
+        self.rtypes = None
+        self.rtype = None
+        self._mu = None
+        self._d = None
+        self._mu0 = None
+        self._aversion = None
+        self._ww0 = None
+        
+        self.set_rtype(rtype, mu, d, mu0, aversion, ww0)
+        
+        self.methods = None
         
         self.verbose = False
         
@@ -195,7 +233,7 @@ class _RiskAnalyzer:
                 (e.g. same as equal weighted portfolio).\n
         `mu` : `float`, optional;
             Targeted portfolio expected rate of return. 
-            Relevant only if `rtype` is equalt to `'Risk'` or `'Divers'`.
+            Relevant only if `rtype='Risk'` or `rtype='Divers'`.
             The default is `None`.
         `d` : `int`, optional;
             Frontier type. Active only if `rtype='Risk'`. A value of `1` will
@@ -239,38 +277,32 @@ class _RiskAnalyzer:
         toc = time.perf_counter()
         self._reset_output()
         self.verbose = verbose
- 
-        d = 1 if d == 1 else -1
-
-        if rrate is not None:
-            self.set_rrate(rrate)
-            
-        if not rtype is None:
-            self.set_rtype(rtype)
+        self.set_rrate(rrate)
+        self.set_rtype(rtype, mu, d, mu0, aversion, ww0)
             
         # calc - grand dispatch 
         if self.rtype == "Risk":
-            self._calc_Risk(mu, d)
+            self._calc_Risk(self._mu, self._d)
         elif self.rtype == 'Sharpe':           
-            self._calc_Sharpe(mu0)
+            self._calc_Sharpe(self._mu0)
         elif self.rtype == 'Sharpe2':          
-            self._calc_Sharpe2(mu0)
+            self._calc_Sharpe2(self._mu0)
         elif self.rtype == "MinRisk":
             self._calc_MinRisk()
         elif self.rtype == "InvNrisk":    
-            self._calc_InvNrisk(ww0)
+            self._calc_InvNrisk(self._ww0)
         elif self.rtype == "RiskAverse":   
-            self._calc_RiskAverse(aversion) 
+            self._calc_RiskAverse(self._aversion) 
         elif self.rtype == "Diverse2":
-            self._calc_Diverse2(mu, d)
+            self._calc_Diverse2(self._mu, self._d)
         elif self.rtype == "Diverse":
-            self._calc_Diverse(mu, d)
+            self._calc_Diverse(self._mu, self._d)
         elif self.rtype == "MaxDiverse":  
             self._calc_MaxDiverse()
         elif self.rtype == "InvNdiverse":
-            self._calc_InvNdiverse(ww0)
+            self._calc_InvNdiverse(self._ww0)
         elif self.rtype == "InvNdrr":
-            self._calc_InvNdrr(ww0)
+            self._calc_InvNdrr(self._ww0)
         else:
             raise ValueError("you should not be here - ever")
 
@@ -516,9 +548,7 @@ class _RiskAnalyzer:
         """
         self._reset_output()
         toc = time.perf_counter()
-        
-        if rrate is not None:
-            self.set_rrate(rrate)
+        self.set_rrate(rrate)
 
         if isinstance(ww, pd.core.series.Series):
             ww = ww[self.rrate.columns]
@@ -578,28 +608,55 @@ class _RiskAnalyzer:
             The default is `None`. 
         `rtype` : `str`, optional;
             Optimization type. If is not `None` it will overwrite the value
-            set by the constructor. The default is `None`.
-        `mu` : `float`, optional
-            Targeted portfolio expected rate of return. 
-            Relevant only if `rtype='Risk'` and `rtype='Divers'`.
+            set by the constructor. Possible values: \n
+                `'Risk'` : optimal risk portfolio for targeted expected rate of 
+                return.\n
+                `'Sharpe'` : optimal Sharpe portfolio - maximization solution.\n
+                `'Sharpe2'` : optimal Sharpe portfolio - minimization solution.\n
+                `'MinRisk'` : minimum risk portfolio.\n
+                `'RiskAverse'` : optimal risk portfolio for a fixed 
+                risk-aversion factor.\n
+                `'InvNrisk'` : optimal risk portfolio with the same risk value 
+                as a benchmark portfolio (e.g. same as equal weighted 
+                portfolio).\n
+                `'Diverse'` : optimal diversified portfolio for targeted
+                expected rate of return (max of inverse 1-Diverse).\n
+                `'Diverse2'` : optimal diversified portfolio for targeted
+                expected rate of return (min of 1-Diverse).\n
+                `'MaxDiverse'` : maximum diversified portfolio.\n
+                `'InvNdiverse'` : optimal diversified portfolio with the same
+                diversification factor as a benchmark portfolio 
+                (e.g. same as equal weighted portfolio).\n
+                `'InvNdrr'` : optimal diversified portfolio with the same 
+                expected rate of return as a benchmark portfolio
+                (e.g. same as equal weighted portfolio).\n
             The default is `None`.
+        `mu` : `float`, optional;
+            Targeted portfolio expected rate of return. 
+            Relevant only if `rtype='Risk'` or `rtype='Divers'`.
+            The default is `None`.
+        `d` : `int`, optional;
+            Frontier type. Active only if `rtype='Risk'`. A value of `1` will
+            trigger the evaluation of optimal portfolio along the efficient
+            frontier. Otherwise, it will find the portfolio with the lowest
+            rate of return along the inefficient portfolio frontier.
+            The default is `1`.
         `mu0` : `float`, optional;
             Risk-free rate accessible to the investor.
             Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
             The default is `0`.
         `aversion` : `float`, optional;
             The value of the risk-aversion coefficient.
-            Must be positive. Relevant only if `rtype='RiskAvers'`.
+            Must be positive. Relevant only if `rtype='RiskAverse'`.
             The default is `None`.
-        `ww0` : list (also `numpy.array` or `pandas.Series`), optional;
-            Targeted portfolio weights 
+        `ww0` : `list`, `numpy.array` or `pandas.Series`, optional;
+            Targeted portfolio weights. 
             Relevant only if `rype='InvNrisk'`.
-            Its length must be equal to the number of
-            symbols in `rrate` (mktdata). 
-            All weights must be >= 0 with sum > 0.
-            If it is a `list` or a `numpy.array` then the weights are assumed to
-            be in order of `rrate.columns`. If it is a `pandas.Series` then the 
-            index should be compatible with the `rrate.columns` or mktdata 
+            Its length must be equal to the number of symbols in `rrate` 
+            (mktdata). All weights must be >= 0 with sum > 0.
+            If it is a `list` or a `numpy.array` then the weights are assumed 
+            to be in order of `rrate.columns`. If it is a `pandas.Series` then 
+            the index should be compatible with the `rrate.columns` or mktdata 
             symbols (same symbols, not necessary in the same order).
             If it is `None` then it will be set to equal weights.
             The default is `None`.
@@ -635,9 +692,8 @@ class _RiskAnalyzer:
         to share price differential between the previous day closing and
         execution time.
         """
-       
-        if rtype is not None:
-            self.set_rtype(rtype)
+        self.set_rtype(rtype=rtype, mu=mu, mu0=mu0, aversion=aversion, 
+                       ww0=ww0)
 
         ns = pd.Series(0, index=self.rrate.columns)
         if nshares is not None:
@@ -651,8 +707,7 @@ class _RiskAnalyzer:
 
         cap = ns.dot(pp) + cash
         if ww is None:
-            ww = self.getWeights(rtype=rtype, mu=mu, mu0=mu0, ww0=ww0, 
-                                 aversion=aversion)
+            ww = self.getWeights()
         else:
             wwp = pd.Series(0, index=self.rrate.columns)
             ww = wwp.add(ww, fill_value=0)
@@ -691,14 +746,18 @@ class _RiskAnalyzer:
         -------
         None
         """
+        if rrate is None:
+            # noting to do
+            return
+        
         self._flag_risk_comp_calc = False
         self.nn, self.mm = rrate.shape
-        self.muk = rrate.mean()
+        self.muk = rrate.mean(numeric_only=True)
         self.rrate = rrate - self.muk
 
 
     def set_mktdata(self, mktdata, colname='adjusted',
-                    freq='Q', hlength=3.25, calendar=None):
+                    freq=None, hlength=None, calendar=None):
         """
         Sets historical market data. It will overwrite the choice made in the
         constructor.
@@ -727,41 +786,122 @@ class _RiskAnalyzer:
         -------
         `None`
         """
-        if mktdata is None:
-            return
-
-        self.mktdata = mktdata
-
-        periods = 63 if freq == 'Q' else 21
+        if freq is None:
+            if self.freq is None:
+                raise ValueError("freq not set - it must be 'Q' or 'M'.")
+        elif freq in ['Q', 'M']:
+            self.freq = freq
+        else:
+            raise ValueError(f"wrrong value for freq: {freq}" 
+                              " - it must be 'Q' or 'M'.")
+            
+        if hlength is None:
+            if self.hlength is None:
+                raise ValueError("hlength must be set to a positive "
+                                 "value eq 1")
+        else:
+            self.hlength = hlength
 
         if calendar is None:
-            calendar = NYSEgen()
+            if self.calendar is None:
+                self.calendar = NYSEgen()
+        else:
+            self.calendar = calendar   
+            
+        if mktdata is None:
+            if colname is not None:
+                self.colname = colname
+            return
+        
+        periods = 63 if self.freq == 'Q' else 21
 
         edate = mktdata.index[-1]
-        sdate = edate - pd.offsets.DateOffset(months=round(hlength * 12, 0))
+        sdate = edate - pd.offsets.DateOffset(
+                                   months=round(self.hlength * 12, 0))
         sdate = np.busday_offset(sdate.date(),
-                                 0, roll='backward',  busdaycal=calendar)
-        rrate = mktdata.pivot(columns='symbol', values=colname)[sdate:]
+                                 0, roll='backward', busdaycal=self.calendar)
+        if colname is None:
+            rrate = mktdata
+        elif colname in mktdata.columns:
+            rrate = mktdata.pivot(columns='symbol', values=colname)[sdate:]
+            rrate = rrate.pct_change(periods=periods).dropna()
+        else:
+            raise ValueError(f"colname: {colname} not in mktdata.columns")
+            
         self.last_data = rrate.iloc[-1]
-        rrate = rrate.pct_change(periods=periods).dropna()
-
         self.set_rrate(rrate)
 
 
-    def set_rtype(self, rtype):
+    def set_rtype(self, rtype=None, mu=None, d=1, mu0=0., aversion=None, 
+                  ww0=None):
         """
         Sets the optimization type. It will overwrite the value set in the
         constructor.
 
         Parameters
         ----------
-        `rtype` : `str`;
-            Optimization type.
+        `rtype` : `str`, optional;
+            Optimization type. Possible values: \n
+                `'Risk'` : optimal risk portfolio for targeted expected rate of 
+                return.\n
+                `'Sharpe'` : optimal Sharpe portfolio - maximization solution.\n
+                `'Sharpe2'` : optimal Sharpe portfolio - minimization solution.\n
+                `'MinRisk'` : minimum risk portfolio.\n
+                `'RiskAverse'` : optimal risk portfolio for a fixed 
+                risk-aversion factor.\n
+                `'InvNrisk'` : optimal risk portfolio with the same risk value 
+                as a benchmark portfolio (e.g. same as equal weighted 
+                portfolio).\n
+                `'Diverse'` : optimal diversified portfolio for targeted
+                expected rate of return (max of inverse 1-Diverse).\n
+                `'Diverse2'` : optimal diversified portfolio for targeted
+                expected rate of return (min of 1-Diverse).\n
+                `'MaxDiverse'` : maximum diversified portfolio.\n
+                `'InvNdiverse'` : optimal diversified portfolio with the same
+                diversification factor as a benchmark portfolio 
+                (e.g. same as equal weighted portfolio).\n
+                `'InvNdrr'` : optimal diversified portfolio with the same 
+                expected rate of return as a benchmark portfolio
+                (e.g. same as equal weighted portfolio).\n
+            The default is `'Sharpe'`.
+        `mu` : `float`, optional;
+            Targeted portfolio expected rate of return. 
+            Relevant only if `rtype='Risk'` or `rtype='Divers'`.
+            The default is `None`.
+        `d` : `int`, optional;
+            Frontier type. Active only if `rtype='Risk'`. A value of `1` will
+            trigger the evaluation of optimal portfolio along the efficient
+            frontier. Otherwise, it will find the portfolio with the lowest
+            rate of return along the inefficient portfolio frontier.
+            The default is `1`.
+        `mu0` : `float`, optional;
+            Risk-free rate accessible to the investor.
+            Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
+            The default is `0`.
+        `aversion` : `float`, optional;
+            The value of the risk-aversion coefficient.
+            Must be positive. Relevant only if `rtype='RiskAverse'`.
+            The default is `None`.
+        `ww0` : `list`, `numpy.array` or `pandas.Series`, optional;
+            Targeted portfolio weights. 
+            Relevant only if `rype='InvNrisk'`.
+            Its length must be equal to the number of symbols in `rrate` 
+            (mktdata). All weights must be >= 0 with sum > 0.
+            If it is a `list` or a `numpy.array` then the weights are assumed 
+            to be in order of `rrate.columns`. If it is a `pandas.Series` then 
+            the index should be compatible with the `rrate.columns` or mktdata 
+            symbols (same symbols, not necessary in the same order).
+            If it is `None` then it will be set to equal weights.
+            The default is `None`.
             
         Returns
         -------
         `None`
         """
+        if rtype is None:
+            # noting to do
+            return
+        
         self.rtypes = ['Risk', 'MinRisk', 'Sharpe', 'Sharpe2', 'RiskAverse',
                        'InvNrisk', 'Diverse', 'Diverse2', 'MaxDiverse', 
                        'InvNdiverse', 'InvNdrr']
@@ -770,6 +910,11 @@ class _RiskAnalyzer:
             raise ValueError(f"rtype (value {rtype}) must be "
                              f"one of {self.rtypes}")
         self.rtype = rtype
+        self._mu = mu
+        self._d = 1 if d == 1 else -1
+        self._mu0 = mu0
+        self._aversion = aversion
+        self._ww0 = ww0
 
 
     def viewFrontiers(self, minrisk=True, efficient=20, inefficient=20, 
@@ -1766,9 +1911,7 @@ class _RiskAnalyzer:
         `float` : The diversification value. \n
         """
         self._reset_output()
-        
-        if rrate is not None:
-            self.set_rrate(rrate)
+        self.set_rrate(rrate)
 
         if isinstance(ww, pd.core.series.Series):
             ww = ww[self.rrate.columns]

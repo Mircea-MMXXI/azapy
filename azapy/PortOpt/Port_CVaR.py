@@ -1,4 +1,5 @@
-from .CVaRAnalyzer import CVaRAnalyzer
+#from .CVaRAnalyzer import CVaRAnalyzer
+from azapy.Analyzers.CVaRAnalyzer import CVaRAnalyzer
 from .Port_InvVol import Port_InvVol
 
 
@@ -107,11 +108,7 @@ class Port_CVaR(Port_InvVol):
             The portfolio time-series in the format 'date', 'pcolname'.
         """
         self._set_alpha(alpha, coef)
-        self._set_rtype(rtype)
-        self.mu = mu
-        self.mu0 = mu0
-        self.aversion = aversion
-        self.ww0 = ww0
+        self._set_rtype(rtype, mu, mu0, aversion, ww0)
         self.hlength = hlength
         self._set_method(method)
         self.verbose = verbose
@@ -128,20 +125,39 @@ class Port_CVaR(Port_InvVol):
         self.coef = coef
 
 
-    def _set_rtype(self, rtype):
+    def _set_rtype(self, rtype, mu, mu0, aversion, ww0):
         self.rtype = rtype
+        self.mu = mu
+        self.mu0 = mu0
+        self.aversion = aversion
+        self.ww0 = ww0
 
 
     def _set_method(self, method):
         self.method = method
 
 
+    # def _wwgenX(self):
+    #     return CVaRAnalyzer(self.alpha, self.coef, rtype=self.rtype,
+    #                         method=self.method, name=self.pname)
+
+
+    # def _ww_calcX(self, data):
+    #     return self._wwgen().getWeights(mu=self.mu, mu0=self.mu0,
+    #             aversion=self.aversion, ww0=self.ww0, rrate=data,
+    #             verbose=self.verbose)
+    
+    
     def _wwgen(self):
-        return CVaRAnalyzer(self.alpha, self.coef, rtype=self.rtype,
-                            method=self.method, name=self.pname)
+        return CVaRAnalyzer(self.alpha, self.coef, freq=self.freq, 
+                            hlength=self.hlength, calendar=self.calendar,
+                            name=self.pname,
+                            rtype=self.rtype, mu=self.mu, mu0=self.mu0,
+                            aversion=self.aversion, ww0=self.ww0,
+                            method=self.method)
 
 
     def _ww_calc(self, data):
-        return self._wwgen().getWeights(mu=self.mu, mu0=self.mu0,
-                aversion=self.aversion, ww0=self.ww0, rrate=data,
-                verbose=self.verbose)
+        model = self._wwgen()
+        model.set_mktdata(data, colname=self.col_calib)
+        return model.getWeights(verbose=self.verbose)

@@ -503,10 +503,10 @@ import azapy as az
 
 #=============================================================================
 # Collect some market data
-mktdir = "../../MkTdata"
-sdate = "2012-01-01"
-edate = "2021-07-27"
-symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
+mktdir = '../../MkTdata'
+sdate = '2012-01-01'
+edate = 'today'
+symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ', 'OIH']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
@@ -522,17 +522,26 @@ p3 = az.Port_ConstW(mktdata, pname='ConstW')
 tic = time.perf_counter()
 port3  = p3.set_model(ww)    
 toc = time.perf_counter()
-print(f"time to get port: {toc-tic}")
+print(f"time to get port: {toc-tic:f}")
 
-p3.port_view()
-p3.port_view_all()
-p3.port_drawdown(fancy=True)
-p3.port_perf(fancy=True)
-p3.port_annual_returns()
-p3.port_monthly_returns()
-p3.port_period_returns()
-p3.get_nshares()
-p3.get_account(fancy=True)
+_ = p3.port_view()
+_ = p3.port_view_all()
+drawdown = p3.port_drawdown(fancy=True)
+perf = p3.port_perf(fancy=True)
+annual = p3.port_annual_returns()
+monthly = p3.port_monthly_returns()
+period = p3.port_period_returns()
+nsh = p3.get_nshares()
+acc = p3.get_account(fancy=True)
+
+with pd.option_context('display.max_columns', None):
+    print(f"Portfolio Drawdown\n{drawdown}")
+    print(f"Portfokio performance\n{perf}")
+    print(f"Annual Returns\n{annual}")
+    print(f"Monthly Returns\n{monthly}")
+    print(f"Investment Period Returns\n{period.round(4)}")
+    print(f"Number of Shares invested\n{nsh}")
+    print(f"Accounting Info\n{acc}")
 
 #=============================================================================
 # Test: compare to an equivalent Port_Rebalanced

@@ -1,5 +1,6 @@
 from .Port_BTAD import Port_BTAD
-from .BTSDAnalyzer import BTSDAnalyzer
+#from .BTSDAnalyzer import BTSDAnalyzer
+from azapy.Analyzers.BTSDAnalyzer import BTSDAnalyzer
 
 class Port_BTSD(Port_BTAD):
     """
@@ -111,6 +112,9 @@ class Port_BTSD(Port_BTAD):
  
     
     def _wwgen(self):
-        return BTSDAnalyzer(self.alpha, self.coef, rtype=self.rtype,
-                            detrended=self.detrended, method=self.method,
-                            name=self.pname)
+        return BTSDAnalyzer(self.alpha, self.coef, freq=self.freq, 
+                            hlength=self.hlength, calendar=self.calendar,
+                            name=self.pname,
+                            rtype=self.rtype, mu=self.mu, mu0=self.mu0,
+                            aversion=self.aversion, ww0=self.ww0,
+                            detrended=self.detrended, method=self.method)

@@ -1,5 +1,6 @@
 from .Port_CVaR import Port_CVaR
-from .MVAnalyzer import MVAnalyzer
+#from .MVAnalyzer import MVAnalyzer
+from azapy.Analyzers.MVAnalyzer import MVAnalyzer
 
 class Port_MV(Port_CVaR):
     """
@@ -100,6 +101,10 @@ class Port_MV(Port_CVaR):
 
 
     def _wwgen(self):
-        return MVAnalyzer(rtype=self.rtype, method=self.method, 
-                          name=self.pname)
+        return MVAnalyzer(freq=self.freq, 
+                          hlength=self.hlength, calendar=self.calendar,
+                          name=self.pname,
+                          rtype=self.rtype, mu=self.mu, mu0=self.mu0,
+                          aversion=self.aversion, ww0=self.ww0,
+                          method=self.method)
     

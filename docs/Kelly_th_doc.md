@@ -81,22 +81,28 @@ where:
 * $\{w_k\}_{k=1,\cdots,M}$ are the weights,
 * $\{r_k\}_{i=1,\cdots,M}$ are the asset rate of returns.
 
-The maximization problem is essentially non-linear, leading to
-intensive numerical computations.
+The maximization can be solved directly as a convex non-linear problem
+(a relatively slow procedure) or it can be reformulated as an
+exponential cone constraint programming problem.
 An approximative solution can be obtained considering the second
 order Taylor expansion of $Z$. In this case the maximization
 is reduced to a quadratic programming (QP) problem that
 can be solved numerically very efficient.
 In general the approximative optimal portfolio weights can be slightly
-different than the weights obtained by solving the "Full" non-liner
-optimization. However, the performances of the two portfolios (based on "Full"
-non-linear optimization and second order, "Order2", approximation) can be
-very close. From a computational point of view, the second order approximation
-is orders of magnitude faster than the full non-linear optimization.
+different than the weights obtained by solving the "Full"
+optimization problem.
+However, the performances of the two portfolios (based on "Full"
+optimization and second order, "Order2", approximation) can be
+very close.
 
-Our implementation supports both methods:
-* non-linear optimization, by setting `rtype='Full'`,
-* second order approximation, by setting `rtype='Order2'`.
+From a computational point of view, the second order approximation,
+involving a QP solver, is the fastest, followed by exponential cone.
+
+Our implementation supports the following methods:
+* exponential cone optimization for full Kelly problem, `rtype='ExpCone'`,
+* non-linear convex optimization, `rtype='Full'`,
+* second order Taylor approximation, `rtype='Order2'`, using either
+`ecos` or `cvxopt` based QP solvers.
 
 **azapy** provides the following 2 classes supporting the Kelly optimal
 portfolio strategy:
@@ -141,10 +147,13 @@ then the calendar will be set to NYSE business calendar.
 The default is `None`.
 * `rtype` : Optimization approximation. It can be:
 
-  - 'Full' : non-linear original Kelly problem,
-  - 'Order2' : second order Taylor (quadratic) approximation of original Kelly
+  - `'ExpCone'` : exponential cone constraint programming solution for full
+  Kelly problem
+  - `'Full'` : non-linear convex solver for full Kelly problem,
+  - `'Order2'` : second order Taylor (quadratic) approximation for Kelly
   problem.
 
+  The default is `'ExpCone'`.
 * `method` : QP numerical methods. It is relevant only if
 `rtype='Order2'`. It could be `'ecos'` or `'cvxopt'`.
 The default is `'ecos'`.
@@ -291,7 +300,7 @@ set_rtype(rtype)
 
 *Inputs:*
 
-* `rtype` : Optimization type, `Full` or `Order2`.
+* `rtype` : Optimization type, `'ExpCone'`, `'Full'` or `'Order2'`.
 
 *Returns:* `None`
 
@@ -305,43 +314,53 @@ set_rtype(rtype)
 import pandas as pd
 import time
 import azapy as az
+print(f"azapy version {az.version()} >= 1.1.0", flush=True)
 
 #=============================================================================
 # Collect some market data
-mktdir = "../../MkTdata"
-sdate = "2012-01-01"
-edate = "2021-07-27"
+mktdir = '../../MkTdata'
+sdate = '2012-01-01'
+edate = '2021-07-27'
 symb = ['PSJ', 'SPY', 'XLV', 'VGT', 'ONEQ']
-
-mktdir = "../../MkTdata"
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
 # set approximation level
 # the levels are:
-#  - 'Full' no approximation (convex non-linear optimization problem)
+#  - 'Full' no approximation (non-linear convex optimization)
 #  - 'Order2' for second order Taylor approximation (QP problem)
+#  - 'ExpCone' no aproximation (exponential cone programming)
 rtype1 = 'Full'
 rtype2 = 'Order2'
+rtype3 = 'ExpCone'
 
 #=============================================================================
 # example: weights evaluation
+hl = 1.25
 
-cr1 = az.KellyEngine(mktdata, rtype=rtype1, hlength=4)
+cr1 = az.KellyEngine(mktdata, rtype=rtype1, hlength=hl)
 toc = time.perf_counter()
 ww1 = cr1.getWeights()
 tic = time.perf_counter()
-print(f"{rtype1}: time {tic-toc}")
+print(f"{rtype1}: time {tic-toc:f}")
 
-cr2 = az.KellyEngine(mktdata, rtype=rtype2, hlength=4)
+cr2 = az.KellyEngine(mktdata, rtype=rtype2, hlength=hl)
 toc = time.perf_counter()
 ww2 = cr2.getWeights()
 tic = time.perf_counter()
-print(f"{rtype2}: time {tic-toc}")
+print(f"{rtype2}: time {tic-toc:f}")
 
-wwcomp = pd.DataFrame({'Full': ww1.round(6), 'Order2': ww2.round(6)})
-print(f"weights comparison\n {wwcomp}")
+cr3 = az.KellyEngine(mktdata, rtype=rtype3, hlength=hl)
+toc = time.perf_counter()
+ww3 = cr3.getWeights()
+tic = time.perf_counter()
+print(f"{rtype3}: time {tic-toc:f}")
+
+wwcomp = pd.DataFrame({'Full': ww1.round(6), 
+                       'Order2': ww2.round(6), 
+                       'ExpCone': ww3.round(6)})
+print(f"weights comparison\n {wwcomp.round(4)}")
 
 #=============================================================================
 # Example of rebalancing positions
@@ -355,6 +374,9 @@ print(f" Full: New position report\n {pos1}")
 
 pos2 = cr2.getPositions(nshares=ns, cash=0.)
 print(f" Order2: New position report\n {pos2}")
+
+pos3 = cr3.getPositions(nshares=ns, cash=0.)
+print(f" ExpCone: New position report\n {pos3}")
 ```
  
 [TOP](Kelly_th_doc_base) 
@@ -471,12 +493,15 @@ set_model(rtype='Full', hlength=1.25, method='ecos')
 ```
 
 *Inputs:*
-* `rtype` : `str`, optional; Optimization approximation. It can be:
+* `rtype` : Optimization approximation. It can be:
 
-  - `'Full'` : non-linear original Kelly problem,
-  - `'Order2'` : second order Taylor (quadratic) approximation of original Kelly
+  - `'ExpCone'` : exponential cone constraint programming solution for full
+  Kelly problem
+  - `'Full'` : non-linear convex solver for full Kelly problem,
+  - `'Order2'` : second order Taylor (quadratic) approximation for Kelly
   problem.
 
+  The default is `'ExpCone'`.
 * `hlength` : `float`, optional;
 The length in years of the historical calibration period relative
 to `'Dfix'`. A fractional number will be rounded to an integer number
@@ -823,40 +848,51 @@ get_mktdata()
 ### [Examples](https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_Kelly_examples.py)
 ```
 # Examples
+import time
+import pandas as pd 
 import azapy as az
+print(f"azapy version {az.version()} >= 1.1.0", flush=True)
 
-#=============================================================================
-# Collect some market data
-mktdir = "../../MkTdata"
-sdate = "2012-01-01"
-edate = "2021-07-27"
-symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
+#==============================================================================
+# Collect market data
+mktdir = '../../MkTdata'
+sdate = '2012-01-01'
+edate = 'today'
+symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ', 'OIH']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Compute optimal portfolio with full Kelly criterion
+# Compute optimal Kelly portfolio 
+# exponetial cone constraint programming solution - default
 p4 = az.Port_Kelly(mktdata, pname='KellyPort')    
 
-import time
 tic = time.perf_counter()
 port4 = p4.set_model()   
 toc = time.perf_counter()
-print(f"time get_port full Kelly criterion: {toc-tic}")
+print(f"time Exp Cone full Kelly problem: {toc-tic:f}")
 
 ww = p4.get_weights()
-p4.port_view()
-p4.port_view_all()
-p4.port_perf()
-p4.port_drawdown(fancy=True)
-p4.port_perf(fancy=True)
-p4.port_annual_returns()
-p4.port_monthly_returns()
-p4.port_period_returns().round(3)
-p4.get_nshares()
-p4.get_account(fancy=True)
+_ = p4.port_view()
+_ = p4.port_view_all()
+performance = p4.port_perf()
+drawdowns = p4.port_perf()
+aret = p4.port_annual_returns()
+mret = p4.port_monthly_returns()
+pret = p4.port_period_returns()
+nsh = p4.get_nshares()
+acc = p4.get_account(fancy=True)
+with pd.option_context('display.max_columns', None):
+    print(f"Weights\n{ww.round(4)}")
+    print(f"Performace\n{performance.round(4)}")
+    print(f"Portfolio Historical Drowdawns\n{drawdowns.round(4)}")
+    print(f"Portfolio Annual Returns\n{aret.round(4)}")
+    print(f"Portfolio Monthly Returns\n{mret.round(4)}")
+    print(f"Portfolio Period Returns\n{pret.round(2)}")
+    print(f"Numbers of Shares Invested\n{nsh}")
+    print(f"Accontinf Info\n{acc}")
 
-# Test using the Port_Rebalanced weights schedule ww (from above)
+# Test using the Port_Rebalanced weights = ww (from above)
 p2 = az.Port_Rebalanced(mktdata, pname='TestPort')
 port2  = p2.set_model(ww)     
 
@@ -864,16 +900,34 @@ port2  = p2.set_model(ww)
 port4.merge(port2, how='left', on='date').plot()
 
 #=============================================================================
-# Compare with Order2 approximation of Kelly criterion algorithm
-p5 = az.Port_Kelly(mktdata, pname='KellyApxPort')   
+# Compare with second order Taylor approximation of Kelly problem
+print(f"time Exp Cone full Kelly problem: {toc-tic:f}")
+
+p5 = az.Port_Kelly(mktdata, pname='KellyApxPort-ecos')   
  
 tic = time.perf_counter()
 port5 = p5.set_model(rtype='Order2')   
 toc = time.perf_counter()
-print(f"time get_port 2-nd order aprox Kelly criterion: {toc-tic}")
+print(f"time 2-nd order aprox Kelly problem with ecos: {toc-tic:f}")
+
+# Compare with second order Taylor approximation of Kelly problem
+p6 = az.Port_Kelly(mktdata, pname='KellyApxPort-cvxopt')   
+ 
+tic = time.perf_counter()
+port6 = p6.set_model(rtype='Order2', method='cvxopt')   
+toc = time.perf_counter()
+print(f"time 2-nd order aprox Kelly problem wint cvxopt: {toc-tic:f}")
+
+# Compare with non-linear solution of full Kelly problem
+p7 = az.Port_Kelly(mktdata, pname='KellyFull')   
+ 
+tic = time.perf_counter()
+port7 = p7.set_model(rtype='Full')   
+toc = time.perf_counter()
+print(f"time non-linear full Kelly problem: {toc-tic:f}")
                  
 # The results are very close
-pp = az.Port_Simple([port4, port5])
+pp = az.Port_Simple([port4, port5, port6, port7])
 _ = pp.set_model()
 _ = pp.port_view_all(componly=True)
 ```

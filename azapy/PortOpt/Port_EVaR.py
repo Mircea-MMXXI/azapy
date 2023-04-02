@@ -1,5 +1,6 @@
 from .Port_CVaR import Port_CVaR
-from .EVaRAnalyzer import EVaRAnalyzer
+#from .EVaRAnalyzer import EVaRAnalyzer
+from azapy.Analyzers.EVaRAnalyzer import EVaRAnalyzer
 
 
 class Port_EVaR(Port_CVaR):
@@ -114,5 +115,11 @@ class Port_EVaR(Port_CVaR):
                                  verbose=verbose)
     
     def _wwgen(self):
-        return EVaRAnalyzer(alpha=self.alpha, coef=self.coef, rtype=self.rtype, 
-                            method=self.method, name=self.pname)
+        # return EVaRAnalyzer(alpha=self.alpha, coef=self.coef, rtype=self.rtype, 
+        #                     method=self.method, name=self.pname)
+        return EVaRAnalyzer(self.alpha, self.coef, freq=self.freq, 
+                            hlength=self.hlength, calendar=self.calendar,
+                            name=self.pname,
+                            rtype=self.rtype, mu=self.mu, mu0=self.mu0,
+                            aversion=self.aversion, ww0=self.ww0,
+                            method=self.method)

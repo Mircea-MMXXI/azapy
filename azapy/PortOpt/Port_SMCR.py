@@ -1,5 +1,6 @@
 from .Port_CVaR import Port_CVaR
-from .SMCRAnalyzer import SMCRAnalyzer
+#from .SMCRAnalyzer import SMCRAnalyzer
+from azapy.Analyzers.SMCRAnalyzer import SMCRAnalyzer
 
 class Port_SMCR(Port_CVaR):
     """
@@ -110,5 +111,9 @@ class Port_SMCR(Port_CVaR):
     
         
     def _wwgen(self):
-        return SMCRAnalyzer(self.alpha, self.coef, rtype=self.rtype,
-                            method=self.method, name=self.pname)
+        return SMCRAnalyzer(self.alpha, self.coef, freq=self.freq, 
+                            hlength=self.hlength, calendar=self.calendar,
+                            name=self.pname,
+                            rtype=self.rtype, mu=self.mu, mu0=self.mu0,
+                            aversion=self.aversion, ww0=self.ww0,
+                            method=self.method)

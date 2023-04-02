@@ -1,5 +1,6 @@
 from .Port_CVaR import Port_CVaR
-from .MADAnalyzer import MADAnalyzer
+#from .MADAnalyzer import MADAnalyzer
+from azapy.Analyzers.MADAnalyzer import MADAnalyzer
 
 
 class Port_MAD(Port_CVaR):
@@ -107,5 +108,9 @@ class Port_MAD(Port_CVaR):
 
 
     def _wwgen(self):
-        return MADAnalyzer(coef=self.coef, rtype=self.rtype,
-                           method=self.method, name=self.pname)
+        return MADAnalyzer(self.coef, freq=self.freq, 
+                           hlength=self.hlength, calendar=self.calendar,
+                           name=self.pname,
+                           rtype=self.rtype, mu=self.mu, mu0=self.mu0,
+                           aversion=self.aversion, ww0=self.ww0,
+                           method=self.method)
