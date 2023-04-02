@@ -219,9 +219,9 @@ class MkTreader:
                           + "must be str or a list of str")
             return pd.DataFrame()
         
-        self.sdate = pd.to_datetime(sdate).normalize()
-        self.edate = pd.to_datetime(edate).normalize()
-        if sdate > edate:
+        self.sdate = pd.to_datetime(sdate).normalize().tz_localize(None)
+        self.edate = pd.to_datetime(edate).normalize().tz_localize(None)
+        if self.sdate > self.edate:
             warnings.warn("Wrong rage of dates -"
                           + f" start date {sdate} > end date {edate} !!")
             return pd.DataFrame()
@@ -566,7 +566,9 @@ class MkTreader:
         price['symbol'] = symbol
         price['source'] = source
         price['recordDate'] = pd.to_datetime('today').strftime("%Y-%m-%d %X")
-        
+        price.index = pd.to_datetime(price.index.date, utc=False)
+        price.index.name = 'date'
+   
         if drange is None:
             return price[self._out_col]
         else:
@@ -624,7 +626,7 @@ class MkTreader:
                        inplace=True)
         yrprice.index.name = 'date'
         yrprice.loc[yrprice['split'] == 0., 'split'] = 1.
-    
+ 
         return yrprice[self._col]
     
     
@@ -740,11 +742,12 @@ class MkTreader:
         eeprice.index = pd.to_datetime(eeprice.index)
      
         ysymb = yf.Ticker(symbol)
-        
         edprice = pd.DataFrame({'divd': ysymb.dividends})
+
         if edprice.empty:
             eeprice['divd'] = 0.
         else:
+            edprice.index = pd.to_datetime(edprice.index.date, utc=False)
             edprice.index.name = 'date'
             eeprice = pd.merge(eeprice, edprice, how='left', 
                                left_index=True, right_index=True)
@@ -754,6 +757,7 @@ class MkTreader:
         if esprice.empty:
             eeprice['split'] = 1.
         else:
+            esprice.index = pd.to_datetime(esprice.index.date, utc=False)
             esprice.index.name = 'date'
             eeprice = pd.merge(eeprice, esprice, how='left', 
                                left_index=True, right_index=True)
@@ -845,6 +849,7 @@ class MkTreader:
         if edprice.empty:
             aprice['divd'] = 0.
         else:
+            edprice.index = pd.to_datetime(edprice.index.date, utc=False)
             edprice.index.name = 'date'
             aprice = pd.merge(aprice, edprice, how='left', 
                               left_index=True, right_index=True)

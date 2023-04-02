@@ -5,3 +5,4 @@
 | 1.0.0 | 20220622 | Major release |
 | 1.0.1 | 20220915 | Optimal-diversified strategies (alpha) |
 | 1.1.0 | 20221201 | Entropic Value at Risk (alpha); enhanced limit cases; enhanced frontier graphics; enhanced warning messages; complete set of optimal-diversified strategies (beta); enhanced example scripts;|
+| 1.1.1 | 20220402 | update for pandas 1.5 |

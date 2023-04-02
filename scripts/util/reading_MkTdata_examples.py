@@ -4,7 +4,7 @@ import azapy as az
 
 symb = ['SRET']
 edate = pd.to_datetime('today').normalize()
-sdate = edate - pd.DateOffset(months=4)
+sdate = edate - pd.DateOffset(months=3)
 
 ## Rread from providers without saving
 force = True
