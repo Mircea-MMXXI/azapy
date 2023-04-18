@@ -1,16 +1,17 @@
-from .Port_InvVol import Port_InvVol
-#from .KellyEngine import KellyEngine
+from ._Port_Generator import _Port_Generator
+from azapy.Generators.ModelPipeline import ModelPipeline
 from azapy.Engines.KellyEngine import KellyEngine
 
-class Port_Kelly(Port_InvVol):
+
+class Port_Kelly(_Port_Generator):
     """
-    Backtesting Kelly optimal portfolio, periodically rebalanced.
+    Backtesting Kelly portfolio periodically rebalanced.
     
     Methods:
         * set_model
         * get_port
-        * get_nshares
         * get_weights
+        * get_nshares
         * get_account
         * get_mktdata
         * port_view
@@ -20,8 +21,15 @@ class Port_Kelly(Port_InvVol):
         * port_annual_returns
         * port_monthly_returns
         * port_period_returns
-    """
-    def set_model(self, rtype='ExpCone', hlength=1.25, method='ecos'):
+        * port_period_perf
+    Attributs:
+        * pname
+        * ww
+        * port
+        * schedule
+    """                                 
+    def set_model(self, rtype='ExpCone', hlength=3.25, method='ecos', 
+                  verbose=False):
         """
         Sets model parameters and evaluates portfolio time-series.
 
@@ -42,19 +50,14 @@ class Port_Kelly(Port_InvVol):
             The QP solver class. It is relevant only if `rtype='Order2'`.
             It takes 2 values: `'ecos'` or `'cvxopt'`.
             The default is `'ecos'`.
+        `verbose` : Boolean, optional;
+            Sets verbose mode. The default is `False`.
 
         Returns
         -------
         `pandas.DataFrame`;
             The portfolio time-series in the format "date", "pcolname".
         """
-        self.rtype= rtype
-        self.method = method
-        
-        return super().set_model(hlength)
- 
-            
-    def _ww_calc(self, data):
-        return KellyEngine().getWeights(rrate=data, 
-                                        rtype=self.rtype, 
-                                        method=self.method)
+        mod = KellyEngine(colname=self.col_calib, freq=self.freq,
+                          hlength=hlength, rtype=rtype, method=method)
+        return super().set_model(ModelPipeline([mod]), verbose)

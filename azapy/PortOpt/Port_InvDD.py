@@ -1,16 +1,17 @@
-from .Port_InvVol import Port_InvVol
-from azapy.util.drawdown import max_drawdown
+from ._Port_Generator import _Port_Generator
+from azapy.Generators.ModelPipeline import ModelPipeline
+from azapy.Engines.InvDDEngine import InvDDEngine
 
-class Port_InvDD(Port_InvVol):
+
+class Port_InvDD(_Port_Generator):
     """
-    Backtesting portfolio with weights proportional to the inverse of
-    component maximum drawdowns, periodically rebalanced.
-
+    Backtesting Invese Maximum Drawdown portfolio periodically rebalanced.
+    
     Methods:
         * set_model
         * get_port
-        * get_nshares
         * get_weights
+        * get_nshares
         * get_account
         * get_mktdata
         * port_view
@@ -20,7 +21,31 @@ class Port_InvDD(Port_InvVol):
         * port_annual_returns
         * port_monthly_returns
         * port_period_returns
-    """
-    def _ww_calc(self, data):
-        vv = 1. / data.apply(lambda x: max_drawdown(x)[0]).abs()
-        return vv / vv.sum()
+        * port_period_perf
+    Attributs:
+        * pname
+        * ww
+        * port
+        * schedule
+    """                             
+    def set_model(self, hlength=3.25, verbose=False):
+        """
+        Set model parameters and evaluate the portfolio time-series.
+        
+        Parameters
+        ----------
+        `hlength` : `float`, optional;
+            The length in year of the historical calibration period relative 
+            to `'Dfix'`. A fractional number will be rounded to an integer number 
+            of months. The default is `3.25` years. 
+        `verbose` : Boolean, optional;
+            Sets verbose mode. The default is `False`.
+
+        Returns
+        -------
+        `pandas.DataFrame`;
+            The portfolio time-series in the format "date", "pcolname".
+        """
+        mod = InvDDEngine(colname=self.col_calib, freq=self.freq,
+                          hlength=hlength)
+        return super().set_model(ModelPipeline([mod]), verbose)

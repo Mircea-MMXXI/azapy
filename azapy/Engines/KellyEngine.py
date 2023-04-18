@@ -3,6 +3,7 @@ import pandas as pd
 import cvxopt as cx
 import scipy.sparse as sps
 import warnings
+import time
 
 from ._RiskEngine import _RiskEngine
 from azapy.Analyzers._solvers import _qp_solver, _exp_cone_solver
@@ -18,10 +19,13 @@ class KellyEngine(_RiskEngine):
         * set_method
         * set_rrate
         * set_mktdata   
+    Attributes:
+        * status
+        * ww
+        * name
     """
-    def __init__(self, mktdata=None, colname='adjusted', 
-                 freq='Q', hlength=3.25, calendar=None,
-                 rtype='ExpCone', method='ecos'):
+    def __init__(self, mktdata=None, colname='adjusted', freq='Q', 
+                 hlength=3.25, name='Kelly', rtype='ExpCone', method='ecos'):
         """
         Constructor
 
@@ -40,10 +44,8 @@ class KellyEngine(_RiskEngine):
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
             The default is `3.25` years.
-        `calendar` : `numpy.busdaycalendar`, optional;
-            Business days calendar. If is it `None` then the calendar will
-            be set to NYSE business calendar.
-            The default is `None`.
+        `name` : `str`, optional;
+            Portfolio name. Deafult value is `'Kelly'`.
         `rtype` : `str`, optional;
             Optimization approximation. It can be:\n
                 'ExpCone' - exponential cone constraint programming solver 
@@ -61,7 +63,7 @@ class KellyEngine(_RiskEngine):
         -------
         The object.
         """
-        super().__init__(mktdata, colname, freq, hlength, calendar)
+        super().__init__(mktdata, colname, freq, hlength, name)
         
         self.rtypes = ["Full", "Order2", "ExpCone"]
         
@@ -71,17 +73,12 @@ class KellyEngine(_RiskEngine):
         self._set_method(method)
         
         
-    def getWeights(self, rrate=None, rtype=None, method=None): 
+    def getWeights(self, rtype=None, method=None, mktdata=None, **params): 
         """
         Computes the Kelly optimal weights.
 
         Parameters
         ----------
-        `rrate` : `pandas.DataFrame`, optional;
-            Portfolio components historical rates of returns in the format 
-           "date", "symbol1", "symbol2", etc. A value different than `None` 
-           will overwrite the of 'rrate' set by the constructor from 
-           `mktdata`. The default is `None`.
         `rtype` : `str`, optional;
             Optimization approximation. It can be: \n
                 'ExpCone' - exponential cone constraint programming solver 
@@ -98,14 +95,35 @@ class KellyEngine(_RiskEngine):
             A value different than `None` will overwrite the
             value set in the constructor.
             The default is `None`.
+        `mktdata` : `pandas.DataFrame`, optional;
+            The portfolio components historical, prices or rates of return, see
+            `'pclose'` definition below.
+            If it is not `None`, it will overwrite the set of historical rates
+            of return computed in the constructor from `'mktdata'`. 
+            The default is `None`. 
+        `params`: other optional paramters;
+            Most common: \n
+            `verbose` : Boolean, optional;
+                If it set to `True`, then it will print a messages when 
+                the optimal portfolio degenerates to a single asset.
+                The default is `False`.
+            `pclose` : Boolean, optional;
+                If it is absent then the `mktdata` is considered to contain 
+                rates of return, with columns the asset symbols and indexed 
+                by the observation dates, \n
+                `True` : assumes `mktdata` contains closing prices only, 
+                with columns the asset symbols and indexed by the 
+                observation dates, \n
+                `False` : assumes `mktdata` is in the usual format
+                returned by `azapy.mktData` function.
             
         Returns
         -------
         `pandas.Series`
             Portfolio weights.
         """
-        if rrate is not None:
-            self.set_rrate(rrate)
+        toc = time.perf_counter()
+        self._set_getWeights(mktdata, **params)
             
         if rtype is not None:
             self.set_rtype(rtype)
@@ -114,13 +132,17 @@ class KellyEngine(_RiskEngine):
             self._set_method(method)
             
         if self.rtype == 'Full':
-            return self._calc_full()
+            self._calc_full()
         elif self.rtype == 'Order2':
-            return self._calc_order2()
+            self._calc_order2()
         elif self.rtype == 'ExpCone':
-            return self._calc_exp_cone()
+            self._calc_exp_cone()
         else:
             raise ValueError(f"rtype must be one of: {self.rtypes}")
+            
+        self.time_level1 = time.perf_counter() - toc
+        
+        return self.ww
             
     def _calc_full(self):
         mm = self.mm
@@ -133,10 +155,10 @@ class KellyEngine(_RiskEngine):
             xx = np.array(x.T)[0]
         
             ff = self.rrate.apply(lambda row: np.dot(xx, row) + 1 , axis=1)
-            val = -np.log(ff).mean()
+            val = -np.log(ff).mean(numeric_only=True)
             
             rf = self.rrate.apply(lambda col: col / ff)
-            DF = cx.matrix(-rf.mean()).T
+            DF = cx.matrix(-rf.mean(numeric_only=True)).T
             
             if z is None: 
                 return val, DF
@@ -159,14 +181,19 @@ class KellyEngine(_RiskEngine):
         
         dims = {'l': mm + 1, 'q': [], 's': []}
         
+        # calc
+        toc = time.perf_counter()
         res = cx.solvers.cp(F, G=G, h=h, dims=dims, 
                             options={'show_progress': False})
+        self.time_level2 = time.perf_counter() - toc
         
+        self.status = 0
         if 'optimal' not in res['status']:
+            self.status = 1
             warnings.warn(f"Warning {res['status']}")
             return pd.Series(np.nan, index=self.rrate.columns)
         
-        return pd.Series(res['x'], index=self.rrate.columns)
+        self.ww = pd.Series(res['x'], index=self.rrate.columns)
         
     
     def _calc_order2(self):
@@ -176,7 +203,7 @@ class KellyEngine(_RiskEngine):
         P = np.zeros((mm, mm))
         for i in range(mm):
             for j in range(i+1):
-                P[i,j] = (self.rrate.iloc[:,i] * self.rrate.iloc[:,j]).mean()
+                P[i,j] = (self.rrate.iloc[:,i] * self.rrate.iloc[:,j]).mean(numeric_only=True)
                 P[j,i] = P[i,j]
         
         q_data = list(-self.muk)    
@@ -191,7 +218,9 @@ class KellyEngine(_RiskEngine):
         h_data = [0.] * mm + [1.]
 
         # calc
+        toc = time.perf_counter()
         res = _qp_solver(self.method, P, q_data, G, h_data)
+        self.time_level2 = time.perf_counter() - toc
         
         self.status = res['status']
         if self.status != 0:
@@ -199,7 +228,7 @@ class KellyEngine(_RiskEngine):
                         + f"on calibration date {self.rrate.index[-1]}")
             return pd.Series(np.nan, index=self.rrate.columns)    
 
-        return pd.Series(res['x'], index=self.rrate.columns)
+        self.ww = pd.Series(res['x'], index=self.rrate.columns)
         
     
     def _calc_exp_cone(self):
@@ -242,7 +271,9 @@ class KellyEngine(_RiskEngine):
         dims = {'l': mm, 'q': [], 'e': nn}
         
         # calc
+        toc = time.perf_counter()
         res = _exp_cone_solver('ecos', c, G, h, dims, A, b)
+        self.time_level2 = time.perf_counter() - toc
         
         self.status = res['status']
         if self.status != 0:
@@ -250,7 +281,7 @@ class KellyEngine(_RiskEngine):
                         + f"on calibration date {self.rrate.index[-1]}")
             return pd.Series(np.nan, index=self.rrate.columns)    
 
-        return pd.Series(res['x'][:mm], index=self.rrate.columns)
+        self.ww = pd.Series(res['x'][:mm], index=self.rrate.columns)
         
     
     def set_rtype(self, rtype):

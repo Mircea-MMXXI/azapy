@@ -1,15 +1,18 @@
-from .Port_CVaR import Port_CVaR
+from ._Port_Generator import _Port_Generator
+from azapy.Generators.ModelPipeline import ModelPipeline
 from azapy.Analyzers.BTADAnalyzer import BTADAnalyzer
 
-class Port_BTAD(Port_CVaR):
-    """
-    Backtesting mBTAD optimal portfolio strategies, periodically rebalanced.
 
+class Port_BTAD(_Port_Generator):
+    """
+    Backtesting BTAD (Below Threshold Absolute Deviation) portfolio 
+    periodically rebalanced.
+    
     Methods:
         * set_model
         * get_port
-        * get_nshares
         * get_weights
+        * get_nshares
         * get_account
         * get_mktdata
         * port_view
@@ -19,11 +22,16 @@ class Port_BTAD(Port_CVaR):
         * port_annual_returns
         * port_monthly_returns
         * port_period_returns
+        * port_period_perf
+    Attributs:
+        * pname
+        * ww
+        * port
+        * schedule
     """
-    def set_model(self, alpha=[0.], coef=None, rtype='Sharpe', 
-                  mu=None, mu0=0., aversion=None, ww0=None,
-                  detrended=True, hlength=3.25, method='ecos', 
-                  verbose=False):
+    def set_model(self, alpha=[0.], coef=None, rtype='Sharpe', mu=None, 
+                  mu0=0, aversion=None, ww0=None, detrended=True, 
+                  hlength=3.25, method='ecos', verbose=False):
         """
         Sets model parameters and evaluates portfolio time-series.
 
@@ -108,20 +116,9 @@ class Port_BTAD(Port_CVaR):
         `pandas.DataFrame`;
             The portfolio time-series in the format 'date', 'pcolname'.
         """
-        self.detrended = detrended
-        return super().set_model(alpha=alpha, coef=coef, rtype=rtype, 
-                                 mu=mu, mu0=mu0, aversion=aversion, ww0=ww0,
-                                 hlength=hlength, method=method,
-                                 verbose=verbose)
-
-
-    def _wwgen(self):
-        # return BTADAnalyzer(self.alpha, self.coef, rtype=self.rtype,
-        #                     detrended=self.detrended, method=self.method,
-        #                     name=self.pname)
-        return BTADAnalyzer(self.alpha, self.coef, freq=self.freq, 
-                            hlength=self.hlength, calendar=self.calendar,
-                            name=self.pname,
-                            rtype=self.rtype, mu=self.mu, mu0=self.mu0,
-                            aversion=self.aversion, ww0=self.ww0,
-                            detrended=self.detrended, method=self.method)
+        mod = BTADAnalyzer(alpha=alpha, coef=coef,
+                           colname=self.col_calib, freq=self.freq,
+                           hlength=hlength, rtype=rtype, mu=mu, d=1, mu0=mu0,
+                           aversion=aversion, ww0=ww0, detrended=detrended, 
+                           method=method)
+        return super().set_model(ModelPipeline([mod]), verbose)

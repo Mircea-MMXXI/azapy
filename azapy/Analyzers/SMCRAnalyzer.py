@@ -9,7 +9,8 @@ from ._solvers import _socp_solver
 
 class SMCRAnalyzer(CVaRAnalyzer):
     """
-    Mixture SMCR based optimal portfolio strategies.
+    Mixture SMCR (Second Momentum Coherent Risk)
+    based optimal portfolio strategies.
     
     Methods:
         * getWeights
@@ -22,11 +23,20 @@ class SMCRAnalyzer(CVaRAnalyzer):
         * set_mktdata
         * set_rtype
         * set_random_seed
+    Attributs:
+        * status
+        * ww
+        * RR
+        * risk
+        * primary_risk_comp
+        * secondary_risk_comp
+        * sharpe
+        * diverse
+        * name
     """
-    def __init__(self, alpha=[0.9], coef=None, mktdata=None, 
-                 colname='adjusted', freq='Q', hlength=3.25, calendar=None,
-                 name='SMCR', rtype='Sharpe', mu=None, d=1, mu0=0., 
-                 aversion=None, ww0=None, method='ecos'):
+    def __init__(self, alpha=[0.9], coef=None, mktdata=None, colname='adjusted', 
+                 freq='Q', hlength=3.25, name='SMCR', rtype='Sharpe', mu=None, 
+                 d=1, mu0=0., aversion=None, ww0=None, method='ecos'):
         """
         Constructor
 
@@ -52,10 +62,6 @@ class SMCRAnalyzer(CVaRAnalyzer):
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
             The default is `3.25` years.
-        `calendar` : `numpy.busdaycalendar`, optional;
-            Business days calendar. If is it `None` then the calendar will 
-            be set to NYSE business calendar. 
-            The default is `None`.
         `name` : `str`, optional;
             Portfolio name. The default is `'SMCR'`.
         `rtype` : `str`, optional;
@@ -121,8 +127,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         The object.
         """
         super().__init__(alpha, coef, mktdata, colname, freq, hlength, 
-                         calendar, name, rtype, mu, d, mu0, aversion, ww0, 
-                         method)
+                         name, rtype, mu, d, mu0, aversion, ww0, method)
         
         
     def _set_method(self, method):

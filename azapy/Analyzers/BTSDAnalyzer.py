@@ -8,7 +8,8 @@ from ._solvers import _socp_solver
 
 class BTSDAnalyzer(BTADAnalyzer):
     """
-    Mixture BTSD based optimal portfolio strategies.
+    Mixture BTSD (Below Threshold Standard Deviation) 
+    based optimal portfolio strategies.
     
     Methods:
         * getWeights
@@ -21,12 +22,26 @@ class BTSDAnalyzer(BTADAnalyzer):
         * set_mktdata
         * set_rtype
         * set_random_seed
+    Attributs:
+        * status
+        * ww
+        * RR
+        * risk
+        * primary_risk_comp
+        * secondary_risk_comp
+        * sharpe
+        * diverse
+        * name
     """
-    def __init__(self, alpha=[0.], coef=None, mktdata=None, 
-                 colname='adjusted', freq='Q', hlength=3.25, calendar=None, 
-                 name='BTSD', rtype='Sharpe', mu=None, d=1, mu0=0., 
-                 aversion=None, ww0=None, detrended=False, method='ecos'):
+    def __init__(self, alpha=[0.], coef=None, mktdata=None, colname='adjusted',
+                 freq='Q', hlength=3.25, name='BTSD', rtype='Sharpe', mu=None, 
+                 d=1, mu0=0., aversion=None, ww0=None, detrended=False, 
+                 method='ecos'):
         """
+        Constructor
+
+        Parameters
+        ----------
         `alpha` : `list`, optional;
             List of BTSD thresholds. The default is `[0.]`.
         `coef` : `list`, optional;
@@ -41,17 +56,13 @@ class BTSDAnalyzer(BTADAnalyzer):
         `colname` : `str`, optional;
             Name of the price column from mktdata used in the weights 
             calibration. The default is `'adjusted'`.
-        `freq` : `str`, optional
+        `freq` : `str`, optional;
             Rate of return horizon. It could be 
             `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
         `hlength` : `float`, optional;
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
             The default is `3.25` years.
-        `calendar` : `numpy.busdaycalendar`, optional;
-            Business days calendar. If is it `None` then the calendar will 
-            be set to NYSE business calendar. 
-            The default is `None`.
         `name` : `str`, optional;
             Portfolio name. The default is `'BTSD'`.
         `rtype` : `str`, optional;
@@ -120,7 +131,7 @@ class BTSDAnalyzer(BTADAnalyzer):
         The object.
         """
         super().__init__(alpha, coef, mktdata, colname, freq, hlength,  
-                         calendar, name, rtype, mu, d, mu0, aversion, ww0,
+                         name, rtype, mu, d, mu0, aversion, ww0,
                          detrended, method)
         
         

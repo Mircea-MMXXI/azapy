@@ -1,28 +1,34 @@
-#from .CVaRAnalyzer import CVaRAnalyzer
+from ._Port_Generator import _Port_Generator
+from azapy.Generators.ModelPipeline import ModelPipeline
 from azapy.Analyzers.CVaRAnalyzer import CVaRAnalyzer
-from .Port_InvVol import Port_InvVol
 
 
-class Port_CVaR(Port_InvVol):
+class Port_CVaR(_Port_Generator):
     """
-    Backtesting mCVaR optimal portfolio strategies, periodically rebalanced.
-
-    Methods:
-        * set_model
-        * get_port
-        * get_nshares
-        * get_weights
-        * get_account
-        * get_mktdata
-        * port_view
-        * port_view_all
-        * port_drawdown
-        * port_perf
-        * port_annual_returns
-        * port_monthly_returns
-        * port_period_returns
-    """
-
+    Backtesting CVaR (Conditional Value at Risk) portfolio periodically 
+    rebalanced.
+    
+   Methods:
+       * set_model
+       * get_port
+       * get_weights
+       * get_nshares
+       * get_account
+       * get_mktdata
+       * port_view
+       * port_view_all
+       * port_drawdown
+       * port_perf
+       * port_annual_returns
+       * port_monthly_returns
+       * port_period_returns
+       * port_period_perf
+   Attributs:
+       * pname
+       * ww
+       * port
+       * schedule
+    """        
     def set_model(self, alpha=[0.975], coef=None, rtype='Sharpe',
                   mu=None, mu0=0, aversion=None, ww0=None, 
                   hlength=3.25, method='ecos', verbose=False):
@@ -107,57 +113,8 @@ class Port_CVaR(Port_InvVol):
         `pandas.DataFrame`;
             The portfolio time-series in the format 'date', 'pcolname'.
         """
-        self._set_alpha(alpha, coef)
-        self._set_rtype(rtype, mu, mu0, aversion, ww0)
-        self.hlength = hlength
-        self._set_method(method)
-        self.verbose = verbose
-
-        self._set_schedule()
-        self._set_weights()
-        self._port_calc()
-        return self.port
-
-
-    def _set_alpha(self, alpha, coef):
-        # alpha
-        self.alpha = alpha
-        self.coef = coef
-
-
-    def _set_rtype(self, rtype, mu, mu0, aversion, ww0):
-        self.rtype = rtype
-        self.mu = mu
-        self.mu0 = mu0
-        self.aversion = aversion
-        self.ww0 = ww0
-
-
-    def _set_method(self, method):
-        self.method = method
-
-
-    # def _wwgenX(self):
-    #     return CVaRAnalyzer(self.alpha, self.coef, rtype=self.rtype,
-    #                         method=self.method, name=self.pname)
-
-
-    # def _ww_calcX(self, data):
-    #     return self._wwgen().getWeights(mu=self.mu, mu0=self.mu0,
-    #             aversion=self.aversion, ww0=self.ww0, rrate=data,
-    #             verbose=self.verbose)
-    
-    
-    def _wwgen(self):
-        return CVaRAnalyzer(self.alpha, self.coef, freq=self.freq, 
-                            hlength=self.hlength, calendar=self.calendar,
-                            name=self.pname,
-                            rtype=self.rtype, mu=self.mu, mu0=self.mu0,
-                            aversion=self.aversion, ww0=self.ww0,
-                            method=self.method)
-
-
-    def _ww_calc(self, data):
-        model = self._wwgen()
-        model.set_mktdata(data, colname=self.col_calib)
-        return model.getWeights(verbose=self.verbose)
+        mod = CVaRAnalyzer(alpha=alpha, coef=coef,
+                           colname=self.col_calib, freq=self.freq,
+                           hlength=hlength, rtype=rtype, mu=mu, d=1, mu0=mu0,
+                           aversion=aversion, ww0=ww0, method=method)
+        return super().set_model(ModelPipeline([mod]), verbose)

@@ -15,7 +15,8 @@ _PD_TOL_ = 1.e-6
 
 class EVaRAnalyzer(_RiskAnalyzer):
     """
-    Mixture EVaR based optimal portfolio strategies.
+    Mixture EVaR (Entropic Value at Risk) 
+    based optimal portfolio strategies.
         
     Methods:
         * getWeights
@@ -28,11 +29,21 @@ class EVaRAnalyzer(_RiskAnalyzer):
         * set_mktdata
         * set_rtype
         * set_random_seed
+    Attributs:
+        * status
+        * ww
+        * RR
+        * risk
+        * primary_risk_comp
+        * secondary_risk_comp
+        * sharpe
+        * diverse
+        * name
     """
     def __init__(self, alpha=[0.65], coef=None, mktdata=None, 
-                 colname='adjusted', freq='Q', hlength=3.25, calendar=None, 
-                 name='EVaR', rtype='Sharpe', mu=None, d=1, mu0=0., 
-                 aversion=None, ww0=None, method='ncp'):
+                 colname='adjusted', freq='Q', hlength=3.25, name='EVaR', 
+                 rtype='Sharpe', mu=None, d=1, mu0=0., aversion=None, 
+                 ww0=None, method='ncp'):
         """
         Constructor
 
@@ -57,13 +68,9 @@ class EVaRAnalyzer(_RiskAnalyzer):
         `hlength` : `float`, optional;
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
-            The default is `3.25` years.
-        `calendar` : `numpy.busdaycalendar`, optional;
-            Business days calendar. If is it `None` then the calendar will 
-            be set to NYSE business calendar. 
-            The default is `None`.
+            The default is `3.25` years
         `name` : `str`, optional;
-            Object name. The default is `'EVaR'`.
+            Portfolio name. The default is `'EVaR'`.
         `rtype` : `str`, optional;
             Optimization type. Possible values: \n
                 `'Risk'` : optimal risk portfolio for targeted expected rate of 
@@ -129,12 +136,11 @@ class EVaRAnalyzer(_RiskAnalyzer):
         -------
         The object.
         """
-        super().__init__(mktdata, colname, freq, hlength, calendar, name,
+        super().__init__(mktdata, colname, freq, hlength, name,
                          rtype, mu, d, mu0, aversion, ww0)
-        
         self._set_method(method)
-
         self.alpha = np.array(alpha)
+        
         if any((self.alpha <= 0.) | (1. <= self.alpha)):
             raise ValueError("All alpha coefficients must be in (0,1)")
         if len(np.unique(self.alpha)) != len(self.alpha):
@@ -157,6 +163,7 @@ class EVaRAnalyzer(_RiskAnalyzer):
 
     def _set_method(self, method):
         self.methods = ['ncp', 'ncp2', 'excp']
+        
         if not method in self.methods:
             raise ValueError(f"method must be one of {self.methods}")
         self.method = method
@@ -246,8 +253,8 @@ class EVaRAnalyzer(_RiskAnalyzer):
         toc = time.perf_counter()
         res = spo.minimize_scalar(fb, args=(alpha, prate))
         self.time_level2 = time.perf_counter() - toc
-        
         self.status = 0 if res['success'] else 2
+        
         if self.status != 0:
             warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
                           f"status {res['status']} :: {res['message']}")

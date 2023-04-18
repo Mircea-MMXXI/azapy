@@ -55,7 +55,7 @@ def max_drawdown(mktdata, col=None):
                 Date of the drawdown recovery. A value of `nan` indicates 
                 that the drawdown is in progress.
     """
-    rdata = mktdata if  col is None else mktdata[col]
+    rdata = mktdata if col is None else mktdata[col]
 
     val, i_min, i_start, i_end = _max_drawdown(_prep_uw(rdata))
 

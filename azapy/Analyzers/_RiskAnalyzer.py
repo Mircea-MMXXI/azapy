@@ -6,8 +6,6 @@ import copy as copy
 import warnings
 import time
 
-from azapy.MkT.MkTcalendar import NYSEgen
-
 _WW_TOL_ = 1.e-10
 _MU_ABS_TOL_ = 1.e-6
 _RISK_REL_TOL_ = 0.999999
@@ -30,6 +28,16 @@ class _RiskAnalyzer:
         * set_mktdata
         * set_rtype
         * set_random_seed
+    Attributs:
+        * status
+        * ww
+        * RR
+        * risk
+        * primary_risk_comp
+        * secondary_risk_comp
+        * sharpe
+        * diverse
+        * name
     All derive classes need to implement: \n
         _risk_calc(self, prate, alpha) \n
         _risk_min(self, d=1) \n
@@ -42,11 +50,9 @@ class _RiskAnalyzer:
         _rr_max_diversification(self) \n
         _set_method(self, method) \n
     """
-
     def __init__(self, mktdata=None, colname='adjusted', freq='Q', 
-                 hlength=3.25, calendar=None, name=None, 
-                 rtype='Sharpe', mu=None, d=1, mu0=0., aversion=None,
-                 ww0=None):
+                 hlength=3.25, name=None, rtype='Sharpe', mu=None, 
+                 d=1, mu0=0., aversion=None, ww0=None):
         """
         Constructor
 
@@ -65,9 +71,6 @@ class _RiskAnalyzer:
             History length in number of years used for calibration. A
             fractional number will be rounded to an integer number of months.
             The default is `3.25` years.
-        `calendar` : `numpy.busdaycalendar`, optional;
-            Business days calendar. If is it `None` then the calendar will be 
-            set to NYSE business calendar. The default is `None`.
         `name` : `str`, optional;
             Portfolio name. Deafult value is `None`.
         `rtype` : `str`, optional;
@@ -128,7 +131,7 @@ class _RiskAnalyzer:
         -------
         The object.
         """
-        self._ptype_ = 'Analyzer'
+        self._ptype_ = 'Optimizer'
         self.ww = None
         self.status = None
 
@@ -163,9 +166,8 @@ class _RiskAnalyzer:
         
         self.freq = None
         self.hlength = None
-        self.calendar = None
         
-        self.set_mktdata(mktdata, colname, freq, hlength, calendar)
+        self.set_mktdata(mktdata, colname, freq, hlength)
         self.set_random_seed()
         
         self.name = None
@@ -200,7 +202,7 @@ class _RiskAnalyzer:
 
         
     def getWeights(self, rtype=None, mu=None, d=1, mu0=0., aversion=None,
-                   ww0=None, rrate=None, verbose=False):  
+                   ww0=None, mktdata=None, **params):  
         """
         Computes the optimal portfolio weights.
 
@@ -260,15 +262,27 @@ class _RiskAnalyzer:
             symbols (same symbols, not necessary in the same order).
             If it is `None` then it will be set to equal weights.
             The default is `None`.
-        `rrate` : `pandas.DataFrame`, optional;
-            The portfolio components historical rates of returns.
-            If it is not `None`, it will overwrite the `rrate` computed in the
-            constructor from mktdata. The default is `None`. 
-        `verbose` : Boolean, optiona;
-            If it set to `True` then it will print messages when the optimal
-            portfolio degenerates to a single asset portfolio as a limited 
-            case. 
-            The default is `False`.
+        `mktdata` : `pandas.DataFrame`, optional;
+            The portfolio components historical, prices or rates of return, see
+            `'pclose'` definition below.
+            If it is not `None`, it will overwrite the set of historical rates
+            of return computed in the constructor from `'mktdata'`. 
+            The default is `None`. 
+        `params`: other optional paramters;
+            Most common: \n
+            `verbose` : Boolean, optional;
+                If it set to `True`, then it will print a messages when 
+                the optimal portfolio degenerates to a single asset.
+                The default is `False`.
+            `pclose` : Boolean, optional;
+                If it is absent then the `mktdata` is considered to contain 
+                rates of return, with columns the asset symbols and indexed 
+                by the observation dates, \n
+                `True` : assumes `mktdata` contains closing prices only, 
+                with columns the asset symbols and indexed by the 
+                observation dates, \n
+                `False` : assumes `mktdata` is in the usual format
+                returned by `azapy.mktData` function.
 
        Returns
         -------
@@ -276,8 +290,11 @@ class _RiskAnalyzer:
         """
         toc = time.perf_counter()
         self._reset_output()
-        self.verbose = verbose
-        self.set_rrate(rrate)
+        self.verbose = params['verbose'] if 'verbose' in params.keys() else self.verbose
+        if 'pclose' in params.keys():
+            self.set_mktdata(mktdata, pclose=params['pclose'])
+        else:
+            self.set_rrate(mktdata)
         self.set_rtype(rtype, mu, d, mu0, aversion, ww0)
             
         # calc - grand dispatch 
@@ -319,29 +336,29 @@ class _RiskAnalyzer:
     
     
     def _calc_Risk(self, mu, d):
-        mu_max = self.muk.max()
-        mu_min = self.muk.min()
+        mu_max = self.muk.max(numeric_only=True)
+        mu_min = self.muk.min(numeric_only=True)
         if mu is None:
             raise ValueError("for rtype='Risk' mu must have a value")
         elif d == 1 and mu - mu_max > -np.abs(mu_max) * _MU_ABS_TOL_:
             self._single_asset_port('max')
             if self.verbose:
                 print(f"rtype 'Risk' for mu {mu} for {self.name} on "
-                      f"{self.rrate.index[-1]}, defaulted "
-                      f"to single portfolio [{self.muk.idxmax()}]")
+                      f"{self.rrate.index[-1]}, defaulted to single "
+                      f"portfolio [{self.muk.idxmax()}]")
         elif d == -1 and mu - mu_min < np.abs(mu_min) * _MU_ABS_TOL_:
             self._single_asset_port('min')
             if self.verbose:
                 print(f"rtype 'Risk' for mu {mu} for {self.name} on "
-                      f"{self.rrate.index[-1]}, defaulted "
-                      f"to single portfolio [{self.muk.idxmin()}]")
+                      f"{self.rrate.index[-1]}, defaulted to single "
+                      f"portfolio [{self.muk.idxmin()}]")
         else:
             self.mu = mu
             self._risk_min(d=d)
             
             
     def _calc_Sharpe(self, mu0):
-        mu_max = self.muk.max()
+        mu_max = self.muk.max(numeric_only=True)
         if mu0 is None:
             raise ValueError("for rtype='Sharpe' mu0 must have a value")
         if mu0 - mu_max >= -np.abs(mu_max) * _MU_ABS_TOL_:
@@ -350,15 +367,15 @@ class _RiskAnalyzer:
                 self.sharpe = (self.RR - mu0) / self.risk
                 if self.verbose:
                     print(f"rtype 'Sharpe' for mu0 {mu0} for {self.name} on "
-                          f"{self.rrate.index[-1]}, defaulted "
-                          f"to single portfolio [{self.muk.idxmax()}]")
+                          f"{self.rrate.index[-1]}, defaulted to single "
+                          f"portfolio [{self.muk.idxmax()}]")
         else:
             self.mu = mu0
             self._sharpe_max()
             
             
     def _calc_Sharpe2(self, mu0):
-        mu_max = self.muk.max()
+        mu_max = self.muk.max(numeric_only=True)
         if mu0 is None:
             raise ValueError("for rtype='Sharpe' mu0 must have a value")
         if mu0 - mu_max >= -np.abs(mu_max) * _MU_ABS_TOL_:
@@ -367,15 +384,15 @@ class _RiskAnalyzer:
                 self.sharpe = (self.RR - mu0) / self.risk
                 if self.verbose:
                     print(f"rtype 'Sharpe2' for mu0 {mu0} for {self.name} on "
-                          f"{self.rrate.index[-1]}, defaulted "
-                          f"to single portfolio [{self.muk.idxmax()}]")
+                          f"{self.rrate.index[-1]}, defaulted to single "
+                          f"portfolio [{self.muk.idxmax()}]")
         else:
             self.mu = mu0
             self._sharpe_inv_min() 
             
             
     def _calc_MinRisk(self):
-        self._calc_Risk(self.muk.min(), d=1)
+        self._calc_Risk(self.muk.min(numeric_only=True), d=1)
         
         
     def _calc_InvNrisk(self, ww0):
@@ -423,22 +440,22 @@ class _RiskAnalyzer:
         
         
     def _calc_Diverse(self, mu, d):
-        mu_max = self.muk.max()
-        mu_min = self.muk.min()
+        mu_max = self.muk.max(numeric_only=True)
+        mu_min = self.muk.min(numeric_only=True)
         if mu is None:
             raise ValueError("for rtype='Diverse' mu must have a value")
         elif d == 1 and mu - mu_max > -np.abs(mu_max) * _MU_ABS_TOL_:
             self._single_asset_port('max')
             if self.verbose:
                 print(f"rtype 'Diverse' for mu {mu} for {self.name} on "
-                      f"{self.rrate.index[-1]}, defaulted "
-                      f"to single portfolio [{self.muk.idxmax()}]")
+                      f"{self.rrate.index[-1]}, defaulted to single "
+                      f"portfolio [{self.muk.idxmax()}]")
         elif d == -1 and mu - mu_min < np.abs(mu_min) * _MU_ABS_TOL_:
             self._single_asset_port('min')
             if self.verbose:
                 print(f"rtype 'Diverse' for mu {mu} for {self.name} on "
-                      f"{self.rrate.index[-1]}, defaulted "
-                      f"to single portfolio [{self.muk.idxmin()}]")
+                      f"{self.rrate.index[-1]}, defaulted to single "
+                      f"portfolio [{self.muk.idxmin()}]")
         else:
             self.mu = mu
             self.getRiskComp()
@@ -447,22 +464,22 @@ class _RiskAnalyzer:
                 
                 
     def _calc_Diverse2(self, mu, d):
-        mu_max = self.muk.max()
-        mu_min = self.muk.min()
+        mu_max = self.muk.max(numeric_only=True)
+        mu_min = self.muk.min(numeric_only=True)
         if mu is None:
             raise ValueError("for rtype='Diverse2' mu must have a value")
         elif d == 1 and mu - mu_max > -np.abs(mu_max) * _MU_ABS_TOL_:
             self._single_asset_port('max')
             if self.verbose:
                 print(f"rtype 'Diverse2' for mu {mu} for {self.name} on "
-                      f"{self.rrate.index[-1]}, defaulted "
-                      f"to single portfolio [{self.muk.idxmax()}]")
+                      f"{self.rrate.index[-1]}, defaulted to single "
+                      f"portfolio [{self.muk.idxmax()}]")
         elif d == -1 and mu - mu_min < np.abs(mu_min) * _MU_ABS_TOL_:
             self._single_asset_port('min')
             if self.verbose:
                 print(f"rtype 'Diverse2' for mu {mu} for {self.name} on "
-                      f"{self.rrate.index[-1]}, defaulted "
-                      f"to single portfolio [{self.muk.idxmin()}]")
+                      f"{self.rrate.index[-1]}, defaulted to single "
+                      f"portfolio [{self.muk.idxmin()}]")
         else:
             self.mu = mu
             self.getRiskComp()
@@ -471,7 +488,7 @@ class _RiskAnalyzer:
                 
                 
     def _calc_MaxDiverse(self):
-        self._calc_Diverse(self.muk.min(), d=1)
+        self._calc_Diverse(self.muk.min(numeric_only=True), d=1)
         
         
     def _calc_InvNdiverse(self, ww0):
@@ -537,8 +554,8 @@ class _RiskAnalyzer:
             symbols (not necessary in the same order).
         `rrate` : `pandas.DataFrame`, optional;
             Contains the portfolio components historical
-            rates of returns. If it is not `None`, it will overwrite the
-            `rrate` computed in the constructor from `mktdata`.
+            rates of return. If it is not `None`, it will overwrite the
+            rates of return computed in the constructor from `mktdata`.
             The default is `None`.
 
         Returns
@@ -583,8 +600,7 @@ class _RiskAnalyzer:
         return self.risk
 
         
-    def getPositions(self, nshares=None, cash=0, ww=None, rtype=None, 
-                     mu=None, mu0=0., aversion=None, ww0=None, ):
+    def getPositions(self, nshares=None, cash=0, ww=None, verbose=True):
         """
         Computes the rebalanced number of shares.
 
@@ -606,61 +622,10 @@ class _RiskAnalyzer:
             If it not set to `None` these
             weights will overwrite the calibration results.
             The default is `None`. 
-        `rtype` : `str`, optional;
-            Optimization type. If is not `None` it will overwrite the value
-            set by the constructor. Possible values: \n
-                `'Risk'` : optimal risk portfolio for targeted expected rate of 
-                return.\n
-                `'Sharpe'` : optimal Sharpe portfolio - maximization solution.\n
-                `'Sharpe2'` : optimal Sharpe portfolio - minimization solution.\n
-                `'MinRisk'` : minimum risk portfolio.\n
-                `'RiskAverse'` : optimal risk portfolio for a fixed 
-                risk-aversion factor.\n
-                `'InvNrisk'` : optimal risk portfolio with the same risk value 
-                as a benchmark portfolio (e.g. same as equal weighted 
-                portfolio).\n
-                `'Diverse'` : optimal diversified portfolio for targeted
-                expected rate of return (max of inverse 1-Diverse).\n
-                `'Diverse2'` : optimal diversified portfolio for targeted
-                expected rate of return (min of 1-Diverse).\n
-                `'MaxDiverse'` : maximum diversified portfolio.\n
-                `'InvNdiverse'` : optimal diversified portfolio with the same
-                diversification factor as a benchmark portfolio 
-                (e.g. same as equal weighted portfolio).\n
-                `'InvNdrr'` : optimal diversified portfolio with the same 
-                expected rate of return as a benchmark portfolio
-                (e.g. same as equal weighted portfolio).\n
-            The default is `None`.
-        `mu` : `float`, optional;
-            Targeted portfolio expected rate of return. 
-            Relevant only if `rtype='Risk'` or `rtype='Divers'`.
-            The default is `None`.
-        `d` : `int`, optional;
-            Frontier type. Active only if `rtype='Risk'`. A value of `1` will
-            trigger the evaluation of optimal portfolio along the efficient
-            frontier. Otherwise, it will find the portfolio with the lowest
-            rate of return along the inefficient portfolio frontier.
-            The default is `1`.
-        `mu0` : `float`, optional;
-            Risk-free rate accessible to the investor.
-            Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
-            The default is `0`.
-        `aversion` : `float`, optional;
-            The value of the risk-aversion coefficient.
-            Must be positive. Relevant only if `rtype='RiskAverse'`.
-            The default is `None`.
-        `ww0` : `list`, `numpy.array` or `pandas.Series`, optional;
-            Targeted portfolio weights. 
-            Relevant only if `rype='InvNrisk'`.
-            Its length must be equal to the number of symbols in `rrate` 
-            (mktdata). All weights must be >= 0 with sum > 0.
-            If it is a `list` or a `numpy.array` then the weights are assumed 
-            to be in order of `rrate.columns`. If it is a `pandas.Series` then 
-            the index should be compatible with the `rrate.columns` or mktdata 
-            symbols (same symbols, not necessary in the same order).
-            If it is `None` then it will be set to equal weights.
-            The default is `None`.
-
+        `verbose` : Boolean, optional;
+            Is it set to `True` the function prints the closing prices date.
+            THe default is `True`.
+        
         Returns
         -------
         `pandas.DataFrame`: the rolling information.
@@ -692,9 +657,6 @@ class _RiskAnalyzer:
         to share price differential between the previous day closing and
         execution time.
         """
-        self.set_rtype(rtype=rtype, mu=mu, mu0=mu0, aversion=aversion, 
-                       ww0=ww0)
-
         ns = pd.Series(0, index=self.rrate.columns)
         if nshares is not None:
             ns = ns.add(nshares, fill_value=0)
@@ -703,6 +665,12 @@ class _RiskAnalyzer:
             raise ValueError("nshares must be a subset " + \
                              f"of {self.rrate.columns}")
 
+        if self.last_data is None:
+            raise ValueError("The obj was not set with mktdata")
+            
+        if verbose:
+            print(f"Use closing prices as of {self.last_data.name}")
+            
         pp = self.last_data[self.rrate.columns.to_list()]
 
         cap = ns.dot(pp) + cash
@@ -733,14 +701,14 @@ class _RiskAnalyzer:
 
     def set_rrate(self, rrate):
         """
-        Sets portfolio components historical rates of returns.
+        Sets portfolio components historical rates of return.
         It will overwrite the value computed by the constructor from mktdata.
 
         Parameters
         ----------
         `rrate` : `pandas.DataFrame`;
-            Portfolio components historical rates of returns. The
-            columns are: "date", "symbol1", "symbol2", etc.
+            Portfolio components historical rates of return. The
+            columns are asset symbols and indxed by observation dates.
             
         Returns
         -------
@@ -756,8 +724,8 @@ class _RiskAnalyzer:
         self.rrate = rrate - self.muk
 
 
-    def set_mktdata(self, mktdata, colname='adjusted',
-                    freq=None, hlength=None, calendar=None):
+    def set_mktdata(self, mktdata, colname=None, freq=None, hlength=None, 
+                    pclose=False):
         """
         Sets historical market data. It will overwrite the choice made in the
         constructor.
@@ -777,15 +745,24 @@ class _RiskAnalyzer:
             History length in number of years used for calibration. A
             fractional number will be rounded to an integer number of months.
             The default is `3.25`.
-        `calendar` : `numpy.busdaycalendar`, optional;
-            Business days calendar. If is it `None` then the calendar will be 
-            set to NYSE business calendar.
-            The default is `None`.
+        `pclose` : Boolena, optiona; \n
+            `True` : assumes `mktdata` contains closing prices only, 
+            with columns the asset symbols and indexed by the 
+            observation dates, \n
+            `False` : assumes `mktdata` is in the usual format
+            returned by `azapy.mktData` function.
+            
 
         Returns
         -------
         `None`
         """
+        if colname is None:
+            if self.colname is None:
+                raise ValueError("Unspecified price colum (colname).")
+        else:
+            self.colname = colname
+        
         if freq is None:
             if self.freq is None:
                 raise ValueError("freq not set - it must be 'Q' or 'M'.")
@@ -802,33 +779,23 @@ class _RiskAnalyzer:
         else:
             self.hlength = hlength
 
-        if calendar is None:
-            if self.calendar is None:
-                self.calendar = NYSEgen()
-        else:
-            self.calendar = calendar   
-            
         if mktdata is None:
-            if colname is not None:
-                self.colname = colname
+            # nothing else to do
             return
         
         periods = 63 if self.freq == 'Q' else 21
+        sdate = mktdata.index[int(-np.round(self.hlength * 12) * 21)]
 
-        edate = mktdata.index[-1]
-        sdate = edate - pd.offsets.DateOffset(
-                                   months=round(self.hlength * 12, 0))
-        sdate = np.busday_offset(sdate.date(),
-                                 0, roll='backward', busdaycal=self.calendar)
-        if colname is None:
-            rrate = mktdata
-        elif colname in mktdata.columns:
-            rrate = mktdata.pivot(columns='symbol', values=colname)[sdate:]
-            rrate = rrate.pct_change(periods=periods).dropna()
+        if pclose == False:
+            if self.colname not in mktdata.columns:
+                raise ValueError(f"colname: {colname} not in mktdata.columns")
+            rrate = mktdata.pivot(columns='symbol', 
+                                  values=self.colname)[sdate:]
         else:
-            raise ValueError(f"colname: {colname} not in mktdata.columns")
+            rrate = mktdata[sdate:]
             
         self.last_data = rrate.iloc[-1]
+        rrate = rrate.pct_change(periods=periods).dropna()
         self.set_rrate(rrate)
 
 
@@ -899,13 +866,12 @@ class _RiskAnalyzer:
         `None`
         """
         if rtype is None:
-            # noting to do
+            # noting else to do
             return
         
         self.rtypes = ['Risk', 'MinRisk', 'Sharpe', 'Sharpe2', 'RiskAverse',
                        'InvNrisk', 'Diverse', 'Diverse2', 'MaxDiverse', 
                        'InvNdiverse', 'InvNdrr']
-
         if not rtype in self.rtypes:
             raise ValueError(f"rtype (value {rtype}) must be "
                              f"one of {self.rtypes}")
@@ -1129,7 +1095,7 @@ class _RiskAnalyzer:
                     warnings.warn("Warning: MinRisk -> efficient failed")
                     res['efficient']['efficient'] = 0
                 else:
-                    mu_max = self.muk.max()
+                    mu_max = self.muk.max(numeric_only=True)
                     rr_upper = mu_max - np.abs(mu_max) * _RR_ABS_TOL_
                     rr_eff = np.linspace(rr_min, rr_upper, efficient)
                     risk_eff = []
@@ -1163,7 +1129,7 @@ class _RiskAnalyzer:
                     warnings.warn("Warning: MinRisk -> inefficient failed")
                     res['inefficient']['inefficient'] = 0
                 else:
-                    mu_min = self.muk.min()
+                    mu_min = self.muk.min(numeric_only=True)
                     rr_lower = mu_min + np.abs(mu_min) * _RR_ABS_TOL_
                     rr_ineff = np.linspace(rr_lower, rr_min, inefficient)
                     risk_ineff = []
@@ -1360,7 +1326,7 @@ class _RiskAnalyzer:
                                   "failed")
                     res['diverse_efficient']['diverse_efficient'] = 0
                 else:
-                    mu_max = self.muk.max() 
+                    mu_max = self.muk.max(numeric_only=True) 
                     rr_upper = mu_max - np.abs(mu_max) * _RR_ABS_TOL_
                     rr_d_eff = np.linspace(rr_maxdiverse, rr_upper,
                                            diverse_efficient)
@@ -1397,7 +1363,7 @@ class _RiskAnalyzer:
                                   "failed")
                     res['diverse_inefficient']['diverse_inefficient'] = 0
                 else:
-                    rr_min = self.muk.min()
+                    rr_min = self.muk.min(numeric_only=True)
                     rr_lower = rr_min + np.abs(mu_min) * _RR_ABS_TOL_
                     rr_d_ineff = np.linspace(rr_lower, rr_maxdiverse, 
                                              diverse_inefficient)
@@ -1902,8 +1868,8 @@ class _RiskAnalyzer:
             symbols (not necessary in the same order).
         `rrate` : `pandas.DataFrame`, optional;
             Contains the portfolio components historical
-            rates of returns. If it is not `None` then it will overwrite the
-            `rrate` computed in the constructor from `mktdata`.
+            rates of return. If it is not `None` then it will overwrite the
+            rates of return computed in the constructor from `mktdata`.
             The default is `None`.
 
         Returns
@@ -1963,7 +1929,7 @@ class _RiskAnalyzer:
     
     def _norm_weights(self):
         self.ww[self.ww < _WW_TOL_] = 0.
-        self.ww /= self.ww.sum()
+        self.ww /= self.ww.sum(numeric_only=True)
         
         
     def _single_asset_port(self, port):

@@ -8,7 +8,8 @@ from ._solvers import _lp_solver
 
 class BTADAnalyzer(_RiskAnalyzer):
     """
-    Mixture BTAD based optimal portfolio strategies.
+    Mixture BTAD (Below Threshold Absolute Deviation) 
+    based optimal portfolio strategies.
     
     Methods:
         * getWeights
@@ -21,11 +22,21 @@ class BTADAnalyzer(_RiskAnalyzer):
         * set_mktdata
         * set_rtype
         * set_random_seed
+    Attributs:
+        * status
+        * ww
+        * RR
+        * risk
+        * primary_risk_comp
+        * secondary_risk_comp
+        * sharpe
+        * diverse
+        * name
     """
-    def __init__(self, alpha=[0.], coef=None, mktdata=None, 
-                 colname='adjusted', freq='Q', hlength=3.25, calendar=None, 
-                 name='BTAD', rtype='Sharpe', mu=None, d=1, mu0=0., 
-                 aversion=None, ww0=None, detrended=False, method='ecos', ):
+    def __init__(self, alpha=[0.], coef=None, mktdata=None, colname='adjusted', 
+                 freq='Q', hlength=3.25, name='BTAD', rtype='Sharpe', mu=None, 
+                 d=1, mu0=0., aversion=None, ww0=None, detrended=False, 
+                 method='ecos'):
         """
         Constructor
 
@@ -52,10 +63,6 @@ class BTADAnalyzer(_RiskAnalyzer):
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
             The default is `3.25` years.
-        `calendar` : `numpy.busdaycalendar`, optional;
-            Business days calendar. If is it `None` then the calendar will 
-            be set to NYSE business calendar. 
-            The default is `None`.
         `name` : `str`, optional;
             Portfolio name. The default is `'BTAD'`.
         `rtype` : `str`, optional;
@@ -125,13 +132,11 @@ class BTADAnalyzer(_RiskAnalyzer):
         The object.
         """
         self.detrended = detrended
-        
-        super().__init__(mktdata, colname, freq, hlength, calendar, name,
+        super().__init__(mktdata, colname, freq, hlength, name,
                          rtype, mu, d, mu0, aversion, ww0)
-        
         self._set_method(method)
-
         self.alpha = np.array(alpha)
+        
         if len(np.unique(self.alpha)) != len(self.alpha):
             raise ValueError("alpha values are not unique")
         
@@ -152,13 +157,13 @@ class BTADAnalyzer(_RiskAnalyzer):
         
     def set_rrate(self, rrate):
         """
-        Sets portfolio components historical rates of returns.
+        Sets portfolio components historical rates of return.
         It will overwrite the value computed by the constructor from mktdata.
 
         Parameters
         ----------
         `rrate` : `pandas.DataFrame`
-            Portfolio components historical rates of returns. The
+            Portfolio components historical rates of return. The
             columns are: `"date"`, `"symbol1"`, `"symbol2"`, etc.
         Returns
         -------
@@ -169,7 +174,7 @@ class BTADAnalyzer(_RiskAnalyzer):
             return
         
         self.nn, self.mm = rrate.shape
-        self.muk = rrate.mean()
+        self.muk = rrate.mean(numeric_only=True)
         
         if self.detrended:
             self.rrate = rrate - self.muk

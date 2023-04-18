@@ -644,7 +644,11 @@ _ = cr1.viewFrontiers(fig_type='Diverse_RR',
 
 #==============================================================================
 print("\n******************************************************************\n")
-print("*** Example of rebalancing positions ***")
+print("*** Example of rebalancing positions for a Sharpe strategy ***")
+# set Sharpe strategy
+rtype = 'Sharpe' 
+mu0 = 0. # 0. risk free rate (default value)
+ww = cr1.getWeights(rtype, mu0=mu0, verbose=True)
 
 # assumed existing positions and cash
 ns = pd.Series(100, index=symb)
@@ -655,7 +659,7 @@ cash = 0.
 rtype = 'Sharpe'
 mu0 = 0. # risk free rate
 
-pos = cr1.getPositions(nshares=ns, cash=cash, rtype=rtype, mu0=mu0)
+pos = cr1.getPositions(nshares=ns, cash=cash)
 print(f" New position report\n {pos}")
 
 #==============================================================================

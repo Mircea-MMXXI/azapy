@@ -1,22 +1,13 @@
 
 class NullSelector:
-    def __init__(self):
-        self._ptype = 'Selector'
-        self.mktdata = None
-        self.colname = None
-        
+    def __init__(self, pname='NullSelector'):
+        self._ptype_ = 'Selector'
+        self.pname = pname
 
-    def _set_mktdata(self, mktdata, colname):
-        if mktdata is None:
-            raise ValueError("No mktdata!!")
-        
-        if (colname is not None) and (colname not in mktdata.columns):
-           raise ValueError(f"colname {colname} not in mktdata.columns")
-       
-        self.mktdata = mktdata
-        self.colname = colname
     
-    
-    def getSelection(self, mktdata, colname='adjusted'):
-        self._set_mktdata(mktdata, colname)
-        return 1, self.mktdata
+    def getSelection(self, mktdata, **params):
+        verbose = params['verbose'] if 'verboss' in params.keys() else False
+        if verbose: 
+            print(f"Selctor {self.pname} :\n\t capital {1}\n"
+                  "\t selction {mktdata['symbols'].unique()}")
+        return 1, mktdata

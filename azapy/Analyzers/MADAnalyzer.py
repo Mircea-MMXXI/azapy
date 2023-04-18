@@ -8,7 +8,8 @@ from ._solvers import _lp_solver
 
 class MADAnalyzer(_RiskAnalyzer):
     """
-    m-level MAD based optimal portfolio strategies.
+    m-level MAD (Mean Absolute Deviation)
+    based optimal portfolio strategies.
 
     Methods:
         * getWeights
@@ -21,10 +22,20 @@ class MADAnalyzer(_RiskAnalyzer):
         * set_mktdata
         * set_rtype
         * set_random_seed
+    Attributs:
+        * status
+        * ww
+        * RR
+        * risk
+        * primary_risk_comp
+        * secondary_risk_comp
+        * sharpe
+        * diverse
+        * name
     """
     def __init__(self, coef=[1.], mktdata=None, colname='adjusted', freq='Q',
-                 hlength=3.25, calendar=None, name='MAD', rtype='Sharpe', 
-                 mu=None, d=1, mu0=0., aversion=None, ww0=None, method='ecos'):
+                 hlength=3.25, name='MAD', rtype='Sharpe', mu=None, d=1, 
+                 mu0=0., aversion=None, ww0=None, method='ecos'):
         """
         Constructor
 
@@ -46,10 +57,6 @@ class MADAnalyzer(_RiskAnalyzer):
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
             The default is `3.25` years.
-        `calendar` : `numpy.busdaycalendar`, optional;
-            Business days calendar. If is it `None` then the calendar will 
-            be set to NYSE business calendar. 
-            The default is `None`.
         `name` : `str`, optional;
             Portfolio name. The default is `'MAD'`.
         `rtype` : `str`, optional;
@@ -115,7 +122,7 @@ class MADAnalyzer(_RiskAnalyzer):
         -------
         The object.
         """
-        super().__init__(mktdata, colname, freq, hlength, calendar, name,
+        super().__init__(mktdata, colname, freq, hlength, name,
                          rtype, mu, d, mu0, aversion, ww0)
 
         self._set_method(method)
@@ -147,9 +154,10 @@ class MADAnalyzer(_RiskAnalyzer):
         `ww` : `list` (`numpy.array` or `pandas.Series`)
             Portfolio weights.
         `rrate` : `pandas.series`, optional
-            The portfolio components historical rates of returns.
-            If it is not `None`, it will overwrite the rrate computed in the
-            constructor from mktdata. The default is `None`.
+            The portfolio components historical rates of return.
+            If it is not `None`, it will overwrite the rates of return 
+            computed in the constructor from mktdata. 
+            The default is `None`.
 
         Returns
         -------

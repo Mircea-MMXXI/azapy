@@ -8,7 +8,5 @@ from .PortOpt import *
 from .Generators import *
 from .util import *
 
-from .PortOpt_X import *
-
 def version():
     return __version__

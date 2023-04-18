@@ -1,8 +1,6 @@
 import numpy as np
 import pandas as pd
 
-from azapy.MkT.MkTcalendar import NYSEgen
-
 class _RiskEngine():
     """
     Base class. Derive class needs to implement\n
@@ -12,10 +10,13 @@ class _RiskEngine():
         * getPositions
         * set_rrate
         * set_mktdata
+    Attributes:
+        * status
+        * ww
+        * name
     """
-
-    def __init__(self, mktdata=None, colname='adjusted',
-                 freq='Q', hlength=3.25, calendar=None):
+    def __init__(self, mktdata=None, colname='adjusted', freq='Q', 
+                 hlength=3.25, name=None):
         """
         Constructor
 
@@ -26,47 +27,66 @@ class _RiskEngine():
             returned by `azapy.mktData` function. The default is `None`.
         `colname` : `str`, optional;
             Name of the price column from mktdata used in the weights
-            calibration. The default is 'adjusted'.
+            calibration. The default is `'adjusted'`.
         `freq` : `str`, optional;
-            Rate of returns horizon in number of business day. It could be
-            'Q' for quarter or 'M' for month. The default is 'Q'.
+            Rate of return horizon in number of business day. It could be
+            `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
         `hlength` : `float`, optional;
             History length in number of years used for calibration. A
             fractional number will be rounded to an integer number of months.
-            The default is `3.25`.
-        `calendar` : `numpy.busdaycalendar`, optional;
-            Business days calendar. If is it `None` then the calendar will 
-            be set to NYSE business calendar.
-            The default is `None`.
+            The default is `3.25` years.
+        `name` : `str`, optional;
+            Portfolio name. Deafult value is `None`
 
         Returns
         -------
         The object.
         """
-        if mktdata is not None:
-            self.set_mktdata(mktdata, colname, freq, hlength)
+        self._ptype_ = 'Optimizer'
+        self.ww = None
+        self.status = None
+        
+        self.colname = None
+        self.freq = None
+        self.hlength = None
+        self.name = name
+        
+        self.verbose = False
+        
+        self.time_level1 = None
+        self.time_level2 = None
+        self.time_level3 = None
+
+        self.set_mktdata(mktdata, colname, freq, hlength)
+
 
     def set_rrate(self, rrate):
         """
-        Sets portfolio components historical rates of returns in the format
+        Sets portfolio components historical rates of return in the format
         "date", "symbol1", "symbol2", etc.
 
         Parameters
         ----------
         `rrate` : `pandas.DataFrame`;
-            The portfolio components historical rates of returns.
+            The portfolio components historical rates of return.
             If it is not `None`, it will overwrite the rrate computed in the
             constructor from mktdata. The default is `None`.
+
         Returns
         -------
         `None`
         """
+        if rrate is None:
+            # noting to do
+            return
+
         self.nn, self.mm = rrate.shape
-        self.muk = rrate.mean()
+        self.muk = rrate.mean(numeric_only=True)
         self.rrate = rrate
 
-    def set_mktdata(self, mktdata, colname='adjusted',
-                    freq='Q', hlength=3.25, calendar=None):
+
+    def set_mktdata(self, mktdata, colname='adjusted', freq=None, hlength=None,
+                    pclose=False):
         """
         Sets historical market data. It will overwrite the choice made in the
         constructor.
@@ -78,44 +98,68 @@ class _RiskEngine():
             returned by `azapy.mktData` function.
         `colname` : `str`, optional;
             Name of the price column from mktdata used in the weights
-            calibration. The default is `'adjusted'`.
+            calibration. The default is 'adjusted'.
         `freq` : `str`, optional;
-            Rate of returns horizon in number of business day. it could be
-            'Q' for quarter or 'M' for month. The default is `'Q'`.
+            Rate of returns horizon in number of business day. It could be
+            'Q' for quarter or 'M' for month. The default is 'Q'.
         `hlength` : `float`, optional;
             History length in number of years used for calibration. A
             fractional number will be rounded to an integer number of months.
-            The default is `3.25` years.
-        `calendar` : `numpy.busdaycalendar`, optional;
-            Business days calendar. If is it `None` then the calendar will 
-            be set to NYSE business calendar.
-            The default is `None`.
-
+            The default is `3.25`.
+        `pclose` : Boolena, optiona; \n
+            `True` : assumes `mktdata` contains closing prices only, 
+            with columns the asset symbols and indexed by the 
+            observation dates, \n
+            `False` : assumes `mktdata` is in the usual format
+            returned by `azapy.mktData` function.
+            
         Returns
         -------
         `None`
         """
+        if colname is None:
+            if self.colname is None:
+                raise ValueError("Unspecified price colum (colname).")
+        else:
+            self.colname = colname
+        
+        if freq is None:
+            if self.freq is None:
+                raise ValueError("freq not set - it must be 'Q' or 'M'.")
+        elif freq in ['Q', 'M']:
+            self.freq = freq
+        else:
+            raise ValueError(f"wrrong value for freq: {freq}" 
+                              " - it must be 'Q' or 'M'.")
+            
+        if hlength is None:
+            if self.hlength is None:
+                raise ValueError("hlength must be set to a positive "
+                                 "value eq 1")
+        else:
+            self.hlength = hlength
+
         if mktdata is None:
+            # nothing else to do
             return
+        
+        periods = 63 if self.freq == 'Q' else 21
+        sdate = mktdata.index[int(-np.round(self.hlength * 12) * 21)]
 
-        self.mktdata = mktdata
-
-        periods = 63 if freq == 'Q' else 21
-
-        if calendar is None:
-            calendar = NYSEgen()
-
-        edate = mktdata.index[-1]
-        sdate = edate - pd.offsets.DateOffset(months=round(hlength * 12, 0))
-        sdate = np.busday_offset(sdate.date(),
-                                 0, roll='backward',  busdaycal=calendar)
-        rrate = mktdata.pivot(columns='symbol', values=colname)[sdate:]
+        if pclose == False:
+            if self.colname not in mktdata.columns:
+                raise ValueError(f"colname: {colname} not in mktdata.columns")
+            rrate = mktdata.pivot(columns='symbol', 
+                                  values=self.colname)[sdate:]
+        else:
+            rrate = mktdata[sdate:]
+            
         self.last_data = rrate.iloc[-1]
         rrate = rrate.pct_change(periods=periods).dropna()
-
         self.set_rrate(rrate)
 
-    def getPositions(self, nshares=None, cash=0., ww=None):
+
+    def getPositions(self, nshares=None, cash=0., ww=None, verbose=True):
         """
         Computes the number of shares according to the weights
 
@@ -176,6 +220,12 @@ class _RiskEngine():
             raise ValueError("nshares must by a subset "
                              f"of {self.rrate.columns}")
 
+        if self.last_data is None:
+            raise ValueError("The obj was not set with mktdata")
+            
+        if verbose:
+            print(f"Use closing prices as of {self.last_data.name}")
+
         pp = self.last_data[self.rrate.columns.to_list()]
 
         cap = ns.dot(pp) + cash
@@ -204,6 +254,24 @@ class _RiskEngine():
 
         return res
 
-    # need to be implemented by the derive classes
+
+    def _set_getWeights(self, mktdata=None, **params):
+        self._reset_output()
+        self.verbose = params['verbose'] if 'verbose' in params.keys() else False
+
+        if 'pclose' in params.keys():
+            self.set_mktdata(mktdata, pclose=params['pclose'])
+        else:
+            self.set_rrate(mktdata)
+
+
+    def _reset_output(self):
+        self.status = None
+        self.ww = None
+        self.time_level1 = None
+        self.time_level2 = None
+        self.time_level3 = None
+        
+        
     def getWeights(self):
         pass

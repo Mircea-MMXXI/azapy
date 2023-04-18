@@ -1,18 +1,17 @@
-import numpy as np
-import pandas as pd
+from ._Port_Generator import _Port_Generator
+from azapy.Generators.ModelPipeline import ModelPipeline
+from azapy.Engines.InvVolEngine import InvVolEngine
 
-from .Port_ConstW import Port_ConstW
 
-class Port_InvVol(Port_ConstW):
+class Port_InvVol(_Port_Generator):
     """
-    Backtesting portfolio with weights proportional to the 
-    inverse of component volatilities, periodically rebalanced.
+    Backtesting Invese Volatility portfolio periodically rebalanced.
     
     Methods:
         * set_model
         * get_port
-        * get_nshares
         * get_weights
+        * get_nshares
         * get_account
         * get_mktdata
         * port_view
@@ -22,91 +21,14 @@ class Port_InvVol(Port_ConstW):
         * port_annual_returns
         * port_monthly_returns
         * port_period_returns
-    """
-    def __init__(self, mktdata, symb=None, sdate=None, edate=None, 
-                 col_price='close', col_divd='divd', col_ref='adjusted',
-                 col_calib='adjusted',
-                 pname='Port', pcolname=None, capital=100000, 
-                 schedule=None,
-                 freq='Q', noffset=-3, fixoffset=-1, calendar=None):
-        """
-        Constructor
-    
-        Parameters
-        ----------
-        `mktdata` : `pandas.DataFrame`;
-            MkT data in the format "symbol", "date", "open", "high", "low",
-            "close", "volume", "adjusted", "divd", "split" (e.g. as returned
-            by `azapy.readMkT` function).
-        `symb` : `list`, optional;
-            List of symbols for the basket components. All symbols MkT data
-            should be included in mktdata. If set to `None` the `symb` will be
-            set to include all the symbols from `mktdata`. The default
-            is `None`.
-        `sdate` : date like, optional;
-            Start date for historical data. If set to `None` the `sdate` will
-            be set to the earliest date in mktdata. The default is `None`.
-        `edate` : date like, optional;
-            End date for historical dates and so the simulation. Must be
-            greater than  `sdate`. If it is `None` then `edat`e will be set
-            to the latest date in mktdata. The default is `None`.
-        `col_price` : `str`, optional;
-            Column name in the mktdata DataFrame that will be considered
-            for portfolio aggregation. The default is `'close'`.
-        `col_divd` :  `str`, optional;
-            Column name in the mktdata DataFrame that holds the dividend
-            information. The default is `'dvid'`.
-        `col_ref` : `str`, optional;
-            Column name in the mktdata DataFrame that will be used as a price
-            reference for portfolio components. The default is `'adjusted'`.
-        `col_calib` : `str`, optional;
-            Column name used for historical weights calibrations. 
-            The default is `'adjusted'`.
-        `pname` : `str`, optional;
-            The name of the portfolio. The default is `'Port'`.
-        `pcolname` : `str`, optional;
-            Name of the portfolio price column. If it set to `None` that
-            `pcolname=pname`. The default is `None`.
-        `capital` : `float`, optional;
-            Initial portfolio Capital in dollars. The default is `100000`.
-        `schedule` : `pandas.DataFrame`, optional;
-            Rebalancing schedule, with columns for `'Droll'` rolling date and
-            `'Dfix'` fixing date. If it is `None` than the schedule will be set
-            using the `freq`, `noffset`, `fixoffset` and `calendar`
-            information. The default is `None`.
-        `freq` : `str`, optional;
-            rebalancing frequency. It can be `'Q'` for quarterly or `'M'` for
-            monthly rebalancing, respectively. It is relevant only is schedule
-            is `None`. The default is `'Q'`.
-        `noffset` : `int`, optional;
-            Number of business days offset for rebalancing date `'Droll'`
-            relative to the end of the period (quart or month). A positive
-            value add business days beyond the calendar end of the period while
-            a negative value subtracts business days. It is relevant only is
-            schedule is `None`. The default is `-3`.
-        `fixoffset` : `int`, optional;
-            Number of business day offset of fixing date `'Dfix'` relative to
-            the rebalancing date `'Droll'`. It can be 0 or negative. It is
-            relevant only is schedule is `None`. The default is `-1`.
-        `calendar` : `numpy.busdaycalendar`, optional;
-            Business calendar. If it is `None` then it will be set to NYSE
-            business calendar. The default
-            vale is `None`.
-    
-        Returns
-        -------
-        The object.
-        """
-        super().__init__(mktdata=mktdata, symb=symb, 
-                         sdate=sdate, edate=edate, 
-                         col_price=col_price, col_divd=col_divd,
-                         col_ref=col_ref, pname=pname,
-                         pcolname=pcolname, capital=capital, 
-                         schedule=schedule, freq=freq, noffset=noffset, 
-                         fixoffset=fixoffset, calendar=calendar)
-        self.col_calib = col_calib
-    
-    def set_model(self, hlength=3.25):
+        * port_period_perf
+    Attributs:
+        * pname
+        * ww
+        * port
+        * schedule
+    """                           
+    def set_model(self, hlength=3.25, verbose=False):
         """
         Set model parameters and evaluate the portfolio time-series.
         
@@ -116,37 +38,16 @@ class Port_InvVol(Port_ConstW):
             The length in year of the historical calibration period relative 
             to `'Dfix'`. A fractional number will be rounded to an integer number 
             of months. The default is `3.25` years. 
+        `verbose` : Boolean, optional;
+            Sets verbose mode. The default is `False`.
 
         Returns
         -------
         `pandas.DataFrame`;
             The portfolio time-series in the format "date", "pcolname".
         """
-        self.hlength = hlength
+        mod = InvVolEngine(colname=self.col_calib, freq=self.freq,
+                           hlength=hlength)
+        return super().set_model(ModelPipeline([mod]), verbose)
         
-        self._set_schedule()
-        self._set_weights()
-        self._port_calc()
-        return self.port
-    
-    def _set_weights(self):
-        #mktdata = self.mktdata.pivot(columns='symbol', values=self.col_calib)
-        #periods = 63 if self.freq == 'Q' else 21
         
-        # local function
-        def _fww(rr):
-            if rr.Dfix > self.edate:
-                # return pd.Series(np.nan, index=mktdata.columns)
-                return pd.Series(np.nan, index=self.mktdata['symbol'].unique())
-            
-            #mm = mktdata[rr.Dhist:rr.Dfix].pct_change(periods=periods).dropna()
-            mm = self.mktdata.loc[self.mktdata.index <= rr.Dfix]
-            return self._ww_calc(mm)
-        
-        w = self.schedule.apply(_fww, axis=1)
- 
-        self.ww = pd.concat([self.schedule, w], axis=1)
-        
-    def _ww_calc(self, data):
-        vv = 1. / data.std()
-        return vv / vv.sum()

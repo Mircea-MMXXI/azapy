@@ -1,16 +1,17 @@
-from .Port_CVaR import Port_CVaR
-#from .GINIAnalyzer import GINIAnalyzer
+from ._Port_Generator import _Port_Generator
+from azapy.Generators.ModelPipeline import ModelPipeline
 from azapy.Analyzers.GINIAnalyzer import GINIAnalyzer
 
-class Port_GINI(Port_CVaR):
-    """
-    Backtesting GINI optimal portfolio strategies, periodically rebalanced.
 
+class Port_GINI(_Port_Generator):
+    """
+    Backtesting Gini portfolio periodically rebalanced.
+    
     Methods:
         * set_model
         * get_port
-        * get_nshares
         * get_weights
+        * get_nshares
         * get_account
         * get_mktdata
         * port_view
@@ -20,9 +21,15 @@ class Port_GINI(Port_CVaR):
         * port_annual_returns
         * port_monthly_returns
         * port_period_returns
-    """
-    def set_model(self, rtype='Sharpe', mu=None, mu0=0, aversion=None,
-                  ww0=None, hlength=1.25, method='ecos', verbose=False):
+        * port_period_perf
+    Attributs:
+        * pname
+        * ww
+        * port
+        * schedule
+    """                
+    def set_model(self, rtype='Sharpe', mu=None, mu0=0, aversion=None, 
+                  ww0=None, hlength=3.25, method='ecos', verbose=False):
         """
         Sets model parameters and evaluates portfolio time-series.
 
@@ -96,17 +103,7 @@ class Port_GINI(Port_CVaR):
         `pandas.DataFrame`;
             The portfolio time-series in the format 'date', 'pcolname'.
         """
-        return super().set_model(rtype=rtype, mu=mu, mu0=mu0, 
-                                 aversion=aversion, ww0=ww0, hlength=hlength, 
-                                 method=method, verbose=verbose)
-
-
-    def _wwgen(self):
-        # return GINIAnalyzer(rtype=self.rtype, method=self.method,
-        #                     name=self.pname)
-        return GINIAnalyzer(freq=self.freq, 
-                            hlength=self.hlength, calendar=self.calendar,
-                            name=self.pname,
-                            rtype=self.rtype, mu=self.mu, mu0=self.mu0,
-                            aversion=self.aversion, ww0=self.ww0,
-                            method=self.method)
+        mod = GINIAnalyzer(colname=self.col_calib, freq=self.freq,
+                           hlength=hlength, rtype=rtype, mu=mu, d=1, mu0=mu0,
+                           aversion=aversion, ww0=ww0, method=method)
+        return super().set_model(ModelPipeline([mod]), verbose)

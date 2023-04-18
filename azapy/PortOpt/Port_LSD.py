@@ -1,16 +1,18 @@
-from .Port_MAD import Port_MAD
-#from .LSDAnalyzer import LSDAnalyzer
+from ._Port_Generator import _Port_Generator
+from azapy.Generators.ModelPipeline import ModelPipeline
 from azapy.Analyzers.LSDAnalyzer import LSDAnalyzer
 
-class Port_LSD(Port_MAD):
+
+class Port_LSD(_Port_Generator):
     """
-    Backtesting mLSD optimal portfolio strategies, periodically rebalanced.
+    Backtesting LSD (Lower Standard Deviation) portfolio periodically 
+    rebalanced.
     
     Methods:
         * set_model
         * get_port
-        * get_nshares
         * get_weights
+        * get_nshares
         * get_account
         * get_mktdata
         * port_view
@@ -20,10 +22,16 @@ class Port_LSD(Port_MAD):
         * port_annual_returns
         * port_monthly_returns
         * port_period_returns
-    """    
-    def set_model(self, coef=[1.], rtype='Sharpe', mu=None, mu0=0,
-                  aversion=None, ww0=None, hlength=3.25, method='ecos',
-                  verbose=False):
+        * port_period_perf
+    Attributs:
+        * pname
+        * ww
+        * port
+        * schedule
+    """                    
+    def set_model(self, coef=[1], rtype='Sharpe',
+                  mu=None, mu0=0, aversion=None, ww0=None, 
+                  hlength=3.25, method='ecos', verbose=False):
         """
         Set model parameters and evaluates portfolio time-series.
 
@@ -99,16 +107,8 @@ class Port_LSD(Port_MAD):
         `pandas.DataFrame`;
             The portfolio time-series in the format "date", "pcolname".
         """
-        return super().set_model(coef=coef, rtype=rtype, mu=mu, mu0=mu0,
-                                 aversion=aversion, ww0=ww0, 
-                                 hlength=hlength, method=method,
-                                 verbose=verbose)
-    
-        
-    def _wwgen(self):
-        return LSDAnalyzer(self.coef, freq=self.freq, 
-                           hlength=self.hlength, calendar=self.calendar,
-                           name=self.pname,
-                           rtype=self.rtype, mu=self.mu, mu0=self.mu0,
-                           aversion=self.aversion, ww0=self.ww0,
-                           method=self.method)
+        mod = LSDAnalyzer(coef=coef,
+                          colname=self.col_calib, freq=self.freq,
+                          hlength=hlength, rtype=rtype, mu=mu, d=1, mu0=mu0,
+                          aversion=aversion, ww0=ww0, method=method)
+        return super().set_model(ModelPipeline([mod]), verbose)

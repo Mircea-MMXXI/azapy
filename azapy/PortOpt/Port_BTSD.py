@@ -1,16 +1,18 @@
-from .Port_BTAD import Port_BTAD
-#from .BTSDAnalyzer import BTSDAnalyzer
+from ._Port_Generator import _Port_Generator
+from azapy.Generators.ModelPipeline import ModelPipeline
 from azapy.Analyzers.BTSDAnalyzer import BTSDAnalyzer
 
-class Port_BTSD(Port_BTAD):
-    """
-    Backtesting mBTSD optimal portfolio strategies, periodically rebalanced.
 
+class Port_BTSD(_Port_Generator):
+    """
+    Backtesting BTSD (Below Threshold Standard Deviation) portfolio 
+    periodically rebalanced.
+    
     Methods:
         * set_model
         * get_port
-        * get_nshares
         * get_weights
+        * get_nshares
         * get_account
         * get_mktdata
         * port_view
@@ -20,11 +22,16 @@ class Port_BTSD(Port_BTAD):
         * port_annual_returns
         * port_monthly_returns
         * port_period_returns
-    """
-    def set_model(self, alpha=[0.], coef=None, rtype='Sharpe', 
-                  mu=None, mu0=0, aversion=None, ww0=None,
-                  detrended=False, hlength=3.25, method='ecos',
-                  verbose=False):
+        * port_period_perf
+    Attributs:
+        * pname
+        * ww
+        * port
+        * schedule
+    """    
+    def set_model(self, alpha=[0.], coef=None, rtype='Sharpe', mu=None, 
+                  mu0=0, aversion=None, ww0=None, detrended=True, 
+                  hlength=3.25, method='ecos', verbose=False):
         """
         Sets model parameters and evaluates portfolio time-series.
 
@@ -86,35 +93,32 @@ class Port_BTSD(Port_BTAD):
             symbols (same symbols, not necessary in the same order).
             If it is `None` then it will be set to equal weights.
             The default is `None`.
+        `detrendent` : Boolean, optional;
+            If it set to `True` then the rates of return are detrended 
+            (mean=0). The default value is `True`. 
         `hlength` : `float`, optional;
             The length in year of the historical calibration period relative
             to `'Dfix'`. A fractional number will be rounded to an integer 
             number of months. The default is `3.25` years.
         `method` : `str`, optional;
-            SOCP numerical method.
-            Could be: `'ecos'` or `'cvxopt'`.
-            The defualt is `'ecos'`.
+            Linear programming numerical method.
+            Could be: `'ecos'`, `'highs-ds'`, `'highs-ipm'`, `'highs'`,
+            `'interior-point'`, `'glpk'` and `'cvxopt'`.
+            The default is `'ecos'`.
         `verbose` : Boolean, optiona;
             If it set to `True` then it will print messages when the optimal
             portfolio degenerates to a single asset portfolio as a limited 
             case. 
             The default is `False`.
 
-        Returns
+         Returns
         -------
         `pandas.DataFrame`;
-            The portfolio time-series in the format "date", "pcolname".
+            The portfolio time-series in the format 'date', 'pcolname'.
         """
-        return super().set_model(alpha=alpha, coef=coef, rtype=rtype, mu=mu,
-                                 mu0=mu0, aversion=aversion, ww0=ww0, 
-                                 detrended=detrended, hlength=hlength, 
-                                 method=method, verbose=verbose)
- 
-    
-    def _wwgen(self):
-        return BTSDAnalyzer(self.alpha, self.coef, freq=self.freq, 
-                            hlength=self.hlength, calendar=self.calendar,
-                            name=self.pname,
-                            rtype=self.rtype, mu=self.mu, mu0=self.mu0,
-                            aversion=self.aversion, ww0=self.ww0,
-                            detrended=self.detrended, method=self.method)
+        mod = BTSDAnalyzer(alpha=alpha, coef=coef,
+                           colname=self.col_calib, freq=self.freq,
+                           hlength=hlength, rtype=rtype, mu=mu, d=1, mu0=mu0,
+                           aversion=aversion, ww0=ww0, detrended=detrended,
+                           method=method)
+        return super().set_model(ModelPipeline([mod]), verbose)

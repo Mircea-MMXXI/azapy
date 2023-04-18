@@ -1,26 +1,33 @@
-from .Port_CVaR import Port_CVaR
-#from .MVAnalyzer import MVAnalyzer
+from ._Port_Generator import _Port_Generator
+from azapy.Generators.ModelPipeline import ModelPipeline
 from azapy.Analyzers.MVAnalyzer import MVAnalyzer
 
-class Port_MV(Port_CVaR):
-    """
-    Backtesting MV optimal portfolio strategies, periodically rebalanced.
 
-    Methods:
-        * set_model
-        * get_port
-        * get_nshares
-        * get_weights
-        * get_account
-        * get_mktdata
-        * port_view
-        * port_view_all
-        * port_drawdown
-        * port_perf
-        * port_annual_returns
-        * port_monthly_returns
-        * port_period_returns
+class Port_MV(_Port_Generator):
     """
+    Backtesting MV (mean varaince) portfolio periodically rebalanced.
+    
+   Methods:
+       * set_model
+       * get_port
+       * get_weights
+       * get_nshares
+       * get_account
+       * get_mktdata
+       * port_view
+       * port_view_all
+       * port_drawdown
+       * port_perf
+       * port_annual_returns
+       * port_monthly_returns
+       * port_period_returns
+       * port_period_perf
+   Attributs:
+       * pname
+       * ww
+       * port
+       * schedule
+    """                            
     def set_model(self, rtype='Sharpe', mu=None, mu0=0, aversion=None, 
                   ww0=None, hlength=3.25, method='ecos', verbose=False):
         """
@@ -94,17 +101,7 @@ class Port_MV(Port_CVaR):
         `pandas.DataFrame`;
             The portfolio time-series in the format "date", "pcolname".
         """
-        return super().set_model(rtype=rtype, mu=mu, mu0=mu0, 
-                                 aversion=aversion, ww0=ww0,
-                                 hlength=hlength, method=method,
-                                 verbose=verbose)
-
-
-    def _wwgen(self):
-        return MVAnalyzer(freq=self.freq, 
-                          hlength=self.hlength, calendar=self.calendar,
-                          name=self.pname,
-                          rtype=self.rtype, mu=self.mu, mu0=self.mu0,
-                          aversion=self.aversion, ww0=self.ww0,
-                          method=self.method)
-    
+        mod = MVAnalyzer(colname=self.col_calib, freq=self.freq,
+                         hlength=hlength, rtype=rtype, mu=mu, d=1, mu0=mu0,
+                         aversion=aversion, ww0=ww0, method=method)
+        return super().set_model(ModelPipeline([mod]), verbose)

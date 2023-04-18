@@ -8,7 +8,8 @@ from ._solvers import _socp_solver
 
 class LSDAnalyzer(MADAnalyzer):
     """
-    m-level LSD based optimal portfolio strategies.
+    m-level LSD (lower Standard Deviation) 
+    based optimal portfolio strategies.
     
     Methods:
         * getWeights
@@ -21,10 +22,20 @@ class LSDAnalyzer(MADAnalyzer):
         * set_mktdata
         * set_rtype
         * set_random_seed
+    Attributs:
+        * status
+        * ww
+        * RR
+        * risk
+        * primary_risk_comp
+        * secondary_risk_comp
+        * sharpe
+        * diverse
+        * name
     """
     def __init__(self, coef=[1.], mktdata=None, colname='adjusted', freq='Q', 
-                 hlength=3.25, calendar=None, name='LSD', rtype='Sharpe', 
-                 mu=None, d=1, mu0=0., aversion=None, ww0=None, method='ecos'):
+                 hlength=3.25, name='LSD', rtype='Sharpe', mu=None, d=1, 
+                 mu0=0., aversion=None, ww0=None, method='ecos'):
         """
         Constructor
 
@@ -46,10 +57,6 @@ class LSDAnalyzer(MADAnalyzer):
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
             The default is `3.25` years.
-        `calendar` : `numpy.busdaycalendar`, optional;
-            Business days calendar. If is it `None` then the calendar will 
-            be set to NYSE business calendar. 
-            The default is `None`.
         `name` : `str`, optional;
             Portfolio name. The default is `'LSD'`.
         `rtype` : `str`, optional;
@@ -114,8 +121,8 @@ class LSDAnalyzer(MADAnalyzer):
         -------
         The object.
         """
-        super().__init__(coef, mktdata, colname, freq, hlength, calendar,
-                         name, rtype, mu, d, mu0, aversion, ww0, method)
+        super().__init__(coef, mktdata, colname, freq, hlength, name, 
+                         rtype, mu, d, mu0, aversion, ww0, method)
         
         
     def _set_method(self, method):

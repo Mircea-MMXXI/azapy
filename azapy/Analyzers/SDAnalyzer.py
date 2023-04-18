@@ -9,7 +9,7 @@ from ._solvers import _socp_solver, _tol_cholesky
 
 class SDAnalyzer(_RiskAnalyzer):
     """
-    SD - Standard Deviation based optimal portfolio strategies.
+    SD (Standard Deviation) based optimal portfolio strategies.
     
     Methods:
         * getWeights
@@ -22,10 +22,18 @@ class SDAnalyzer(_RiskAnalyzer):
         * set_mktdata
         * set_rtype
         * set_random_seed
+    Attributs:
+        * status
+        * ww
+        * RR
+        * risk
+        * sharpe
+        * diverse
+        * name
     """
     def __init__(self, mktdata=None, colname='adjusted', freq='Q', 
-                 hlength=3.25, calendar=None, name='SD', rtype='Sharpe', 
-                 mu=None, d=1, mu0=0., aversion=None, ww0=None, method='ecos'):
+                 hlength=3.25, name='SD', rtype='Sharpe', mu=None, 
+                 d=1, mu0=0., aversion=None, ww0=None, method='ecos'):
         """
         Constructor
 
@@ -44,10 +52,6 @@ class SDAnalyzer(_RiskAnalyzer):
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
             The default is `3.25` years.
-        `calendar` : `numpy.busdaycalendar`, optional;
-            Business days calendar. If is it `None` then the calendar will 
-            be set to NYSE business calendar. 
-            The default is `None`.
         `name` : `str`, optional;
             Portfolio name. The default is `'SD'`.
         `rtype` : `str`, optional;
@@ -111,7 +115,7 @@ class SDAnalyzer(_RiskAnalyzer):
         -------
         The object.
         """
-        super().__init__(mktdata, colname, freq, hlength, calendar, name,
+        super().__init__(mktdata, colname, freq, hlength, name,
                          rtype, mu, d, mu0, aversion, ww0)
         
         self._set_method(method)

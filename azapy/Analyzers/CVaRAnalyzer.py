@@ -8,7 +8,8 @@ from ._solvers import _lp_solver
 
 class CVaRAnalyzer(_RiskAnalyzer):
     """
-    Mixture CVaR based optimal portfolio strategies.
+    Mixture CVaR (Conditional Value at Risk) 
+    based optimal portfolio strategies.
         
     Methods:
         * getWeights
@@ -21,11 +22,21 @@ class CVaRAnalyzer(_RiskAnalyzer):
         * set_mktdata
         * set_rtype
         * set_random_seed
+    Attributs:
+        * status
+        * ww
+        * RR
+        * risk
+        * primary_risk_comp
+        * secondary_risk_comp
+        * sharpe
+        * diverse
+        * name
     """
     def __init__(self, alpha=[0.975], coef=None, mktdata=None, 
-                 colname='adjusted', freq='Q', hlength=3.25, calendar=None, 
-                 name='CVaR', rtype='Sharpe', mu=None, d=1, mu0=0., 
-                 aversion=None, ww0=None, method='ecos'):
+                 colname='adjusted', freq='Q', hlength=3.25, name='CVaR', 
+                 rtype='Sharpe', mu=None, d=1, mu0=0., aversion=None, 
+                 ww0=None, method='ecos'):
         """
         Constructor
 
@@ -44,19 +55,15 @@ class CVaRAnalyzer(_RiskAnalyzer):
         `colname` : `str`, optional;
             Name of the price column from mktdata used in the weights 
             calibration. The default is `'adjusted'`.
-        `freq` : `str`, optional
+        `freq` : `str`, optional;
             Rate of return horizon. It could be 
             `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
         `hlength` : `float`, optional;
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
             The default is `3.25` years.
-        `calendar` : `numpy.busdaycalendar`, optional;
-            Business days calendar. If is it `None` then the calendar will 
-            be set to NYSE business calendar. 
-            The default is `None`.
         `name` : `str`, optional;
-            Portfolio name, Default value is `'CVaR'`.
+            Portfolio name. The default is `'CVaR'`.
         `rtype` : `str`, optional;
             Optimization type. Possible values: \n
                 `'Risk'` : optimal risk portfolio for targeted expected rate of 
@@ -120,12 +127,11 @@ class CVaRAnalyzer(_RiskAnalyzer):
         -------
         The object.
         """
-        super().__init__(mktdata, colname, freq, hlength, calendar, name,
+        super().__init__(mktdata, colname, freq, hlength, name,
                          rtype, mu, d, mu0, aversion, ww0)
-        
         self._set_method(method)
-
         self.alpha = np.array(alpha)
+        
         if any((self.alpha <= 0.) | (1. <= self.alpha)):
             raise ValueError("All alpha coefficients must be in (0,1)")
         if len(np.unique(self.alpha)) != len(self.alpha):
