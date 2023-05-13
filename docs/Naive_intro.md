@@ -6,7 +6,7 @@ on human experience and feelings.
 Take for example the case of portfolio where
 the weights are set to be proportional to the inverse
 of the portfolio components volatilities experienced during a predefined
-historical time period.
+historical period.
 This portfolio
 construction is motivated by the market wisdom that the exposure to an asset
 with high volatility should be limited. While in general this can be viewed
@@ -21,15 +21,15 @@ An important member of this class is the equal weighted portfolio. It is one of
 the most important benchmarks to assess a portfolio performance.
 
 **azapy** package provides the following "Naïve" portfolio constructions.
-The weights are periodical rebalanced according to the  targeted policy.
+The weights are periodically rebalanced according to the  targeted policy.
 
-* Constant weighed portfolio - it includes the particular case of equal weighted
+* Constant weighed portfolio - it includes the case of equal weighted
 portfolio,
 * Inverse volatility portfolio - the weights are proportional to the inverse
 of asset volatilities,
 * Inverse variance portfolio - the weights are proportional to the inverse
 of asset variances,
-* Inverse drawdown portfolio - the weight are proportional to the inverse
+* Inverse drawdown portfolio - the weights are proportional to the inverse
 of the asset maximum drawdowns experienced during a predefined historical
 period.
 

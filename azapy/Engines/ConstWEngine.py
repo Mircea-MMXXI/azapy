@@ -4,15 +4,11 @@ class ConstWEngine():
     """
     Constant weighted portfolio.
 
-    Methods:
-        * getWeights
-        * getPositions
-        * set_rrate
-        * set_mktdata
-    Attributes:
-        * status
-        * ww
-        * name
+    **Attributes**
+        * status : `int` - computation status (`0` - success, any other 
+          value indicates an error)
+        * ww : `pandas.Series` - portfolio weights
+        * name : `str` - portfolio name
     """
     def __init__(self, ww=None, name=None):
         """
@@ -20,12 +16,12 @@ class ConstWEngine():
 
         Parameters
         ----------
-        `ww` : `pandas.Series`;
+        ww : `pandas.Series`
             Portfolio weights (per symbol). If it is `None` the Equal 
             Weighted Portfolio (EWP) will be considered.
             The default is `None`.
-        `name` : `str`, optional;
-             Portfolio name. Default value is `None`.
+        name : `str`, optional
+             Portfolio name. The default value is `None`.
 
         Returns
         -------
@@ -40,19 +36,19 @@ class ConstWEngine():
         """
         Returns the portfolio weights adjusted to `mktdata`.\n
         Note: the symbols from `mktdata` take precedents. 
-        If `ww` was set to `None` (i.e. EWP) then the weights will be
+        If `ww` was set to `None` (i.e., EWP) then the weights will be
         set to 1/n, where n is the number symbols in the `mktdata`.
         Otherwise, `ww` will be reduced to the symbols included in `mktdata`
         and renormalized to unit.
 
         Parameters
         ----------
-        `mktdata` : `pandas.DataFrame`, optional;
+        mktdata : `pandas.DataFrame`, optional
             The portfolio components historical, prices or rates of return, 
             see`'pclose'` definition below. The default is `None`. \n
             Note: in this call only the values of the symbols are relevant.
-        `params`: other optional parameters;
-            `pclose` : Boolean, optional;
+        **params: other optional parameters
+            `pclose` : Boolean, optional
                 If it is absent then the `mktdata` is considered to contain 
                 rates of return, with columns the asset symbols and indexed 
                 by the observation dates, \n
@@ -64,7 +60,7 @@ class ConstWEngine():
 
         Returns
         -------
-        `pandas.Series` with portfolio weights.
+        `pandas.Series` : with portfolio weights.
         """
         if mktdata is None:
             return self.ww

@@ -12,27 +12,28 @@ class SMCRAnalyzer(CVaRAnalyzer):
     Mixture SMCR (Second Momentum Coherent Risk)
     based optimal portfolio strategies.
     
-    Methods:
-        * getWeights
-        * getRisk
-        * getPositions
-        * getRiskComp
-        * getDiversification
-        * viewForntiers
-        * set_rrate
-        * set_mktdata
-        * set_rtype
-        * set_random_seed
-    Attributs:
-        * status
-        * ww
-        * RR
-        * risk
-        * primary_risk_comp
-        * secondary_risk_comp
-        * sharpe
-        * diverse
-        * name
+    **Attributes**
+        * `status` : `int` - the computation status (`0` - success, 
+          any other value signifies an error)
+        * `ww` : `pandas.Series` -  the portfolio weights 
+        * `RR` : `float` - portfolio rate of return
+        * `risk` : `float` - portfolio mSMCR risk
+        * `primary_risk_comp` : `list` - SMCR components of portfolio mSMCR
+        * `secondary_risk_comp` : `list` - SMVaR values associated with SMCR
+          components
+        * `sharpe` : `float` - mSMCR-Sharpe ration if `rtype` is set to 
+          `'Shapre'` or `'Sharpe2'` otherwise `None`. 
+        * `diverse` : `float` - diversification factor if `rtype` is set 
+          to `'Divers'` or `'MaxDivers'` otherwise `None`.
+        * `name` : `str` - portfolio name
+        
+    Note the following 2 important methods:
+        * `getWeights` : Computes the optimal portfolio weights.
+          During its computations the following class members are also set:
+          `risk`, `primery_risk_comp`, `secondary_risk_comp`, `sharpe`,  `RR`, 
+          `divers`.
+        * `getPositions` : Provides practical information regarding the portfolio
+          rebalancing delta positions and costs.  
     """
     def __init__(self, alpha=[0.9], coef=None, mktdata=None, colname='adjusted', 
                  freq='Q', hlength=3.25, name='SMCR', rtype='Sharpe', mu=None, 
@@ -42,29 +43,29 @@ class SMCRAnalyzer(CVaRAnalyzer):
 
         Parameters
         ----------
-        `alpha` : `list`, optional;
-            List of distinct confidence levels. The default is `[0.9]`.
-        `coef` : list, optional;
-            List of positive mixture coefficients. Must have the same size with 
+        alpha : `list`, optional
+            List of distinct confidence levels. The default is `[0.975]`.
+        coef : `list`, optional
+            List of positive mixture coefficients. Must be the same size as 
             `alpha`. A `None` value assumes an equal weighted risk mixture.
             The vector of coefficients will be normalized to unit.
             The default is `None`.
-        `mktdata` : `pandas.DataFrame`, optional;
+        mktdata : `pandas.DataFrame`, optional
             Historic daily market data for portfolio components in the format
             returned by `azapy.mktData` function. The default is `None`.
-        `colname` : `str`, optional;
-            Name of the price column from mktdata used in the weights 
+        colname : `str`, optional
+            Name of the price column from mktdata used in the weight's 
             calibration. The default is `'adjusted'`.
-        `freq` : `str`, optional;
+        freq : `str`, optional
             Rate of return horizon. It could be 
-            `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
-        `hlength` : `float`, optional;
+            `'Q'` for a quarter or `'M'` for a month. The default is `'Q'`.
+        hlength : `float`, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
             The default is `3.25` years.
-        `name` : `str`, optional;
+        name : `str`, optional
             Portfolio name. The default is `'SMCR'`.
-        `rtype` : `str`, optional;
+        rtype : `str`, optional
             Optimization type. Possible values: \n
                 `'Risk'` : optimal risk portfolio for targeted expected rate of 
                 return.\n
@@ -74,7 +75,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
                 `'RiskAverse'` : optimal risk portfolio for a fixed 
                 risk-aversion factor.\n
                 `'InvNrisk'` : optimal risk portfolio with the same risk value 
-                as a benchmark portfolio (e.g. same as equal weighted 
+                as a benchmark portfolio (e.g., same as equal weighted 
                 portfolio).\n
                 `'Diverse'` : optimal diversified portfolio for targeted
                 expected rate of return (max of inverse 1-Diverse).\n
@@ -83,30 +84,30 @@ class SMCRAnalyzer(CVaRAnalyzer):
                 `'MaxDiverse'` : maximum diversified portfolio.\n
                 `'InvNdiverse'` : optimal diversified portfolio with the same
                 diversification factor as a benchmark portfolio 
-                (e.g. same as equal weighted portfolio).\n
+                (e.g., same as equal weighted portfolio).\n
                 `'InvNdrr'` : optimal diversified portfolio with the same 
                 expected rate of return as a benchmark portfolio
-                (e.g. same as equal weighted portfolio).\n
+                (e.g., same as equal weighted portfolio).\n
             The default is `'Sharpe'`.
-        `mu` : `float`, optional;
+        mu : `float`, optional
             Targeted portfolio expected rate of return. 
             Relevant only if `rtype='Risk'` or `rtype='Divers'`.
             The default is `None`.
-        `d` : `int`, optional;
+        d : `int`, optional
             Frontier type. Active only if `rtype='Risk'`. A value of `1` will
             trigger the evaluation of optimal portfolio along the efficient
             frontier. Otherwise, it will find the portfolio with the lowest
             rate of return along the inefficient portfolio frontier.
             The default is `1`.
-        `mu0` : `float`, optional;
+        mu0 : `float`, optional
             Risk-free rate accessible to the investor.
             Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
             The default is `0`.
-        `aversion` : `float`, optional;
+        aversion : `float`, optional
             The value of the risk-aversion coefficient.
             Must be positive. Relevant only if `rtype='RiskAverse'`.
             The default is `None`.
-        `ww0` : `list`, `numpy.array` or `pandas.Series`, optional;
+        ww0 : `list`, `numpy.array` or `pandas.Series`, optional
             Targeted portfolio weights. 
             Relevant only if `rype='InvNrisk'`.
             Its length must be equal to the number of symbols in `rrate` 
@@ -114,12 +115,11 @@ class SMCRAnalyzer(CVaRAnalyzer):
             If it is a `list` or a `numpy.array` then the weights are assumed 
             to be in order of `rrate.columns`. If it is a `pandas.Series` then 
             the index should be compatible with the `rrate.columns` or mktdata 
-            symbols (same symbols, not necessary in the same order).
+            symbols (same symbols, not necessarily in the same order).
             If it is `None` then it will be set to equal weights.
             The default is `None`.
-        method : `str`, optional;
-            SOCP numerical method. 
-            Could be: `'ecos'` or `'cvxopt'`.
+        method : `str`, optional
+            SOCP numerical method. Could be: `'ecos'` or `'cvxopt'`.
             The defualt is `'ecos'`.
             
         Returns

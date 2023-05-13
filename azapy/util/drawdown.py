@@ -1,6 +1,6 @@
+""""""  # <- add this
 """
 Contains:
-    
     - max_drawdown : returns maximum drawdown
     - drawdown : returns a list of drawdowns
 """
@@ -31,29 +31,26 @@ def _max_drawdown(uw):
 
 def max_drawdown(mktdata, col=None):
     """
-    Computes the max_drowdown for a price time-series
+    Computes the maximum drawdown for a time-series of prices.
 
     Parameters
     ----------
-    `mktdata` : `pandas.Series` or `pandas.DataFram`;
-        time-series of prices as a `pandas.Series` or as column in a 
+    mktdata : `pandas.Series` or `pandas.DataFram`
+        Time-series of prices as a `pandas.Series` or as column in a 
         pandas.DataFrame`
-    `col` : `str`, optional;
-        column name if mktdata is a DataFrame. If is set to `None` then 
-        `mktdata` is assumed to be a Series. The default is `None`.
+    col : `str`, optional
+        Column name if `mktdata` is a `pandas.DataFrame`. If is set to `None`, 
+        then `mktdata` is assumed to be a `pandas.Series`. 
+        The default is `None`.
 
     Returns
     -------
-    `float`;
-        The value of the drawdown.
-
-            `i_min` : `pandas.Timestamp`
-                The maximum drawdown date.
-            `i_start` : `pandas.Timestamp`
-                Date when the drawdown had started.
-            `i_end` : `pandas.Timestamp`
-                Date of the drawdown recovery. A value of `nan` indicates 
-                that the drawdown is in progress.
+    (`float`, `pandas.Timestamp`, `pandas.Timestamp`, `pandas.Timestamp`) : Tuple 
+        - value of the drawdown, 
+        - maximum drawdown date, 
+        - drawdawn start date,
+        - drawdown end date. It is set to `nan` if the drawdown is still 
+          in progress.
     """
     rdata = mktdata if col is None else mktdata[col]
 
@@ -72,28 +69,29 @@ def drawdown(mktdata, col=None, top=10):
 
     Parameters
     ----------
-    `mktdata` : `pandas.Series` or `pandas.DataFrame`;
-        time-series of prices as a `pandas.Series` or as column in a 
-        `pandas.DataFrame`
-    `col` : `str`, optional;
-        Name of the column of price if mktdata is a `pandas.DataFrame`. 
-        If its value
-        is set to `None` then `mktdata` is assumed to be a `pandas.Series`.
+    mktdata : `pandas.Series` or `pandas.DataFrame`
+        Historical daily time-series of prices as a `pandas.Series` 
+        or as a `pandas.DataFrame`
+    col : `str`, optional
+        The column name if mktdata is a `pandas.DataFrame`. 
+        If it is set to `None`, then `mktdata` is assumed to be a 
+        `pandas.Series`.
         The default is `None`.
-    `top` : `int`, optional;
-        Maximum number of the largest drawdowns to be computed.
+    `top` : `int`, optional
+        Maximum number of largest drawdowns to be reported.
         The default is `10`.
 
     Returns
     -------
-    `pandas.DataFrama`;
-        Table containing the drawdowns ordered from the largest to smallest.
+    `pandas.DataFrama` : Table containing the drawdowns ordered from the 
+    largest to smallest.
         Table columns are:
 
             - 'DD': (float) drawdown max value
             - 'Date': (`pandas.Timestamp`) drawdown max value date
             - 'Start': (`pandas.Timestamp`) drawdown start date
             - 'End': (`pandas.Timestamp`) drawdown recovery date
+            
         The number of rows is <= top
     """
     rdata = mktdata if pd.isna(col) else mktdata[col]

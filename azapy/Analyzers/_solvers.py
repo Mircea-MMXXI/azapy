@@ -125,7 +125,7 @@ def _socp_ecos(c, G, h, dims, A, b):
     # accept 10 Close to optimal as optimal
     if rout['status'] == 10: rout['status'] = 0
     rout['infostring'] = res['info']['infostring']
-    rout['pcost'] = np.float(res['info']['pcost'])
+    rout['pcost'] = np.float64(res['info']['pcost'])
     rout['x'] = res['x']
     
     return rout

@@ -15,8 +15,8 @@ _RR_ABS_TOL_ = 1.e-4
 class _RiskAnalyzer:
     """
     Base class for all XXXAnalyzer classes. \n
-    Public members:
-    Methods:
+    
+    **Methods**
         * getWeights
         * getRisk
         * getPositions
@@ -28,7 +28,7 @@ class _RiskAnalyzer:
         * set_mktdata
         * set_rtype
         * set_random_seed
-    Attributs:
+    **Attributes**
         * status
         * ww
         * RR
@@ -38,6 +38,7 @@ class _RiskAnalyzer:
         * sharpe
         * diverse
         * name
+        
     All derive classes need to implement: \n
         _risk_calc(self, prate, alpha) \n
         _risk_min(self, d=1) \n
@@ -58,22 +59,22 @@ class _RiskAnalyzer:
 
         Parameters
         ----------
-        `mktdata` : `pandas.DataFrame`, optional;
+        mktdata : `pandas.DataFrame`, optional
             Historic daily market data for portfolio components in the format
             returned by `azapy.mktData` function. The default is `None`.
-        `colname` : `str`, optional;
+        colname : `str`, optional
             Name of the price column from mktdata used in the weights
             calibration. The default is `'adjusted'`.
-        `freq` : `str`, optional;
-            Rate of return horizon in number of business day. It could be
-            `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
-        `hlength` : `float`, optional;
+        freq : `str`, optional
+            Rate of return horizon. It could be 
+            `'Q'` for a quarter or `'M'` for a month. The default is `'Q'`.
+        hlength : `float`, optional
             History length in number of years used for calibration. A
             fractional number will be rounded to an integer number of months.
             The default is `3.25` years.
-        `name` : `str`, optional;
-            Portfolio name. Deafult value is `None`.
-        `rtype` : `str`, optional;
+        name : `str`, optional
+            Portfolio name. The default value is `None`.
+        rtype : `str`, optional
             Optimization type. Possible values: \n
                 `'Risk'` : optimal risk portfolio for targeted expected rate of 
                 return.\n
@@ -83,7 +84,7 @@ class _RiskAnalyzer:
                 `'RiskAverse'` : optimal risk portfolio for a fixed 
                 risk-aversion factor.\n
                 `'InvNrisk'` : optimal risk portfolio with the same risk value 
-                as a benchmark portfolio (e.g. same as equal weighted 
+                as a benchmark portfolio (e.g., same as equal weighted 
                 portfolio).\n
                 `'Diverse'` : optimal diversified portfolio for targeted
                 expected rate of return (max of inverse 1-Diverse).\n
@@ -92,30 +93,30 @@ class _RiskAnalyzer:
                 `'MaxDiverse'` : maximum diversified portfolio.\n
                 `'InvNdiverse'` : optimal diversified portfolio with the same
                 diversification factor as a benchmark portfolio 
-                (e.g. same as equal weighted portfolio).\n
+                (e.g., same as equal weighted portfolio).\n
                 `'InvNdrr'` : optimal diversified portfolio with the same 
                 expected rate of return as a benchmark portfolio
-                (e.g. same as equal weighted portfolio).\n
+                (e.g., same as equal weighted portfolio).\n
             The default is `'Sharpe'`.
-        `mu` : `float`, optional;
+        mu : `float`, optional
             Targeted portfolio expected rate of return. 
             Relevant only if `rtype='Risk'` or `rtype='Divers'`.
             The default is `None`.
-        `d` : `int`, optional;
+        d : `int`, optional
             Frontier type. Active only if `rtype='Risk'`. A value of `1` will
             trigger the evaluation of optimal portfolio along the efficient
             frontier. Otherwise, it will find the portfolio with the lowest
             rate of return along the inefficient portfolio frontier.
             The default is `1`.
-        `mu0` : `float`, optional;
+        mu0 : `float`, optional
             Risk-free rate accessible to the investor.
             Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
             The default is `0`.
-        `aversion` : `float`, optional;
+        aversion : `float`, optional
             The value of the risk-aversion coefficient.
             Must be positive. Relevant only if `rtype='RiskAverse'`.
             The default is `None`.
-        `ww0` : `list`, `numpy.array` or `pandas.Series`, optional;
+        ww0 : `list`, `numpy.array` or `pandas.Series`, optional
             Targeted portfolio weights. 
             Relevant only if `rype='InvNrisk'`.
             Its length must be equal to the number of symbols in `rrate` 
@@ -123,7 +124,7 @@ class _RiskAnalyzer:
             If it is a `list` or a `numpy.array` then the weights are assumed 
             to be in order of `rrate.columns`. If it is a `pandas.Series` then 
             the index should be compatible with the `rrate.columns` or mktdata 
-            symbols (same symbols, not necessary in the same order).
+            symbols (same symbols, not necessarily in the same order).
             If it is `None` then it will be set to equal weights.
             The default is `None`.
 
@@ -208,7 +209,7 @@ class _RiskAnalyzer:
 
         Parameters
         ----------
-        `rtype` : `str`, optional;
+        rtype : `str`, optional
             Optimization type. If is not `None` it will overwrite the value
             set by the constructor. The default is `None`.
             Other possible values: \n
@@ -220,7 +221,7 @@ class _RiskAnalyzer:
                 `'RiskAverse'` : optimal risk portfolio for a fixed 
                 risk-aversion factor.\n
                 `'InvNrisk'` : optimal risk portfolio with the same risk value 
-                as a benchmark portfolio (e.g. same as equal weighted 
+                as a benchmark portfolio (e.g., same as equal weighted 
                 portfolio).\n
                 `'Diverse'` : optimal diversified portfolio for targeted
                 expected rate of return (max of inverse 1-Diverse).\n
@@ -229,29 +230,29 @@ class _RiskAnalyzer:
                 `'MaxDiverse'` : maximum diversified portfolio.\n
                 `'InvNdiverse'` : optimal diversified portfolio with the same
                 diversification factor as a benchmark portfolio 
-                (e.g. same as equal weighted portfolio).\n
+                (e.g., same as equal weighted portfolio).\n
                 `'InvNdrr'` : optimal diversified portfolio with the same 
                 expected rate of return as a benchmark portfolio
-                (e.g. same as equal weighted portfolio).\n
-        `mu` : `float`, optional;
+                (e.g., same as equal weighted portfolio).\n
+        mu : `float`, optional
             Targeted portfolio expected rate of return. 
             Relevant only if `rtype='Risk'` or `rtype='Divers'`.
             The default is `None`.
-        `d` : `int`, optional;
+        d : `int`, optional
             Frontier type. Active only if `rtype='Risk'`. A value of `1` will
             trigger the evaluation of optimal portfolio along the efficient
             frontier. Otherwise, it will find the portfolio with the lowest
             rate of return along the inefficient portfolio frontier.
             The default is `1`.
-        `mu0` : `float`, optional;
+        mu0 : `float`, optional
             Risk-free rate accessible to the investor.
             Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
             The default is `0`.
-        `aversion` : `float`, optional;
+        aversion : `float`, optional
             The value of the risk-aversion coefficient.
             Must be positive. Relevant only if `rtype='RiskAverse'`.
             The default is `None`.
-        `ww0` : `list`, `numpy.array` or `pandas.Series`, optional;
+        ww0 : `list`, `numpy.array` or `pandas.Series`, optional
             Targeted portfolio weights. 
             Relevant only if `rype='InvNrisk'`.
             Its length must be equal to the number of symbols in `rrate` 
@@ -259,22 +260,22 @@ class _RiskAnalyzer:
             If it is a `list` or a `numpy.array` then the weights are assumed 
             to be in order of `rrate.columns`. If it is a `pandas.Series` then 
             the index should be compatible with the `rrate.columns` or mktdata 
-            symbols (same symbols, not necessary in the same order).
+            symbols (same symbols, not necessarily in the same order).
             If it is `None` then it will be set to equal weights.
             The default is `None`.
-        `mktdata` : `pandas.DataFrame`, optional;
+        mktdata : `pandas.DataFrame`, optional
             The portfolio components historical, prices or rates of return, see
             `'pclose'` definition below.
             If it is not `None`, it will overwrite the set of historical rates
             of return computed in the constructor from `'mktdata'`. 
             The default is `None`. 
-        `params`: other optional paramters;
+        **params : other optional paramters
             Most common: \n
-            `verbose` : Boolean, optional;
-                If it set to `True`, then it will print a messages when 
+            `verbose` : Boolean, optional
+                If it set to `True`, then it will print a message when 
                 the optimal portfolio degenerates to a single asset.
                 The default is `False`.
-            `pclose` : Boolean, optional;
+            `pclose` : Boolean, optional
                 If it is absent then the `mktdata` is considered to contain 
                 rates of return, with columns the asset symbols and indexed 
                 by the observation dates, \n
@@ -284,9 +285,9 @@ class _RiskAnalyzer:
                 `False` : assumes `mktdata` is in the usual format
                 returned by `azapy.mktData` function.
 
-       Returns
+        Returns
         -------
-        `pandas.Series` with portfolio weights.
+        `pandas.Series` : portfolio weights per symbol.
         """
         toc = time.perf_counter()
         self._reset_output()
@@ -544,15 +545,15 @@ class _RiskAnalyzer:
 
         Parameters
         ----------
-        `ww` : `list`, `numpy.array` or `pandas.Series`;
+        ww : `list`, `numpy.array` or `pandas.Series`
             Portfolio weights. Its length must be equal to the number of
             symbols in `rrate` (mktdata). All weights must be >=0 with 
             sum > 0.
             If it is a `list` or a `numpy.array` then the weights are assumed 
             to be in order of `rrate.columns`. If it is a `pandas.Series` than 
             the index should be compatible with the `rrate.columns` or mktdata 
-            symbols (not necessary in the same order).
-        `rrate` : `pandas.DataFrame`, optional;
+            symbols (not necessarily in the same order).
+        rrate : `pandas.DataFrame`, optional
             Contains the portfolio components historical
             rates of return. If it is not `None`, it will overwrite the
             rates of return computed in the constructor from `mktdata`.
@@ -560,8 +561,7 @@ class _RiskAnalyzer:
 
         Returns
         -------
-        `float`
-            The dispersion (risk) measure value.
+        `float` : The dispersion (risk) measure value.
         """
         self._reset_output()
         toc = time.perf_counter()
@@ -606,56 +606,56 @@ class _RiskAnalyzer:
 
         Parameters
         ----------
-        `nshares` : `panda.Series`, optional;
+        nshares : `panda.Series`, optional
             Initial number of shares per portfolio component.
             A missing component
             entry will be considered 0. A `None` value assumes that all
             components entries are 0. The name of the components must be
             present in the mrkdata. The default is `None`.
-        `cash` : `float`, optional;
+        cash : `float`, optional
             Additional cash to be added to the capital. A
             negative entry assumes a reduction in the total capital
             available for rebalance. The total capital cannot be < 0.
             The default is 0. 
-        `ww` : `panda.Series`, optional;
+        ww : `panda.Series`, optional
             External overwrite portfolio weights. 
             If it not set to `None` these
             weights will overwrite the calibration results.
             The default is `None`. 
-        `verbose` : Boolean, optional;
+        verbose : Boolean, optional
             Is it set to `True` the function prints the closing prices date.
-            THe default is `True`.
+            The default is `True`.
         
         Returns
         -------
-        `pandas.DataFrame`: the rolling information.
+        `pandas.DataFrame` : the rolling information.
 
         Columns:
 
-            - `"old_nsh"` :
+            - `'old_nsh'` :
                 initial number of shares per portfolio component and
                 the additional cash. These are input values.
-            - `"new_nsh"` :
+            - `'new_nsh'` :
                 the new number of shares per component plus the residual
                 cash (due to the rounding to an integer number of shares).
                 A negative entry means that the investor needs to add more
                 cash to cover for the roundup shortfall.
                 It has a small value.
-            - `"diff_nsh"` :
-                the number of shares that needs to be both/sold in order
-                to rebalance the portfolio positions.
-            - `"weights"` :
+            - `'diff_nsh'` :
+                number of shares (buy/sale) needed to rebalance the 
+                portfolio.
+            - `'weights'` :
                 portfolio weights used for rebalancing. The cash entry is
                 the new portfolio value (invested capital).
-            - `"prices"` :
+            - `'prices'` :
                 the share prices used for rebalances evaluations.
 
-        Note: Since the prices are closing prices, the rebalance can be
-        computed after the market close and before the 
-        trading execution (next day). 
-        Additional cash slippage may occur due
-        to share price differential between the previous day closing and
-        execution time.
+            Note: Since the prices are closing prices, the rebalance can be
+            computed after the market close and before the 
+            trading execution (next day). 
+            Additional cash slippage may occur due
+            to share price differential between the previous day closing and
+            execution time.
         """
         ns = pd.Series(0, index=self.rrate.columns)
         if nshares is not None:
@@ -679,8 +679,9 @@ class _RiskAnalyzer:
         else:
             wwp = pd.Series(0, index=self.rrate.columns)
             ww = wwp.add(ww, fill_value=0)
-            if len(self.rrate.columns) == len(ns):
-                raise ValueError(f"ww must be among {self.rrate.columns}")
+            if len(self.rrate.columns) != len(ns):
+                raise ValueError("ww: wrong component names - "
+                                 f"must be among {self.rrate.columns}")
 
         newns = (ww / pp * cap).round(0)
         newcash = cap - newns.dot(pp)
@@ -706,13 +707,13 @@ class _RiskAnalyzer:
 
         Parameters
         ----------
-        `rrate` : `pandas.DataFrame`;
+        rrate : `pandas.DataFrame`
             Portfolio components historical rates of return. The
-            columns are asset symbols and indxed by observation dates.
+            columns are asset symbols and indexed by observation dates.
             
         Returns
         -------
-        None
+        `None`
         """
         if rrate is None:
             # noting to do
@@ -732,20 +733,20 @@ class _RiskAnalyzer:
 
         Parameters
         ----------
-        `mktdata` : `pandas.DataFrame`;
+        mktdata : `pandas.DataFrame`
             Historic daily market data for portfolio components in the format
             returned by `azapy.mktData` function.
-        `colname` : `str`, optional;
-            Name of the price column from mktdata used in the weights
+        colname : `str`, optional
+            Name of the price column from mktdata used in the weight’s
             calibration. The default is 'adjusted'.
-        `freq` : `str`, optional;
-            Rate of returns horizon in number of business day. It could be
-            'Q' for quarter or 'M' for month. The default is 'Q'.
-        `hlength` : `float`, optional;
+        freq : `str`, optional
+            Rate of return horizon. It could be 
+            `'Q'` for a quarter or `'M'` for a month. The default is `'Q'`.
+        hlength : `float`, optional
             History length in number of years used for calibration. A
             fractional number will be rounded to an integer number of months.
             The default is `3.25`.
-        `pclose` : Boolena, optiona; \n
+        pclose : Boolena, optiona; \n
             `True` : assumes `mktdata` contains closing prices only, 
             with columns the asset symbols and indexed by the 
             observation dates, \n
@@ -775,7 +776,7 @@ class _RiskAnalyzer:
         if hlength is None:
             if self.hlength is None:
                 raise ValueError("hlength must be set to a positive "
-                                 "value eq 1")
+                                 "value - e.g. 1")
         else:
             self.hlength = hlength
 
@@ -784,18 +785,27 @@ class _RiskAnalyzer:
             return
         
         periods = 63 if self.freq == 'Q' else 21
-        sdate = mktdata.index[int(-np.round(self.hlength * 12) * 21)]
+        idx_sdate = int(-np.round(self.hlength * 12) * 21)
 
         if pclose == False:
             if self.colname not in mktdata.columns:
                 raise ValueError(f"colname: {colname} not in mktdata.columns")
-            rrate = mktdata.pivot(columns='symbol', 
-                                  values=self.colname)[sdate:]
-        else:
-            rrate = mktdata[sdate:]
+            mktdata = mktdata.pivot(columns='symbol', 
+                                  values=self.colname)
             
-        self.last_data = rrate.iloc[-1]
-        rrate = rrate.pct_change(periods=periods).dropna()
+        if mktdata.shape[0] < -idx_sdate:
+            sdate =  mktdata.index[0]
+            warnings.warn(f"Too short history for hlength {self.hlength}"
+                          f" set sdate to {sdate} with"
+                          f" {mktdata.shape[0]} hist observations"
+                          f" instead of {-idx_sdate}")
+        else:
+            sdate = mktdata.index[idx_sdate]
+        
+        mktdata = mktdata[sdate:]
+            
+        self.last_data = mktdata.iloc[-1]
+        rrate = mktdata.pct_change(periods=periods).dropna()
         self.set_rrate(rrate)
 
 
@@ -807,7 +817,7 @@ class _RiskAnalyzer:
 
         Parameters
         ----------
-        `rtype` : `str`, optional;
+        rtype : `str`, optional
             Optimization type. Possible values: \n
                 `'Risk'` : optimal risk portfolio for targeted expected rate of 
                 return.\n
@@ -817,7 +827,7 @@ class _RiskAnalyzer:
                 `'RiskAverse'` : optimal risk portfolio for a fixed 
                 risk-aversion factor.\n
                 `'InvNrisk'` : optimal risk portfolio with the same risk value 
-                as a benchmark portfolio (e.g. same as equal weighted 
+                as a benchmark portfolio (e.g., same as equal weighted 
                 portfolio).\n
                 `'Diverse'` : optimal diversified portfolio for targeted
                 expected rate of return (max of inverse 1-Diverse).\n
@@ -826,30 +836,30 @@ class _RiskAnalyzer:
                 `'MaxDiverse'` : maximum diversified portfolio.\n
                 `'InvNdiverse'` : optimal diversified portfolio with the same
                 diversification factor as a benchmark portfolio 
-                (e.g. same as equal weighted portfolio).\n
+                (e.g., same as equal weighted portfolio).\n
                 `'InvNdrr'` : optimal diversified portfolio with the same 
                 expected rate of return as a benchmark portfolio
-                (e.g. same as equal weighted portfolio).\n
+                (e.g., same as equal weighted portfolio).\n
             The default is `'Sharpe'`.
-        `mu` : `float`, optional;
+        mu : `float`, optional
             Targeted portfolio expected rate of return. 
             Relevant only if `rtype='Risk'` or `rtype='Divers'`.
             The default is `None`.
-        `d` : `int`, optional;
+        d : `int`, optional
             Frontier type. Active only if `rtype='Risk'`. A value of `1` will
             trigger the evaluation of optimal portfolio along the efficient
             frontier. Otherwise, it will find the portfolio with the lowest
             rate of return along the inefficient portfolio frontier.
             The default is `1`.
-        `mu0` : `float`, optional;
+        mu0 : `float`, optional
             Risk-free rate accessible to the investor.
             Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
             The default is `0`.
-        `aversion` : `float`, optional;
+        aversion : `float`, optional
             The value of the risk-aversion coefficient.
             Must be positive. Relevant only if `rtype='RiskAverse'`.
             The default is `None`.
-        `ww0` : `list`, `numpy.array` or `pandas.Series`, optional;
+        ww0 : `list`, `numpy.array` or `pandas.Series`, optional
             Targeted portfolio weights. 
             Relevant only if `rype='InvNrisk'`.
             Its length must be equal to the number of symbols in `rrate` 
@@ -857,7 +867,7 @@ class _RiskAnalyzer:
             If it is a `list` or a `numpy.array` then the weights are assumed 
             to be in order of `rrate.columns`. If it is a `pandas.Series` then 
             the index should be compatible with the `rrate.columns` or mktdata 
-            symbols (same symbols, not necessary in the same order).
+            symbols (same symbols, not necessarily in the same order).
             If it is `None` then it will be set to equal weights.
             The default is `None`.
             
@@ -894,127 +904,126 @@ class _RiskAnalyzer:
 
         Parameters
         ----------
-        `minrisk` : Boolean, optional;
+        minrisk : Boolean, optional
             If it is `True` then the minimum risk portfolio will be visible. 
             The default is `True`.
-        `efficient` : `int`, optional;
+        efficient : `int`, optional
             Number of points along the efficient risk frontier 
             (equally spaced along the rate of return axis). 
             The default is `20`.
-        `inefficient` : `int`, optional;
+        inefficient : `int`, optional
             Number of points along the inefficient risk frontier 
             (equally spaced along the rate of returns axis). 
             The default is `20`.
-        `sharpe` : Boolean, optional;
+        sharpe : Boolean, optional
             If it is `True` then the maximum Sharpe portfolio will be visible. 
             The default is `True`.
-        `musharpe` : `float`, optional;
+        musharpe : `float`, optional
             Risk-free rate value used in the evaluation of
             generalized Sharpe ratio. The default is `0`.
-        `maxdiverse`: Boolean, optional;
+        maxdiverse : Boolean, optional
             If it is `True` then the maximum diversified portfolio will be 
             visible. The default is `True`.
-        `diverse_efficient`: `int`, optional;
+        diverse_efficient : `int`, optional
             Number of points along the efficient diversification frontier
             (equally spaced along the rate of return axis).
             The default is `20`.
-        `diverse_inefficient`: `int`, optional;
+        diverse_inefficient : `int`, optional
             Number of points along the inefficient diversification frontier
             (equally spaced along the rate of return axis).
             The default is `20`.
-        `invN` : Boolean, optional;
+        invN : Boolean, optional
             If it is `True`, then the equal weighted portfolio and the optimal 
             portfolio with the same risk value are added to
             the plot. The default is `True`.
-        `invNrisk` : Boolena, optional;
+        invNrisk : Boolena, optional
             If it is `True`, then the efficient risk portfolio with same risk 
             as equal weighth portfolio is added to the plot.
             The defualt is `False`.
-        `invNdiverse` : Boolean, optional:
+        invNdiverse : Boolean, optional
             If it is `True`, then the efficient diversified portfolio with the 
             same diversification factor as the equal weighted portfolio is
             added to the plot. The default is `False`.
-        `invNdrr` : Boolena, optional;
+        invNdrr : Boolena, optional
             If it is `True`, then the efficient diversified portfolio with the 
             same expected rate of return as the equal weighted portfolio is
             added to the plot. The default value is `False`.
-        `component` : Boolean, optional;
+        component : Boolean, optional
             If it is `True`, then the single component portfolios are added to 
             the plot. The default is `True`.
-        `randomport` : `int`, optional;
+        randomport : `int`, optional
             Number of portfolios with random weights (inefficient) to be
             added to the plot (for reference). The default is `20`.
-        `addport` : `dict` or `pandas.DataFrame`, optional;
+        addport : `dict` or `pandas.DataFrame`, optional
             The weights of additional portfolio to be added to the plot.
             If it is a `dict` then the keys are the labels, and the values are 
             list of weights in the order of `rrate.columns`. If it is a 
             `pandas.DataFrame` the index are the labels, and each row is a set 
             of weights. The columns names should match the symbols names. 
             The default is `None`.
-        `fig_type` : `str`, optional;
+        fig_type : `str`, optional
             Graphical representation format. \n
                 * `'RR_risk'` : expected rate of return vs risk
                 * `'Sharpe_RR'` : sharpe vs expected rate of return
                 * `'Diverse_RR'` : diversification vs expected rate of return
                 
             The default is `'RR_risk'`.
-        `opt` : optional;
+        **opt : optional
             Additonal parameters:\n
-                * `'title'` : `str`; 
-                    The default is 'Portfolio frontiers'
-                * `'xlabel'` : `str`; 
+                * `'title'` : `str` 
+                    The default is 'Portfolio frontiers'.
+                * `'xlabel'` : `str` 
                     The default is \n
                     - `'risk'` if `fig_type='RR_risk'`,
                     - `'rate of returns'` otherwise.
-                * `'ylabel'` : `str`; 
+                * `'ylabel'` : `str` 
                     The default is \n
                         - `'rate of returns'` if `fig_type='RR_risk'`
                         - `'sharpe'` if `fig_type='Sharpe_RR'`
                         - `'diversification'` if `fig_type=diverse_RR`   
-                * `'tangent'` : Boolean; 
+                * `'tangent'` : Boolean 
                     If set to `True`, then the tangent
                     (to max sharpe point) is added. It has effect only  if
                     `fig_type='RR_risk'`. The default is `True`.
-                * `saveto` : `str`; 
+                * `saveto` : `str`
                     File name to save the figure. The extension dictates the 
                     format: png, pdf, svg, etc. For more details see the 
                     `mathplotlib` documentation for `savefig`. 
                     The default is `None`.
-                * `data` : `defaultdict`; 
+                * `data` : `defaultdict` 
                     Numerical data to construct the plot. If it is not `None`,
                     then it will take precedence and no other numerical 
                     evaluations will be performed. 
                     It is meant to produce different plot representations
                     without reevaluations. The default is `None`.
-                * `invN_label` : `str`;
+                * `invN_label` : `str`
                     The label for equal weighted portfolio. 
                     The default is `'1/N'`.
-                * `invNrisk_label` : `str`;
+                * `invNrisk_label` : `str`
                     The lable for efficient portfolio with same risk as 
                     equal weighted portfolio. The default is `invNrisk`.
-                * `invNdiverse_label` : `str`;
+                * `invNdiverse_label` : `str`
                     The label for diverse-efficient portfolio with the same
                     diversificeation factor as equal weighted porfolio.
                     The default is `'invNdiv'`.
-                * `invNdrr_label` : `str`;
+                * `invNdrr_label` : `str`
                     The label of diverse-efficient portfolio with the same
                     expected rate of return as equal weighted portolio.
                     The defualt is `'invNdrr'`.
-                * `maxdiverse_label` : `str`;
+                * `maxdiverse_label` : `str`
                     The label of maximum diverified portfolio. 
                     The default is `'MaxD'`.
-                * `minrisk_label` : `'str'`;
+                * `minrisk_label` : `'str'`
                     The label of minimum risk portfolio.
                     The default is `'MinR'`.
-                * `sharpe_label` : `str`;
+                * `sharpe_label` : `str`
                     The label of maximum Sharpe portfolio. 
                     The default is `'Sharpe'`.
 
         Returns
         -------
-        `dict`
-            Numerical data used to make the plots. It can be passed back to
-            reconstruct the plots without reevaluations.
+        `dict` : Numerical data used to make the plots. It can be passed back 
+        to reconstruct the plots without reevaluations.
         """
         if fig_type == 'RR_risk':
             xlabel = 'risk'
@@ -1776,7 +1785,7 @@ class _RiskAnalyzer:
 
         Parameters
         ----------
-        `seed` : `int`, optional;
+        seed : `int`, optional
             The random generator seed, in case you want to set it to a weird
             value other than `42` :). The default is `42`.
 
@@ -1823,7 +1832,7 @@ class _RiskAnalyzer:
 
         Returns
         -------
-        `pandas.Series`
+        `pandas.Series` : risk per symbol.
         """
         if self._flag_risk_comp_calc: 
             self.status = self._status_risk_comp_calc
@@ -1858,15 +1867,15 @@ class _RiskAnalyzer:
 
         Parameters
         ----------
-        `ww` : `list`, `numpy.array` or `pandas.Series`;
+        ww : `list`, `numpy.array` or `pandas.Series`;
             Portfolio weights. Its length must be equal to the number of
             symbols in `rrate` (mktdata). All weights must be >=0 with 
             sum > 0.
             If it is a list or a `numpy.array` then the weights are assumed to
             be in order of `rrate.columns`. If it is a `pandas.Series` then 
             the index should be compatible with the `rrate.columns` or mktdata 
-            symbols (not necessary in the same order).
-        `rrate` : `pandas.DataFrame`, optional;
+            symbols (not necessarily in the same order).
+        rrate : `pandas.DataFrame`, optional
             Contains the portfolio components historical
             rates of return. If it is not `None` then it will overwrite the
             rates of return computed in the constructor from `mktdata`.
@@ -1874,7 +1883,7 @@ class _RiskAnalyzer:
 
         Returns
         -------
-        `float` : The diversification value. \n
+        `float` : The diversification value. 
         """
         self._reset_output()
         self.set_rrate(rrate)
@@ -1912,12 +1921,12 @@ class _RiskAnalyzer:
     
     def set_method(self, method):
         """
-        Set computation method
+        Sets computation method.
 
         Parameters
         ----------
-        `method` : `str`;
-            Must be a valid method name. It will overright the value 
+        method : `str`;
+            Must be a valid method name. It will overwrite the value 
             set by the constructor.
 
         Returns

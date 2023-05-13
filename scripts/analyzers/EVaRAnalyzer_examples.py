@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 import azapy as az
-print(f"azapy version {az.version()} >= 1.1.0", flush=True)
+print(f"azapy version {az.version()}", flush=True)
 
 #==============================================================================
 # collect market data

@@ -12,17 +12,11 @@ class KellyEngine(_RiskEngine):
     """
     Kelly optimal portfolio.
     
-    Methods:
-        * getWeights
-        * getPositions
-        * set_rtype
-        * set_method
-        * set_rrate
-        * set_mktdata   
-    Attributes:
-        * status
-        * ww
-        * name
+    **Attributes**
+        * status : `int` - computation status (`0` - success, any other 
+          value indicates an error)
+        * ww : `pandas.Series` - portfolio weights
+        * name : `str` - portfolio name
     """
     def __init__(self, mktdata=None, colname='adjusted', freq='Q', 
                  hlength=3.25, name='Kelly', rtype='ExpCone', method='ecos'):
@@ -31,22 +25,22 @@ class KellyEngine(_RiskEngine):
 
         Parameters
         ----------
-        `mktdata` : `pandas.DataFrame`, optional;
+        mktdata : `pandas.DataFrame`, optional
             Historic daily market data for portfolio components in the format
             returned by `azapy.mktData` function. The default is `None`.
-        `colname` : `str`, optional;
-            Name of the price column from mktdata used in the weights 
+        colname : `str`, optional
+            Name of the price column from `mktdata` used in the weight's 
             calibration. The default is `'adjusted'`.
-        `freq` : `str`, optional;
-            Rate of return horizon in number of business day. It could be 
-            'Q' for quarter or 'M' for month. The default is `'Q'`.
-        `hlength` : `float`, optional;
+        freq : `str`, optional
+            Rate of return horizon. It could be 
+            'Q' for a quarter or 'M' for a month. The default is `'Q'`.
+        hlength : `float`, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
             The default is `3.25` years.
-        `name` : `str`, optional;
+        name : `str`, optional
             Portfolio name. Deafult value is `'Kelly'`.
-        `rtype` : `str`, optional;
+        rtype : `str`, optional
             Optimization approximation. It can be:\n
                 'ExpCone' - exponential cone constraint programming solver 
                 for original Kelly problem. \n
@@ -54,7 +48,7 @@ class KellyEngine(_RiskEngine):
                 'Order2' - second order Taylor approximation of original Kelly 
                 problem. It is a QP problem. \n
             The default is `'ecos'`.
-        `method` : `str`, optional;
+        method : `str`, optional
             The QP solver class. It is relevant only if `rtype='Order2'`.
             It takes 2 values: 'ecos' or 'cvxopt'.
             The default is `'ecos'`.
@@ -79,7 +73,7 @@ class KellyEngine(_RiskEngine):
 
         Parameters
         ----------
-        `rtype` : `str`, optional;
+        rtype : `str`, optional
             Optimization approximation. It can be: \n
                 'ExpCone' - exponential cone constraint programming solver 
                 for original Kelly problem. \n
@@ -89,25 +83,25 @@ class KellyEngine(_RiskEngine):
             A value different than `None` will
             overwrite the value for `rtype` set in the constructor. \n
             The default is `None`.
-        `method` : `str`, optional;
+        method : `str`, optional
             The QP solver class. It is relevant only if `rtype='Order2'`.
             It takes 2 values: 'ecos' or 'cvxopt'.
             A value different than `None` will overwrite the
             value set in the constructor.
             The default is `None`.
-        `mktdata` : `pandas.DataFrame`, optional;
+        mktdata : `pandas.DataFrame`, optional
             The portfolio components historical, prices or rates of return, see
             `'pclose'` definition below.
             If it is not `None`, it will overwrite the set of historical rates
             of return computed in the constructor from `'mktdata'`. 
             The default is `None`. 
-        `params`: other optional paramters;
+        **params : other optional parameters
             Most common: \n
-            `verbose` : Boolean, optional;
-                If it set to `True`, then it will print a messages when 
+            `verbose` : Boolean, optional
+                If it set to `True`, then it will print a message when 
                 the optimal portfolio degenerates to a single asset.
                 The default is `False`.
-            `pclose` : Boolean, optional;
+            `pclose` : Boolean, optional
                 If it is absent then the `mktdata` is considered to contain 
                 rates of return, with columns the asset symbols and indexed 
                 by the observation dates, \n
@@ -115,12 +109,11 @@ class KellyEngine(_RiskEngine):
                 with columns the asset symbols and indexed by the 
                 observation dates, \n
                 `False` : assumes `mktdata` is in the usual format
-                returned by `azapy.mktData` function.
+                returned by `azapy.readMkT` function.
             
         Returns
         -------
-        `pandas.Series`
-            Portfolio weights.
+        `pandas.Series` : Portfolio weights per symbol.
         """
         toc = time.perf_counter()
         self._set_getWeights(mktdata, **params)
@@ -290,11 +283,11 @@ class KellyEngine(_RiskEngine):
 
         Parameters
         ----------
-        `rtype` : `str`;
-            It could be: `'Full'` for a non-linear (no approximation) model, 
-            `'ExpCone'` for exponential cone constraint programming solver,
-            or `'Order2'` for a second order Taylor approximation 
-            (a QP problem).\n
+        rtype : `str`
+            It could be: \n
+                - `'Full'` for a non-linear (no approximation) model, 
+                - `'ExpCone'` for exponential cone constraint programming solver,
+                - `'Order2'` for a second order Taylor approximation (a QP problem).\n
             It will overwrite the value set by the constructor.
             
         Returns

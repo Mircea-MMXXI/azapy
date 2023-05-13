@@ -6,29 +6,17 @@ from azapy.Generators.Port_Generator import Port_Generator
 class Port_Rebalanced(Port_Generator):
     """
     Backtesting a portfolio periodically rebalanced 
-    (with external schedule and weights).
+    (with an external schedule of weights).
     
-    Methods:
-        * set_model
-        * get_port
-        * get_weights
-        * get_nshares
-        * get_account
-        * get_mktdata
-        * port_view
-        * port_view_all
-        * port_drawdown
-        * port_perf
-        * port_annual_returns
-        * port_monthly_returns
-        * port_period_returns
-        * port_period_perf
-    Attributs:
-        * pname
-        * ww
-        * port
-        * schedule
-    """
+    **Attributes**
+        * `pname` : `str` - portfolio name
+        * `ww` : `pandasDataFrame` - portfolio weights at each rebalancing date
+        * `port` : `pandas.Series` - portfolio historical time-series
+        * `schedule` : `pandas.DataFrame` - rebalancing schedule
+       
+    The most important method is `set_model`. It must be called before any
+    other method.
+    """                  
     def __init__(self, mktdata, symb=None, sdate=None, edate=None, 
                  col_price='close', col_divd='divd', col_ref='adjusted',
                  pname='Port', pcolname=None, capital=100000, schedule=None,
@@ -38,44 +26,44 @@ class Port_Rebalanced(Port_Generator):
     
         Parameters
         ----------
-        `mktdata` : `pandas.DataFrame`;
+        mktdata : `pandas.DataFrame`
             MkT data in the format "symbol", "date", "open", "high", "low",
-            "close", "volume", "adjusted", "divd", "split" (e.g. as returned
+            "close", "volume", "adjusted", "divd", "split" (e.g., as returned
             by `azapy.readMkT` function).
-        `symb` : `list`, optional;
+        symb : `list`, optional
             List of symbols for the basket components. All symbols MkT data
             should be included in mktdata. If set to `None` the `symb` will be
             set to include all the symbols from `mktdata`. The default
             is `None`.
-        `sdate` : date like, optional;
+        sdate : date like, optional
             Start date for historical data. If set to `None` the `sdate` will
             be set to the earliest date in mktdata. The default is `None`.
-        `edate` : date like, optional;
+        edate : date like, optional
             End date for historical dates and so the simulation. Must be
             greater than  `sdate`. If it is `None` then `edat`e will be set
             to the latest date in mktdata. The default is `None`.
-        `col_price` : `str`, optional;
+        col_price : `str`, optional
             Column name in the mktdata DataFrame that will be considered
             for portfolio aggregation. The default is `'close'`.
-        `col_divd` :  `str`, optional;
+        col_divd :  `str`, optional
             Column name in the mktdata DataFrame that holds the dividend
             information. The default is `'dvid'`.
-        `col_ref` : `str`, optional;
+        col_ref : `str`, optional
             Column name in the mktdata DataFrame that will be used as a price
             reference for portfolio components. The default is `'adjusted'`.
-        `pname` : `str`, optional;
+        pname : `str`, optional
             The name of the portfolio. The default is `'Port'`.
-        `pcolname` : `str`, optional;
+        pcolname : `str`, optional
             Name of the portfolio price column. If it set to `None` then
             `pcolname=pname`. The default is `None`.
-        `capital` : `float`, optional;
+        capital : `float`, optional
             Initial portfolio Capital in dollars. The default is `100000`.
-        `schedule` : `pandas.DataFrame`, optional;
+        schedule : `pandas.DataFrame`, optional
             Rebalancing schedule, with columns for `'Droll'` rolling date and
             `'Dfix'` fixing date. If it is `None` than the schedule will be set
             using the `freq`, `noffset`, `fixoffset` and `calendar`
             information. The default is `None`.
-        `multitreading` : Boolean, optional;
+        multitreading : Boolean, optional
             If it is `True` then the weights at the rebalancing dates will 
             be computed concurrent. The default is `True`.
     
@@ -101,13 +89,20 @@ class Port_Rebalanced(Port_Generator):
         
         Parameters
         ----------
-        `verbose` : Boolean, optional:
+        schedule : `pandas.DataFrame`, optional
+            Rebalancing schedule, with columns for `'Droll'` rolling date and
+            `'Dfix'` fixing date. If it is `None` than the schedule will be set
+            using the `freq`, `noffset`, `fixoffset` and `calendar`
+            information. It is set to `None` it will overwrite the value 
+            set by the constructor. The default is `None`.
+        
+        verbose : Boolean, optional:
             Sets teh verbose mode.
 
         Returns
         -------
-        `pandas.DataFrame`;
-            The portfolio time-series in the format "date", "pcolname".
+        `pandas.DataFrame` : The portfolio time-series in the format 'date', 
+        'pcolname'.
         """
         if schedule is not None:
             self.schedule = schedule

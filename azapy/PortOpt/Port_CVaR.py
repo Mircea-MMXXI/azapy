@@ -8,26 +8,14 @@ class Port_CVaR(_Port_Generator):
     Backtesting CVaR (Conditional Value at Risk) portfolio periodically 
     rebalanced.
     
-   Methods:
-       * set_model
-       * get_port
-       * get_weights
-       * get_nshares
-       * get_account
-       * get_mktdata
-       * port_view
-       * port_view_all
-       * port_drawdown
-       * port_perf
-       * port_annual_returns
-       * port_monthly_returns
-       * port_period_returns
-       * port_period_perf
-   Attributs:
-       * pname
-       * ww
-       * port
-       * schedule
+    **Attributes**
+        * `pname` : `str` - portfolio name
+        * `ww` : `pandasDataFrame` - portfolio weights at each rebalancing date
+        * `port` : `pandas.Series` - portfolio historical time-series
+        * `schedule` : `pandas.DataFrame` - rebalancing schedule
+       
+    The most important method is `set_model`. It must be called before any
+    other method.
     """        
     def set_model(self, alpha=[0.975], coef=None, rtype='Sharpe',
                   mu=None, mu0=0, aversion=None, ww0=None, 
@@ -37,15 +25,15 @@ class Port_CVaR(_Port_Generator):
 
         Parameters
         ----------
-        `alpha` : `list`, optional;
+        alpha : `list`, optional
             List of alpha confidence levels. The default is `[0.975]`.
-        `coef` : `list`, optional;
+        coef : `list`, optional
             List of positive mixture coefficients. Note that `len(coef)`
             must be equal to `len(alpha)`. A `None` value assumes an
             equal weighted risk mixture.
             The vector of coefficients will be normalized to unit.
             The default is `None`.
-        `rtype` : `str`, optional;
+        rtype : `str`, optional
             Optimization type. Possible values: \n
                 `'Risk'` : optimal-risk portfolio for targeted expected rate of 
                 return.\n
@@ -58,9 +46,9 @@ class Port_CVaR(_Port_Generator):
                 as a benchmark portfolio (e.g., same as equal weighted 
                 portfolio).\n
                 `'Diverse'` : optimal-diversified portfolio for targeted
-                expected rate of return (maximum of inverse 1-D).\n
+                expected rate of return (maximum of inverse of 1-D).\n
                 `'Diverse2'` : optimal-diversified portfolio for targeted
-                expected rate of return (minmum of 1-D).\n
+                expected rate of return (minimum of 1-D).\n
                 `'MaxDiverse'` : maximum diversified portfolio.\n
                 `'InvNdiverse'` : optimal-diversified portfolio with the same
                 diversification factor as a benchmark portfolio 
@@ -68,50 +56,50 @@ class Port_CVaR(_Port_Generator):
                 `'InvNdrr'` : optima- diversified portfolio with the same 
                 expected rate of return as a benchmark portfolio
                 (e.g., same as equal weighted portfolio).\n
-            The defauls is `'Sharpe'`.
-        `mu` : `float`, optional;
+            The default is `'Sharpe'`.
+        mu : `float`, optional
             Targeted portfolio expected rate of return. 
             Relevant only if `rtype='Risk'`
             The default is `None`.
-        `mu0` : `float`, optional;
+        mu0 : `float`, optional
             Risk-free rate accessible to the investor.
-            Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
+            Relevant only if `rtype='Sharpe'` or `rtype='Sharpe2'`.
             The default is `0`.
-        `aversion` : `float`, optional;
+        aversion : `float`, optional
             The value of the risk-aversion factor.
             Must be positive. Relevant only if `rtype='RiskAvers'`.
             The default is `None`.
-        `ww0` : `list` (also `numpy.array` or `pandas.Series`), optional;
+        ww0 : `list` (also `numpy.array` or `pandas.Series`), optional
             Targeted portfolio weights. 
             Relevant only if `rype='InvNrisk'`.
             Its length must be equal to the number of
-            symbols in rrate (mktdata). 
-            All weights must be >= 0 with sum > 0.
+            symbols in `rrate` (`mktdata`). 
+            All weights must be >= 0 with their sum > 0.
             If it is a list or a `numpy.array` then the weights are assumed to
             by in order of `rrate.columns`. If it is a `pandas.Series` then 
-            the index should be compatible with the `rrate.columns` or mktdata 
-            symbols (same symbols, not necessary in the same order).
+            the index should be compatible with the `rrate.columns` or `mktdata` 
+            symbols (same symbols, not necessarily in the same order).
             If it is `None` then it will be set to equal weights.
             The default is `None`.
-        `hlength` : `float`, optional;
+        hlength : `float`, optional
             The length in year of the historical calibration period relative
             to `'Dfix'`. A fractional number will be rounded to an integer 
             number of months. The default is `3.25` years.
-        `method` : `str`, optional;
+        method : `str`, optional
             Linear programming numerical method.
             Could be: `'ecos'`, `'highs-ds'`, `'highs-ipm'`, `'highs'`,
             `'interior-point'`, `'glpk'` and `'cvxopt'`.
             The default is `'ecos'`.
-        `verbose` : Boolean, optiona;
+        verbose : Boolean, optional
             If it set to `True` then it will print messages when the optimal
             portfolio degenerates to a single asset portfolio as a limited 
             case. 
             The default is `False`.
 
-         Returns
+        Returns
         -------
-        `pandas.DataFrame`;
-            The portfolio time-series in the format 'date', 'pcolname'.
+        `pandas.DataFrame` : The portfolio time-series in the format 'date', 
+        'pcolname'.
         """
         mod = CVaRAnalyzer(alpha=alpha, coef=coef,
                            colname=self.col_calib, freq=self.freq,

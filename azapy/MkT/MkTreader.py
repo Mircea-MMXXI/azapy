@@ -1,10 +1,3 @@
-"""
-Contains:
-    
-    - class MkTreader : collects historical time series
-    - function readMkT : a wrapper to MkTreader class
-"""
-
 import pandas as pd
 import warnings
 import os
@@ -17,43 +10,22 @@ from copy import deepcopy
 
 from azapy.MkT.MkTcalendar import NYSEgen
 
-def readMkT(symbol=[], sdate="2012-01-01", edate='today', calendar=None,
-            output_format='frame', source=None, force=False, save=True,
-            file_dir="outDir", file_format='csv', api_key=None, param=None,  
-            verbose=True):
-    """
-    Retrive market data for a set of stock symbols.
-    
-    It is a wrapper for `MkTreader` class returning directly the requested
-    historical time series. The function call variables are the same as for 
-    'MkTreader' member function 'get' (see its doc).
-    """
-    return MkTreader().get(symbol, sdate, edate, calendar, 
-                           output_format, source, force, save, 
-                           file_dir, file_format, api_key, param, 
-                           verbose)
-
 
 class MkTreader:
     """ 
-    Collect historical market prices from market data providers such as
+    Collects historical market prices from market data providers such as
     'yahoo', 'eodhistoricaldata', 'alphavantage' and 'marketstack'.
     
-    Public function members:
-        - `get` : returns the historical time series requested
-        - `get_request_status` : returns info about the request status
-        - `get_error_log` : returns the list of missing dates in the \
-            time series
-    Public data members:
+    **Attributs**
         - `dsource` : dict of request instructions per symbol
         - `delta_time` : execution time of the request in seconds
-        - `rout` : pandas.DataFrame contenig historical prices for all \
-            symbols. It is created during the call of `get` function.
-        - `rout_status` : request status information. It is created during \
-            the call of `get_request_status` function or during the \
-            call of function `get` with option `verbose=True`.
-        - `error_log` : contains lists of missing historical observation \
-            dates. It is created together with `rout_status`.
+        - `rout` : pandas.DataFrame contenig historical prices for all
+          symbols. It is created during the call of `get` function.
+        - `rout_status` : request status information. It is created during 
+          the call of `get_request_status` function or during the 
+          call of function `get` with option `verbose=True`.
+        - `error_log` : contains lists of missing historical observation 
+          dates. It is created together with `rout_status`.
     """
     def __init__(self):
         '''
@@ -80,48 +52,46 @@ class MkTreader:
             output_format='frame', source=None, force=False, save=True,
             file_dir="outDir", file_format='csv', api_key=None, param=None,  
             verbose=True):
-        '''
-        Get MkT data for a set of stock symbols.
-    
-        Collect historical stock prices from various market data providers 
-        such as yahoo, alphavantage, eodhistoricaldata and marketstack as
-        well as form saved data in local files.
-    
+        """
+        Retrieves market data for a set of stock symbols.\n
+        It is a wrapper for `MkTreader` class returning directly the requested
+        historical time series. The function call variables are the same as for 
+        'MkTreader' member function 'get'.
+        
         Parameters
         ----------
-        `symbol` : `str` or `list` of `str`, optional;
+        symbol : `str` or `list` of `str`, optional
             Stock symbols to be uploaded.
             The default is `[]`.
-        `sdate` : date like, optional;
+        sdate : date like, optional
             The start date of historical time series.
             The default is `"2012-01-01"`.
-        `edate` : date like, optional;
-            The end date of historical time series (must: sdate >= edate)
+        edate : date like, optional
+            The end date of historical time series (must: `sdate` >= `edate`)
             The default is `'today'`.
-        `calendar` : `numpy.busdaycalendar`, optional;
+        calendar : `numpy.busdaycalendar`, optional
             Exchange business day calendar. If set to `None` it will default to 
             the NY stock exchange business calendar (provided by the azapy 
             function NYSEgen).
             The default is `None`.
-        `output_format` : `str`, optional;
+        output_format : `str`, optional
             The function output format. It can be:
-            
-            - `'frame'` - `pandas.DataFrame`
-            - `'dict'` - `dict` of `pandaws.DataFrame` where the keys are the \
-                symbols. 
-            
+                - `'frame'` - `pandas.DataFrame`
+                - `'dict'` - `dict` of `pandaws.DataFrame`. 
+                  The symbols are the keys.
+                  
             The default is `'frame'`
-        `source` : `str` or `dict`, optional;
+        source : `str` or `dict`, optional
             If it is a `str`, then it represents the market data provider for 
-            all historical prices requests. Possible values are: `'yahoo'`, 
+            all historical prices request. Possible values are: `'yahoo'`, 
             `'alphavantage'`, `'alphavantage_yahoo'`, `'eodhistoricaldata'`,
             `'eodhistoricaldata_yahoo'` and `'marketstack'`. If set to `None` 
-            it will default to `'yahoo'`.
-            
-            It can be set to a dictionary containing specific instructions for 
+            it will default to `'yahoo'`.\n
+            It can be set to a `dict` containing specific instructions for 
             each stock symbol. 
-            The dict keys are stock symbols. The values are dict's of 
-            instructions. Valid keys for the instructions dict are the names of
+            The `dict` keys are the symbols and the values are 'dict'
+            instructions specific to each symbol. 
+            Valid keys for the instructions `dict` are the names of
             this function call variables except `'sdate'`, `'edate'`, 
             `'calendar'` and `'output_format'`. 
             The actual set of stock symbols is given by the union 
@@ -130,15 +100,10 @@ class MkTreader:
             values of the function call variables. 
             The values of the function call variables act as 
             generic values to be used in absence of specific instructions 
-            in the `'source'` dict. 
-            The default is `None`.
-            
-            Example of dict `'source'`: 
-                
-            source = \
-                {'AAPL': {'source': 'eodhistoricaldata, 'verbose': `True`}, \
-                'SPY': {'source': 'yahoo', 'force': `True`}}
-                 
+            in the `'source'` dict. The default is `None`.\n
+            *Example* of dict `'source'`: \n
+            source = {'AAPL': {'source': 'eodhistoricaldata, 'verbose': `True`},
+            'SPY': {'source': 'yahoo', 'force': `True`}}\n
             In this case there are 2 symbols that will be added (union) to 
             the set of symbols defined by 'symbol' variable. For symbol 'AAPL' 
             the provider source is eodhistoricaldata and the 'verbose' 
@@ -149,42 +114,40 @@ class MkTreader:
             Similar for symbol 'SPY'. The instructions for the rest of the 
             symbols that may be specified in the 'symbol' variable will be
             set according to the values of the function call variables.
-        `force` : Boolean, optional;
-            - `True`: will try to collect historical prices exclusive from  \
-            the market data providers.
-            - `False`: first it will try to load the historical \
-            prices form a local saved file. If such a file does not exist \
-            the market data provider will be accessed.  \
-            If the file exists but the saved historical \
-            data is too short then it will try to collect the missing values \
+        force : Boolean, optional
+                - `True`: will try to collect historical prices exclusive from
+                  the market data providers.
+                - `False`: first it will try to load the historical 
+                  prices from a local saved file. If such a file does not exist
+                  the market data provider will be accessed.  
+                  
+            If the file exists but the saved historical 
+            data is too short then it will try to collect the missing values 
             only from the market data provider.
-            
             The default is `False`.
-        `save` : Boolean, optional;
-            - `True`: It will try to save the historical price collected from \
-               the providers to a local file.
-            - `False`: No attempt to save the data is made.
-            
-           The default is `True`.
-        `file_dir` : `str`, optional;
+        save : Boolean, optional
+                - `True`: It will try to save the historical price collected from 
+                  the providers to a local file.
+                - `False`: No attempt to save the data is made.
+                
+            The default is `True`.
+        file_dir : `str`, optional
             Directory with (to save) historical market data. If it does not 
             exists then it will be created.
             The default is "outDir".
-        `file_format` : `str`, optional;
+        file_format : `str`, optional
             The saved file format for the historical prices. The following 
             files formats are supported: csv, json and feather
             The default is 'csv'.
-        `api_key` : `str`, optional;
+        api_key : `str`, optional
             Provider API key (where is required). If set to `None`  
-            then the API key is set from the global environment variables. 
-            The names of the corresponding global environment variables are:
-                
-            - `APLPHAVANTAGE_API_KEY` : for alphavantage,
-            - `EODHISTORICALDATA_API_KEY` : for eodhistoricaldata,
-            - `MARKETSTACK_API_KEY` : for marketstack.
+            then the API key is set to the value of global environment variables\n 
+                - `APLPHAVANTAGE_API_KEY` for alphavantage,
+                - `EODHISTORICALDATA_API_KEY` for eodhistoricaldata,
+                - `MARKETSTACK_API_KEY` for marketstack.
             
             The default is `None`.
-        `param` : `dict`, optional;
+        param : `dict`, optional
             Set of additional information to access the market data provider.  
             At this point in time only accessing alphavantage provider requires 
             an additional parameter specifying the maximum number of API 
@@ -192,25 +155,23 @@ class MkTreader:
             It varies with the level of access 
             corresponding to the API key. The minimum value is 5 for a free key 
             and starts at 75 for premium keys. This value is stored in
-            max_req_per_min variable.
-            
-            Example: param = {'max_req_per_min': 5}
-            
-            This is also the default vale for alphavantage, if param is set to 
+            `max_req_per_min` variable.\n
+            *Example*: param = {'max_req_per_min': 5}\n
+            This is also the default vale for alphavantage, if `param` is set to 
             `None`.
-            
             The default is `None`.   
-        `verbose` : Boolean, optional;
+        verbose : Boolean, optional
             If set to `True`, then additional information will be printed  
             during the loading of historical prices.
             The default is `True`.
-    
+
+
         Returns
         -------
-        The historical market data as `pandas.DataFrame` or as a dict of
-        `pandas.DataFrame` (one for each symbol), depending on the value
-        set for `output_format`.
-        '''
+        `pandas.DataFrame` or 'dict' `pandas.DataFrame` : Historical market data. 
+            The output format is designated by the value of the input parameter 
+            `output_format`.
+        """
         # Process the inputs
         if isinstance(symbol, str):
             symbol = [symbol]
@@ -325,17 +286,16 @@ class MkTreader:
 
         Returns
         -------
-        `pandas.DataFrame`;
-            The column names are the symbols for which the data was requested.
-            The rows contain the actual input parameters per symbol as well
-            as:
-                
+        `pandas.DataFrame` : The status report.
+        The column names are the symbols for which the data was requested.
+        The rows contain the actual input parameters per symbol as well
+        as:   
             - `'nrow'` : the length of historical time series.
             - `'sdate'` : first date in the time series.
             - `'edate'` : end date of the time series.
-            - `'error'` : if there are missing data. If the error is `'Yes'` \
-                then the actual list of missing date per symbol can  \
-                be obtained by calling `get_error_log`.
+            - `'error'` : if there are missing data. If its value is `'Yes'`
+              then the actual list of missing date per symbol can
+              be obtained by calling `get_error_log`.
         '''
         if self.rout is None or self.rout.empty:
             warnings.warn("Warning: request was returned empty")
@@ -367,18 +327,18 @@ class MkTreader:
 
         Returns
         -------
-        `dict`;
-            If it is an empty dict then there are no missing dates in the
-            collected historical time series.
-            Otherwise, the keys of the dict are the symbols that have missing 
-            dates. The values for these keys are also dict with the following 
-            fields:
-                
+        `dict` : The error-log.
+        
+        If it is an empty `dict` then there are no missing dates in the
+        collected historical time series.
+        Otherwise, the keys of the `dict` are the symbols that have missing 
+        dates. The values for these keys are also `dict` with the following 
+        fields: 
             - `'back'`: a list of missing date at the tail of the time series
             - `'front'` : a list of missing data at the head of the time series
             - `'mid'` : a list of missing data in the middle of the time series
-            
-            Fields with empty list of dates are omitted.
+        
+        Fields with empty list of dates are omitted.
         '''
         return self.error_log
       

@@ -13,6 +13,9 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('..'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('..'))
 
 
 # -- Project information -----------------------------------------------------
@@ -22,7 +25,7 @@ copyright = '2021, Mircea Marinescu'
 author = 'Mircea Marinescu'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.6'
+release = '0.0.7'
 
 
 # -- General configuration ---------------------------------------------------
@@ -30,7 +33,14 @@ release = '0.0.6'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["sphinx.ext.autodoc", "myst_parser"]
+extensions = ["sphinx.ext.autodoc",
+              "myst_parser",
+              "numpydoc",
+              "sphinx.ext.autosummary",
+              'sphinx.ext.doctest',
+              'sphinx.ext.intersphinx',
+              'sphinx.ext.imgconverter']
+
 source_suffix = ['.rst', '.md']
 
 # Add any paths that contain templates here, relative to this directory.
@@ -72,3 +82,18 @@ myst_enable_extensions = [
 ]
 
 # myst_heading_anchors = 6
+
+autodoc_inherit_docstrings = False
+autodoc_default_options = {
+    'members': True,
+    'special-members': '__init__',
+    'private-members': False,
+    'inherited-members': True,
+    'undoc-members': True,
+    'exclude-members': '__weakref__',
+}
+autosummary_generate = False
+autoclass_content = 'class'
+numpydoc_class_members_toctree = False
+# numpydoc_show_class_members = False
+# numpydoc_show_inherited_class_members = False

@@ -8,7 +8,7 @@ sims = az.schedule_simple(sdate=sdate, edate=edate)
 print(f"simple schedule\n{sims}")
 
 srol = az.schedule_roll(sdate=sdate, edate=edate)
-print(f"roll schedule\n{srol}")
+print(f"rolling history schedule\n{srol}")
 
 soff = az.schedule_offset(sdate=sdate, edate=edate)
-print(f"offset schedule\n{soff}")
+print(f"simple schedule with offset start\n{soff}")

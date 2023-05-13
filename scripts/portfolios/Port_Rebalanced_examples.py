@@ -19,6 +19,7 @@ ww[symb] = 1 / len(symb)
 
 with pd.option_context('display.max_columns', None):
     print(f"Rebalancing schedule:\n{ww.round(4)}\n")
+    
 #=============================================================================
 # Compute portfolio
 p3 = az.Port_Rebalanced(mktdata, pname='RBPort')

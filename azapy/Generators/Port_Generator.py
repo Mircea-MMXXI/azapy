@@ -4,36 +4,22 @@ import threading
 import copy
 
 from .Port_Simple import Port_Simple
-from azapy.util.schedule import schedule_offset
+from azapy.Util.schedule import schedule_offset
 from azapy.MkT.MkTcalendar import NYSEgen
-from azapy.util.drawdown import max_drawdown
+from azapy.Util.drawdown import max_drawdown
 
 
 class Port_Generator(Port_Simple):
     """
-    Backtesting a portfolio periodically rebalanced with model genrated 
+    Backtesting of a portfolio periodically rebalanced with model generated
     weights.
     
-    Methods:
-        * set_model
-        * get_port
-        * get_weights
-        * get_nshares
-        * get_account
-        * get_mktdata
-        * port_view
-        * port_view_all
-        * port_drawdown
-        * port_perf
-        * port_annual_returns
-        * port_monthly_returns
-        * port_period_returns
-        * port_period_perf
-    Attributs:
-        * pname
-        * ww
-        * port
-        * schedule
+    **Attributes**
+        * pname : 'str' - portfolio name 
+        * ww : 'pandas.DataFrame' - the value of the weights at each 
+          rebalancing date
+        * port : 'pandas.Series' - portfolio time series
+        * schedule : 'pandas.DataFrame' - rebalancing schedule
     """
     def __init__(self, mktdata, symb=None, sdate=None, edate=None, 
                  col_price='close', col_divd='divd', col_ref='adjusted',
@@ -45,63 +31,63 @@ class Port_Generator(Port_Simple):
     
         Parameters
         ----------
-        `mktdata` : `pandas.DataFrame`;
+        mktdata : `pandas.DataFrame`
             MkT data in the format "symbol", "date", "open", "high", "low",
-            "close", "volume", "adjusted", "divd", "split" (e.g. as returned
+            "close", "volume", "adjusted", "divd", "split" (e.g., as returned
             by `azapy.readMkT` function).
-        `symb` : `list`, optional;
+        symb : `list`, optional
             List of symbols for the basket components. All symbols MkT data
-            should be included in mktdata. If set to `None` the `symb` will be
+            should be included in `mktdata`. If set to `None` the `symb` will be
             set to include all the symbols from `mktdata`. The default
             is `None`.
-        `sdate` : date like, optional;
+        sdate : date like, optional
             Start date for historical data. If set to `None` the `sdate` will
-            be set to the earliest date in mktdata. The default is `None`.
-        `edate` : date like, optional;
+            be set to the earliest date in `mktdata`. The default is `None`.
+        edate : date like, optional
             End date for historical dates and so the simulation. Must be
             greater than  `sdate`. If it is `None` then `edat`e will be set
-            to the latest date in mktdata. The default is `None`.
-        `col_price` : `str`, optional;
+            to the latest date in `mktdata`. The default is `None`.
+        col_price : `str`, optional
             Column name in the mktdata DataFrame that will be considered
             for portfolio aggregation. The default is `'close'`.
-        `col_divd` :  `str`, optional;
+        col_divd :  `str`, optional
             Column name in the mktdata DataFrame that holds the dividend
             information. The default is `'dvid'`.
-        `col_ref` : `str`, optional;
+        col_ref : `str`, optional
             Column name in the mktdata DataFrame that will be used as a price
             reference for portfolio components. The default is `'adjusted'`.
-        `pname` : `str`, optional;
+        pname : `str`, optional
             The name of the portfolio. The default is `'Port'`.
-        `pcolname` : `str`, optional;
+        pcolname : `str`, optional
             Name of the portfolio price column. If it set to `None` then
             `pcolname=pname`. The default is `None`.
-        `capital` : `float`, optional;
+        capital : `float`, optional
             Initial portfolio Capital in dollars. The default is `100000`.
-        `schedule` : `pandas.DataFrame`, optional;
+        schedule : `pandas.DataFrame`, optional
             Rebalancing schedule, with columns for `'Droll'` rolling date and
             `'Dfix'` fixing date. If it is `None` than the schedule will be set
             using the `freq`, `noffset`, `fixoffset` and `calendar`
             information. The default is `None`.
-        `freq` : `str`, optional;
-            rebalancing frequency. It can be `'Q'` for quarterly or `'M'` for
-            monthly rebalancing, respectively. It is relevant only is schedule
-            is `None`. The default is `'Q'`.
-        `noffset` : `int`, optional;
+        freq : `str`, optional
+            Rebalancing frequency. It can be `'Q'` for quarterly or `'M'` for
+            monthly rebalancing, respectively. It is relevant only if the 
+            schedule is `None`. The default is `'Q'`.
+        noffset : `int`, optional
             Number of business days offset for rebalancing date `'Droll'`
             relative to the end of the period (quart or month). A positive
             value add business days beyond the calendar end of the period while
-            a negative value subtracts business days. It is relevant only is
-            schedule is `None`. The default is `-3`.
-        `fixoffset` : `int`, optional;
+            a negative value subtracts business days. It is relevant only if 
+            the schedule is `None`. The default is `-3`.
+        fixoffset : `int`, optional
             Number of business day offset of fixing date `'Dfix'` relative to
             the rebalancing date `'Droll'`. It can be 0 or negative. It is
-            relevant only is schedule is `None`. The default is `-1`.
-        `calendar` : `numpy.busdaycalendar`, optional;
+            relevant only if the schedule is `None`. The default is `-1`.
+        calendar : `numpy.busdaycalendar`, optional
             Business calendar. If it is `None` then it will be set to NYSE
             business calendar. The default
-            vale is `None`.
-        `multitreading` : Boolean, optional;
-            If it is `True` then the weights at the rebalancing dates will 
+            value is `None`.
+        multitreading : Boolean, optional
+            If it is `True` then the rebalancing weights will 
             be computed concurrent. The default is `True`.
     
         Returns
@@ -136,10 +122,10 @@ class Port_Generator(Port_Simple):
         
         Parameters
         ----------
-        `wwModel` : `ModelPipeline` object;
+        wwModel : `ModelPipeline` object
             Weights model
-        `verbose` : Boolean, optional:
-            Sets teh verbose mode.
+        verbose : Boolean, optional
+            Sets the verbose mode.
 
         Returns
         -------
@@ -185,13 +171,15 @@ class Port_Generator(Port_Simple):
 
     def _set_weights_mt(self):
         # local function
+        
         def _fww(Dfix, mod):
             if Dfix > self.edate:
-                return pd.Series(np.nan, index=self.mktdata['symbol'].unique())
-            
-            mm = self.mktdata.loc[self.mktdata.index <= Dfix].copy()
-            
-            wei = mod.getWeights(mm, pclose=False, verbose=self.verbose)
+                wei = pd.Series(0, 
+                      index=list(self.mktdata['symbol'].unique()) + ['_CASH_'])
+            else:
+                mm = self.mktdata.loc[self.mktdata.index <= Dfix].copy()
+                wei = mod.getWeights(mm, pclose=False, verbose=self.verbose)
+                
             wei['Dfix'] = Dfix
             w.append(wei)
         
@@ -203,8 +191,11 @@ class Port_Generator(Port_Simple):
             th[i].start()
         for i in range(len(th)):
             th[i].join()
-            
-        self.ww = pd.merge(left=self.schedule, right=pd.DataFrame(w), on='Dfix')
+
+        self.ww = pd.merge(left=self.schedule, right=pd.DataFrame(w), 
+                           on='Dfix', how='left')
+        self.ww.loc[self.ww.Dfix > self.edate, 
+                list(self.mktdata['symbol'].unique()) + ['_CASH_']] = np.nan
 
 
     def _port_calc(self):
@@ -270,35 +261,34 @@ class Port_Generator(Port_Simple):
     def get_account(self, fancy=False):
         """
         Returns additional bookkeeping information regarding rebalancing 
-        (e.g. residual cash due rounding number of shares, previous period 
-         dividend cash accumulation, etc.)
+        (e.g., residual cash due rounding number of shares, previous period
+        dividend cash accumulation, etc.)
 
         Parameters
         ----------
-        `fancy` : Boolean, optional;
-            * `False`: the values are reported in unaltered algebraic format. 
-            * `True` : the values are reported rounded.
+        fancy : Boolean, optional
+            - `False`: the values are reported in unaltered algebraic format. 
+            - `True` : the values are reported rounded.
             
-        The default is `False`.
+            The default is `False`.
 
         Returns
         -------
-        `pandas.DataFrame`;
-            Reports, for each rolling period identified by `'Droll'`: 
-
-            * number of shares hold for each symbol,
-            * 'cash_invst' : cash invested at the beginning of period,
-            * 'cash_roll' : cash rolled to the next period,
-            * 'cash_divd' : cash dividend accumulated in the previous period.
+        `pandas.DataFrame` : Reports, for each rolling period identified by `'Droll'`,
+                - number of shares hold for each symbol,
+                - 'cash_invst' : cash invested at the beginning of period,
+                - 'cash_roll' : cash rolled to the next period,
+                - 'cash_divd' : cash dividend accumulated in the previous period.
                 
-        Note: The capital at the beginning of the period is 
-        cash_invst + cash_roll. It is also equal to the previous period: 
-        value of the shares on the fixing date + cash_roll + cash_divd.
-        There are 2 sources for the cash_roll. The roundup to integer 
-        number of shares and the shares close price differences between 
-        the fixing (computation) and rolling (execution) dates. It could
-        be positive or negative. The finance of the cash_roll during 
-        each rolling period is assumed to be done separately by the investor.
+            *Note: The capital at the beginning of the period is 
+            cash_invst + cash_roll. It is also equal to the previous period: 
+            value of the shares on the fixing date + cash_roll + cash_divd.
+            There are 2 sources for the cash_roll. The roundup to integer 
+            number of shares and the shares close price differences between 
+            the fixing (computation) and rolling (execution) dates. It could
+            be positive or negative. The finance of the cash_roll during 
+            each rolling period is assumed to be done separately by 
+            the investor.*
         """
         acc_tab = self.nshares.copy()
         acc_tab['cash_invst'] = self.cash_invst
@@ -319,17 +309,17 @@ class Port_Generator(Port_Simple):
 
         Parameters
         ----------
-        `fancy` : Boolean, optional;
-           * `False`: returns in algebraic form.
-           * `True`: returns percentage rounded to 2 decimals.
+        fancy : Boolean, optional
+           - `False`: returns in algebraic form.
+           - `True`: returns percentage rounded to 2 decimals.
+           
         The default is `False`.
 
         Returns
         -------
-        `pandas.DataFrame`;
-            Each rolling period is indicated by its start date, `'Droll'`. 
-            Included are the fixing data, `'Dfix'`, and the 
-            portfolio weights.
+        `pandas.DataFrame` : The report.
+            Each rolling  period is indicated by its start date, `'Droll'`. 
+            Included are the fixing data, `'Dfix'`, and the portfolio weights.
         """
         # local function
         def frr(x):
@@ -339,7 +329,6 @@ class Port_Generator(Port_Simple):
         
         rww1 = self.ww.merge(self.port, left_on='Droll', right_index=True)
         rww1['Rx'] = rww1[self.port.columns[0]].pct_change()
-        print(rww1)
         
         rww = self.ww.merge(self.port, left_on='Droll', right_index=True)\
                   .rename(columns={self.port.columns[0]: 'p1'})\
@@ -362,51 +351,53 @@ class Port_Generator(Port_Simple):
 
         Parameters
         ----------
-        `fancy` : Boolean, optional;
-           * `False`: returns in algebraic form.
-           * `True`: returns percentage rounded to 2 decimals.
+        fancy : Boolean, optional
+           - `False`: returns in algebraic form.
+           - `True`: returns percentage rounded to 2 decimals.
         The default is `False`.
 
         Returns
         -------
-        `pandas.DataFrame`;
-            Each rolling period is indicated by its start date, `'Droll'`.\n
-            `'RR'` - period rate of return.\n
-            `'RR_Min'` - minimum rolling rate of return in the period.\n
-            `'RR_Max'` - maximum rolling rate of return in the period.\n
-            `'DD_Max'` - maximum drawdown in the period.\n
-            `'RR_Min_Date'` - date of `'RR_Min'`.\n
-            `'RR_Max_Date'` - date of `'RR_Max'`.\n
-            `'DD_Max_Date'` - date of `'DD_Max'`.\n
+        `pandas.DataFrame` : 
+            - `'Droll'` – indicates the start of the period.
+            - `'RR'` - period rate of return.
+            - `'RR_Min'` - minimum rolling rate of return in the period.
+            - `'RR_Max'` - maximum rolling rate of return in the period.
+            - `'DD_Max'` - maximum drawdown in the period.
+            - `'RR_Min_Date'` - date of `'RR_Min'`.
+            - `'RR_Max_Date'` - date of `'RR_Max'`.
+            - `'DD_Max_Date'` - date of `'DD_Max'`.
         """
         nn = self.schedule.shape[0]
-        rr = np.zeros(nn)
-        rmin = np.zeros(nn)
+        rr = []
+        rmin = []
         rmin_date = []
-        rmax = np.zeros(nn)
+        rmax = []
         rmax_date = []
-        ddmax = np.zeros(nn)
+        ddmax = []
         ddmax_date = []
         for i in range(nn):
             sd = self.schedule['Droll'][i]
             if i == (nn - 1):
                 ed = self.port.index[-1]
+                if sd > ed:
+                    break
             else:
                 ed = self.schedule['Droll'][i + 1]
 
             pr = self.port.loc[sd:ed] / self.port.loc[sd] - 1
-            rr[i] = pr.iloc[-1]
+            rr.append(pr.iloc[-1, 0])
             mm = pr.idxmin(numeric_only=True)[0]
-            rmin[i] = pr.loc[mm]
+            rmin.append(pr.loc[mm][0])
             rmin_date.append(mm)
             mm = pr.idxmax(numeric_only=True)[0]
-            rmax[i] = pr.loc[mm]
+            rmax.append(pr.loc[mm][0])
             rmax_date.append(mm)
             dd = max_drawdown(self.port.loc[sd:ed], self.port.columns[0])
-            ddmax[i] = dd[0]
+            ddmax.append(dd[0])
             ddmax_date.append(dd[1])
-            
-        rout = pd.DataFrame({'Droll': self.schedule['Droll'],
+
+        rout = pd.DataFrame({'Droll': self.schedule['Droll'][:i],
                              'RR': rr, 
                              'RR_Min': rmin, 'RR_Max': rmax, 'DD_Max': ddmax,
                              'RR_Min_Date': rmin_date,

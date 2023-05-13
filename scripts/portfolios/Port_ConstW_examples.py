@@ -4,7 +4,7 @@ import time
 import azapy as az
 
 #=============================================================================
-# Collect some market data
+# Collect market data
 mktdir = '../../MkTdata'
 sdate = '2012-01-01'
 edate = 'today'

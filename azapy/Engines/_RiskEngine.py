@@ -3,17 +3,20 @@ import pandas as pd
 
 class _RiskEngine():
     """
-    Base class. Derive class needs to implement\n
-        getWeights \n
-
-    Methods:
+    Base class.
+    
+    **Attributes**
+        * status : `int` - computation status (`0` - success, any other 
+          value indicates an error)
+        * ww : `pandas.Series` - portfolio weights
+        * name : `str` - portfolio name
+    
+    Note: Derive class needs to implement `getWeights` method
+    
+    **Methods**
         * getPositions
         * set_rrate
         * set_mktdata
-    Attributes:
-        * status
-        * ww
-        * name
     """
     def __init__(self, mktdata=None, colname='adjusted', freq='Q', 
                  hlength=3.25, name=None):
@@ -22,20 +25,20 @@ class _RiskEngine():
 
         Parameters
         ----------
-        `mktdata` : `pandas.DataFrame`, optional;
+        mktdata : `pandas.DataFrame`, optional
             Historic daily market data for portfolio components in the format
             returned by `azapy.mktData` function. The default is `None`.
-        `colname` : `str`, optional;
+        colname : `str`, optional
             Name of the price column from mktdata used in the weights
             calibration. The default is `'adjusted'`.
-        `freq` : `str`, optional;
-            Rate of return horizon in number of business day. It could be
-            `'Q'` for quarter or `'M'` for month. The default is `'Q'`.
-        `hlength` : `float`, optional;
+        freq : `str`, optional
+            Rate of return horizon. It could be 
+            `'Q'` for a quarter or `'M'` for a month. The default is `'Q'`.
+        hlength : `float`, optional
             History length in number of years used for calibration. A
             fractional number will be rounded to an integer number of months.
             The default is `3.25` years.
-        `name` : `str`, optional;
+        name : `str`, optional
             Portfolio name. Deafult value is `None`
 
         Returns
@@ -67,10 +70,10 @@ class _RiskEngine():
 
         Parameters
         ----------
-        `rrate` : `pandas.DataFrame`;
+        rrate : `pandas.DataFrame`
             The portfolio components historical rates of return.
-            If it is not `None`, it will overwrite the rrate computed in the
-            constructor from mktdata. The default is `None`.
+            If it is not `None`, it will overwrite the `rrate` computed in the
+            constructor from `mktdata`. The default is `None`.
 
         Returns
         -------
@@ -93,20 +96,20 @@ class _RiskEngine():
 
         Parameters
         ----------
-        `mktdata` : `pandas.DataFrame`;
+        mktdata : `pandas.DataFrame`
             Historic daily market data for portfolio components in the format
             returned by `azapy.mktData` function.
-        `colname` : `str`, optional;
-            Name of the price column from mktdata used in the weights
+        colname : `str`, optional
+            Name of the price column from mktdata used in the weight's
             calibration. The default is 'adjusted'.
-        `freq` : `str`, optional;
-            Rate of returns horizon in number of business day. It could be
-            'Q' for quarter or 'M' for month. The default is 'Q'.
-        `hlength` : `float`, optional;
+        freq : `str`, optional
+            Rate of return horizon. It could be 
+            `'Q'` for a quarter or `'M'` for a month. The default is `'Q'`.
+        hlength : `float`, optional
             History length in number of years used for calibration. A
             fractional number will be rounded to an integer number of months.
             The default is `3.25`.
-        `pclose` : Boolena, optiona; \n
+        pclose : Boolena, optiona \n
             `True` : assumes `mktdata` contains closing prices only, 
             with columns the asset symbols and indexed by the 
             observation dates, \n
@@ -161,56 +164,60 @@ class _RiskEngine():
 
     def getPositions(self, nshares=None, cash=0., ww=None, verbose=True):
         """
-        Computes the number of shares according to the weights
+        Computes the rebalanced number of shares.
 
         Parameters
         ----------
-        `nshares` : `pandas.Series`, optional;
-            Number of shares per portfolio component. A missing component
-            entry will be considered `0`. A `None` value assumes that all
-            components entries are `0`. The name of the components must be
+        nshares : `panda.Series`, optional
+            Initial number of shares per portfolio component.
+            A missing component
+            entry will be considered 0. A `None` value assumes that all
+            components entries are 0. The name of the components must be
             present in the mrkdata. The default is `None`.
-        `cash` : `float`, optional;
-            Additional cash to be considered in the overall capital. A
+        cash : `float`, optional
+            Additional cash to be added to the capital. A
             negative entry assumes a reduction in the total capital
-            available for rebalance. The remaining capital must be >0.
-            The default is `0`.
-        `ww` : `pandas.Series`, optional;
-            External portfolio weights. If it not set to `None` these
-            weights will overwrite the calibrated weights.
-            The default is `None`.
-
+            available for rebalance. The total capital cannot be < 0.
+            The default is 0. 
+        ww : `panda.Series`, optional
+            External overwrite portfolio weights. 
+            If it not set to `None` these
+            weights will overwrite the calibration results.
+            The default is `None`. 
+        verbose : Boolean, optional
+            Is it set to `True` the function prints the closing prices date.
+            The default is `True`.
+        
         Returns
         -------
-        `pandas.DataFrame`;
-            The rolling information.
+        `pandas.DataFrame` : the rolling information.
 
         Columns:
 
             - `'old_nsh'` :
-                the initial number of shares per portfolio
-                component as well as additional cash position. These are
-                present in the input.
+                initial number of shares per portfolio component and
+                the additional cash. These are input values.
             - `'new_nsh'` :
-                the new number of shares per component plus the
-                residual cash (due to the rounding to an integer number of
-                shares). A negative entry means that the investor needs to
-                add more cash to cover for the number of share
-                roundup shortfall. It has a small value.
+                the new number of shares per component plus the residual
+                cash (due to the rounding to an integer number of shares).
+                A negative entry means that the investor needs to add more
+                cash to cover for the roundup shortfall.
+                It has a small value.
             - `'diff_nsh'` :
-                the number of shares that needs to be
-                both/sold to rebalance the portfolio positions.
+                number of shares (buy/sale) needed to rebalance the 
+                portfolio.
             - `'weights'` :
-                portfolio weights used for rebalancing. The 'cash'
-                entry is the new portfolio value.
+                portfolio weights used for rebalancing. The cash entry is
+                the new portfolio value (invested capital).
             - `'prices'` :
                 the share prices used for rebalances evaluations.
 
-        Note: Since the prices are closing prices, the rebalance can be
-        executed next business. Additional cash slippage may occur due
-        to share price differential between the previous day closing and
-        execution time.
-
+            Note: Since the prices are closing prices, the rebalance can be
+            computed after the market close and before the 
+            trading execution (next day). 
+            Additional cash slippage may occur due
+            to share price differential between the previous day closing and
+            execution time.
         """
         ns = pd.Series(0, index=self.rrate.columns)
         if nshares is not None:

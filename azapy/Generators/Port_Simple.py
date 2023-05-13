@@ -5,7 +5,7 @@ import numbers
 import plotly.graph_objects as go
 from collections import defaultdict
 
-from azapy.util.drawdown import drawdown, max_drawdown
+from azapy.Util.drawdown import drawdown, max_drawdown
 
 def _color_negative_red(val):
     if isinstance(val, numbers.Number) and (val < 0):
@@ -18,24 +18,14 @@ class Port_Simple:
     """
     Backtesting the Buy and Hold portfolio.
 
-    Methods:
-        * set_model
-        * get_port
-        * get_weights
-        * get_nshares
-        * get_mktdata
-        * port_view
-        * port_view_all
-        * port_drawdown
-        * port_perf
-        * port_annual_returns
-        * port_monthly_returns
-    Attributs:
-        * pname
-        * ww
-        * port
-    """
-
+    **Attributes**
+        * `pname` : `str` - portfolio name
+        * `ww` : `pandasDataFrame` - portfolio weights at each rebalancing date
+        * `port` : `pandas.Series` - portfolio historical time-series
+       
+    The most important method is `set_model`. It must be called before any
+    other method.
+    """                  
     def __init__(self, mktdata, symb=None, sdate=None, edate=None,
                  col='adjusted', pname='Port', pcolname=None,
                  capital=100000):
@@ -44,31 +34,31 @@ class Port_Simple:
 
         Parameters
         ----------
-        `mktdata` : `pandas.DataFrame`;
+        mktdata : `pandas.DataFrame`;
             MkT data in the format "symbol", "date", "open", "high", "low",
-            "close", "volume", "adjusted", "divd", "split" (e.g. as returned
+            "close", "volume", "adjusted", "divd", "split" (e.g., as returned
             by `azapy.readMkT` function).
-        `symb` : `list`, optional;
+        symb : `list`, optional
             List of symbols for the basket components. All symbols MkT data
             should be included in `mktdata`. If set to `None` the `symb` will 
             be  set to the full set of symbols included in `mktdata`. 
             The default is `None`.
-        `sdate` : date like, optional;
+        sdate : date like, optional
             Start date for historical data. If set to `None` the `sdate` will
             be set to the earliest date in `mktdata`. The default is `None`.
-        `edate` : date like, optional;
+        edate : date like, optional
             End date for historical dates and so the simulation. Must be
             greater than `sdate`. If it is `None` then `edate` will be set
             to the latest date in `mktdata`. The default is `None`.
-        `col` : `str`, optional;
+        col : `str`, optional
             Name of column in the mktdata DataFrame that will be considered
             for portfolio aggregation. The default is 'adjusted'.
-        `pname` : `str`, optional;
+        pname : `str`, optional
             The name of the portfolio. The default is 'Port'.
-        `pcolname` : `str`, optional;
+        pcolname : `str`, optional
             Name of the portfolio price column. If it set to `None` that
             `pcolname=pname`. The default is `None`.
-        `capital` : `float`, optional;
+        capital : `float`, optional
             Initial portfolio Capital in dollars. The default is 100000.
 
         Returns
@@ -134,17 +124,17 @@ class Port_Simple:
 
         Parameters
         ----------
-        `ww` : `list` (also `numpy.array` or `pandas.Series`), optional;
+        ww : `list` (also `numpy.array` or `pandas.Series`), optional
             List of weights. If it is `pandas.Series` the index should match
-            the basket `symb`. Otherwise the weights are considered in the 
+            the basket `symb`. Otherwise, the weights are considered in the 
             `symb` order. If it is set to `None` than `ww` will be set 
             to equal weights.
             The default is `None`.
 
         Returns
         -------
-        pandas.DataFrame
-            The portfolio time-series in the format "date", "pcolname".
+        `pandas.DataFrame` : The portfolio time-series in the format "date", 
+        "pcolname".
         """
         # Validate the weights
         if ww is None:
@@ -180,7 +170,7 @@ class Port_Simple:
 
         Returns
         -------
-        `pandas.DataFrame`
+        `pandas.DataFrame` : portfolio time-series.
         """
         return self.port.copy()
     
@@ -191,15 +181,15 @@ class Port_Simple:
         
         Parameters
         ----------
-        `fancy` : Boolean, optional;
-            * `False`: reports the weights in algebraic format.
-            * `True`: reports the weights in percentage rounded to 2 decimals.
+        fancy : Boolean, optional
+            - `False`: reports the weights in algebraic format.
+            - `True`: reports the weights in percentage rounded to 2 decimals.  
             
-        The default is `False`.
+            The default is `False`.
 
         Returns
         -------
-        `pandas.DataFrame`
+        `pandas.DataFrame` : portfolio weights per symbol.
         """
         res = self.ww.copy()
         if not fancy:
@@ -211,11 +201,11 @@ class Port_Simple:
     
     def get_nshares(self):
         """
-        Returns the number of shares hold after each rolling date.
+        Returns the number of shares held after each rolling date.
 
         Returns
         -------
-        `pandas.DataFrame`
+        `pandas.DataFrame` : number of shares per symbol.
         """
         if self.nshares is None:
             return None
@@ -229,37 +219,37 @@ class Port_Simple:
 
         Returns
         -------
-        `pandas.DataFrame`
+        `pandas.DataFrame` : market data.
         """
         return self.mktdata.copy()
 
 
     def port_view(self, emas=[30, 200], bollinger=False, **opt):
         """
-        Plot the portfolio time series together with optional technical
+        Plots the portfolio time series together with optional technical
         indicators.
 
         Parameters
         ----------
-        `emas` : `list` of int, optional;
+        emas : `list` of int, optional
             List of EMA durations. The default is [30, 200].
-        `bollinger` : Boolean, optional;
+        bollinger : Boolean, optional
             If set `True` it adds the Bollinger bands. The default is `False`.    
-        `opt` : other parameters:
-            * `fancy` : Boolean, optional;
+        **opt : other optional parameters
+            * `fancy` : Boolean, optional
                 - `False` : it uses the matplotlib capabilities.
-                - `True` : it uses plotly library for interactive time-series view.
+                - `True` : it uses `plotly` library for interactive time-series view.
     
                 The default is `False`.
-            * `title` : `str`, optional; plot title. The default is `'Port performance'`.
-            * `xlabel` : `str`, optional; name of x-axis. The default is `'date'`.
-            * `ylabel` : `srt`; optional; name of y-axis. The default is `None`.
+            * `title` : `str`, optional plot title. The default is `'Port performance'`.
+            * `xlabel` : `str`, optional name of x-axis. The default is `'date'`.
+            * `ylabel` : `str`; optional name of y-axis. The default is `None`.
             * `saveto` : `str`, optional
                 The name of the file where to save the plot. The default is `None`.
+                
         Returns
         -------
-        `pandas.DataFrame`;
-            Contains the time-series included in plot.
+        `pandas.DataFrame` : Contains the time-series included in plot.
         """
         options = defaultdict(lambda: None, 
                               {'title': "Port performance",
@@ -302,41 +292,38 @@ class Port_Simple:
 
     def port_view_all(self, sdate=None, edate=None, componly=False, **opt):
         """
-        Plot the portfolio and its component time-series in a relative bases.
+        Plots the portfolio and its component time-series on a relative basis.
 
         Parameters
         ----------
-        `sdate` : date like, optional;
+        sdate : date like, optional
             Start date of plotted time-series. If it is set to `None`
             then the `sdate` is set to the earliest date in the time-series.
             The default is `None`.
-        `edate` : date like, optional;
-            End date of plotted time-series. If it set to `None` then 
-            the `edate
-            is set to the most recent date of the time-series.
+        edate : date like, optional
+            End date of plotted time-series. If it set to `None`, then 
+            the `edate` is set to the most recent date of the time-series.
             The default is `None`.
-        `componly` : Boolean, optional;
-            `True` : only the portfolio components time-series are plotted.
-
-            `False`: the portfolio and its components times-series are plotted.
+        componly : Boolean, optional
+            - `True` : only the portfolio components time-series are plotted.
+            - `False`: the portfolio and its components times-series are plotted.
 
             The default is `True`.
-        `opt` : other parameters:
-            * `fancy` : Boolean, optional;
+        **opt : other parameters
+            * `fancy` : Boolean, optional
                 - `False` : it uses the pandas plot (matplotlib) capabilities.
-                - `True` : it uses plotly library for interactive time-series view.
+                - `True` : it uses `plotly` library for interactive time-series view.
 
                 The default is `False`.
-            * `title` : `str`, optional; plot title. The default is `'Relative performance'`.
-            * `xlabel` : `str`, optional; name of x-axis. The default is `'date'`.
-            * `ylabel` : `srt`; optional; name of y-axis. The default is `None`.
-            * `saveto` : `str`, optional;
+            * `title` : `str`, optional plot title. The default is `'Relative performance'`.
+            * `xlabel` : `str`, optional name of x-axis. The default is `'date'`.
+            * `ylabel` : `str`; optional name of y-axis. The default is `None`.
+            * `saveto` : `str`, optional
                 The name of the file where to save the plot. The default is `None`.
 
         Returns
         -------
-        `pandas.DataFrame`;
-            A Data Frame containing the time-series.
+        `pandas.DataFrame` : A Data Frame containing the time-series.
         """
         options = defaultdict(lambda: None, 
                               {'title': "Relative perfromance",
@@ -383,26 +370,25 @@ class Port_Simple:
 
         Parameters
         ----------
-        `top` : `int`, optional;
+        top : `int`, optional
             The number of largest drawdowns that will be reported.
             The default is `5`.
-        `fancy` : Boolean, optional;
-            `False` : The drawdowns values are reported in unaltered
-            algebraic format.
-
-            `True` : The drawdowns values are reported in percentage
-            rounded to 2 decimals.
+        fancy : Boolean, optional
+            - `False` : The drawdowns values are reported in unaltered 
+               algebraic format.
+            - `True` : The drawdowns values are reported in percentage 
+               rounded to 2 decimals.
 
             The default is `False`.
 
         Returns
         -------
-        `panda.DataFrame`;
-            Table of drawdown events. Columns: \n
-                `'DD'` : drawdown rate \n
-                `'Date'` : recorded date of the drawdown \n
-                `'Star'` : start date of the drawdown \n
-                `'End'` : end date of the drawdown
+        `panda.DataFrame` : Table of drawdown events. 
+            Columns: 
+                - `'DD'` : drawdown rate 
+                - `'Date'` : recorded date of the drawdown
+                - `'Star'` : start date of the drawdown 
+                - `'End'` : end date of the drawdown
         """
         res = drawdown(self.port, col=self.pcolname, top=top)
         if not fancy: return res
@@ -417,30 +403,29 @@ class Port_Simple:
 
         Parameters
         ----------
-        `componly` : Boolean, optional;
+        componly : Boolean, optional
             If `True`, only the portfolio components maximum drawdowns
             are reported. The default is `False`.
-        `fancy` : Boolean, optional;
-            * `False` : The rate of returns and drawdown values are reported
-            in unaltered algebraic format.
+        fancy : Boolean, optional
+            - `False` : The rate of returns and drawdown values are reported
+              in unaltered algebraic format.
 
-            * `True` : The rate of returns and drawdown values are reported
-            in  percentage rounded to 2 decimals.
+            - `True` : The rate of returns and drawdown values are reported
+              in  percentage rounded to 2 decimals.
 
             The default is `False`.
 
         Returns
         -------
-        `pandas.DataFrame`;
-            Performance information.
-            Columns:
-
-            * `'RR'` : rate of returns
-            * `'DD'` : maximum rate of drawdown
-            * `'RoMaD'` : abs(RR/DD)
-            * `'DD_date'` : recorder date of maximum drawdown
-            * `'DD_start'` : start date of maximum drawdown
-            * `'DD_end'` : end date of maximum drawdown
+        `pandas.DataFrame` : Performance information.
+            Columns
+                - `'RR'` : rate of returns
+                - `'DD'` : maximum rate of drawdown
+                - `'RoMaD'` : abs(RR/DD), Rate of Return over Maximum Drawdown
+                - `'DD_date'` : recorder date of maximum drawdown
+                - `'DD_start'` : start date of maximum drawdown
+                - `'DD_end'` : end date of maximum drawdown
+            
         """
         # local function
         def rinfo(df, col):
@@ -473,25 +458,24 @@ class Port_Simple:
 
         Parameters
         ----------
-        `withcomp` : Boolean, optional;
+        withcomp : Boolean, optional
             If `True`, adds the portfolio components annual returns to the
             report. The default is `False`.
-        `componly` : Boolean, optional;
+        componly : Boolean, optional
             If `True`, only the portfolio components annual returns are 
             reported.
             The flag is active only if `withcomp=True`. The default is `False`.
-        `fancy` : Boolean, optional;
-            `False` : The rates are reported in unaltered
-            algebraic format.
-
-            `True` :The rates are reported in percentage rounded to 2 decimals
-            and presented is color style.
+        fancy : Boolean, optional
+            - `False` : The rates are reported in unaltered
+              algebraic format.
+            - `True` :The rates are reported in percentage rounded to 2 decimals
+              and presented is color style.
 
             The default is `False`.
 
         Returns
         -------
-        `pandas.DataFrame`
+        `pandas.DataFrame` : the report.
         """
         # local function
         def frrate(df):
@@ -521,25 +505,24 @@ class Port_Simple:
 
         Parameters
         ----------
-        `withcomp` : Boolean, optional;
+        withcomp : Boolean, optional
             If `True`, adds the portfolio components monthly returns to the
             report. The default is `False`.
-        `componly` : Boolean, optional;
+        componly : Boolean, optional
             If `True`, only the portfolio components monthly returns are
             reported. The flag is active only if `withcomp=True`.
             The default is `False`.
-        `fancy` : Boolean, optional;
-            `False` : The rates are reported in unaltered
-            algebraic format.
-
-            `True` : The rates are reported in percentage rounded to 2 decimals
-            and presented is color style.
+        fancy : Boolean, optional
+            - `False` : The rates are reported in unaltered
+              algebraic format.
+            - `True` : The rates are reported in percentage rounded to 2 decimals
+              and presented is color style.
 
             The default is `False`.
 
         Returns
         -------
-        `pandas.DataFrame`
+        `pandas.DataFrame` : the report.
         """
         def frrate(df):
             return df[-1] / df[0] - 1

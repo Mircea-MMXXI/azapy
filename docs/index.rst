@@ -34,6 +34,7 @@ Risk-based portfolio optimizations
    RiskBased_intro
    CVaR_th_doc
    SMCR_th_doc
+   EVaR_th_doc
    MAD_th_doc
    LSD_th_doc
    BTAD_th_doc
@@ -41,8 +42,6 @@ Risk-based portfolio optimizations
    GINI_th_doc
    SD_th_doc
    MV_th_doc
-
-
 
 Naïve portfolios
 ================
@@ -67,19 +66,47 @@ Greedy portfolio optimizations
    Greedy_intro
    Kelly_th_doc
 
+Market Selectors
+================
+
+.. toctree::
+   :maxdepth: 1
+
+   Selectors_intro
+   NullSelector_th_doc
+   DualMomentumSelector_th_doc
+   CorrClusterSelector_th_doc
+
+Model Generators
+================
+
+.. toctree::
+   :maxdepth: 1
+
+   ModelPipeline_th_doc
+   Port_Generator_th_doc
 
 Utility functions
 =================
 
 .. toctree::
-  :maxdepth: 1
+   :maxdepth: 1
 
-  Util_readMkT
-  Util_summary_MkTData
-  Util_NYSEgen
-  Util_add_cash_security
-  Util_update_all_MkTData
+   Rebalanced_th_doc
+   readMkT_th_doc
+   summary_MkTdata_th_doc
+   NYSEgen_th_doc
+   add_cash_security_th_doc
+   update_MkTdata_th_doc
+   schedule_th_doc
 
+Modules
+=======
+
+.. toctree::
+   :maxdepth: 2
+
+   modules
 
 Indices and tables
 ==================

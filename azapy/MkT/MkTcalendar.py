@@ -1,27 +1,22 @@
-"""
-Contains:
-
-    - NYSEgen : NYSE business calendar
-"""
-
 import numpy as np
 import pandas_market_calendars as mcal
 
+
 def NYSEgen(sdate='1980-01-01', edate='2050-12-31'):
     """
-    Generate `numpy.busdaycalendar` for NYSE between `sdate` and 
+    Returns the NYSE business calendar between `sdate` and 
     `edate`.
 
     Parameters
     ----------
-    `sdate` : date like, optional;
+    sdate : date like, optional
         Calendar start date. The default is `'1980-01-01'`.
-    `edate` : date lik, optional
+    edate : date like, optional
         Calendar end date. The default is `'2050-12-31'`.
+        
     Returns
     -------
-    `numpy.busdaycalendar`;
-        NYSE business calendar.
+    `numpy.busdaycalendar` : NYSE business calendar.
     """
     sdate_ = np.datetime64(sdate)
     edate_ = np.datetime64(edate)

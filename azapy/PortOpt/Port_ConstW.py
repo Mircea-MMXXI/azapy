@@ -1,5 +1,3 @@
-import pandas as pd
-
 from ._Port_Generator import _Port_Generator
 from azapy.Generators.ModelPipeline import ModelPipeline
 from azapy.Engines.ConstWEngine import ConstWEngine
@@ -9,44 +7,32 @@ class Port_ConstW(_Port_Generator):
     """
     Backtesting Constant Weighted portfolio periodically rebalanced.
     
-    Methods:
-        * set_model
-        * get_port
-        * get_weights
-        * get_nshares
-        * get_account
-        * get_mktdata
-        * port_view
-        * port_view_all
-        * port_drawdown
-        * port_perf
-        * port_annual_returns
-        * port_monthly_returns
-        * port_period_returns
-        * port_period_perf
-    Attributs:
-        * pname
-        * ww
-        * port
-        * schedule
-    """                          
+    **Attributes**
+        * `pname` : `str` - portfolio name
+        * `ww` : `pandasDataFrame` - portfolio weights at each rebalancing date
+        * `port` : `pandas.Series` - portfolio historical time-series
+        * `schedule` : `pandas.DataFrame` - rebalancing schedule
+       
+    The most important method is `set_model`. It must be called before any
+    other method.
+    """                            
     def set_model(self, ww=None, verbose=False):
         """
-        Sest model weights.
+        Sets model weights.
 
         Parameters
         ----------
-        ww : `pandas.Series`, optional;
+        ww : `pandas.Series`, optional
             Portfolio weights per symbol. If it is set to `None` then 
             the EWP (Equal Weighted Portfolio) will be considered.
             The default is `None`.
-        `verbose` : Boolean, optional;
+        verbose : Boolean, optional
             Sets verbose mode. The default is `False`.
 
         Returns
         -------
-        `pandas.DataFrame`;
-            The portfolio time-series in the format "date", "pcolname".
+        `pandas.DataFrame` : Portfolio time-series in the format 'date', 
+        'pcolname'.
         """
         if ww is None:
             # set EWP
