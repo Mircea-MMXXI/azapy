@@ -28,7 +28,7 @@ A. Risk-based portfolio optimization algorithms:
   10. mEVaR - mixture EVaR (Entropic Value at Risk)
   <span style="color:red">(alpha version)</span>
 
-For each risk-based optimization class the following strategies are
+For each class of portfolio the following optimization strategies are
 available:
   1. Optimal-risk portfolio for targeted expected rate of return value
   2. Sharpe-optimal portfolio - maximization of generalized Sharpe ratio
@@ -65,6 +65,10 @@ C. Greedy portfolio optimization strategies:
   1. Kelly's portfolio (as in John Larry Kelly Jr. scientist 1923-1965) -
      maximization of portfolio log returns
 
+D. Market Selectors
+  1. Dual Momentum Selector <span style="color:red">(alpha version)</span>
+  2. Correlation Clustering Selector <span style="color:red">(alpha version)</span>
+
 Utility functions:
   * Collect historical market data from various providers.
     Supported providers:
@@ -80,18 +84,17 @@ Utility functions:
   * Append a cash-like security to an existing market data object.
   * Update market data saved in a directory.
 
-
-The pollowing third-party packages were used with azapy 1.1.1
-* python 3.11.2
-* pandas 1.5.3
-* numpy 1.23.5
-* scipy 1.10.0
-* statsmodels 0.13.5
-* matplotlib 3.7.1
-* plotly 5.9.0
-* requests 2.28.1
-* pandas_market_calendars 4.1.4
-* ecos 2.0.12
-* cvxopt 1.3.0.1
-* ta 0.10.2
-* yfinance 0.2.14
+The following third-party packages were used with azapy 1.2.1:
+  * python 3.11.2
+  * pandas 1.5.3
+  * numpy 1.24.3
+  * scipy 1.10.1
+  * statsmodels 0.13.5
+  * matplotlib 3.7.1
+  * plotly 5.9.0
+  * requests 2.29.0
+  * pandas_market_calendars 4.1.4
+  * ecos 2.0.12
+  * cvxopt 1.3.0.1
+  * ta 0.10.2
+  * yfinance 0.2.14
