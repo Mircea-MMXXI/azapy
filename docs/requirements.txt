@@ -1,2 +1,3 @@
 myst-parser
 linkify-it-py
+numpydoc
