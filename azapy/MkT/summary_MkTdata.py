@@ -4,6 +4,7 @@ from collections import defaultdict
 
 from .MkTcalendar import NYSEgen
 
+
 def summary_MkTdata(mktdata, calendar=None, sdate=None, edate=None):
     """
     Summary of MkT data time-series length and quality (checks for missing
