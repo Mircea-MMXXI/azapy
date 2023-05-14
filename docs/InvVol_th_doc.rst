@@ -19,7 +19,7 @@ InvVolEngine class
 :ref:`TOP<mInvVol_top>`
 
 `Example InvVolEngine <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/InvVolEngine_examples.py>`_
-====================================================================================================================
+********************************************************************************************************************
 
 .. literalinclude:: ../scripts/analyzers/InvVolEngine_examples.py
    :language: py
@@ -37,7 +37,7 @@ Port_InvVol class
 :ref:`TOP<mInvVol_top>`
 
 `Example Port_InvVol <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_InvVol_examples.py>`_
-===================================================================================================================
+*******************************************************************************************************************
 
 .. literalinclude:: ../scripts/portfolios/Port_InvVol_examples.py
   :language: py

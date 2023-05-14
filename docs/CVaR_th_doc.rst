@@ -19,7 +19,7 @@ CVaRAnalyzer class
 :ref:`TOP<mCVaR_top>`
 
 `Example CVaRAnalyzer <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/CVaRAnalyzer_examples.py>`_
-====================================================================================================================
+********************************************************************************************************************
 
 .. literalinclude:: ../scripts/analyzers/CVaRAnalyzer_examples.py
    :language: py
@@ -37,7 +37,7 @@ Port_CVaR class
 :ref:`TOP<mCVaR_top>`
 
 `Example Port_CVaR <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_CVaR_examples.py>`_
-===============================================================================================================
+***************************************************************************************************************
 
 .. literalinclude:: ../scripts/portfolios/Port_CVaR_examples.py
   :language: py

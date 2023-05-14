@@ -13,7 +13,7 @@ Adds a cash like security to an existing MkT data object.
 :ref:`TOP<add_cash_security_top>`
 
 `Example add_cash_security <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/util/add_cash_security_examples.py>`_
-==========================================================================================================================
+*************************************************************************************************************************
 
 .. literalinclude:: ../scripts/util/add_cash_security_examples.py
   :language: py

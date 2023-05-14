@@ -19,7 +19,7 @@ MVAnalyzer class
 :ref:`TOP<mMV_top>`
 
 `Example MVAnalyzer <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/MVAnalyzer_examples.py>`_
-====================================================================================================================
+****************************************************************************************************************
 
 .. literalinclude:: ../scripts/analyzers/MVAnalyzer_examples.py
    :language: py
@@ -37,7 +37,7 @@ Port_MV class
 :ref:`TOP<mMV_top>`
 
 `Example Port_MV <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_MV_examples.py>`_
-===============================================================================================================
+***********************************************************************************************************
 
 .. literalinclude:: ../scripts/portfolios/Port_MV_examples.py
   :language: py

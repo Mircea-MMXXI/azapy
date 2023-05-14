@@ -19,7 +19,7 @@ LSDAnalyzer class
 :ref:`TOP<mLSD_top>`
 
 `Example LSDAnalyzer <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/LSDAnalyzer_examples.py>`_
-====================================================================================================================
+******************************************************************************************************************
 
 .. literalinclude:: ../scripts/analyzers/LSDAnalyzer_examples.py
    :language: py
@@ -37,7 +37,7 @@ Port_LSD class
 :ref:`TOP<mLSD_top>`
 
 `Example Port_LSD <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_LSD_examples.py>`_
-===============================================================================================================
+*************************************************************************************************************
 
 .. literalinclude:: ../scripts/portfolios/Port_LSD_examples.py
   :language: py

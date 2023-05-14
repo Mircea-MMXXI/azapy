@@ -13,7 +13,7 @@ Generates the NYSE (New York Stock Exchange) business days calendar.
 :ref:`TOP<MkTcalendar_top>`
 
 `Example NYSEgen <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/util/MkTcalendar_examples.py>`_
-=========================================================================================================
+*********************************************************************************************************
 
 .. literalinclude:: ../scripts/util/MkTcalendar_examples.py
   :language: py

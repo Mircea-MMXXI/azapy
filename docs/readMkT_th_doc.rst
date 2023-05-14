@@ -19,7 +19,7 @@ readMkT function
 :ref:`TOP<readMkT_top>`
 
 `Example readMkT function call <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/util/readMkT_examples.py>`_
-===================================================================================================================
+*******************************************************************************************************************
 
 .. literalinclude:: ../scripts/util/readMkT_examples.py
   :language: py
@@ -37,7 +37,7 @@ MkTreader class
 :ref:`TOP<readMkT_top>`
 
 `Example MkTreader class usage <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/util/MkTreader_examples.py>`_
-=====================================================================================================================
+*********************************************************************************************************************
 
 .. literalinclude:: ../scripts/util/MkTreader_examples.py
   :language: py

@@ -19,7 +19,7 @@ EVaRAnalyzer class
 :ref:`TOP<mEVaR_top>`
 
 `Example EVaRAnalyzer <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/EVaRAnalyzer_examples.py>`_
-====================================================================================================================
+********************************************************************************************************************
 
 .. literalinclude:: ../scripts/analyzers/EVaRAnalyzer_examples.py
    :language: py
@@ -37,7 +37,7 @@ Port_EVaR class
 :ref:`TOP<mEVaR_top>`
 
 `Example Port_EVaR <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_EVaR_examples.py>`_
-===============================================================================================================
+***************************************************************************************************************
 
 .. literalinclude:: ../scripts/portfolios/Port_EVaR_examples.py
   :language: py

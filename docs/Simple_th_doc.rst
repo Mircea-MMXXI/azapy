@@ -19,7 +19,7 @@ Port_Simple class
 :ref:`TOP<mSimple_top>`
 
 `Example Buy and Hold use of Port_Simple <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_Simple_examples.py>`_
-=======================================================================================================================================
+***************************************************************************************************************************************
 
 .. literalinclude:: ../scripts/portfolios/Port_Simple_examples.py
   :language: py
@@ -27,7 +27,7 @@ Port_Simple class
 :ref:`TOP<mSimple_top>`
 
 `Example Port_Simple used as a portfolio comparison tool <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_Simple_examples.py>`_
-=======================================================================================================================================================
+*******************************************************************************************************************************************************
 
 .. literalinclude:: ../scripts/portfolios/Port_Simple_examples2.py
   :language: py

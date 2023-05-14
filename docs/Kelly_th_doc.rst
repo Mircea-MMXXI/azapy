@@ -19,8 +19,7 @@ KellyEngine class
 :ref:`TOP<mKelly_top>`
 
 `Example KellyEngine <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/KellyEngine_examples.py>`_
-===================================================================================================================
-
+******************************************************************************************************************
 .. literalinclude:: ../scripts/analyzers/KellyEngine_examples.py
    :language: py
 
@@ -37,7 +36,7 @@ Port_Kelly class
 :ref:`TOP<mKelly_top>`
 
 `Example Port_Kelly <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_Kelly_examples.py>`_
-=================================================================================================================
+*****************************************************************************************************************
 
 .. literalinclude:: ../scripts/portfolios/Port_Kelly_examples.py
   :language: py

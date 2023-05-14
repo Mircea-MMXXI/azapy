@@ -19,7 +19,7 @@ GINIAnalyzer class
 :ref:`TOP<mGINI_top>`
 
 `Example GINIAnalyzer <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/GINIAnalyzer_examples.py>`_
-====================================================================================================================
+********************************************************************************************************************
 
 .. literalinclude:: ../scripts/analyzers/GINIAnalyzer_examples.py
    :language: py
@@ -37,7 +37,7 @@ Port_GINI class
 :ref:`TOP<mGINI_top>`
 
 `Example Port_GINI <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_GINI_examples.py>`_
-===============================================================================================================
+***************************************************************************************************************
 
 .. literalinclude:: ../scripts/portfolios/Port_GINI_examples.py
   :language: py

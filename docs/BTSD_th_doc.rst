@@ -19,7 +19,7 @@ BTSDAnalyzer class
 :ref:`TOP<mBTSD_top>`
 
 `Example BTSDAnalyzer <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/BTSDAnalyzer_examples.py>`_
-====================================================================================================================
+********************************************************************************************************************
 
 .. literalinclude:: ../scripts/analyzers/BTSDAnalyzer_examples.py
    :language: py
@@ -37,7 +37,7 @@ Port_BTSD class
 :ref:`TOP<mBTSD_top>`
 
 `Example Port_BTSD <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_BTSD_examples.py>`_
-===============================================================================================================
+***************************************************************************************************************
 
 .. literalinclude:: ../scripts/portfolios/Port_BTSD_examples.py
   :language: py

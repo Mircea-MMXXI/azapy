@@ -21,11 +21,11 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'azapy'
-copyright = '2021, Mircea Marinescu'
+copyright = '2023, Mircea Marinescu'
 author = 'Mircea Marinescu'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.7'
+release = '0.0.8'
 
 
 # -- General configuration ---------------------------------------------------
@@ -90,10 +90,10 @@ autodoc_default_options = {
     'private-members': False,
     'inherited-members': True,
     'undoc-members': True,
-    'exclude-members': '__weakref__',
+#    'exclude-members': '__weakref__',
 }
 autosummary_generate = False
 autoclass_content = 'class'
 numpydoc_class_members_toctree = False
-# numpydoc_show_class_members = False
-# numpydoc_show_inherited_class_members = False
+add_function_parentheses = False
+toc_object_entries_show_parents = 'hide'
