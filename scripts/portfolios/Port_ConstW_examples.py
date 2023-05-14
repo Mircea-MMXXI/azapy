@@ -4,7 +4,7 @@ import time
 import azapy as az
 
 #=============================================================================
-# Collect some market data
+# Collect market data
 mktdir = '../../MkTdata'
 sdate = '2012-01-01'
 edate = 'today'
@@ -49,7 +49,7 @@ with pd.option_context('display.max_columns', None):
 # Test: compare to an equivalent Port_Rebalanced
 # Setup Port_Rebalanced
 # Build weights schedule
-wwr = az.schedule_simple(sdate=sdate, edate=edate, freq='Q')
+wwr = az.schedule_offset(sdate=sdate, edate=edate, freq='Q')
 
 for sy in symb:
     wwr[sy] = [1./len(symb)] * len(wwr)

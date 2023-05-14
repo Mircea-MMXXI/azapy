@@ -1,37 +1,34 @@
-from .Port_MAD import Port_MAD
-from .LSDAnalyzer import LSDAnalyzer
+from ._Port_Generator import _Port_Generator
+from azapy.Generators.ModelPipeline import ModelPipeline
+from azapy.Analyzers.LSDAnalyzer import LSDAnalyzer
 
-class Port_LSD(Port_MAD):
+
+class Port_LSD(_Port_Generator):
     """
-    Backtesting mLSD optimal portfolio strategies, periodically rebalanced.
+    Backtesting LSD (Lower Standard Deviation) portfolio periodically 
+    rebalanced.
     
-    Methods:
-        * set_model
-        * get_port
-        * get_nshares
-        * get_weights
-        * get_account
-        * get_mktdata
-        * port_view
-        * port_view_all
-        * port_drawdown
-        * port_perf
-        * port_annual_returns
-        * port_monthly_returns
-        * port_period_returns
-    """    
-    def set_model(self, coef=[1.], rtype='Sharpe', mu=None, mu0=0,
-                  aversion=None, ww0=None, hlength=3.25, method='ecos',
-                  verbose=False):
+    **Attributes**
+        * `pname` : `str` - portfolio name
+        * `ww` : `pandasDataFrame` - portfolio weights at each rebalancing date
+        * `port` : `pandas.Series` - portfolio historical time-series
+        * `schedule` : `pandas.DataFrame` - rebalancing schedule
+       
+    The most important method is `set_model`. It must be called before any
+    other method.
+    """                     
+    def set_model(self, coef=[1], rtype='Sharpe',
+                  mu=None, mu0=0, aversion=None, ww0=None, 
+                  hlength=3.25, method='ecos', verbose=False):
         """
-        Set model parameters and evaluates portfolio time-series.
+        Sets model parameters and evaluates portfolio time-series.
 
         Parameters
         ----------
-        `coef` : `list`, optional;
+        coef : `list`, optional
             Positive non-increasing list of coefficients. 
             The default is `[1.]`.
-        `rtype` : `str`, optional;
+        rtype : `str`, optional
             Optimization type. Possible values: \n
                 `'Risk'` : optimal-risk portfolio for targeted expected rate of 
                 return.\n
@@ -44,9 +41,9 @@ class Port_LSD(Port_MAD):
                 as a benchmark portfolio (e.g., same as equal weighted 
                 portfolio).\n
                 `'Diverse'` : optimal-diversified portfolio for targeted
-                expected rate of return (maximum of inverse 1-D).\n
+                expected rate of return (maximum of inverse of 1-D).\n
                 `'Diverse2'` : optimal-diversified portfolio for targeted
-                expected rate of return (minmum of 1-D).\n
+                expected rate of return (minimum of 1-D).\n
                 `'MaxDiverse'` : maximum diversified portfolio.\n
                 `'InvNdiverse'` : optimal-diversified portfolio with the same
                 diversification factor as a benchmark portfolio 
@@ -54,40 +51,39 @@ class Port_LSD(Port_MAD):
                 `'InvNdrr'` : optima- diversified portfolio with the same 
                 expected rate of return as a benchmark portfolio
                 (e.g., same as equal weighted portfolio).\n
-            The defauls is `'Sharpe'`.
-        `mu` : `float`, optional;
+            The default is `'Sharpe'`.
+        mu : `float`, optional
             Targeted portfolio expected rate of return. 
             Relevant only if `rtype='Risk'`
             The default is `None`.
-        `mu0` : `float`, optional;
+        mu0 : `float`, optional
             Risk-free rate accessible to the investor.
-            Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
+            Relevant only if `rtype='Sharpe'` or `rtype='Sharpe2'`.
             The default is `0`.
-        `aversion` : `float`, optional;
+        aversion : `float`, optional
             The value of the risk-aversion factor.
             Must be positive. Relevant only if `rtype='RiskAvers'`.
             The default is `None`.
-        `ww0` : `list` (also `numpy.array` or `pandas.Series`), optional;
+        ww0 : `list` (also `numpy.array` or `pandas.Series`), optional
             Targeted portfolio weights. 
             Relevant only if `rype='InvNrisk'`.
             Its length must be equal to the number of
-            symbols in rrate (mktdata). 
-            All weights must be >= 0 with sum > 0.
+            symbols in `rrate` (`mktdata`). 
+            All weights must be >= 0 with their sum > 0.
             If it is a list or a `numpy.array` then the weights are assumed to
             by in order of `rrate.columns`. If it is a `pandas.Series` then 
-            the index should be compatible with the `rrate.columns` or mktdata 
-            symbols (same symbols, not necessary in the same order).
+            the index should be compatible with the `rrate.columns` or `mktdata` 
+            symbols (same symbols, not necessarily in the same order).
             If it is `None` then it will be set to equal weights.
             The default is `None`.
-        `hlength` : `float`, optional;
+        hlength : `float`, optional
             The length in year of the historical calibration period relative
             to `'Dfix'`. A fractional number will be rounded to an integer 
             number of months. The default is `3.25` years.
-        `method` : `str`, optional;
-            SOCP numerical method.
-            It could be `'ecos'` or `'cvxopt'`.
+        method : `str`, optional
+            SOCP numerical method. Could be: `'ecos'` or `'cvxopt'`.
             The defualt is `'ecos'`.
-        `verbose` : Boolean, optiona;
+        verbose : Boolean, optional
             If it set to `True` then it will print messages when the optimal
             portfolio degenerates to a single asset portfolio as a limited 
             case. 
@@ -95,16 +91,11 @@ class Port_LSD(Port_MAD):
 
         Returns
         -------
-        `pandas.DataFrame`;
-            The portfolio time-series in the format "date", "pcolname".
+        `pandas.DataFrame` : The portfolio time-series in the format 'date', 
+        'pcolname'.
         """
-        return super().set_model(coef=coef, rtype=rtype, mu=mu, mu0=mu0,
-                                 aversion=aversion, ww0=ww0, 
-                                 hlength=hlength, method=method,
-                                 verbose=verbose)
-    
-        
-    def _wwgen(self):
-        return LSDAnalyzer(coef=self.coef, rtype=self.rtype, 
-                           method=self.method, name=self.pname)
-    
+        mod = LSDAnalyzer(coef=coef,
+                          colname=self.col_calib, freq=self.freq,
+                          hlength=hlength, rtype=rtype, mu=mu, d=1, mu0=mu0,
+                          aversion=aversion, ww0=ww0, method=method)
+        return super().set_model(ModelPipeline([mod]), verbose)
