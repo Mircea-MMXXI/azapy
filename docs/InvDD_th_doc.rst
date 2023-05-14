@@ -19,7 +19,7 @@ InvDDEngine class
 :ref:`TOP<mInvDD_top>`
 
 `Example InvDDEngine <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/InvDDEngine_examples.py>`_
-==================================================================================================================
+******************************************************************************************************************
 
 .. literalinclude:: ../scripts/analyzers/InvDDEngine_examples.py
    :language: py
@@ -37,7 +37,7 @@ Port_InvDD class
 :ref:`TOP<mInvDD_top>`
 
 `Example Port_InvDD <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_InvDD_examples.py>`_
-=================================================================================================================
+*****************************************************************************************************************
 
 .. literalinclude:: ../scripts/portfolios/Port_InvDD_examples.py
   :language: py

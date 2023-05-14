@@ -20,6 +20,7 @@ azapy.Util.drawdown module
    :members:
    :undoc-members:
    :show-inheritance:
+   :noindex:
 
 azapy.Util.gamblingKelly module
 -------------------------------
@@ -28,7 +29,8 @@ azapy.Util.gamblingKelly module
    :members:
    :undoc-members:
    :show-inheritance:
-
+   :noindex:
+   
 azapy.Util.schedule module
 --------------------------
 

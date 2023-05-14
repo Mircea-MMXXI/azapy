@@ -19,7 +19,7 @@ SDAnalyzer class
 :ref:`TOP<mSD_top>`
 
 `Example SDAnalyzer <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/SDAnalyzer_examples.py>`_
-====================================================================================================================
+****************************************************************************************************************
 
 .. literalinclude:: ../scripts/analyzers/SDAnalyzer_examples.py
    :language: py
@@ -37,7 +37,7 @@ Port_SD class
 :ref:`TOP<mSD_top>`
 
 `Example Port_SD <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_SD_examples.py>`_
-===============================================================================================================
+***********************************************************************************************************
 
 .. literalinclude:: ../scripts/portfolios/Port_SD_examples.py
   :language: py

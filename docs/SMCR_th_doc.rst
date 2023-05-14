@@ -19,7 +19,7 @@ SMCRAnalyzer class
 :ref:`TOP<mSMCR_top>`
 
 `Example SMCRAnalyzer <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/SMCRAnalyzer_examples.py>`_
-====================================================================================================================
+********************************************************************************************************************
 
 .. literalinclude:: ../scripts/analyzers/SMCRAnalyzer_examples.py
    :language: py
@@ -37,7 +37,7 @@ Port_SMCR class
 :ref:`TOP<mSMCR_top>`
 
 `Example Port_SMCR <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_SMCR_examples.py>`_
-===============================================================================================================
+***************************************************************************************************************
 
 .. literalinclude:: ../scripts/portfolios/Port_SMCR_examples.py
   :language: py

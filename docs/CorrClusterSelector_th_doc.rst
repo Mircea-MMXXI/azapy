@@ -19,7 +19,7 @@ CorrClusterSelector class
 :ref:`TOP<CorrClusterSelector_top>`
 
 `Example CorrClusterSelctor <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/selectors/CorrClusterSelector_examples.py>`_
-==================================================================================================================================
+*********************************************************************************************************************************
 
 .. literalinclude:: ../scripts/selectors/CorrClusterSelector_examples.py
    :language: py

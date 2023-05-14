@@ -19,7 +19,7 @@ ModelPipeline class
 :ref:`TOP<ModelPipeline_top>`
 
 `Example ModelPipeline <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/generators/ModelPipeline_examples.py>`_
-=======================================================================================================================
+***********************************************************************************************************************
 
 .. literalinclude:: ../scripts/generators/ModelPipeline_examples.py
   :language: py

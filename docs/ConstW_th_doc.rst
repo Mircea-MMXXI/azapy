@@ -19,7 +19,7 @@ Port_ConstW class
 :ref:`TOP<ConstW_top>`
 
 `Example Port_ConstW <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_ConstW_examples.py>`_
-===================================================================================================================
+*******************************************************************************************************************
 
 .. literalinclude:: ../scripts/portfolios/Port_ConstW_examples.py
   :language: py

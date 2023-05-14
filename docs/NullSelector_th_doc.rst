@@ -19,7 +19,7 @@ NullSelector class
 :ref:`TOP<NullSelector_top>`
 
 `Example NullSelector <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/selectors/NullSelector_examples.py>`_
-====================================================================================================================
+********************************************************************************************************************
 
 .. literalinclude:: ../scripts/selectors/NullSelector_examples.py
    :language: py

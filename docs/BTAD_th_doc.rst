@@ -19,7 +19,7 @@ BTADAnalyzer class
 :ref:`TOP<mBTAD_top>`
 
 `Example BTADAnalyzer <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/BTADAnalyzer_examples.py>`_
-====================================================================================================================
+********************************************************************************************************************
 
 .. literalinclude:: ../scripts/analyzers/BTADAnalyzer_examples.py
    :language: py
@@ -37,7 +37,7 @@ Port_BTAD class
 :ref:`TOP<mBTAD_top>`
 
 `Example Port_BTAD <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_BTAD_examples.py>`_
-===============================================================================================================
+***************************************************************************************************************
 
 .. literalinclude:: ../scripts/portfolios/Port_BTAD_examples.py
   :language: py

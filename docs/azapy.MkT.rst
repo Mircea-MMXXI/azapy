@@ -35,10 +35,10 @@ azapy.MkT.update_MkTdata module
 --------------------------------
 
 .. automodule:: azapy.MkT.update_MkTdata
-  :members:
-  :undoc-members:
-  :show-inheritance:
-  :noindex:
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :noindex:
 
 azapy.MkT.summary_MkTdata module
 ---------------------------------

@@ -19,7 +19,7 @@ Port_Generator class
 :ref:`TOP<Port_Generator_top>`
 
 `Example Port_Generator <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/generators/Port_Generator_examples.py>`_
-=========================================================================================================================
+*************************************************************************************************************************
 
 .. literalinclude:: ../scripts/generators/Port_Generator_examples.py
   :language: py

@@ -19,7 +19,7 @@ DualMomentumSelector class
 :ref:`TOP<DualMomentumSelector_top>`
 
 `Example DualMomentumSelctor <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/selectors/DualMomentumSelector_examples.py>`_
-===================================================================================================================================
+***********************************************************************************************************************************
 
 .. literalinclude:: ../scripts/selectors/DualMomentumSelector_examples.py
    :language: py

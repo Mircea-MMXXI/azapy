@@ -19,7 +19,7 @@ InvVarEngine class
 :ref:`TOP<mInvVar_top>`
 
 `Example InvVarEngine <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/InvVarEngine_examples.py>`_
-====================================================================================================================
+********************************************************************************************************************
 
 .. literalinclude:: ../scripts/analyzers/InvVarEngine_examples.py
    :language: py
@@ -37,7 +37,7 @@ Port_InvVar class
 :ref:`TOP<mInvVar_top>`
 
 `Example Port_InvVar <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_InvVar_examples.py>`_
-===================================================================================================================
+*******************************************************************************************************************
 
 .. literalinclude:: ../scripts/portfolios/Port_InvVar_examples.py
   :language: py

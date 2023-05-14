@@ -14,7 +14,7 @@ Checks for missing records.
 :ref:`TOP<summary_MkTdata_top>`
 
 `Example update_MkTdata <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/util/summary_MkTdata_examples.py>`_
-====================================================================================================================
+********************************************************************************************************************
 
 .. literalinclude:: ../scripts/util/summary_MkTdata_examples.py
   :language: py

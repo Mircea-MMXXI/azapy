@@ -19,7 +19,7 @@ MADAnalyzer class
 :ref:`TOP<mMAD_top>`
 
 `Example MADAnalyzer <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/analyzers/MADAnalyzer_examples.py>`_
-====================================================================================================================
+******************************************************************************************************************
 
 .. literalinclude:: ../scripts/analyzers/MADAnalyzer_examples.py
    :language: py
@@ -37,7 +37,7 @@ Port_MAD class
 :ref:`TOP<mMAD_top>`
 
 `Example Port_MAD <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_MAD_examples.py>`_
-===============================================================================================================
+*************************************************************************************************************
 
 .. literalinclude:: ../scripts/portfolios/Port_MAD_examples.py
   :language: py

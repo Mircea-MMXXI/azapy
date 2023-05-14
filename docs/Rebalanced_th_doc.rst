@@ -19,7 +19,7 @@ Port_Rebalanced class
 :ref:`TOP<Rebalanced_top>`
 
 `Example Port_Rebalanced <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/portfolios/Port_Rebalanced_examples.py>`_
-===========================================================================================================================
+***************************************************************************************************************************
 
 .. literalinclude:: ../scripts/portfolios/Port_Rebalanced_examples.py
   :language: py
