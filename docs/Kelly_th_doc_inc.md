@@ -102,7 +102,7 @@ Our implementation supports the following methods:
 
 There are 2 support classes:
 
-* [**KellyAnalyzer**](azapy.Engines.KellyEngine.KellyEngine):
+* [**KellyEngine**](azapy.Engines.KellyEngine.KellyEngine):
 computes the portfolio weights and performs in-sample analysis,
 * [**Port_Kelly**](azapy.PortOpt.Port_Kelly.Port_Kelly) :
 performs portfolio backtesting, out-of-sample analysis.

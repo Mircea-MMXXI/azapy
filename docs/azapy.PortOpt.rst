@@ -148,6 +148,16 @@ azapy.PortOpt.Port\_SMCR module
    :show-inheritance:
    :noindex:
 
+azapy.PortOpt.Port\_Universal module
+------------------------------------
+
+.. automodule:: azapy.PortOpt.Port_Universal
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :noindex:
+
+
 Module contents
 ---------------
 

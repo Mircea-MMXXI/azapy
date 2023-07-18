@@ -138,7 +138,7 @@ class _RiskEngine():
         if hlength is None:
             if self.hlength is None:
                 raise ValueError("hlength must be set to a positive "
-                                 "value eq 1")
+                                 "value e.g. 1")
         else:
             self.hlength = hlength
 
