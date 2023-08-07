@@ -27,7 +27,7 @@ straightforward computation. The result is that the optimal betting size
 must be
 $2p-1$ times the capital on hands, provided that $p \ge 50\%$, and $0$
 otherwise. This strategy guaranties that we will never go bankrupt, and
-our capital may increase unlimitedly as we play (if $p \ge 50\%$).
+our capital may increase unlimited as we play (if $p \ge 50\%$).
 
 Things are a bit more complicated if for example there are $N$ simultaneous
 uncorrelated tossing coin games like the one described above. And we
@@ -73,6 +73,7 @@ the objective function subject to maximization is given by,
 \end{equation*}
 
 where:
+
 * $M$ is the number of portfolio components,
 * $\{w_k\}_{k=1,\cdots,M}$ are the weights,
 * $\{r_k\}_{i=1,\cdots,M}$ are the asset rate of returns.
@@ -80,11 +81,11 @@ where:
 The maximization can be solved directly as a convex non-linear problem
 (a relatively slow procedure) or it can be reformulated as an
 exponential cone constraint programming problem.
-An approximative solution can be obtained considering the second
+An approximate solution can be obtained considering the second
 order Taylor expansion of $Z$. In this case the maximization
 is reduced to a quadratic programming (QP) problem that
 can be solved numerically very efficiently.
-In general, the approximative optimal portfolio weights can be slightly
+In general, the optimal portfolio weights under this approximation can be slightly
 different than the weights obtained by solving the "Full"
 optimization problem.
 However, the performances of the two portfolios (based on "Full"
@@ -95,6 +96,7 @@ From a computational point of view, the second order approximation,
 involving a QP solver, is the fastest, followed by exponential cone.
 
 Our implementation supports the following methods:
+
 * exponential cone optimization for full Kelly problem, `rtype='ExpCone'`,
 * non-linear convex optimization, `rtype='Full'`,
 * second order Taylor approximation, `rtype='Order2'`, using either

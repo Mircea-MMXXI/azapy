@@ -25,7 +25,7 @@ class Port_Generator(Port_Simple):
                  col_price='close', col_divd='divd', col_ref='adjusted',
                  pname='Port', pcolname=None, capital=100000, schedule=None,
                  freq='Q', noffset=-3, fixoffset=-1, histoffset=3.25, 
-                 calendar=None, multitreading=True):
+                 calendar=None, multithreading=True):
         """
         Constructor
     
@@ -45,7 +45,7 @@ class Port_Generator(Port_Simple):
             be set to the earliest date in `mktdata`. The default is `None`.
         edate : date like, optional
             End date for historical dates and so the simulation. Must be
-            greater than  `sdate`. If it is `None` then `edat`e will be set
+            greater than  `sdate`. If it is `None` then `edate` will be set
             to the latest date in `mktdata`. The default is `None`.
         col_price : `str`, optional
             Column name in the mktdata DataFrame that will be considered
@@ -86,7 +86,7 @@ class Port_Generator(Port_Simple):
             Business calendar. If it is `None` then it will be set to NYSE
             business calendar. The default
             value is `None`.
-        multitreading : Boolean, optional
+        multithreading : Boolean, optional
             If it is `True` then the rebalancing weights will 
             be computed concurrent. The default is `True`.
     
@@ -113,7 +113,7 @@ class Port_Generator(Port_Simple):
         self.verbose = False
         if self.calendar is None: 
             self._default_calendar()
-        self.multitreading = multitreading
+        self.multithreading = multithreading
         
         
     def set_model(self, wwModel, verbose=False):
@@ -150,7 +150,7 @@ class Port_Generator(Port_Simple):
     
     
     def _set_weights(self):
-        if self.multitreading:
+        if self.multithreading:
             return self._set_weights_mt()
         return self._set_weights_sr()
     

@@ -40,7 +40,7 @@ def runif_simplex(rng, simplex_dim, size=1):
 def random_simplex(rng, simplex_dim, size=1, 
                    antithetic=False, dirichlet_alpha=None):
     """
-    Returns random vectors in the n-simplex 
+    Returns random vectors in the n-simplex (based on Dirichlet generator)
     `\sum_{k=1}^n x_k = 1` for `x_k >= 0`
     
     Parameters
@@ -55,11 +55,11 @@ def random_simplex(rng, simplex_dim, size=1,
     antithetic : Boolean, optional
         If it is set to `True`, then all the vector permutation will be added
         to the sample. The actual size of the sample will be 
-        `size * factorial(simelex_dim)`. The default is `False`.
+        `size * factorial(simplex_dim)`. The default is `False`.
     dirichlet_alpha : list, optional
         Dirichlet alpha coefficients. The length of the list must be equal to 
         `simplex_dim`. If it is `None`, then uniform distributed random vectors
-        are generated (equivalent wiht `dirichlet_alpha = [1] * simple_dim`).
+        are generated (equivalent to `dirichlet_alpha = [1] * simple_dim`).
         The default is None.
 
     Returns

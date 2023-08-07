@@ -39,11 +39,9 @@ In each case several optimization strategies are implemented. To
 understand them better, let's look at a generic example of portfolio frontiers
 graphically represented in the figure below.
 
-
 ![InSample1](../graphics/frontiers_1.png)
 
 _Fig 1. : Example of portfolio frontiers - risk vs. expected rate of return._
-
 
 This is a typical representation of portfolio frontiers. On the x-axis we
 have the values of the dispersion measure (risk) while on the y-axis
@@ -131,7 +129,6 @@ We have preserved the color code and all the symbols from Fig. 1.
 Fig. 2. gives a better understanding of portfolio efficiency in terms of
 expected excess return per unit or risk.
 
-
 For all dispersion measures mentioned above, the **azapy** package offers
 the following portfolio optimization strategies:
 
@@ -197,7 +194,6 @@ accuracy and computational speed.
 For completeness, we chose
 to make available this implementation under the setting `rtype='Sharpe2'`.
 
-
 **azapy** package covers, 9 risk-based dispersion measures $\times$ 6
 optimization strategies,
 in total 54 risk-based portfolio optimization strategies.[^strat]
@@ -220,6 +216,7 @@ _Fig 3. Example of out-of-sample (backtesting) portfolio performance._
 An out-of-sample analysis, also called backtesting or historical simulation,
 can be performed for any of the implemented portfolio
 strategies. The following information can be extracted:
+
 1. Portfolio realized rate of return. It is available monthly, annually
 and by rolling period. From these reports one can easily gauge the magnitude and
 seasonality of returns.
@@ -246,9 +243,6 @@ An example is provided in a
 **azapy** package has its own facility to collect historical market data from
 various providers[^apikey]
 (see section [*Read historical market data*](azapy.MkT.readMkT)).
-
-
-
 
 [^sharpe]: The concept of Sharpe ratio was introduced in
 1966 by William F. Sharpe.

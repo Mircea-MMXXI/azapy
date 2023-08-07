@@ -2,7 +2,7 @@ import azapy as az
 
 sdate = "2012-01-01"
 edate = 'today'
-symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
+symb = ['GLD', 'TLT', 'XLV', 'VGT', 'IHI']
 
 mktdir = "../../MkTdata"
 

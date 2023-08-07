@@ -39,7 +39,7 @@ class _RiskEngine():
             fractional number will be rounded to an integer number of months.
             The default is `3.25` years.
         name : `str`, optional
-            Portfolio name. Deafult value is `None`
+            Portfolio name. Default value is `None`
 
         Returns
         -------
@@ -109,7 +109,7 @@ class _RiskEngine():
             History length in number of years used for calibration. A
             fractional number will be rounded to an integer number of months.
             The default is `3.25`.
-        pclose : Boolena, optiona \n
+        pclose : Boolean, optional \n
             `True` : assumes `mktdata` contains closing prices only, 
             with columns the asset symbols and indexed by the 
             observation dates, \n
@@ -132,7 +132,7 @@ class _RiskEngine():
         elif freq in ['Q', 'M']:
             self.freq = freq
         else:
-            raise ValueError(f"wrrong value for freq: {freq}" 
+            raise ValueError(f"wrong value for freq: {freq}" 
                               " - it must be 'Q' or 'M'.")
             
         if hlength is None:

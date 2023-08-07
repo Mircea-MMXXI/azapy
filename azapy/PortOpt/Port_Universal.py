@@ -16,10 +16,10 @@ class Port_Universal(Port_Generator):
     other method.
     
     Note: if '_CASH_' asset is not explicitly present in the `mktdata` (as
-    a portfolio pure cash component), then it will be added to the portfolio 
+    a portfolio cash component), then it will be added to the portfolio 
     with a position (weight) net `0`.
     """                  
-    def set_model(self, mc_paths=100, nr_batches=20, 
+    def set_model(self, mc_paths=100, nr_batches=16, 
                   variance_reduction=True, dirichlet_alpha=None, 
                   mc_seed=None, verbose=False):
         """
@@ -32,17 +32,17 @@ class Port_Universal(Port_Generator):
             The default is `100`.
         nr_batches : positive `int`, optional
             Number of Monte Carlo simulation batches. Each batch runs
-            `mc_paths` of simulations. The computation is multithreaded for 
+            `mc_paths` simulations. The computation is multithreaded for 
             `nr_batches > 1`.
-            The default is `20`.
+            The default is `16`.
         variance_reduction : Boolean, optional
             If set to `True`, then the antithetic variance reduction based on 
             all possible permutations of the basket components is deployed.
             In this case the total number of MC simulations is
-            `mc_paths * nr_batches * factorial(number of porfolio components)`.
-            For example, a portfolio of 5 assets, with defualt values for 
-            `mc_paths` and `nr_batches` implies `100 * 20 * 120 = 240,000`
-            MC simulations. If it is set to 'False' then the total number
+            `mc_paths * nr_batches * factorial(number of portfolio components)`.
+            For example, a portfolio of 6 assets, with default values for 
+            `mc_paths` and `nr_batches` implies `100 * 16 * 720 = 1,1520,000`
+            MC simulations. If it is set to `False`, then the total number
             of simulations is `mc_paths * nr_batches`.
             The default is `True`.
         mc_seed : positive `int`, optional

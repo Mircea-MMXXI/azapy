@@ -99,6 +99,7 @@ Utility functions
    add_cash_security_th_doc
    update_MkTdata_th_doc
    schedule_th_doc
+   random_num_th_doc
 
 Modules
 =======

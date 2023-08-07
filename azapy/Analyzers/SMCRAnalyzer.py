@@ -101,7 +101,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
             The default is `1`.
         mu0 : `float`, optional
             Risk-free rate accessible to the investor.
-            Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
+            Relevant only if `rtype='Sharpe'` or `rtype='Sharpe2'`.
             The default is `0`.
         aversion : `float`, optional
             The value of the risk-aversion coefficient.
@@ -109,7 +109,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
             The default is `None`.
         ww0 : `list`, `numpy.array` or `pandas.Series`, optional
             Targeted portfolio weights. 
-            Relevant only if `rype='InvNrisk'`.
+            Relevant only if `rtype='InvNrisk'`.
             Its length must be equal to the number of symbols in `rrate` 
             (mktdata). All weights must be >= 0 with sum > 0.
             If it is a `list` or a `numpy.array` then the weights are assumed 
@@ -142,7 +142,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         # in total dim = nn + 2
         nn = self.nn
         
-        # buold c
+        # build c
         c_data = [1., 1. / (1. - alpha) / np.sqrt(nn)] + [0.] * nn
         
         # build G

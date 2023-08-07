@@ -28,7 +28,7 @@ class Port_Kelly(_Port_Generator):
                 `'ExpCone'` - Exponential cone constraint programming solution
                 for full Kelly problem. \n
                 `'Full'` - Non-linear solver for full Kelly problem. \n
-                `'Order2'` - Second order Tayler approximation of Kelly problem. \n
+                `'Order2'` - Second order Taylor approximation of Kelly problem. \n
             The default is `'ExpCone'`.
         hlength : `float`, optional
             The length in year of the historical calibration period relative 

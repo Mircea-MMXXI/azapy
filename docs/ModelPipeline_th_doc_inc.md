@@ -11,6 +11,7 @@ the list is an Optimizer Model object (e.g., instances of `az.CVaRAnalyzer`,
 `az.InvVol`, `az.KellyEngine`, etc. classes).
 
 Note the following exceptions:
+
 * A single element list will contain only an optimizer and no selectors,
 *i.e.*, `[Opt]`,
 * A `None` element in the list will be ignored, therefore the following

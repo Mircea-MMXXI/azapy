@@ -71,7 +71,7 @@ class Port_SMCR(_Port_Generator):
             The default is `None`.
         ww0 : `list` (also `numpy.array` or `pandas.Series`), optional
             Targeted portfolio weights. 
-            Relevant only if `rype='InvNrisk'`.
+            Relevant only if `rtype='InvNrisk'`.
             Its length must be equal to the number of
             symbols in `rrate` (`mktdata`). 
             All weights must be >= 0 with their sum > 0.
@@ -87,7 +87,7 @@ class Port_SMCR(_Port_Generator):
             number of months. The default is `3.25` years.
         method : `str`, optional
             SOCP numerical method. Could be: `'ecos'` or `'cvxopt'`.
-            The defualt is `'ecos'`.
+            The default is `'ecos'`.
         verbose : Boolean, optional
             If it set to `True` then it will print messages when the optimal
             portfolio degenerates to a single asset portfolio as a limited 

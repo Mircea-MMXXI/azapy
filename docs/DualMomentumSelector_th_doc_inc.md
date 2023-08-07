@@ -7,29 +7,29 @@ The rest of the capital, *i.e.*, 1 minus the capital at risk, is kept in cash
 as a strategic reserve against adverse market conditions.
 
 A dual momentum strategy has 3 essential parameters:
-  * **momentum** or **filter** : It is an analytical measure for stock
-  performance expressed as a real number with the following characteristics:
-    - only assets with positive momentum values are considered acceptable
-    investments,
-    - the higher its value the more performant is the underlying asset.
 
-  Later we will discuss the `f13612w` filter.
+* **momentum** or **filter** : It is an analytical measure for stock
+performance expressed as a real number with the following characteristics:
+  - only assets with positive momentum values are considered acceptable
+  investments,
+  - the higher its value the more performant is the underlying asset.
 
-  * **selection size**, $N_S$ : It is the <u> maximum number of assets in
-  the final selection </u>. A typical value is $N_S = 5$.
-  Note that the actual selection size $n$ is
-  smaller or equal to $N_S$, and it can be `0`,  
-  when the entire capital is kept in cash (during severe adverse market
-  conditions for a long-only type of investment).
-  * **threshold**, $N_T$ : It is the <u> minimum number of assets with
-  positive momentum </u> considered for a full capital allocation among
-  selected assets (*i.e.*, the capital at risk is equal to the total capital).
-  If the number of assets with positive momentum, $n$, is smaller than this
-  threshold, then the capital at risk is proportionally smaller than the total
-  capital. $N_T$ can be viewed as a quantitative expression for
-  "adverse market conditions", *i.e.*, there are "adverse market conditions"
-  if the actual selection size, $n$, is smaller than $N_T$.
+Later we will discuss the `f13612w` filter.
 
+* **selection size**, $N_S$ : It is the <u> maximum number of assets in
+the final selection </u>. A typical value is $N_S = 5$.
+Note that the actual selection size $n$ is
+smaller or equal to $N_S$, and it can be `0`,  
+when the entire capital is kept in cash (during severe adverse market
+conditions for a long-only type of investment).
+* **threshold**, $N_T$ : It is the <u> minimum number of assets with
+positive momentum </u> considered for a full capital allocation among
+selected assets (*i.e.*, the capital at risk is equal to the total capital).
+If the number of assets with positive momentum, $n$, is smaller than this
+threshold, then the capital at risk is proportionally smaller than the total
+capital. $N_T$ can be viewed as a quantitative expression for
+"adverse market conditions", *i.e.*, there are "adverse market conditions"
+if the actual selection size, $n$, is smaller than $N_T$.
 
 The capital at risk, $\rm CaR$, can be expressed as follows.
 Let's consider a set of $N_U$ assets subject to a dual momentum investment
@@ -55,8 +55,9 @@ optimization strategies presented in the Risk-based, Naïve, and Greedy
 sections.
 
 Regarding the actual momentum criterion, **azapy** implements
-  * `f13612w` filter - It is defined as the weighted average of the most recent
-    annualized 1-, 3-, 6-, and 12-months rates of return.
-    The typical setup is for equal weighted average.
-    However, **azapy** implementation allows for any set of positive weights
-    (not all zero), *e.g.*, `[1, 2, 1, 1]`.
+
+* `f13612w` filter - It is defined as the weighted average of the most recent
+  annualized 1-, 3-, 6-, and 12-months rates of return.
+  The typical setup is for equal weighted average.
+  However, **azapy** implementation allows for any set of positive weights
+  (not all zero), *e.g.*, `[1, 2, 1, 1]`.

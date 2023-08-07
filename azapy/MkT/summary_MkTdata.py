@@ -17,7 +17,7 @@ def summary_MkTdata(mktdata, calendar=None, sdate=None, edate=None):
 
     Parameters
     ----------
-    mktdata : `pandas.DataFrame` or a dict of `pndas.DataFrame`
+    mktdata : `pandas.DataFrame` or a dict of `pandas.DataFrame`
         Market Data in the format returned by `azapy.readMkT` function.
     calendar : `numpy.busdaycalendar`, optional
         Business days calendar. If is set to None it will 

@@ -39,7 +39,7 @@ class KellyEngine(_RiskEngine):
             fractional number will be rounded to an integer number of months.
             The default is `3.25` years.
         name : `str`, optional
-            Portfolio name. Deafult value is `'Kelly'`.
+            Portfolio name. Default value is `'Kelly'`.
         rtype : `str`, optional
             Optimization approximation. It can be:\n
                 'ExpCone' - exponential cone constraint programming solver 
@@ -85,7 +85,7 @@ class KellyEngine(_RiskEngine):
             The default is `None`.
         method : `str`, optional
             The QP solver class. It is relevant only if `rtype='Order2'`.
-            It takes 2 values: 'ecos' or 'cvxopt'.
+            It takes 2 values: `'ecos'` or `'cvxopt'`.
             A value different than `None` will overwrite the
             value set in the constructor.
             The default is `None`.

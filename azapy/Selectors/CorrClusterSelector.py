@@ -32,7 +32,7 @@ class CorrClusterSelector(NullSelector):
         freq : `str`, optional
             The horizon of rates subject to correlation estimations. 
             It can be either `'M'` for monthly or `'Q'` for quarterly rates. 
-            The defualt is `'Q'`.
+            The default is `'Q'`.
         ftype : `str`, optional
             Inner-cluster filter (i.e., criteria to designate the representative
             of a cluster with more than one symbol). At this point only 
@@ -91,7 +91,7 @@ class CorrClusterSelector(NullSelector):
         Returns
         -------
         (capital, mkt) : tuple
-            caplital : `float`
+            capital : `float`
                 Fraction of capital allocated to the selection. For this 
                 selector it is always 1.
             mkt  : `pandas.DataFrame`

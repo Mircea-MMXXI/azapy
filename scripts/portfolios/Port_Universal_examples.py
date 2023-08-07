@@ -8,7 +8,7 @@ print(f"azapy version {az.version()}", flush=True)
 mktdir = '../../MkTdata'
 sdate = '2012-01-01'
 edate = 'today'
-symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ', 'OIH']
+symb = ['GLD', 'TLT', 'XLV', 'IHI', 'VGT', 'OIH']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
@@ -21,7 +21,7 @@ ww = p4.get_weights()
 _ = p4.port_view()
 _ = p4.port_view_all()
 performance = p4.port_perf()
-drawdowns = p4.port_perf()
+drawdowns = p4.port_drawdown()
 aret = p4.port_annual_returns()
 mret = p4.port_monthly_returns()
 pret = p4.port_period_returns()

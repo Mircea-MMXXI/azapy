@@ -40,6 +40,15 @@ azapy.Util.schedule module
    :show-inheritance:
    :noindex:
 
+azapy.Util.randomgen module
+---------------------------
+
+.. automodule:: azapy.Util.randomgen
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :noindex:
+
 Module contents
 ---------------
 

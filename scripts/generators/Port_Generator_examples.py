@@ -10,7 +10,7 @@ mktdir = '../../MkTdata'
 sdate = '2012-01-01'
 edate = 'today'
 
-symb = ['GLD', 'TLT', 'IHI', 'PSJ', 'OIH',
+symb = ['GLD', 'TLT', 'IHI', 'VGT', 'OIH',
         'XAR', 'XBI', 'XHE', 'XHS', 'XLB',
         'XLE', 'XLF', 'XLI', 'XLK', 'XLU', 
         'XLV', 'XLY', 'XRT', 'SPY', 'ONEQ', 

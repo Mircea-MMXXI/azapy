@@ -1,5 +1,7 @@
 # azapy project
+
 ## Financial Portfolio Optimization Algorithms
+
 ### An open-source python library for everybody
 
 ![TimeSeries](graphics/Portfolio_1.png)
@@ -14,8 +16,10 @@ Package installation: `pip install azapy`
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/D1D07G22H)
 
-### Contents
-A. Risk-based portfolio optimization algorithms:
+## Contents
+
+### A. Risk-based portfolio optimization algorithms
+
   1. mCVaR - mixture CVaR (Conditional Value at Risk)
   2. mSMCR - mixture SMCR (Second Moment Coherent Risk)
   3. mMAD - m-level MAD (Mean Absolute Deviation)
@@ -28,8 +32,8 @@ A. Risk-based portfolio optimization algorithms:
   10. mEVaR - mixture EVaR (Entropic Value at Risk)
   <span style="color:red">(alpha version)</span>
 
-For each class of portfolio the following optimization strategies are
-available:
+#### For each class of portfolio the following optimization strategies are available
+
   1. Optimal-risk portfolio for targeted expected rate of return value
   2. Sharpe-optimal portfolio - maximization of generalized Sharpe ratio
   3. Sharpe-optimal portfolio - minimization of inverse generalized Sharpe
@@ -50,7 +54,8 @@ available:
   a benchmark portfolio (e.g., same as equal weighted portfolio)
   <span style="color:blue">(beta version)</span>
 
-B. "Naïve" portfolio strategies:
+### B. "Naïve" portfolio strategies
+
   1. Constant weighted portfolio. A particular case is equal
      weighted portfolio.
   2. Inverse volatility portfolio (i.e., portfolio weights are proportional to
@@ -61,40 +66,46 @@ B. "Naïve" portfolio strategies:
      the asset absolute value of maximum drawdowns over a predefined
      historical period)
 
-C. Greedy portfolio optimization strategies:
+### C. Greedy portfolio optimization strategies
+
   1. Kelly's portfolio (as in John Larry Kelly Jr. scientist 1923-1965) -
      maximization of portfolio log returns
+  2. Universal portfolio (Thomas M. Cover 1996) <span style="color:red">(alpha version)</span>
 
-D. Market Selectors
+### D. Market Selectors
+
   1. Dual Momentum Selector <span style="color:red">(alpha version)</span>
   2. Correlation Clustering Selector <span style="color:red">(alpha version)</span>
 
-Utility functions:
-  * Collect historical market data from various providers.
-    Supported providers:
+### Utility functions:
 
-    - yahoo.com
-    - eodhistoricaldata.com
-    - alphavantage.co
-    - marketstack.com
+* Collect historical market data from various providers.
 
-  * Generate business calendars. At this point only NYSE business calendar
-    is implemented.
-  * Generate rebalancing portfolio schedules.
-  * Append a cash-like security to an existing market data object.
-  * Update market data saved in a directory.
+  Supported providers:
+  + yahoo.com
+  + eodhistoricaldata.com
+  + alphavantage.co
+  + marketstack.com
+  
+* Generate business calendars. At this point only NYSE business calendar
+  is implemented.
+* Generate rebalancing portfolio schedules.
+* Append a cash-like security to an existing market data object.
+* Update market data saved in a directory.
+* N-simplex random vectors generators.
 
-The following third-party packages were used with azapy 1.2.1:
-  * python 3.11.2
-  * pandas 1.5.3
-  * numpy 1.24.3
-  * scipy 1.10.1
-  * statsmodels 0.13.5
-  * matplotlib 3.7.1
-  * plotly 5.9.0
-  * requests 2.29.0
-  * pandas_market_calendars 4.1.4
-  * ecos 2.0.12
-  * cvxopt 1.3.0.1
-  * ta 0.10.2
-  * yfinance 0.2.14
+### Third-party packages used by **azapy** 1.2.1
+
+* python 3.11.2
+* pandas 1.5.3
+* numpy 1.24.3
+* scipy 1.10.1
+* statsmodels 0.13.5
+* matplotlib 3.7.1
+* plotly 5.9.0
+* requests 2.29.0
+* pandas_market_calendars 4.1.4
+* ecos 2.0.12
+* cvxopt 1.3.0.1
+* ta 0.10.2
+* yfinance 0.2.14
