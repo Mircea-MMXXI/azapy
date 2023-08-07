@@ -22,7 +22,7 @@ class _RiskAnalyzer:
         * getPositions
         * getRiskComp
         * getDiversification
-        * viewForntiers
+        * viewFrontiers
         * set_rrate
         * set_method
         * set_mktdata
@@ -110,7 +110,7 @@ class _RiskAnalyzer:
             The default is `1`.
         mu0 : `float`, optional
             Risk-free rate accessible to the investor.
-            Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
+            Relevant only if `rtype='Sharpe'` or `rtype='Sharpe2'`.
             The default is `0`.
         aversion : `float`, optional
             The value of the risk-aversion coefficient.
@@ -118,7 +118,7 @@ class _RiskAnalyzer:
             The default is `None`.
         ww0 : `list`, `numpy.array` or `pandas.Series`, optional
             Targeted portfolio weights. 
-            Relevant only if `rype='InvNrisk'`.
+            Relevant only if `rtype='InvNrisk'`.
             Its length must be equal to the number of symbols in `rrate` 
             (mktdata). All weights must be >= 0 with sum > 0.
             If it is a `list` or a `numpy.array` then the weights are assumed 
@@ -246,7 +246,7 @@ class _RiskAnalyzer:
             The default is `1`.
         mu0 : `float`, optional
             Risk-free rate accessible to the investor.
-            Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
+            Relevant only if `rtype='Sharpe'` or `rtype='Sharpe2'`.
             The default is `0`.
         aversion : `float`, optional
             The value of the risk-aversion coefficient.
@@ -254,7 +254,7 @@ class _RiskAnalyzer:
             The default is `None`.
         ww0 : `list`, `numpy.array` or `pandas.Series`, optional
             Targeted portfolio weights. 
-            Relevant only if `rype='InvNrisk'`.
+            Relevant only if `rtype='InvNrisk'`.
             Its length must be equal to the number of symbols in `rrate` 
             (mktdata). All weights must be >= 0 with sum > 0.
             If it is a `list` or a `numpy.array` then the weights are assumed 
@@ -269,7 +269,7 @@ class _RiskAnalyzer:
             If it is not `None`, it will overwrite the set of historical rates
             of return computed in the constructor from `'mktdata'`. 
             The default is `None`. 
-        **params : other optional paramters
+        **params : other optional parameters
             Most common: \n
             `verbose` : Boolean, optional
                 If it set to `True`, then it will print a message when 
@@ -746,7 +746,7 @@ class _RiskAnalyzer:
             History length in number of years used for calibration. A
             fractional number will be rounded to an integer number of months.
             The default is `3.25`.
-        pclose : Boolena, optiona; \n
+        pclose : Boolean, optional \n
             `True` : assumes `mktdata` contains closing prices only, 
             with columns the asset symbols and indexed by the 
             observation dates, \n
@@ -853,7 +853,7 @@ class _RiskAnalyzer:
             The default is `1`.
         mu0 : `float`, optional
             Risk-free rate accessible to the investor.
-            Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
+            Relevant only if `rtype='Sharpe'` or `rtype='Sharpe2'`.
             The default is `0`.
         aversion : `float`, optional
             The value of the risk-aversion coefficient.
@@ -861,7 +861,7 @@ class _RiskAnalyzer:
             The default is `None`.
         ww0 : `list`, `numpy.array` or `pandas.Series`, optional
             Targeted portfolio weights. 
-            Relevant only if `rype='InvNrisk'`.
+            Relevant only if `rtype='InvNrisk'`.
             Its length must be equal to the number of symbols in `rrate` 
             (mktdata). All weights must be >= 0 with sum > 0.
             If it is a `list` or a `numpy.array` then the weights are assumed 
@@ -936,15 +936,15 @@ class _RiskAnalyzer:
             If it is `True`, then the equal weighted portfolio and the optimal 
             portfolio with the same risk value are added to
             the plot. The default is `True`.
-        invNrisk : Boolena, optional
+        invNrisk : Boolean, optional
             If it is `True`, then the efficient risk portfolio with same risk 
-            as equal weighth portfolio is added to the plot.
-            The defualt is `False`.
+            as equal weighted portfolio is added to the plot.
+            The default is `False`.
         invNdiverse : Boolean, optional
             If it is `True`, then the efficient diversified portfolio with the 
             same diversification factor as the equal weighted portfolio is
             added to the plot. The default is `False`.
-        invNdrr : Boolena, optional
+        invNdrr : Boolean, optional
             If it is `True`, then the efficient diversified portfolio with the 
             same expected rate of return as the equal weighted portfolio is
             added to the plot. The default value is `False`.
@@ -969,7 +969,7 @@ class _RiskAnalyzer:
                 
             The default is `'RR_risk'`.
         **opt : optional
-            Additonal parameters:\n
+            Additional parameters:\n
                 * `'title'` : `str` 
                     The default is 'Portfolio frontiers'.
                 * `'xlabel'` : `str` 
@@ -1797,7 +1797,7 @@ class _RiskAnalyzer:
 
 
     def _ww_gen(self):
-        return self.rng.dirichlet([0.5] * self.mm)
+        return self.rng.dirichlet([1] * self.mm)
     
     
     def _set_lp_method(self, method):

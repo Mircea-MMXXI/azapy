@@ -1,16 +1,19 @@
 There are 2 ways to get historical time series:
+
 1. [**readMkT**](azapy.MkT.readMkT.readMkT) function.
    It is a coinvent wrapper around `MkTreader` class,
 2. [**MkTreader**](azapy.MkT.MkTreader.MkTreader) class.
    Provides additional facilities for tracking missing data and errors.
 
 In both cases the user can:
+
 * save the collected historical time
   series to a local file repository for later use,
 * read directly from the providers,
 * read and update an existing local repository.
 
 The following market providers can be accesses:
+
 * <span style="color:green">**yahoo**</span> - free *as is* service,
 * <span style="color:green">**eodhistoricaldata**</span> - needs a premium
 account from *eodhistoricaldata.com*
@@ -37,6 +40,7 @@ while the close adjusted, for short `adjusted` prices, are splits and
 dividends adjusted relative to the most recent date in the returned time series.
 
 The following file formats are supported to save data:
+
 * *csv* - comma separated values format
 * *json* - JavaScript object notation format
 * *feeder* - portable binary format for storing Arrow tables and data frames in

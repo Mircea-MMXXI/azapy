@@ -9,7 +9,7 @@ class _Port_Generator(Port_Generator):
                  pname='Port', pcolname=None, capital=100000, 
                  schedule=None,
                  freq='Q', noffset=-3, fixoffset=-1, histoffset=3.25, 
-                 calendar=None, multitreading=True):
+                 calendar=None, multithreading=True):
         """
         Constructor
     
@@ -88,7 +88,7 @@ class _Port_Generator(Port_Generator):
                      schedule=schedule,
                      freq=freq, noffset=noffset, fixoffset=fixoffset, 
                      histoffset=histoffset, calendar=calendar,
-                     multitreading=True)
+                     multithreading=multithreading)
         self.col_calib = col_calib
         
         

@@ -9,10 +9,15 @@ def summary_MkTdata(mktdata, calendar=None, sdate=None, edate=None):
     """
     Summary of MkT data time-series length and quality (checks for missing
     records).
+    
+    Notes
+    -----
+    Its main application is to assess the missing data in the 
+    time-series extracted with `azapy.readMkT` function.
 
     Parameters
     ----------
-    mktdata : `pandas.DataFrame` or a dict of `pndas.DataFrame`
+    mktdata : `pandas.DataFrame` or a dict of `pandas.DataFrame`
         Market Data in the format returned by `azapy.readMkT` function.
     calendar : `numpy.busdaycalendar`, optional
         Business days calendar. If is set to None it will 
@@ -37,11 +42,6 @@ def summary_MkTdata(mktdata, calendar=None, sdate=None, edate=None):
         - `na_b` : number of missing records at the beginning
         - `na_e` : number of missing records at the end
         - `cont` : total number of missing records
-        
-    Comments
-    --------
-    The main application is to assess the missing data in the 
-    time-series extracted with `azapy.readMkT` function.
     """
     if isinstance(mktdata, dict):
         gite = mktdata.items()

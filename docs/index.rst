@@ -56,7 +56,6 @@ Naïve portfolios
    InvVar_th_doc
    InvDD_th_doc
 
-
 Greedy portfolio optimizations
 ==============================
 
@@ -65,6 +64,7 @@ Greedy portfolio optimizations
 
    Greedy_intro
    Kelly_th_doc
+   Universal_th_doc
 
 Market Selectors
 ================
@@ -99,6 +99,7 @@ Utility functions
    add_cash_security_th_doc
    update_MkTdata_th_doc
    schedule_th_doc
+   random_num_th_doc
 
 Modules
 =======

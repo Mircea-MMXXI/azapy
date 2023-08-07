@@ -71,7 +71,7 @@ class Port_BTSD(_Port_Generator):
             The default is `None`.
         ww0 : `list` (also `numpy.array` or `pandas.Series`), optional
             Targeted portfolio weights. 
-            Relevant only if `rype='InvNrisk'`.
+            Relevant only if `rtype='InvNrisk'`.
             Its length must be equal to the number of
             symbols in `rrate` (`mktdata`). 
             All weights must be >= 0 with their sum > 0.
@@ -81,7 +81,7 @@ class Port_BTSD(_Port_Generator):
             symbols (same symbols, not necessarily in the same order).
             If it is `None` then it will be set to equal weights.
             The default is `None`.
-        detrendent : Boolean, optional
+        detrended : Boolean, optional
             If it set to `True` then the rates of return are detrended 
             (`mean=0`). The default value is `True`. 
         hlength : `float`, optional

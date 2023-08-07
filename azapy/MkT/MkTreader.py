@@ -19,7 +19,7 @@ class MkTreader:
     **Attributs**
         - `dsource` : dict of request instructions per symbol
         - `delta_time` : execution time of the request in seconds
-        - `rout` : pandas.DataFrame contenig historical prices for all
+        - `rout` : pandas.DataFrame containing historical prices for all
           symbols. It is created during the call of `get` function.
         - `rout_status` : request status information. It is created during 
           the call of `get_request_status` function or during the 
@@ -77,7 +77,7 @@ class MkTreader:
         output_format : `str`, optional
             The function output format. It can be:
                 - `'frame'` - `pandas.DataFrame`
-                - `'dict'` - `dict` of `pandaws.DataFrame`. 
+                - `'dict'` - `dict` of `pandas.DataFrame`. 
                   The symbols are the keys.
                   
             The default is `'frame'`
@@ -820,6 +820,7 @@ class MkTreader:
             aprice['split'] = 1.
         else:
             esprice.index.name = 'date'
+            esprice.index = pd.to_datetime(esprice.index.date, utc=False)
             aprice = pd.merge(aprice, esprice, how='left', 
                               left_index=True, right_index=True)
             aprice['split'].fillna(1., inplace=True)

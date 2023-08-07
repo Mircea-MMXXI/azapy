@@ -8,7 +8,7 @@ import azapy as az
 mktdir = '../../MkTdata'
 sdate = '2012-01-01'
 edate = 'today'
-symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ', 'OIH']
+symb = ['GLD', 'TLT', 'XLV', 'IHI', 'VGT', 'OIH']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 

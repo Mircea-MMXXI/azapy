@@ -20,7 +20,7 @@ class Port_Rebalanced(Port_Generator):
     def __init__(self, mktdata, symb=None, sdate=None, edate=None, 
                  col_price='close', col_divd='divd', col_ref='adjusted',
                  pname='Port', pcolname=None, capital=100000, schedule=None,
-                 multitreading=True):
+                 multithreading=True):
         """
         Constructor
     
@@ -40,7 +40,7 @@ class Port_Rebalanced(Port_Generator):
             be set to the earliest date in mktdata. The default is `None`.
         edate : date like, optional
             End date for historical dates and so the simulation. Must be
-            greater than  `sdate`. If it is `None` then `edat`e will be set
+            greater than  `sdate`. If it is `None` then `edate` will be set
             to the latest date in mktdata. The default is `None`.
         col_price : `str`, optional
             Column name in the mktdata DataFrame that will be considered
@@ -63,7 +63,7 @@ class Port_Rebalanced(Port_Generator):
             `'Dfix'` fixing date. If it is `None` than the schedule will be set
             using the `freq`, `noffset`, `fixoffset` and `calendar`
             information. The default is `None`.
-        multitreading : Boolean, optional
+        multithreading : Boolean, optional
             If it is `True` then the weights at the rebalancing dates will 
             be computed concurrent. The default is `True`.
     

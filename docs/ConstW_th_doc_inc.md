@@ -23,7 +23,6 @@ presented in this
 >A portfolio with constant weights assumes that the fraction of capital invested
 >in each portfolio component is constant after each rebalancing event.
 
-
 There is 1 support class:
 
 * [**Port_ConstW**](azapy.PortOpt.Port_ConstW.Port_ConstW) :

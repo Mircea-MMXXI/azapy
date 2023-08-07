@@ -49,6 +49,16 @@ azapy.Engines.KellyEngine module
    :show-inheritance:
    :noindex:
 
+azapy.Engines.UniveralEngine module
+-----------------------------------
+
+.. automodule:: azapy.Engines.UniversalEngine
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :noindex:
+
+
 Module contents
 ---------------
 

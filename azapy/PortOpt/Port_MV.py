@@ -61,7 +61,7 @@ class Port_MV(_Port_Generator):
             The default is `None`.
         ww0 : `list` (also `numpy.array` or `pandas.Series`), optional
             Targeted portfolio weights. 
-            Relevant only if `rype='InvNrisk'`.
+            Relevant only if `rtype='InvNrisk'`.
             Its length must be equal to the number of
             symbols in `rrate` (`mktdata`). 
             All weights must be >= 0 with their sum > 0.

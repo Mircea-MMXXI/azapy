@@ -7,7 +7,6 @@ The backtesting of this strategy could be viewed as a performance benchmark.
 
 There is 1 support class:
 
-
 * [**Port_Simple**](azapy.Generators.Port_Simple.Port_Simple) :
 performs portfolio backtesting, out-of-sample analysis.
 

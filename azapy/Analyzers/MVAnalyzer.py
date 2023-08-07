@@ -19,7 +19,7 @@ class MVAnalyzer(_RiskAnalyzer):
         * `RR` : `float` - portfolio rate of return
         * `risk` : `float` - portfolio MV risk
         * `primary_risk_comp` : `list` - redundant (single element list 
-          containig MV risk value)
+          containing MV risk value)
         * `secondary_risk_comp` : `list` - redundant 
           (same as `primary_risk_comp`)
         * `sharpe` : `float` - MV-Sharpe ration if `rtype` is set to 
@@ -95,7 +95,7 @@ class MVAnalyzer(_RiskAnalyzer):
            The default is `1`.
         mu0 : `float`, optional
            Risk-free rate accessible to the investor.
-           Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
+           Relevant only if `rtype='Sharpe'` or `rtype='Sharpe2'`.
            The default is `0`.
         aversion : `float`, optional
            The value of the risk-aversion coefficient.
@@ -103,7 +103,7 @@ class MVAnalyzer(_RiskAnalyzer):
            The default is `None`.
         ww0 : `list`, `numpy.array` or `pandas.Series`, optional
            Targeted portfolio weights. 
-           Relevant only if `rype='InvNrisk'`.
+           Relevant only if `rtype='InvNrisk'`.
            Its length must be equal to the number of symbols in `rrate` 
            (mktdata). All weights must be >= 0 with sum > 0.
            If it is a `list` or a `numpy.array` then the weights are assumed 
@@ -191,7 +191,7 @@ class MVAnalyzer(_RiskAnalyzer):
     
     
     def _sharpe_max(self):
-        # Computes the mazimization of Sharpe
+        # Computes the maximization of Sharpe
         # Order of variables
         # w <- [0:nn]
         # t <- nn

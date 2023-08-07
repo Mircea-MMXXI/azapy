@@ -27,7 +27,7 @@ class DualMomentumSelector(NullSelector):
         Parameters
         ----------
         pname : `str`, optional
-            Selctor name. The default is 'DualMomentum'.
+            Selector name. The default is 'DualMomentum'.
         ftype : `str`, optional
             The filter name (at this point only `'f13612w'` filter is supported). 
             The default is `'f13612w'` are equal weights.

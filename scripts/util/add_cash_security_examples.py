@@ -3,7 +3,7 @@ import azapy as az
 mktdir = "../../MkTdata"
 sdate = "2012-01-01"
 edate = "2021-07-27"
-symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
+symb = ['GLD', 'TLT', 'XLV', 'IHI', 'VGT']
 
 # mkt data as a DataFrame
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)

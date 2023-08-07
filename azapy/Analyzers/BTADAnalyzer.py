@@ -102,7 +102,7 @@ class BTADAnalyzer(_RiskAnalyzer):
             The default is `1`.
         mu0 : `float`, optional
             Risk-free rate accessible to the investor.
-            Relevant only if `rype='Sharpe'` or `rtype='Sharpe2'`.
+            Relevant only if `rtype='Sharpe'` or `rtype='Sharpe2'`.
             The default is `0`.
         aversion : `float`, optional
             The value of the risk-aversion coefficient.
@@ -110,7 +110,7 @@ class BTADAnalyzer(_RiskAnalyzer):
             The default is `None`.
         ww0 : `list`, `numpy.array` or `pandas.Series`, optional
             Targeted portfolio weights. 
-            Relevant only if `rype='InvNrisk'`.
+            Relevant only if `rtype='InvNrisk'`.
             Its length must be equal to the number of symbols in `rrate` 
             (mktdata). All weights must be >= 0 with thier sum > 0.
             If it is a `list` or a `numpy.array` then the weights are assumed 
@@ -119,7 +119,7 @@ class BTADAnalyzer(_RiskAnalyzer):
             symbols (same symbols, not necessarily in the same order).
             If it is `None` then it will be set to equal weights.
             The default is `None`.
-        detrendent : Boolean, optional
+        detrended : Boolean, optional
             If it set to `True` then the rates of return are detrended 
             (mean=0). The default value is `True`. 
         method : `str`, optional

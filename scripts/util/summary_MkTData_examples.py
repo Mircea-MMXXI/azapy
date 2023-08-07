@@ -7,7 +7,7 @@ mktdir = "../../MkTdata"
 output_format = 'dict'
 sdate = '2012-01-03'
 edate = '2021-07-27'
-symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
+symb = ['GLD', 'TLT', 'XLV', 'VGT', 'IHI']
 
 # returns a pd.DataFrame
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir) 
