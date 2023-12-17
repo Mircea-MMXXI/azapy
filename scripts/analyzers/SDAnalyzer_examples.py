@@ -121,7 +121,7 @@ print("=== test - compute optimal risk portfolio for "
       "mu = min component expected rate of return ===")
 # results should be identical
 rtype_test = 'Risk'
-mu = cr1.muk.min()
+mu = max(cr1.muk.min(), 0)
 ww_test = cr1.getWeights(rtype_test, mu)
 status_test = cr1.status
 RR_test = cr1.RR
@@ -455,7 +455,7 @@ print("=== test - compute optimal diversified portfolio for "
       "mu = min component expected rate of return ===")
 # results should be identical
 rtype_test = 'Diverse'
-mu = cr1.muk.min()
+mu = max(cr1.muk.min(), 0)
 ww_test = cr1.getWeights(rtype_test, mu)
 status_test = cr1.status
 RR_test = cr1.RR

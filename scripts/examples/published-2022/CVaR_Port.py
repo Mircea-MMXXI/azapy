@@ -1,7 +1,7 @@
 import azapy as az
 
 # define portfolio components
-symb = ['GLD', 'TLT', 'XLV', 'IHI', 'PSJ']
+symb = ['GLD', 'TLT', 'XLV', 'IHI', 'VGT']
 
 # collect market data
 # set the start and end dates of the time series

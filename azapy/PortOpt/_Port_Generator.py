@@ -9,7 +9,7 @@ class _Port_Generator(Port_Generator):
                  pname='Port', pcolname=None, capital=100000, 
                  schedule=None,
                  freq='Q', noffset=-3, fixoffset=-1, histoffset=3.25, 
-                 calendar=None, multithreading=True):
+                 calendar=None, multithreading=True, nsh_round=True):
         """
         Constructor
     
@@ -76,6 +76,12 @@ class _Port_Generator(Port_Generator):
         multitreading : Boolean, optional
             If it is `True`, then the  rebalancing weights will 
             be computed concurrent. The default is `True`.
+        nsh_round : Boolean, optional
+            If it is `True` the invested numbers of shares are round to the 
+            nearest integer and the residual cash capital 
+            (positive or negative) is carried to the next reinvestment cycle. 
+            A value of `False` assumes investments with fractional number 
+            of shares (no rounding). The default is `True`.
     
         Returns
         -------
@@ -88,7 +94,7 @@ class _Port_Generator(Port_Generator):
                      schedule=schedule,
                      freq=freq, noffset=noffset, fixoffset=fixoffset, 
                      histoffset=histoffset, calendar=calendar,
-                     multithreading=multithreading)
+                     multithreading=multithreading, nsh_round=nsh_round)
         self.col_calib = col_calib
         
         

@@ -44,7 +44,7 @@ class EVaRAnalyzer(_RiskAnalyzer):
     def __init__(self, alpha=[0.65], coef=None, mktdata=None, 
                  colname='adjusted', freq='Q', hlength=3.25, name='EVaR', 
                  rtype='Sharpe', mu=None, d=1, mu0=0., aversion=None, 
-                 ww0=None, method='ncp'):
+                 ww0=None, method='excp'):
         """
         Constructor
 
@@ -131,7 +131,7 @@ class EVaRAnalyzer(_RiskAnalyzer):
                 `'ncp2'` : nonlinear convex programming (using cvxopt) 
                 alternative to `'ncp'`.\n
                 `'excp'` : exponential cone programming (using ecos).\n
-            The default is `'ncp'`.
+            The default is `'excp'`.
             
         Returns
         -------

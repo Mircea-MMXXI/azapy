@@ -97,15 +97,15 @@ Package installation: `pip install azapy`
 ### Third-party packages used by **azapy** 1.2.1
 
 * python 3.11.2
-* pandas 1.5.3
-* numpy 1.24.3
-* scipy 1.10.1
-* statsmodels 0.13.5
-* matplotlib 3.7.1
+* pandas 2.1.4
+* numpy 1.26.2
+* scipy 1.11.4
+* statsmodels 0.14.0
+* matplotlib 3.8.0
 * plotly 5.9.0
-* requests 2.29.0
-* pandas_market_calendars 4.1.4
+* requests 2.31.0
+* pandas_market_calendars 4.3.2
 * ecos 2.0.12
-* cvxopt 1.3.0.1
-* ta 0.10.2
-* yfinance 0.2.14
+* cvxopt 1.3.2
+* ta 0.11.0
+* yfinance 0.2.33

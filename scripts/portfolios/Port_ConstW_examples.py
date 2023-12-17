@@ -27,7 +27,7 @@ toc = time.perf_counter()
 print(f"time to get port: {toc-tic:f}")
 
 _ = p3.port_view()
-_ = p3.port_view_all()
+_ = p3.port_view_all() 
 drawdown = p3.port_drawdown(fancy=True)
 perf = p3.port_perf(fancy=True)
 annual = p3.port_annual_returns()

@@ -30,6 +30,7 @@ strategies based on the following dispersion measures:
 * **mLSD** - m-level Lower Semi-Deviation,
 * **mBTAD** - mixture Below Threshold Absolute Deviation,
 * **mBTSD** - mixture Below Threshold Semi-Deviation,
+* **mEVaR** - mixture Entropic Value at Risk
 * **GINI** - Gini index,
 * **SD** - Standard Deviation,
 * **VAR** - Variance, leading to mean-variance, **MV**, type of models.

@@ -14,7 +14,7 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #==============================================================================
 # Define mSMCR measure parameters alpha and coef
-alpha = [0.9, 0.8]
+alpha = [0.85, 0.75]
 coef = [1.] * len(alpha)
 hlength = 1.25
 portname = 'mSMCR'
