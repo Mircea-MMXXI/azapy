@@ -17,7 +17,7 @@ symb = ['GLD', 'TLT', 'IHI', 'VGT', 'OIH',
         'QQQ', 'DIA', 'ILF', 'XSW', 'PGF', 
         'IDV', 'JNK', 'HYG', 'SDIV', 'VIG', 
         'SLV', 'AAPL', 'MSFT', 'AMZN', 'GOOG', 
-        'IYT', 'VGI', 'IWM', 'BRK-B', 'ITA']
+        'IYT', 'VIG', 'IWM', 'BRK-B', 'ITA']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir, 
                      verbose=False)
@@ -81,5 +81,4 @@ print("portfolio performance for each investment period\n"
 print(f"portfolio weights for each investment period\n{pp.ww}")
 
 print(f"{pp.port_perf(fancy=True).iloc[0]} * 100")
-
 

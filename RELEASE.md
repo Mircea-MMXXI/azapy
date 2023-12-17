@@ -2,6 +2,7 @@
 
 | Version | Date | Comments |
 |---------|------|----------|
+| 1.2.2 | 20231216 | Add facility to run w/o rounding number of shares; fix some bugs |
 | 1.2.1 | 20230807 | Add Universal portfolio |
 | 1.2.0 | 20230513 | Add Selectors, Generators, multithreading, update docs |
 | 1.1.0 | 20221201 | Entropic Value at Risk (alpha); enhanced limit cases; enhanced frontier graphics; enhanced warning messages; complete set of optimal-diversified strategies (beta); enhanced example scripts;|

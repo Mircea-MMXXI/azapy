@@ -155,7 +155,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         yy = []
         for m in range(self.mm):
             x = self.rrate.iloc[:,m]
-            yy.append([x[i] - x[j] \
+            yy.append([x.iloc[i] - x.iloc[j] \
                        for i in range(self.nn - 1) \
                        for j in range(i + 1, self.nn)])
         self.drate = np.concatenate(yy)

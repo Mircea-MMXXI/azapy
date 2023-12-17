@@ -393,7 +393,7 @@ class _RiskAnalyzer:
             
             
     def _calc_MinRisk(self):
-        self._calc_Risk(self.muk.min(numeric_only=True), d=1)
+        self._calc_Risk(max(self.muk.min(numeric_only=True), 0), d=1)
         
         
     def _calc_InvNrisk(self, ww0):
@@ -1201,11 +1201,11 @@ class _RiskAnalyzer:
                         warnings.warn("Warning: component "
                                       f"{self.rrate.columns[k]} failed")
                         continue
-                    rr_comp.append(self.muk[k])
+                    rr_comp.append(self.muk.iloc[k])
                     label_comp.append(self.muk.index[k])
                     ww_comp.append(ww)
                     sharpe_comp.append(
-                        (self.muk[k] - musharpe) / self.risk \
+                        (self.muk.iloc[k] - musharpe) / self.risk \
                             if self.risk != 0 else 0)
                 if len(risk_comp) == 0:
                     res['component']['component'] = False

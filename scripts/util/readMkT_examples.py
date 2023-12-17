@@ -2,7 +2,7 @@ import azapy as az
 
 sdate = "2012-01-01"
 edate = 'today'
-symb = ['GLD', 'TLT', 'XLV', 'VGT', 'PSJ']
+symb = ['GLD', 'TLT', 'XLV', 'VGT', 'VHT']
 
 mktdir = "../../MkTdata"
 
@@ -21,7 +21,7 @@ source = {'GLD': {'force': True,
                   'file_dir': '../../MkTdata_yahoo',
                   'foramt_foramt' : 'feather'
                  },
-          'TLT': {'source' : 'alhavantage',
+          'TLT': {'source' : 'alphavantage',
                   'force': False,
                   'save': True,
                   'file_dir': '../../MkTdata_av',
@@ -31,7 +31,7 @@ source = {'GLD': {'force': True,
           'XLV': {'source': 'eofhistoricaldata'}
          }
 
-symb = ['VGT', 'PSJ']
+symb = ['VGT', 'VHT']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, source=source,
                      file_dir=mktdir, file_format='csv')

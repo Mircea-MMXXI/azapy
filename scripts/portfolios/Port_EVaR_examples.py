@@ -14,7 +14,7 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #==============================================================================
 # Define mEVaR measure parameters alpha and coef
-alpha = [0.6, 0.65]
+alpha = [0.75, 0.65]
 coef = [1.] * len(alpha)
 hlength = 1.25
 portname = 'mEVaR'
@@ -72,7 +72,8 @@ rtypes = ['MaxDiverse', 'MinRisk', 'Sharpe',
 
 port = []
 for rtype in rtypes:
-    port4 = p4.set_model(alpha=alpha, coef=coef, rtype=rtype, hlength=hlength)
+    print(f"rtype {rtype}")
+    port4 = p4.set_model(alpha=alpha, coef=coef, rtype=rtype, hlength=hlength, method='excp')
     port4.columns = [rtype]
     port.append(port4)
     

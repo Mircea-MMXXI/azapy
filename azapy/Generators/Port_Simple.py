@@ -161,7 +161,7 @@ class Port_Simple:
         mktdata = self.mktdata.pivot(columns='symbol', values=self.col)
         divid = self.ww / mktdata.iloc[0] * self.capital
 
-        self.port = pd.DataFrame(mktdata @ divid, columns = [self.pcolname])
+        self.port = pd.DataFrame(mktdata @ divid, columns=[self.pcolname])
 
 
     def get_port(self):
@@ -346,7 +346,8 @@ class Port_Simple:
         df = df.iloc[(df.index >= sdate) & (df.index <= edate)]
         if not componly:
             df = df.merge(self.port, on='date')
-        df = df.apply(lambda x: x / x[0])
+        #df = df.apply(lambda x: x / x[0])
+        df = df.apply(lambda x: x / x.iloc[0])
 
         if fancy:
             fig = self._view_plotly(df, options)
@@ -429,11 +430,11 @@ class Port_Simple:
         """
         # local function
         def rinfo(df, col):
-            rr = (df[col][-1] / df[col][0]) ** (252. / len(df)) - 1
+            rr = (df[col].iloc[-1] / df[col].iloc[0]) ** (252. / len(df)) - 1
             dv, dd, ds, de = max_drawdown(df, col=col)
 
             return pd.DataFrame([[rr, dv, np.abs(rr / dv), dd, ds, de]],
-                columns=['RR', 'DD', 'RoMaD', 'DD_date', 'DD_start', 'DD_end' ])
+               columns=['RR', 'DD', 'RoMaD', 'DD_date', 'DD_start', 'DD_end' ])
 
         res = self.mktdata.groupby('symbol') \
             .apply(rinfo, col=self.col) \
@@ -479,7 +480,7 @@ class Port_Simple:
         """
         # local function
         def frrate(df):
-            return df[-1] / df[0] - 1
+            return df.iloc[-1] / df.iloc[0] - 1
 
         if withcomp:
             zz = self.mktdata.pivot(columns='symbol', values=self.col) \
@@ -495,7 +496,7 @@ class Port_Simple:
         if not fancy:
             return res
 
-        return res.style.format("{:.2%}").applymap(_color_negative_red)
+        return res.style.format("{:.2%}").map(_color_negative_red)
         
 
     def port_monthly_returns(self, withcomp=False, componly=False,
@@ -525,7 +526,7 @@ class Port_Simple:
         `pandas.DataFrame` : the report.
         """
         def frrate(df):
-            return df[-1] / df[0] - 1
+            return df.iloc[-1] / df.iloc[0] - 1
 
         # res = self.port.resample('M', convention='end').apply(frrate)
         if withcomp:
@@ -548,7 +549,7 @@ class Port_Simple:
             res = res.reset_index(level=0).pivot(columns='year',
                                                  values=self.pcolname).round(4)
 
-        return res.style.format("{:.2%}").applymap(_color_negative_red)
+        return res.style.format("{:.2%}").map(_color_negative_red)
 
 
     def _view_plotly(self, df, options):

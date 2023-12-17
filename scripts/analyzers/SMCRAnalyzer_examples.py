@@ -15,7 +15,7 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #==============================================================================
 # Define mSMCR measure parameters alpha and coef
-alpha = np.array([0.90, 0.85])
+alpha = np.array([0.85, 0.75])
 # equal weighted risk mixture
 coef = np.full(len(alpha), 1/len(alpha))
 # set now the title of the frontiers plots
@@ -125,7 +125,7 @@ print("=== test - compute optimal risk portfolio for "
       "mu = min component expected rate of return ===")
 # results should be identical
 rtype_test = 'Risk'
-mu = cr1.muk.min()
+mu = max(cr1.muk.min(), 0)
 ww_test = cr1.getWeights(rtype_test, mu)
 status_test = cr1.status
 RR_test = cr1.RR
@@ -459,7 +459,7 @@ print("=== test - compute optimal diversified portfolio for "
       "mu = min component expected rate of return ===")
 # results should be identical
 rtype_test = 'Diverse'
-mu = cr1.muk.min()
+mu = max(cr1.muk.min(), 0)
 ww_test = cr1.getWeights(rtype_test, mu)
 status_test = cr1.status
 RR_test = cr1.RR

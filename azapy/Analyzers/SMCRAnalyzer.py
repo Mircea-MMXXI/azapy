@@ -190,6 +190,7 @@ class SMCRAnalyzer(CVaRAnalyzer):
         #   eta_l <- mm +l(nn + 2) + 1
         #   s_l <- [mm + l(nn + 2) + 2: mm + (l + 1)(nn + 2)]
         # in total dim = mm + ll(nn + 2)
+
         ll = self.ll
         nn = self.nn
         mm = self.mm

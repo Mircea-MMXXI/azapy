@@ -20,7 +20,7 @@ class Port_Rebalanced(Port_Generator):
     def __init__(self, mktdata, symb=None, sdate=None, edate=None, 
                  col_price='close', col_divd='divd', col_ref='adjusted',
                  pname='Port', pcolname=None, capital=100000, schedule=None,
-                 multithreading=True):
+                 multithreading=True, nsh_round=True):
         """
         Constructor
     
@@ -66,6 +66,12 @@ class Port_Rebalanced(Port_Generator):
         multithreading : Boolean, optional
             If it is `True` then the weights at the rebalancing dates will 
             be computed concurrent. The default is `True`.
+        nsh_round : Boolean, optional
+            If it is `True` the invested numbers of shares are round to the 
+            nearest integer and the residual cash capital 
+            (positive or negative) is carried to the next reinvestment cycle. 
+            A value of `False` assumes investments with fractional number 
+            of shares (no rounding). The default is `True`.
     
         Returns
         -------
@@ -81,6 +87,7 @@ class Port_Rebalanced(Port_Generator):
         self.cash_divd = None
         self.schedule = schedule
         self.verbose = False
+        self.shares_round = 0 if nsh_round else 16
         
         
     def set_model(self, schedule=None, verbose=False):
@@ -114,16 +121,12 @@ class Port_Rebalanced(Port_Generator):
     
     
     def _port_calc(self):
-        def _rank(x, ww=self.ww):
-            for k in range(len(ww)):
-                if x < ww.Droll[k]: return k
-            return len(ww)
-        
         mktdata = self.mktdata.pivot(columns='symbol', values=self.col_price)
         div = self.mktdata.pivot(columns='symbol', values=self.col_divd)
         lw = np.zeros([div.shape[0]], dtype=int)
         for dx in self.ww.Droll:
-            lw[div.index >= dx] += 1
+            lw[div.index > dx] += 1
+        lw[div.index.get_loc(self.ww.Droll.iloc[0])] = 1
         mmix = pd.MultiIndex.from_arrays([lw, div.index], names=('lw', 'date'))
         div.index = mmix
         div = div.groupby(level='lw').sum()
@@ -144,14 +147,14 @@ class Port_Rebalanced(Port_Generator):
             v = v.droplevel(0)
             
             nsh = (self.ww[symb].iloc[k - 1] * cap
-                    / mktdata.loc[self.ww.Dfix[k - 1]]).round(0)
+                   / mktdata.loc[self.ww.Dfix[k - 1]]).round(self.shares_round)
             self.nshares.append(nsh)
             self.port.append(v @ nsh)
             
-            invst = nsh @ mktdata.loc[self.ww.Droll[k - 1]]
+            invst = nsh @ mktdata.loc[self.ww.Droll.iloc[k - 1]]
             dcap = cap - invst
             divd = div.loc[k] @ nsh
-            cap = self.port[-1][-1] + divd  + dcap
+            cap = self.port[-1].iloc[-1] + divd  + dcap
             
             self.cash_invst.append(invst)
             self.cash_roll.append(dcap)

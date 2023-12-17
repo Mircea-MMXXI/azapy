@@ -25,7 +25,7 @@ class Port_Generator(Port_Simple):
                  col_price='close', col_divd='divd', col_ref='adjusted',
                  pname='Port', pcolname=None, capital=100000, schedule=None,
                  freq='Q', noffset=-3, fixoffset=-1, histoffset=3.25, 
-                 calendar=None, multithreading=True):
+                 calendar=None, multithreading=True, nsh_round=True):
         """
         Constructor
     
@@ -89,6 +89,12 @@ class Port_Generator(Port_Simple):
         multithreading : Boolean, optional
             If it is `True` then the rebalancing weights will 
             be computed concurrent. The default is `True`.
+        nsh_round : Boolean, optional
+            If it is `True` the invested numbers of shares are round to the 
+            nearest integer and the residual cash capital 
+            (positive or negative) is carried to the next reinvestment cycle. 
+            A value of `False` assumes investments with fractional number 
+            of shares (no rounding). The default is `True`.
     
         Returns
         -------
@@ -114,6 +120,7 @@ class Port_Generator(Port_Simple):
         if self.calendar is None: 
             self._default_calendar()
         self.multithreading = multithreading
+        self.shares_round = 0 if nsh_round else 16
         
         
     def set_model(self, wwModel, verbose=False):
@@ -171,7 +178,6 @@ class Port_Generator(Port_Simple):
 
     def _set_weights_mt(self):
         # local function
-        
         def _fww(Dfix, mod):
             if Dfix > self.edate:
                 wei = pd.Series(0, 
@@ -199,16 +205,12 @@ class Port_Generator(Port_Simple):
 
 
     def _port_calc(self):
-        def _rank(x, ww=self.ww):
-            for k in range(len(ww)):
-                if x < ww.Droll[k]: return k
-            return len(ww)
-        
         mktdata = self.mktdata.pivot(columns='symbol', values=self.col_price)
         div = self.mktdata.pivot(columns='symbol', values=self.col_divd)
         lw = np.zeros([div.shape[0]], dtype=int)
         for dx in self.ww.Droll:
-            lw[div.index >= dx] += 1
+            lw[div.index > dx] += 1
+        lw[div.index.get_loc(self.ww.Droll.iloc[0])] = 1
         mmix = pd.MultiIndex.from_arrays([lw, div.index], names=('lw', 'date'))
         div.index = mmix
         div = div.groupby(level='lw').sum()
@@ -234,15 +236,15 @@ class Port_Generator(Port_Simple):
             v = v.droplevel(0)
             
             nsh = (self.ww[symb].iloc[k - 1] * cap
-                    / mktdata.loc[self.ww.Dfix[k - 1]]).round(0)
+                   / mktdata.loc[self.ww.Dfix[k - 1]]).round(self.shares_round)
             self.nshares.append(nsh)
             self.port.append(v @ nsh)
             
-            invst = nsh @ mktdata.loc[self.ww.Droll[k - 1]]
+            invst = nsh @ mktdata.loc[self.ww.Droll.iloc[k - 1]]
             dcap = cap - invst
             divd = div.loc[k] @ nsh
-            cap = self.port[-1][-1] + divd  + dcap
-            
+            cap = self.port[-1].iloc[-1] + divd  + dcap
+
             self.cash_invst.append(invst)
             self.cash_roll.append(dcap)
             self.cash_divd.append(divd)
@@ -377,27 +379,27 @@ class Port_Generator(Port_Simple):
         ddmax = []
         ddmax_date = []
         for i in range(nn):
-            sd = self.schedule['Droll'][i]
+            sd = self.schedule['Droll'].iloc[i]
             if i == (nn - 1):
                 ed = self.port.index[-1]
                 if sd > ed:
                     break
             else:
-                ed = self.schedule['Droll'][i + 1]
+                ed = self.schedule['Droll'].iloc[i + 1]
 
             pr = self.port.loc[sd:ed] / self.port.loc[sd] - 1
             rr.append(pr.iloc[-1, 0])
-            mm = pr.idxmin(numeric_only=True)[0]
-            rmin.append(pr.loc[mm][0])
+            mm = pr.idxmin(numeric_only=True).iloc[0]
+            rmin.append(pr.loc[mm].iloc[0])
             rmin_date.append(mm)
-            mm = pr.idxmax(numeric_only=True)[0]
-            rmax.append(pr.loc[mm][0])
+            mm = pr.idxmax(numeric_only=True).iloc[0]
+            rmax.append(pr.loc[mm].iloc[0])
             rmax_date.append(mm)
             dd = max_drawdown(self.port.loc[sd:ed], self.port.columns[0])
             ddmax.append(dd[0])
             ddmax_date.append(dd[1])
 
-        rout = pd.DataFrame({'Droll': self.schedule['Droll'][:i],
+        rout = pd.DataFrame({'Droll': self.schedule['Droll'][:len(rr)],
                              'RR': rr, 
                              'RR_Min': rmin, 'RR_Max': rmax, 'DD_Max': ddmax,
                              'RR_Min_Date': rmin_date,

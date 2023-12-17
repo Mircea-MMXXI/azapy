@@ -4,7 +4,7 @@ from azapy.MkT.MkTreader import MkTreader
 
 
 def update_MkTdata(mktdir, source=None, api_key=None, param=None,
-                       except_file=[], verbose=True):
+                   except_file=[], verbose=True):
     """
     Updates all mkt data saved in a directory.
 

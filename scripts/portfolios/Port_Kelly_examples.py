@@ -67,7 +67,7 @@ p6 = az.Port_Kelly(mktdata, pname='KellyApxPort-cvxopt')
 tic = time.perf_counter()
 port6 = p6.set_model(rtype='Order2', method='cvxopt')   
 toc = time.perf_counter()
-print(f"time 2-nd order aprox Kelly problem wint cvxopt: {toc-tic:f}")
+print(f"time 2-nd order aprox Kelly problem with cvxopt: {toc-tic:f}")
 
 # Compare with non-linear solution of full Kelly problem
 p7 = az.Port_Kelly(mktdata, pname='KellyFull')   

@@ -9,6 +9,7 @@ print(f"azapy version {az.version()}", flush=True)
 mktdir = '../../MkTdata'
 sdate = '2012-01-01'
 edate = '2021-07-27'
+
 symb = ['GLD', 'TLT', 'XLV', 'IHI', 'VGT']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
@@ -125,7 +126,7 @@ print("=== test - compute optimal risk portfolio for "
       "mu = min component expected rate of return ===")
 # results should be identical
 rtype_test = 'Risk'
-mu = cr1.muk.min()
+mu = max(cr1.muk.min(), 0)
 ww_test = cr1.getWeights(rtype_test, mu)
 status_test = cr1.status
 RR_test = cr1.RR
@@ -459,7 +460,7 @@ print("=== test - compute optimal diversified portfolio for "
       "mu = min component expected rate of return ===")
 # results should be identical
 rtype_test = 'Diverse'
-mu = cr1.muk.min()
+mu = max(cr1.muk.min(), 0)
 ww_test = cr1.getWeights(rtype_test, mu)
 status_test = cr1.status
 RR_test = cr1.RR

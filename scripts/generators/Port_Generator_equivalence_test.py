@@ -458,6 +458,9 @@ ppc.set_model()
 _ = ppc.port_view_all(componly=True)
 
 #==============================================================================
+# uncomment the lines below if you want to include Gini risk measure
+# the computations may take some time
+
 # rtype = 'Sharpe'
 # mu0 = 0
 
@@ -500,5 +503,5 @@ ppall.port_perf(componly=True)
 ttd = pd.DataFrame.from_dict(tt, orient='index')
 ttd.columns = ['Model', 'Compact']
 ttd['Diff'] = ttd['Model'] - ttd['Compact']
-print(ttd)
+print(f"comparison of time executions\n{ttd}")
 

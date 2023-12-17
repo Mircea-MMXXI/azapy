@@ -1,8 +1,8 @@
 import azapy as az
 
-mktdir = "../../MkTdata_test"
+mktdir = "../../MkTdata"
 
-ercode = az.update_all_MkTdata(mktdir)
+ercode = az.update_MkTdata(mktdir)
 
 # error code 200 is OK (see docs)
 print(f"error code: {ercode}")
