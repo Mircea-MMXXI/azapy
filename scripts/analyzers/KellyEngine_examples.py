@@ -17,7 +17,7 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 # the levels are:
 #  - 'Full' no approximation (non-linear convex optimization)
 #  - 'Order2' for second order Taylor approximation (QP problem)
-#  - 'ExpCone' no aproximation (exponential cone programming)
+#  - 'ExpCone' no approximation (exponential cone programming)
 rtype1 = 'Full'
 rtype2 = 'Order2'
 rtype3 = 'ExpCone'

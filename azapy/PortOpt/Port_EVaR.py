@@ -92,7 +92,7 @@ class Port_EVaR(_Port_Generator):
                 alternative to `'ncp2'`.\n
                 `'excp'` : exponential cone programming (using `ecos`).\n
             The default is `'ncp'`. 
-        verbose : Boolean, optional
+        verbose : `Boolean`, optional
             If it set to `True` then it will print messages when the optimal
             portfolio degenerates to a single asset portfolio as a limited 
             case. 

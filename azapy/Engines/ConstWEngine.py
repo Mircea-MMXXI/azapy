@@ -29,7 +29,7 @@ class ConstWEngine():
         """
         self._ptype_ = 'Optimizer'
         self.ww = ww / ww.sum(numeric_only=True)
-        self.status = 0
+        self.status = 1
         self.name = name
         
     def getWeights(self, mktdata, **params):
@@ -39,7 +39,7 @@ class ConstWEngine():
         If `ww` was set to `None` (i.e., EWP) then the weights will be
         set to 1/n, where n is the number symbols in the `mktdata`.
         Otherwise, `ww` will be reduced to the symbols included in `mktdata`
-        and renormalized to unit.
+        and normalized to unit.
 
         Parameters
         ----------
@@ -48,7 +48,7 @@ class ConstWEngine():
             see`'pclose'` definition below. The default is `None`. \n
             Note: in this call only the values of the symbols are relevant.
         **params: other optional parameters
-            `pclose` : Boolean, optional
+            `pclose` : `Boolean`, optional
                 If it is absent then the `mktdata` is considered to contain 
                 rates of return, with columns the asset symbols and indexed 
                 by the observation dates, \n
@@ -75,6 +75,7 @@ class ConstWEngine():
             ww = 1 / len(symb)
             return pd.Series(ww, index=symb)
         
+        self.status = 0
         ww = self.ww[symb]
         return ww / ww.sum(numeric_only=True)
        
@@ -88,4 +89,4 @@ class ConstWEngine():
         -------
         0
         """
-        return self.status
+        return 0

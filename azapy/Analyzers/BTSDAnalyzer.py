@@ -1,6 +1,5 @@
 import numpy as np
 import scipy.sparse as sps
-import warnings
 import time
 
 from .BTADAnalyzer import BTADAnalyzer
@@ -37,7 +36,7 @@ class BTSDAnalyzer(BTADAnalyzer):
     def __init__(self, alpha=[0.], coef=None, mktdata=None, colname='adjusted',
                  freq='Q', hlength=3.25, name='BTSD', rtype='Sharpe', mu=None, 
                  d=1, mu0=0., aversion=None, ww0=None, detrended=False, 
-                 method='ecos'):
+                 method='ecos', verbose=False):
         """
         Constructor
 
@@ -119,13 +118,16 @@ class BTSDAnalyzer(BTADAnalyzer):
             symbols (same symbols, not necessarily in the same order).
             If it is `None` then it will be set to equal weights.
             The default is `None`.
-        detrended : Boolean, optional
+        detrended : `Boolean`, optional
             If it set to `True` then the rates of return are detrended 
             (mean=0). The default value is `True`. 
         method : `str`, optional
             SOCP numerical method. 
             Could be: `'ecos'`, or `'cvxopt'`.
             The defualt is `'ecos'`.
+        verbose : `Boolean`, optional
+            If it is set to `True`, then various computation messages 
+            (meant as warnings) will be printed. The default is `False`.
         
         Returns
         -------
@@ -133,7 +135,7 @@ class BTSDAnalyzer(BTADAnalyzer):
         """
         super().__init__(alpha, coef, mktdata, colname, freq, hlength,  
                          name, rtype, mu, d, mu0, aversion, ww0,
-                         detrended, method)
+                         detrended, method, verbose)
         
         
     def _set_method(self, method):
@@ -219,8 +221,9 @@ class BTSDAnalyzer(BTADAnalyzer):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         # mBTSD
@@ -307,7 +310,8 @@ class BTSDAnalyzer(BTADAnalyzer):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
                           f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
@@ -402,8 +406,9 @@ class BTSDAnalyzer(BTADAnalyzer):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         t = res['x'][-1]
@@ -495,8 +500,9 @@ class BTSDAnalyzer(BTADAnalyzer):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         # rate of return
@@ -580,8 +586,9 @@ class BTSDAnalyzer(BTADAnalyzer):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         # optimal weights
@@ -675,8 +682,9 @@ class BTSDAnalyzer(BTADAnalyzer):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         t = res['x'][-1]
@@ -770,8 +778,9 @@ class BTSDAnalyzer(BTADAnalyzer):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         t = res['x'][-1]
@@ -863,8 +872,9 @@ class BTSDAnalyzer(BTADAnalyzer):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         # rate of return

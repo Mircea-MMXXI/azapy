@@ -25,7 +25,7 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir,
 #==============================================================================
 # build CorrClusterSelector
 # correlation threshold 
-# i.e., assets with correlation larget than this value are clustered together
+# i.e., assets with correlation largest than this value are clustered together
 corr_threshold = 0.98
 # tenor of relevant rate of return 
 # its is set to quarterly across all components - since this is a quarterly 
@@ -33,7 +33,7 @@ corr_threshold = 0.98
 freq = 'Q'
 ccs = az.CorrClusterSelector(corr_threshold=corr_threshold, freq=freq)
 
-# build a DualMomentumSelctor
+# build a DualMomentumSelector
 # maximum number of selected symbol
 nw = 5
 # minimum number of symbols with positive momentum 
@@ -42,22 +42,22 @@ nw = 5
 ths = np.floor(len(symb) * 0.7)
 dms = az.DualMomentumSelector(nw=nw, threshold=ths)
 
-# buid a CVaR optimizer
-# equaly weithed mixture of CVaR measures 
+# build a CVaR optimizer
+# equally weighted mixture of CVaR measures 
 alpha = [0.95, 0.9]
 # calibration period
 hlength = 1.
-# optimizatin type - maximization of CVaR-Sharpe ratio
+# optimization type - maximization of CVaR-Sharpe ratio
 rtype = 'Sharpe'
 mu0 = 0.01
 cvar = az.CVaRAnalyzer(alpha=alpha, freq=freq, hlength=hlength,
                        rtype=rtype, mu0=mu0)
 
-# build the ModelPilpeline
+# build the ModelPipeline
 model = az.ModelPipeline([ccs, dms, cvar])
 
 # backtesting
-# set the histoffset withthe same value of hlength 
+# set histoffset with the same value of hlength 
 # (historical data needed for the first period calibration)
 histoffset = hlength
 fixoffset = -1

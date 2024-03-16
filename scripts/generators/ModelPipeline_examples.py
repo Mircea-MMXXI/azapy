@@ -22,11 +22,13 @@ symb = ['GLD', 'TLT', 'IHI', 'VGT', 'OIH',
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir, 
                      verbose=False)
 
+print(f"mktdata type {type(mktdata)}")
+
 #==============================================================================
 # build CorrClusterSelector
 ccs = az.CorrClusterSelector()
 
-# build a DualMomentumSelctor
+# build a DualMomentumSelector
 
 # maximum number of selected symbol
 nw = 5 
@@ -44,7 +46,7 @@ freq = 'Q'
 
 cvar = az.CVaRAnalyzer(alpha=alpha, freq=freq, hlength=hlength)
 
-# build the ModelPilpeline
+# build the ModelPipeline
 model = az.ModelPipeline([ccs, dms, cvar])
 
 # compute 
@@ -58,4 +60,3 @@ print(f"capital at risk {capital_at_risk}")
 print(f"active symbols weights\n{ww[active_symb]}")
 # Note: the sum of the weights is the vale of capital at risk
 # the rest is assumed to be allocated in cash
-

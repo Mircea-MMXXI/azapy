@@ -78,7 +78,7 @@ class Port_SD(_Port_Generator):
         method : `str`, optional
             Numerical method to solve the SOCP and QP. It can be `'ecos'` or 
             `'cvxopt'`. The default is `'ecos'`.
-        verbose : Boolean, optional
+        verbose : `Boolean`, optional
             If it set to `True` then it will print messages when the optimal
             portfolio degenerates to a single asset portfolio as a limited 
             case. 

@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as readme:
 
 setuptools.setup(
     name="azapy",
-    version="1.2.2",
+    version="1.2.3",
     author="Mircea Marinescu",
     author_email="mircea.marinescu@outlook.com",
     description="Financial Portfolio Optimization Algorithms",
@@ -26,7 +26,7 @@ setuptools.setup(
     ],
     package_dir={"": "."},
     packages=setuptools.find_packages(),
-    python_requires=">=3.8",
+    python_requires=">=3.11",
     install_requires=[
           'numpy',
           'pandas',

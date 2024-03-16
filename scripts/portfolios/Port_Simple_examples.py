@@ -3,7 +3,7 @@ import azapy as az
 
 #=============================================================================
 # Collect market data
-mktdir = '../../MkTdata'
+mktdir = './MkTdata'
 sdate = '2012-01-01'
 edate = 'today'
 symb = ['GLD', 'TLT', 'XLV', 'IHI', 'VGT', 'OIH']
@@ -28,7 +28,7 @@ annual = p1.port_annual_returns()
 monthly = p1.port_monthly_returns()
 
 print(f"Portfolio Drawdown\n{drawdown}")
-print(f"Portfokio performance\n{perf}")
+print(f"Portfolio performance\n{perf}")
 print(f"Annual Returns\n{annual}")
 print(f"Monthly Returns\n{monthly}")
 

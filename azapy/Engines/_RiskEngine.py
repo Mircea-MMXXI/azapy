@@ -19,7 +19,7 @@ class _RiskEngine():
         * set_mktdata
     """
     def __init__(self, mktdata=None, colname='adjusted', freq='Q', 
-                 hlength=3.25, name=None):
+                 hlength=3.25, name=None, verbose=False):
         """
         Constructor
 
@@ -40,6 +40,9 @@ class _RiskEngine():
             The default is `3.25` years.
         name : `str`, optional
             Portfolio name. Default value is `None`
+        verbose : `Boolean`, optional
+            If it is set to `True`, then computational info (meant as warnings)
+            are printed. The default is `False`.
 
         Returns
         -------
@@ -47,7 +50,8 @@ class _RiskEngine():
         """
         self._ptype_ = 'Optimizer'
         self.ww = None
-        self.status = None
+        self.status = 1
+        self.verbose = verbose
         
         self.colname = None
         self.freq = None
@@ -109,7 +113,7 @@ class _RiskEngine():
             History length in number of years used for calibration. A
             fractional number will be rounded to an integer number of months.
             The default is `3.25`.
-        pclose : Boolean, optional \n
+        pclose : `Boolean`, optional \n
             `True` : assumes `mktdata` contains closing prices only, 
             with columns the asset symbols and indexed by the 
             observation dates, \n
@@ -162,7 +166,8 @@ class _RiskEngine():
         self.set_rrate(rrate)
 
 
-    def getPositions(self, nshares=None, cash=0., ww=None, verbose=True):
+    def getPositions(self, nshares=None, cash=0., ww=None, nsh_round=True, 
+                     verbose=True):
         """
         Computes the rebalanced number of shares.
 
@@ -184,7 +189,13 @@ class _RiskEngine():
             If it not set to `None` these
             weights will overwrite the calibration results.
             The default is `None`. 
-        verbose : Boolean, optional
+        nsh_round : `Boolean`, optional
+            If it is `True` the invested numbers of shares are round to the 
+            nearest integer and the residual cash capital 
+            (positive or negative) is carried to the next reinvestment cycle. 
+            A value of `False` assumes investments with fractional number 
+            of shares (no rounding). The default is `True`.
+        verbose : `Boolean`, optional
             Is it set to `True` the function prints the closing prices date.
             The default is `True`.
         
@@ -210,7 +221,7 @@ class _RiskEngine():
                 portfolio weights used for rebalancing. The cash entry is
                 the new portfolio value (invested capital).
             - `'prices'` :
-                the share prices used for rebalances evaluations.
+                the share prices used for rebalance evaluations.
 
             Note: Since the prices are closing prices, the rebalance can be
             computed after the market close and before the 
@@ -219,46 +230,53 @@ class _RiskEngine():
             to share price differential between the previous day closing and
             execution time.
         """
-        ns = pd.Series(0, index=self.rrate.columns)
-        if nshares is not None:
-            ns = ns.add(nshares, fill_value=0)
-
-        if len(self.rrate.columns) != len(ns):
-            raise ValueError("nshares must by a subset "
-                             f"of {self.rrate.columns}")
-
-        if self.last_data is None:
-            raise ValueError("The obj was not set with mktdata")
-            
-        if verbose:
-            print(f"Use closing prices as of {self.last_data.name}")
-
-        pp = self.last_data[self.rrate.columns.to_list()]
-
-        cap = ns.dot(pp) + cash
-        if ww is None:
-            ww = self.getWeights()
+        shares_round = 0 if nsh_round else 16
+        price = self.last_data
+        price['_CASH_'] = 1            
+      
+        if ww is None: 
+            if self.ww is None:
+                self.ww = self.getWeights()
+            if self.status != 0:
+                if verbose:
+                    print(f"No weights are available - status {self.status}")
+                return None
+            ww = self.ww.copy()
         else:
-            ww0 = pd.Series(0, index=self.rrate.columns)
-            ww = ww0.add(ww, fill_value=0)
-            if len(self.rrate.columns) != len(ns):
-                raise ValueError("ww: wrong component names - "
-                                 f"must be among {self.rrate.columns}")
+            ww = ww / ww.sum()
+            ww = pd.Series(0, index=price.index).add(ww, fill_value=0)
+        ww['_CASH_'] = 0.
+            
+        nsh_in = pd.Series(0, index=price.index)
+        if nshares is not None:
+            nsh_in = nsh_in.add(nshares, fill_value=0)
 
-        newns = (ww / pp * cap).round(0)
-        newcash = cap - newns.dot(pp)
+        cap = nsh_in @ price + cash
+        nsh_out = (ww * cap / price)
+        nsh_out[nsh_out.index != '_CASH_'] = \
+            nsh_out[nsh_out.index != '_CASH_'].round(shares_round)
 
-        ns['cash'] = cash
-        newns['cash'] = newcash
-        ww['cash'] = cap - newcash
-        pp['cash'] = 1.
-
-        res = pd.DataFrame({'old_nsh': ns,
-                            'new_nsh': newns,
-                            'diff_nsh': newns - ns,
-                            'weights' : ww.round(6),
-                            'prices': pp})
-
+        cap_adj = cap - nsh_out @ price
+ 
+        nsh_in['_CASH_'] = cash
+        nsh_out['_CASH_'] += cap_adj
+   
+        res = pd.DataFrame({'old_nsh': nsh_in.round(2),
+                            'new_nsh': nsh_out.round(2),
+                            'diff_nsh': (nsh_out - nsh_in).round(2),
+                            'weights' : ww.round(4),
+                            'prices': price.round(2)})
+        
+        res = res.rename(index={'_CASH_': 'cash'})
+        res = res[(res['old_nsh'] != 0) | (res['new_nsh'] != 0) | (res.index == 'cash')]
+        
+        if verbose:
+            print(f"Computed as of: {price.name.date()}")
+            print(f"previous invested capital: {np.round(cap - cash, 2)}")
+            print(f"cash adjustment: {np.round(cash, 2)}")
+            print(f"new invested capital: {np.round(cap  - cap_adj, 2)}")
+            print(f"cash in hands: {np.round(cap_adj, 2)}")
+        
         return res
 
 

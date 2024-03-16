@@ -82,8 +82,8 @@ class Port_LSD(_Port_Generator):
             number of months. The default is `3.25` years.
         method : `str`, optional
             SOCP numerical method. Could be: `'ecos'` or `'cvxopt'`.
-            The defualt is `'ecos'`.
-        verbose : Boolean, optional
+            The default is `'ecos'`.
+        verbose : `Boolean`, optional
             If it set to `True` then it will print messages when the optimal
             portfolio degenerates to a single asset portfolio as a limited 
             case. 

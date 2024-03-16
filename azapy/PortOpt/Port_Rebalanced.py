@@ -63,10 +63,10 @@ class Port_Rebalanced(Port_Generator):
             `'Dfix'` fixing date. If it is `None` than the schedule will be set
             using the `freq`, `noffset`, `fixoffset` and `calendar`
             information. The default is `None`.
-        multithreading : Boolean, optional
+        multithreading : `Boolean`, optional
             If it is `True` then the weights at the rebalancing dates will 
             be computed concurrent. The default is `True`.
-        nsh_round : Boolean, optional
+        nsh_round : `Boolean`, optional
             If it is `True` the invested numbers of shares are round to the 
             nearest integer and the residual cash capital 
             (positive or negative) is carried to the next reinvestment cycle. 
@@ -103,7 +103,7 @@ class Port_Rebalanced(Port_Generator):
             information. It is set to `None` it will overwrite the value 
             set by the constructor. The default is `None`.
         
-        verbose : Boolean, optional:
+        verbose : `Boolean`, optional:
             Sets teh verbose mode.
 
         Returns

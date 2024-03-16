@@ -10,7 +10,7 @@ mktdir = "../../MkTdata"
 mkt = az.MkTreader()
 
 # read historical mkt data
-hdata = mkt.get(symb, sdate=sdate, edate=edate, file_dir=mktdir)
+hdata = mkt.get(symb, sdate=sdate, edate=edate, file_dir=mktdir, verbose=False, force=False, output_format='dict')
 print(f"MkT data\n{hdata}")
 
 # request status

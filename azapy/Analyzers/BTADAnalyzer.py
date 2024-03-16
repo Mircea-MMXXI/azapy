@@ -1,6 +1,5 @@
 import numpy as np
 import scipy.sparse as sps
-import warnings
 import time
 
 from ._RiskAnalyzer import _RiskAnalyzer
@@ -20,7 +19,7 @@ class BTADAnalyzer(_RiskAnalyzer):
         * `primary_risk_comp` : `list` - portfolio mBTAD components
         * `secondary_risk_comp` : `list` - portfolio thresholds, `alpha` 
           (input values)
-        * `sharpe` : `float` - Omega ration if `rtype` is set to `'Shapre'` 
+        * `sharpe` : `float` - Omega ration if `rtype` is set to `'Sharpe'` 
           or `'Sharpe2'` otherwise `None`. 
         * `diverse` : `float` - diversification factor if `rtype` is set 
           to `'Divers'` or `'MaxDivers'` otherwise `None`.
@@ -37,14 +36,14 @@ class BTADAnalyzer(_RiskAnalyzer):
     def __init__(self, alpha=[0.], coef=None, mktdata=None, colname='adjusted', 
                  freq='Q', hlength=3.25, name='BTAD', rtype='Sharpe', mu=None, 
                  d=1, mu0=0., aversion=None, ww0=None, detrended=False, 
-                 method='ecos'):
+                 method='ecos', verbose=False):
         """
         Constructor
 
         Parameters
         ----------
         alpha : `list`, optional
-            List of BTSD thresholds. The default is `[0.]`.
+            List of BTAD thresholds. The default is `[0.]`.
         coef : `list`, optional
             List of positive mixture 
             coefficients. Must be the same size as `alpha`. 
@@ -119,7 +118,7 @@ class BTADAnalyzer(_RiskAnalyzer):
             symbols (same symbols, not necessarily in the same order).
             If it is `None` then it will be set to equal weights.
             The default is `None`.
-        detrended : Boolean, optional
+        detrended : `Boolean`, optional
             If it set to `True` then the rates of return are detrended 
             (mean=0). The default value is `True`. 
         method : `str`, optional
@@ -127,6 +126,9 @@ class BTADAnalyzer(_RiskAnalyzer):
             Could be: `'ecos'`, `'highs-ds'`, `'highs-ipm'`, `'highs'`, 
             `'interior-point'`, `'glpk'` and `'cvxopt'`.
             The default is `'ecos'`.
+        verbose : `Boolean`, optional
+            If it is set to `True`, then various computation messages 
+            (meant as warnings) will be printed. The default is `False`.
         
         Returns
         -------
@@ -134,7 +136,7 @@ class BTADAnalyzer(_RiskAnalyzer):
         """
         self.detrended = detrended
         super().__init__(mktdata, colname, freq, hlength, name,
-                         rtype, mu, d, mu0, aversion, ww0)
+                         rtype, mu, d, mu0, aversion, ww0, verbose)
         self._set_method(method)
         self.alpha = np.array(alpha)
         
@@ -261,8 +263,9 @@ class BTADAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         # mBTAD
@@ -343,8 +346,9 @@ class BTADAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         t = res['x'][-1]
@@ -431,8 +435,9 @@ class BTADAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         t = res['x'][-1]
@@ -518,8 +523,9 @@ class BTADAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         # rate of return
@@ -598,8 +604,9 @@ class BTADAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         # optimal weights
@@ -687,8 +694,9 @@ class BTADAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         t = res['x'][-1]
@@ -776,8 +784,9 @@ class BTADAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         t = res['x'][-1]
@@ -863,8 +872,9 @@ class BTADAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         # rate of return

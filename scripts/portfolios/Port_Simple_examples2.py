@@ -13,7 +13,7 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 # transform mktdata into a list of DataFrame's containing close prices
 lmktdata = []
 for k, v in mktdata.groupby(by='symbol'):
-    lmktdata.append(v.pivot(columns='symbol', values='close'))
+    lmktdata.append(v.pivot(columns='symbol', values='close').iloc[:,0])
 
 # use lmktdata as a collection of price time-series
 # in a real life example lmktdata could be a list of portfolios time-series

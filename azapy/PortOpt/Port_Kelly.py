@@ -38,7 +38,7 @@ class Port_Kelly(_Port_Generator):
             The QP solver class. It is relevant only if `rtype='Order2'`.
             It takes 2 values: `'ecos'` or `'cvxopt'`.
             The default is `'ecos'`.
-        verbose : Boolean, optional
+        verbose : `Boolean`, optional
             Sets verbose mode. The default is `False`.
 
         Returns

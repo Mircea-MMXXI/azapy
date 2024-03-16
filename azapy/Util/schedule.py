@@ -58,7 +58,7 @@ def schedule_simple(sdate='2010-01-01',
         calendar = NYSEgen()
     
     tedx = pd.date_range(start=sdate, end=edate, freq=freq)\
-        .to_numpy(dtype='<M8[D]')
+             .to_numpy(dtype='<M8[D]')
     troll = np.busday_offset(tedx, noffset, roll='backward', 
                              busdaycal=calendar)
     tfix = np.busday_offset(troll, fixoffset, roll='backward', 

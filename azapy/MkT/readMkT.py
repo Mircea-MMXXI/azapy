@@ -66,7 +66,7 @@ def readMkT(symbol=[], sdate="2012-01-01", edate='today', calendar=None,
         Similar for symbol 'SPY'. The instructions for the rest of the 
         symbols that may be specified in the 'symbol' variable will be
         set according to the values of the function call variables.
-    force : Boolean, optional
+    force : `Boolean`, optional
             - `True`: will try to collect historical prices exclusive from
               the market data providers.
             - `False`: first it will try to load the historical 
@@ -77,7 +77,7 @@ def readMkT(symbol=[], sdate="2012-01-01", edate='today', calendar=None,
         data is too short then it will try to collect the missing values 
         only from the market data provider.
         The default is `False`.
-    save : Boolean, optional
+    save : `Boolean`, optional
             - `True`: It will try to save the historical price collected from 
               the providers to a local file.
             - `False`: No attempt to save the data is made.
@@ -112,7 +112,7 @@ def readMkT(symbol=[], sdate="2012-01-01", edate='today', calendar=None,
         This is also the default vale for alphavantage, if `param` is set to 
         `None`.
         The default is `None`.   
-    verbose : Boolean, optional
+    verbose : `Boolean`, optional
         If set to `True`, then additional information will be printed  
         during the loading of historical prices.
         The default is `True`.
@@ -124,7 +124,8 @@ def readMkT(symbol=[], sdate="2012-01-01", edate='today', calendar=None,
         The output format is designated by the value of the input parameter 
         `output_format`.
     """
-    return MkTreader().get(symbol, sdate, edate, calendar, 
-                           output_format, source, force, save, 
-                           file_dir, file_format, api_key, param, 
-                           verbose)
+    return MkTreader().get(symbol=symbol, sdate=sdate, edate=edate, 
+                           calendar=calendar, output_format=output_format, 
+                           source=source, force=force, save=save, 
+                           file_dir=file_dir, file_format=file_format, 
+                           api_key=api_key, param=param,  verbose=verbose)

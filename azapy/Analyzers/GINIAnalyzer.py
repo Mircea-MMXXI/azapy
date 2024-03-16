@@ -1,6 +1,5 @@
 import numpy as np
 import scipy.sparse as sps
-import warnings
 import time
 
 from ._RiskAnalyzer import _RiskAnalyzer
@@ -17,11 +16,11 @@ class GINIAnalyzer(_RiskAnalyzer):
         * `RR` : `float` - portfolio rate of return
         * `risk` : `float` - portfolio GINI risk
         * `primary_risk_comp` : `list` - redundant (single element list 
-          containig GINI risk value)
+          containing GINI risk value)
         * `secondary_risk_comp` : `list` - redundant 
           (same as `primary_risk_comp`)
         * `sharpe` : `float` - GINI-Sharpe ration if `rtype` is set to 
-          `'Shapre'` or `'Sharpe2'` otherwise `None`. 
+          `'Sharpe'` or `'Sharpe2'` otherwise `None`. 
         * `diverse` : `float` - diversification factor if `rtype` is set 
           to `'Divers'` or `'MaxDivers'` otherwise `None`.
         * `name` : `str` - portfolio name
@@ -29,14 +28,15 @@ class GINIAnalyzer(_RiskAnalyzer):
     Note the following 2 important methods:
         * `getWeights` : Computes the optimal portfolio weights.
           During its computations the following class members are also set:
-          `risk`, `primery_risk_comp`, `secondary_risk_comp`, `sharpe`,  `RR`, 
+          `risk`, `primary_risk_comp`, `secondary_risk_comp`, `sharpe`,  `RR`, 
           `divers`.
         * `getPositions` : Provides practical information regarding the portfolio
           rebalancing delta positions and costs.  
     """
     def __init__(self, mktdata=None, colname='adjusted', freq='Q', 
                  hlength=1.25, name='GINI', rtype='Sharpe', mu=None, 
-                 d=1, mu0=0., aversion=None, ww0=None, method='ecos'):
+                 d=1, mu0=0., aversion=None, ww0=None, method='ecos',
+                 verbose=False):
         """
         Constructor
 
@@ -54,7 +54,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         hlength : `float`, optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
-            The default is `3.25` years.
+            The default is `1.25` years.
         name : `str`, optional
             Portfolio name. The default is `'GINI'`.
         rtype : `str`, optional
@@ -115,6 +115,9 @@ class GINIAnalyzer(_RiskAnalyzer):
             Could be: `'ecos'`, `'highs-ds'`, `'highs-ipm'`, `'highs'`, 
             `'interior-point'`, `'glpk'` and `'cvxopt'`.
             The default is `'ecos'`.
+        verbose : `Boolean`, optional
+            If it is set to `True`, then various computation messages 
+            (meant as warnings) will be printed. The default is `False`.
           
         Returns
         -------
@@ -123,7 +126,7 @@ class GINIAnalyzer(_RiskAnalyzer):
         self.drate = None
         self.nn2 = None
         super().__init__(mktdata, colname, freq, hlength, name,
-                         rtype, mu, d, mu0, aversion, ww0)
+                         rtype, mu, d, mu0, aversion, ww0, verbose)
         self._set_method(method)
         
         
@@ -223,8 +226,9 @@ class GINIAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         # GINI
@@ -292,8 +296,9 @@ class GINIAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         t = res['x'][-1]
@@ -364,8 +369,9 @@ class GINIAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         t = res['x'][-1]
@@ -435,8 +441,9 @@ class GINIAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         # optimal weights
@@ -501,8 +508,9 @@ class GINIAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         # optimal weights
@@ -578,8 +586,9 @@ class GINIAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-           warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                         f"status {res['status']} :: {res['infostring']}")
+           if self.verbose:
+               print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                     f"status {res['status']} :: {res['infostring']}")
            return np.array([np.nan] * mm)
             
         t = res['x'][-1]
@@ -658,8 +667,9 @@ class GINIAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         t = res['x'][-1]
@@ -729,8 +739,9 @@ class GINIAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         # optimal weights

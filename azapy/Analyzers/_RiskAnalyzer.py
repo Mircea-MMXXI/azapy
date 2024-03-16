@@ -3,7 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from collections import defaultdict
 import copy as copy
-import warnings
 import time
 
 _WW_TOL_ = 1.e-10
@@ -53,7 +52,7 @@ class _RiskAnalyzer:
     """
     def __init__(self, mktdata=None, colname='adjusted', freq='Q', 
                  hlength=3.25, name=None, rtype='Sharpe', mu=None, 
-                 d=1, mu0=0., aversion=None, ww0=None):
+                 d=1, mu0=0., aversion=None, ww0=None, verbose=False):
         """
         Constructor
 
@@ -127,6 +126,9 @@ class _RiskAnalyzer:
             symbols (same symbols, not necessarily in the same order).
             If it is `None` then it will be set to equal weights.
             The default is `None`.
+        verbose : `Boolean`, optional
+            If it is set to `True`, then various computation messages 
+            (meant as warnings) will be printed. The default is `False`.
 
         Returns
         -------
@@ -134,7 +136,7 @@ class _RiskAnalyzer:
         """
         self._ptype_ = 'Optimizer'
         self.ww = None
-        self.status = None
+        self.status = 1
 
         self.last_data = None
         self.rrate = None
@@ -184,12 +186,11 @@ class _RiskAnalyzer:
         self.set_rtype(rtype, mu, d, mu0, aversion, ww0)
         
         self.methods = None
-        
-        self.verbose = False
+        self.verbose = verbose
         
         
     def _reset_output(self):
-        self.status = None
+        self.status = 1
         self.ww = None
         self.risk = None
         self.primary_risk_comp = None
@@ -271,11 +272,11 @@ class _RiskAnalyzer:
             The default is `None`. 
         **params : other optional parameters
             Most common: \n
-            `verbose` : Boolean, optional
+            `verbose` : `Boolean`, optional
                 If it set to `True`, then it will print a message when 
                 the optimal portfolio degenerates to a single asset.
                 The default is `False`.
-            `pclose` : Boolean, optional
+            `pclose` : `Boolean`, optional
                 If it is absent then the `mktdata` is considered to contain 
                 rates of return, with columns the asset symbols and indexed 
                 by the observation dates, \n
@@ -299,34 +300,37 @@ class _RiskAnalyzer:
         self.set_rtype(rtype, mu, d, mu0, aversion, ww0)
             
         # calc - grand dispatch 
-        if self.rtype == "Risk":
-            self._calc_Risk(self._mu, self._d)
-        elif self.rtype == 'Sharpe':           
-            self._calc_Sharpe(self._mu0)
-        elif self.rtype == 'Sharpe2':          
-            self._calc_Sharpe2(self._mu0)
-        elif self.rtype == "MinRisk":
-            self._calc_MinRisk()
-        elif self.rtype == "InvNrisk":    
-            self._calc_InvNrisk(self._ww0)
-        elif self.rtype == "RiskAverse":   
-            self._calc_RiskAverse(self._aversion) 
-        elif self.rtype == "Diverse2":
-            self._calc_Diverse2(self._mu, self._d)
-        elif self.rtype == "Diverse":
-            self._calc_Diverse(self._mu, self._d)
-        elif self.rtype == "MaxDiverse":  
-            self._calc_MaxDiverse()
-        elif self.rtype == "InvNdiverse":
-            self._calc_InvNdiverse(self._ww0)
-        elif self.rtype == "InvNdrr":
-            self._calc_InvNdrr(self._ww0)
-        else:
-            raise ValueError("you should not be here - ever")
-
+        match self.rtype:
+            case 'Risk':
+                self._calc_Risk(self._mu, self._d)
+            case 'Sharpe':
+                self._calc_Sharpe(self._mu0)
+            case 'Sharpe2':
+                self._calc_Sharpe2(self._mu0)
+            case 'MinRisk':
+                self._calc_MinRisk()
+            case 'InvNrisk':
+                self._calc_InvNrisk(self._ww0)
+            case 'RiskAverse':
+                self._calc_RiskAverse(self._aversion)
+            case 'Diverse':
+                self._calc_Diverse(self._mu, self._d)
+            case 'Diverse2':
+                self._calc_Diverse2(self._mu, self._d)
+            case 'MaxDiverse':
+                self._calc_MaxDiverse()
+            case 'InvNdiverse':
+                self._calc_InvNdiverse(self._ww0)
+            case 'InvNdrr':
+                self._calc_InvNdrr(self._ww0)
+            case _: # you should not be here
+                raise ValueError(f"You should not be here - ever (rtype::{self.rtype})")
+                    
         if self.status != 0:
-            warnings.warn(f"Warning: {self.rtype} on {self.rrate.index[-1]} "
-                          f"status {self.status}")
+            if self.verbose:
+                print(f"Computation Error: {self.rtype} on "
+                      f"{self.rrate.index[-1]} has status {self.status}")
+            self.ww = None
         else:
             self.ww = pd.Series(self.ww, index=self.rrate.columns)
             self._norm_weights()
@@ -378,7 +382,7 @@ class _RiskAnalyzer:
     def _calc_Sharpe2(self, mu0):
         mu_max = self.muk.max(numeric_only=True)
         if mu0 is None:
-            raise ValueError("for rtype='Sharpe' mu0 must have a value")
+            raise ValueError("for rtype='Sharpe2' mu0 must have a value")
         if mu0 - mu_max >= -np.abs(mu_max) * _MU_ABS_TOL_:
             self._single_asset_port('max')
             if self.status == 0:
@@ -549,8 +553,8 @@ class _RiskAnalyzer:
             Portfolio weights. Its length must be equal to the number of
             symbols in `rrate` (mktdata). All weights must be >=0 with 
             sum > 0.
-            If it is a `list` or a `numpy.array` then the weights are assumed 
-            to be in order of `rrate.columns`. If it is a `pandas.Series` than 
+            If it is a `list` or a `numpy.array`, then the weights are assumed 
+            to be in order of `rrate.columns`. If it is a `pandas.Series`, then 
             the index should be compatible with the `rrate.columns` or mktdata 
             symbols (not necessarily in the same order).
         rrate : `pandas.DataFrame`, optional
@@ -584,9 +588,9 @@ class _RiskAnalyzer:
         for alpha in self.alpha:
             self.status, secondary, primary = self._risk_calc(prate, alpha)
             if self.status != 0:
-                warnings.warn(f"status: {self.status}, \
-                              wrong risk calc for alpha {alpha}")
-                return np.nan
+                if self.verbose:
+                    print(f"status: {self.status}, wrong risk calc for alpha {alpha}")
+                return None
 
             self.primary_risk_comp.append(primary)
             self.secondary_risk_comp.append(secondary)
@@ -600,7 +604,8 @@ class _RiskAnalyzer:
         return self.risk
 
         
-    def getPositions(self, nshares=None, cash=0, ww=None, verbose=True):
+    def getPositions(self, nshares=None, cash=0, ww=None, nsh_round=True, 
+                     verbose=False):
         """
         Computes the rebalanced number of shares.
 
@@ -622,7 +627,13 @@ class _RiskAnalyzer:
             If it not set to `None` these
             weights will overwrite the calibration results.
             The default is `None`. 
-        verbose : Boolean, optional
+        nsh_round : `Boolean`, optional
+            If it is `True` the invested numbers of shares are round to the 
+            nearest integer and the residual cash capital 
+            (positive or negative) is carried to the next reinvestment cycle. 
+            A value of `False` assumes investments with fractional number 
+            of shares (no rounding). The default is `True`.
+        verbose : `Boolean`, optional
             Is it set to `True` the function prints the closing prices date.
             The default is `True`.
         
@@ -648,7 +659,7 @@ class _RiskAnalyzer:
                 portfolio weights used for rebalancing. The cash entry is
                 the new portfolio value (invested capital).
             - `'prices'` :
-                the share prices used for rebalances evaluations.
+                the share prices used for rebalance evaluations.
 
             Note: Since the prices are closing prices, the rebalance can be
             computed after the market close and before the 
@@ -657,6 +668,7 @@ class _RiskAnalyzer:
             to share price differential between the previous day closing and
             execution time.
         """
+        shares_round = 0 if nsh_round else 16
         ns = pd.Series(0, index=self.rrate.columns)
         if nshares is not None:
             ns = ns.add(nshares, fill_value=0)
@@ -675,7 +687,14 @@ class _RiskAnalyzer:
 
         cap = ns.dot(pp) + cash
         if ww is None:
-            ww = self.getWeights()
+            if self.ww is None:
+                self.ww = self.getWeights()
+            if self.status != 0:
+                if self.verbose:
+                    print("Computation Error: no weights are available"
+                          f" - status {self.status}")
+                return None
+            ww = self.ww.copy()
         else:
             wwp = pd.Series(0, index=self.rrate.columns)
             ww = wwp.add(ww, fill_value=0)
@@ -683,7 +702,7 @@ class _RiskAnalyzer:
                 raise ValueError("ww: wrong component names - "
                                  f"must be among {self.rrate.columns}")
 
-        newns = (ww / pp * cap).round(0)
+        newns = (ww / pp * cap).round(shares_round)
         newcash = cap - newns.dot(pp)
 
         ns['cash'] = cash
@@ -738,20 +757,26 @@ class _RiskAnalyzer:
             returned by `azapy.mktData` function.
         colname : `str`, optional
             Name of the price column from mktdata used in the weight’s
-            calibration. The default is 'adjusted'.
+            calibration. Unless it is `None`, it will overwrite the value 
+            defined in the constructor. The default is 'None'.
         freq : `str`, optional
             Rate of return horizon. It could be 
-            `'Q'` for a quarter or `'M'` for a month. The default is `'Q'`.
+            `'Q'` for a quarter or `'M'` for a month. 
+            Unless it is `None`, it will overwrite the value 
+            defined in the constructor. The default is 'None'.
         hlength : `float`, optional
             History length in number of years used for calibration. A
             fractional number will be rounded to an integer number of months.
-            The default is `3.25`.
-        pclose : Boolean, optional \n
+            Unless it is `None`, it will overwrite the value 
+            defined in the constructor. The default is 'None'.
+        pclose : `Boolean`, optional \n
             `True` : assumes `mktdata` contains closing prices only, 
             with columns the asset symbols and indexed by the 
             observation dates, \n
             `False` : assumes `mktdata` is in the usual format
             returned by `azapy.mktData` function.
+            Unless it is `None`, it will overwrite the value 
+            defined in the constructor. The default is 'None'.
             
 
         Returns
@@ -770,7 +795,7 @@ class _RiskAnalyzer:
         elif freq in ['Q', 'M']:
             self.freq = freq
         else:
-            raise ValueError(f"wrrong value for freq: {freq}" 
+            raise ValueError(f"wrong value for freq: {freq}" 
                               " - it must be 'Q' or 'M'.")
             
         if hlength is None:
@@ -795,10 +820,11 @@ class _RiskAnalyzer:
             
         if mktdata.shape[0] < -idx_sdate:
             sdate =  mktdata.index[0]
-            warnings.warn(f"Too short history for hlength {self.hlength}"
-                          f" set sdate to {sdate} with"
-                          f" {mktdata.shape[0]} hist observations"
-                          f" instead of {-idx_sdate}")
+            if self.verbose:
+                print(f"Too short history for hlength {self.hlength}"
+                      f" set sdate to {sdate} with"
+                      f" {mktdata.shape[0]} hist observations"
+                      f" instead of {-idx_sdate}")
         else:
             sdate = mktdata.index[idx_sdate]
         
@@ -840,7 +866,8 @@ class _RiskAnalyzer:
                 `'InvNdrr'` : optimal diversified portfolio with the same 
                 expected rate of return as a benchmark portfolio
                 (e.g., same as equal weighted portfolio).\n
-            The default is `'Sharpe'`.
+            Unless it is `None`, it will overwrite the value 
+            defined in the constructor. The default is 'None'.
         mu : `float`, optional
             Targeted portfolio expected rate of return. 
             Relevant only if `rtype='Risk'` or `rtype='Divers'`.
@@ -904,7 +931,7 @@ class _RiskAnalyzer:
 
         Parameters
         ----------
-        minrisk : Boolean, optional
+        minrisk : `Boolean`, optional
             If it is `True` then the minimum risk portfolio will be visible. 
             The default is `True`.
         efficient : `int`, optional
@@ -915,13 +942,13 @@ class _RiskAnalyzer:
             Number of points along the inefficient risk frontier 
             (equally spaced along the rate of returns axis). 
             The default is `20`.
-        sharpe : Boolean, optional
+        sharpe : `Boolean`, optional
             If it is `True` then the maximum Sharpe portfolio will be visible. 
             The default is `True`.
         musharpe : `float`, optional
             Risk-free rate value used in the evaluation of
             generalized Sharpe ratio. The default is `0`.
-        maxdiverse : Boolean, optional
+        maxdiverse : `Boolean`, optional
             If it is `True` then the maximum diversified portfolio will be 
             visible. The default is `True`.
         diverse_efficient : `int`, optional
@@ -932,23 +959,23 @@ class _RiskAnalyzer:
             Number of points along the inefficient diversification frontier
             (equally spaced along the rate of return axis).
             The default is `20`.
-        invN : Boolean, optional
+        invN : `Boolean`, optional
             If it is `True`, then the equal weighted portfolio and the optimal 
             portfolio with the same risk value are added to
             the plot. The default is `True`.
-        invNrisk : Boolean, optional
+        invNrisk : `Boolean`, optional
             If it is `True`, then the efficient risk portfolio with same risk 
             as equal weighted portfolio is added to the plot.
             The default is `False`.
-        invNdiverse : Boolean, optional
+        invNdiverse : `Boolean`, optional
             If it is `True`, then the efficient diversified portfolio with the 
             same diversification factor as the equal weighted portfolio is
             added to the plot. The default is `False`.
-        invNdrr : Boolean, optional
+        invNdrr : `Boolean`, optional
             If it is `True`, then the efficient diversified portfolio with the 
             same expected rate of return as the equal weighted portfolio is
             added to the plot. The default value is `False`.
-        component : Boolean, optional
+        component : `Boolean`, optional
             If it is `True`, then the single component portfolios are added to 
             the plot. The default is `True`.
         randomport : `int`, optional
@@ -981,7 +1008,7 @@ class _RiskAnalyzer:
                         - `'rate of returns'` if `fig_type='RR_risk'`
                         - `'sharpe'` if `fig_type='Sharpe_RR'`
                         - `'diversification'` if `fig_type=diverse_RR`   
-                * `'tangent'` : Boolean 
+                * `'tangent'` : `Boolean` 
                     If set to `True`, then the tangent
                     (to max sharpe point) is added. It has effect only  if
                     `fig_type='RR_risk'`. The default is `True`.
@@ -1084,7 +1111,8 @@ class _RiskAnalyzer:
                 ww_min = self.getWeights(rtype='MinRisk')
                 if self.status != 0:
                     res['risk_min']['risk_min'] = False
-                    warnings.warn("Warning: MinRisk failed")
+                    if self.verbose:
+                        print("Warning: MinRisk failed")
                 else:
                     risk_min = self.risk
                     rr_min = self.RR
@@ -1101,8 +1129,9 @@ class _RiskAnalyzer:
             res['efficient']['efficient'] = 0
             if efficient > 0:
                 if rr_min is None:
-                    warnings.warn("Warning: MinRisk -> efficient failed")
                     res['efficient']['efficient'] = 0
+                    if self.verbose:
+                        print("Warning: MinRisk -> efficient failed")
                 else:
                     mu_max = self.muk.max(numeric_only=True)
                     rr_upper = mu_max - np.abs(mu_max) * _RR_ABS_TOL_
@@ -1115,8 +1144,8 @@ class _RiskAnalyzer:
                     for rr in rr_eff:
                         _ww = self.getWeights(rtype='Risk', mu=rr)
                         if self.status != 0:
-                            warnings.warn(f"Warning: efficient for rr {rr} "
-                                          "failed")
+                            if self.verbose:
+                                print(f"Warning: efficient for rr {rr} failed")
                             continue
                         ww_eff.append(_ww)
                         risk_eff.append(self.risk)
@@ -1135,8 +1164,9 @@ class _RiskAnalyzer:
             res['inefficient']['inefficient'] = 0
             if inefficient > 0 :
                 if rr_min is None:
-                    warnings.warn("Warning: MinRisk -> inefficient failed")
                     res['inefficient']['inefficient'] = 0
+                    if self.verbose:
+                        print("Warning: MinRisk -> inefficient failed")
                 else:
                     mu_min = self.muk.min(numeric_only=True)
                     rr_lower = mu_min + np.abs(mu_min) * _RR_ABS_TOL_
@@ -1149,8 +1179,8 @@ class _RiskAnalyzer:
                     for rr in rr_ineff:
                         _ww = self.getWeights(rtype='Risk', mu=rr, d=-1)
                         if self.status != 0:
-                            warnings.warn(f"Warning: inefficient for rr {rr} "
-                                          "failed")
+                            if self.verbose:
+                                print(f"Warning: inefficient for rr {rr} failed")
                             continue
                         ww_ineff.append(_ww)
                         risk_ineff.append(self.risk)
@@ -1171,7 +1201,8 @@ class _RiskAnalyzer:
                 ww_sharpe = self.getWeights(rtype='Sharpe', mu0=musharpe)
                 if self.status != 0:
                     res['sharpe']['sharpe'] = False
-                    warnings.warn("Warning: MinRisk failed")
+                    if self.verbose:
+                        print("Warning: MinRisk failed")
                 else:
                     rr_sharpe = self.RR
                     risk_sharpe = self.risk
@@ -1198,7 +1229,8 @@ class _RiskAnalyzer:
                     ww[k] = 1.
                     risk_comp.append(self.getRisk(ww))
                     if self.status != 0:
-                        warnings.warn("Warning: component "
+                        if self.verbose:
+                            print("Warning: component "
                                       f"{self.rrate.columns[k]} failed")
                         continue
                     rr_comp.append(self.muk.iloc[k])
@@ -1230,7 +1262,8 @@ class _RiskAnalyzer:
                     ww = self._ww_gen()
                     _div = self.getDiversification(ww)
                     if self.status != 0:
-                        warnings.warn(f"Warning: randomport {ww} failed")
+                        if self.verbose:
+                            print(f"Warning: randomport {ww} failed")
                         continue
                     diverse_rp.append(_div)
                     risk_rp.append(self.risk)
@@ -1252,7 +1285,8 @@ class _RiskAnalyzer:
                 _div = self.getDiversification(res['invN']['ww'])
                 if self.status != 0:
                     res['invN']['invN'] = False
-                    warnings.warn("Warning: invN failed")
+                    if self.verbose:
+                        print("Warning: invN failed")
                 else:
                     res['invN']['diverse'] = _div
                     res['invN']['risk'] = self.risk
@@ -1267,7 +1301,8 @@ class _RiskAnalyzer:
                 _ww = self.getWeights(rtype="InvNrisk")
                 if self.status != 0:
                     res['invNrisk']['invNrisk'] = False
-                    warnings.warn("Warning: invNrisk failed")
+                    if self.verbose:
+                        print("Warning: invNrisk failed")
                 else:
                     res['invNrisk']['ww'] = _ww
                     res['invNrisk']['risk'] = self.risk
@@ -1284,7 +1319,8 @@ class _RiskAnalyzer:
                 _ww = self.getWeights(rtype="InvNdiverse")
                 if self.status != 0:
                     res['invNdiverse']['invNdiverse'] = False
-                    warnings.warn("Warning: invNdiverse failed")
+                    if self.verbose:
+                        print("Warning: invNdiverse failed")
                 else:
                     res['invNdiverse']['ww'] = _ww
                     res['invNdiverse']['risk'] = self.risk
@@ -1300,7 +1336,8 @@ class _RiskAnalyzer:
                 _ww = self.getWeights(rtype="InvNdrr")
                 if self.status != 0:
                     res['invNdrr']['invNdrr'] = False
-                    warnings.warn("Warning: maxdiverse failed")
+                    if self.verbose:
+                        print("Warning: maxdiverse failed")
                 else:
                     res['invNdrr']['ww'] = _ww
                     res['invNdrr']['risk'] = self.risk
@@ -1316,7 +1353,8 @@ class _RiskAnalyzer:
                 ww_d = self.getWeights('MaxDiverse')  
                 if self.status != 0:
                     res['maxdiverse']['maxdiverse'] = False
-                    warnings.warn("Warning: maxdiverse failed")
+                    if self.verbose:
+                        print("Warning: maxdiverse failed")
                 else:
                     res['maxdiverse']['risk'] = self.risk 
                     rr_maxdiverse = self.RR 
@@ -1331,9 +1369,10 @@ class _RiskAnalyzer:
             res['diverse_efficient']['diverse_efficient'] = 0
             if diverse_efficient > 0 :
                 if rr_maxdiverse is None:
-                    warnings.warn("Warning: maxdiverse -> diverse_efficient "
-                                  "failed")
                     res['diverse_efficient']['diverse_efficient'] = 0
+                    if self.verbose:
+                        print("Warning: maxdiverse -> diverse_efficient "
+                                  "failed")
                 else:
                     mu_max = self.muk.max(numeric_only=True) 
                     rr_upper = mu_max - np.abs(mu_max) * _RR_ABS_TOL_
@@ -1347,7 +1386,8 @@ class _RiskAnalyzer:
                     for rr in rr_d_eff:
                         _ww = self.getWeights(rtype='Diverse', mu=rr)
                         if self.status != 0:
-                            warnings.warn("Warning: diverse_efficient "
+                            if self.verbose:
+                                print("Warning: diverse_efficient "
                                           f"for rr {rr} failed")
                             continue
                         ww_d_eff.append(_ww)
@@ -1368,9 +1408,10 @@ class _RiskAnalyzer:
             res['diverse_inefficient']['diverse_inefficient'] = 0
             if diverse_inefficient > 0 :
                 if rr_maxdiverse is None:
-                    warnings.warn("Warning: maxdiverse -> diverse_inefficient "
-                                  "failed")
                     res['diverse_inefficient']['diverse_inefficient'] = 0
+                    if self.verbose:
+                        print("Warning: maxdiverse -> diverse_inefficient "
+                                  "failed")
                 else:
                     rr_min = self.muk.min(numeric_only=True)
                     rr_lower = rr_min + np.abs(mu_min) * _RR_ABS_TOL_
@@ -1384,7 +1425,8 @@ class _RiskAnalyzer:
                     for rr in rr_d_ineff:
                         _ww = self.getWeights(rtype='Diverse', mu=rr, d=-1)
                         if self.status != 0:
-                            warnings.warn(f"Warning: diverse_inefficient "
+                            if self.verbose:
+                                print(f"Warning: diverse_inefficient "
                                           f"for rr {rr} failed")
                             continue
                         ww_d_ineff.append(_ww)
@@ -1419,7 +1461,8 @@ class _RiskAnalyzer:
                 def ff_addport(x):
                     diverse_addport = self.getDiversification(x)
                     if self.status != 0:
-                        warnings.warn(f"Warning: addport {x} failed")
+                        if self.verbose:
+                            print(f"Warning: addport {x} failed")
                         risk_addport = None
                         RR_addport = None
                         sharpe_addport = None
@@ -1854,8 +1897,9 @@ class _RiskAnalyzer:
         self._status_risk_comp_calc = self.status
         
         if self.status != 0:
-            warnings.warn(f"Fail to compute for edate {self.rrate.index[-1]} "
-                          f"all risk coml\n{self.risk_comp}")
+            if self.verbose:
+                print(f"Fail to compute for edate {self.rrate.index[-1]} "
+                      f"all risk coml\n{self.risk_comp}")
 
         return self.risk_comp
         
@@ -1900,13 +1944,15 @@ class _RiskAnalyzer:
         
         self.getRiskComp()
         if self.status != 0:
-            warnings.warn("Warning: Fail to compute all risk comp\n"
-                          f"{self.risk_comp}")
+            if self.verbose:
+                print("Warning: Fail to compute all risk comp\n"
+                      f"{self.risk_comp}")
             return None
             
         wrisk = self.getRisk(w)
         if self.status !=0:
-            warnings.warn(f"Warning: Fail to compute risk for {ww}")
+            if self.verbose:
+                print(f"Warning: Fail to compute risk for {ww}")
             return None
         
         crisk = np.dot(self.risk_comp, w)

@@ -1,6 +1,5 @@
 import numpy as np
 import scipy.sparse as sps
-import warnings
 import time
 
 from ._RiskAnalyzer import _RiskAnalyzer
@@ -21,7 +20,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
         * `secondary_risk_comp` : `list` - VaR values associated with CVaR
           components
         * `sharpe` : `float` - mCVaR-Sharpe ration if `rtype` is set to 
-          `'Shapre'` or `'Sharpe2'` otherwise `None`. 
+          `'Sharpe'` or `'Sharpe2'` otherwise `None`. 
         * `diverse` : `float` - diversification factor if `rtype` is set 
           to `'Divers'` or `'MaxDivers'` otherwise `None`.
         * `name` : `str` - portfolio name
@@ -29,7 +28,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
     Note the following 2 important methods:
         * `getWeights` : Computes the optimal portfolio weights.
           During its computations the following class members are also set:
-          `risk`, `primery_risk_comp`, `secondary_risk_comp`, `sharpe`,  `RR`, 
+          `risk`, `primary_risk_comp`, `secondary_risk_comp`, `sharpe`,  `RR`, 
           `divers`.
         * `getPositions` : Provides practical information regarding the portfolio
           rebalancing delta positions and costs.  
@@ -37,7 +36,7 @@ class CVaRAnalyzer(_RiskAnalyzer):
     def __init__(self, alpha=[0.975], coef=None, mktdata=None, 
                  colname='adjusted', freq='Q', hlength=3.25, name='CVaR', 
                  rtype='Sharpe', mu=None, d=1, mu0=0., aversion=None, 
-                 ww0=None, method='ecos'):
+                 ww0=None, method='ecos', verbose=False):
         """
         Constructor
 
@@ -123,13 +122,16 @@ class CVaRAnalyzer(_RiskAnalyzer):
             Could be: `'ecos'`, `'highs-ds'`, `'highs-ipm'`, `'highs'`, 
             `'interior-point'`, `'glpk'` and `'cvxopt'`.
             The default is `'ecos'`.
+        verbose : `Boolean`, optional
+            If it is set to `True`, then various computation messages 
+            (meant as warnings) will be printed. The default is `False`.
         
         Returns
         -------
         The object.
         """
         super().__init__(mktdata, colname, freq, hlength, name,
-                         rtype, mu, d, mu0, aversion, ww0)
+                         rtype, mu, d, mu0, aversion, ww0, verbose)
         self._set_method(method)
         self.alpha = np.array(alpha)
         
@@ -264,8 +266,9 @@ class CVaRAnalyzer(_RiskAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
             
         # VaR (u)
@@ -348,8 +351,9 @@ class CVaRAnalyzer(_RiskAnalyzer):
        
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
 
         # mCVaR (1/t)
@@ -437,8 +441,9 @@ class CVaRAnalyzer(_RiskAnalyzer):
        
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
 
         t = res['x'][-1]
@@ -520,8 +525,9 @@ class CVaRAnalyzer(_RiskAnalyzer):
        
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
 
         # VaR (u)
@@ -600,8 +606,9 @@ class CVaRAnalyzer(_RiskAnalyzer):
        
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
 
         # optimal weights
@@ -691,8 +698,9 @@ class CVaRAnalyzer(_RiskAnalyzer):
        
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
 
         t = res['x'][-1]
@@ -783,8 +791,9 @@ class CVaRAnalyzer(_RiskAnalyzer):
        
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
 
         t = res['x'][-1]
@@ -867,8 +876,9 @@ class CVaRAnalyzer(_RiskAnalyzer):
        
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
 
         # VaR (u)

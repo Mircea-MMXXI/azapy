@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import cvxopt as cx
-import warnings
 
 def gamblingKelly(pp=[0.6]):
     """
@@ -80,6 +79,6 @@ def gamblingKelly(pp=[0.6]):
                         options={'show_progress': False})
     
     if 'optimal' not in sol['status']:
-        warnings.warn(f"cannot find a good solution msg: {sol['status']}")
+        print(f"cannot find a good solution msg: {sol['status']}")
         
     return pd.Series(sol['x']).round(4) * 100

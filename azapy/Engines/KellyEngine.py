@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import cvxopt as cx
 import scipy.sparse as sps
-import warnings
 import time
 
 from ._RiskEngine import _RiskEngine
@@ -19,7 +18,8 @@ class KellyEngine(_RiskEngine):
         * name : `str` - portfolio name
     """
     def __init__(self, mktdata=None, colname='adjusted', freq='Q', 
-                 hlength=3.25, name='Kelly', rtype='ExpCone', method='ecos'):
+                 hlength=3.25, name='Kelly', rtype='ExpCone', method='ecos',
+                 verbose=False):
         """
         Constructor
 
@@ -52,12 +52,15 @@ class KellyEngine(_RiskEngine):
             The QP solver class. It is relevant only if `rtype='Order2'`.
             It takes 2 values: 'ecos' or 'cvxopt'.
             The default is `'ecos'`.
+        verbose : `Boolean`, optional
+            If it is set to `True`, then various computation messages 
+            (meant as warnings) will be printed. The default is `False`.
         
         Returns
         -------
         The object.
         """
-        super().__init__(mktdata, colname, freq, hlength, name)
+        super().__init__(mktdata, colname, freq, hlength, name, verbose)
         
         self.rtypes = ["Full", "Order2", "ExpCone"]
         
@@ -97,11 +100,11 @@ class KellyEngine(_RiskEngine):
             The default is `None`. 
         **params : other optional parameters
             Most common: \n
-            `verbose` : Boolean, optional
+            `verbose` : `Boolean`, optional
                 If it set to `True`, then it will print a message when 
                 the optimal portfolio degenerates to a single asset.
                 The default is `False`.
-            `pclose` : Boolean, optional
+            `pclose` : `Boolean`, optional
                 If it is absent then the `mktdata` is considered to contain 
                 rates of return, with columns the asset symbols and indexed 
                 by the observation dates, \n
@@ -124,14 +127,15 @@ class KellyEngine(_RiskEngine):
         if method is not None:
             self._set_method(method)
             
-        if self.rtype == 'Full':
-            self._calc_full()
-        elif self.rtype == 'Order2':
-            self._calc_order2()
-        elif self.rtype == 'ExpCone':
-            self._calc_exp_cone()
-        else:
-            raise ValueError(f"rtype must be one of: {self.rtypes}")
+        match self.rtype:
+            case 'Full':
+                self._calc_full()
+            case 'Order2':
+                self._calc_order2()
+            case 'ExpCone':
+                self._calc_exp_cone()
+            case _:
+                raise ValueError(f"rtype must be one of: {self.rtypes}")
             
         self.time_level1 = time.perf_counter() - toc
         
@@ -182,8 +186,9 @@ class KellyEngine(_RiskEngine):
         
         self.status = 0
         if 'optimal' not in res['status']:
-            self.status = 1
-            warnings.warn(f"Warning {res['status']}")
+            self.status = 2
+            if self.verbose:
+                print(f"Warning {res['status']}")
             return pd.Series(np.nan, index=self.rrate.columns)
         
         self.ww = pd.Series(res['x'], index=self.rrate.columns)
@@ -217,8 +222,9 @@ class KellyEngine(_RiskEngine):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            if self.verbose:
+                print(f"Warning {res['status']}: {res['infostring']} "
+                      f"on calibration date {self.rrate.index[-1]}")
             return pd.Series(np.nan, index=self.rrate.columns)    
 
         self.ww = pd.Series(res['x'], index=self.rrate.columns)
@@ -270,8 +276,9 @@ class KellyEngine(_RiskEngine):
         
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {res['status']}: {res['infostring']} "
-                        + f"on calibration date {self.rrate.index[-1]}")
+            if self.verbose:
+                print(f"Warning {res['status']}: {res['infostring']} "
+                      f"on calibration date {self.rrate.index[-1]}")
             return pd.Series(np.nan, index=self.rrate.columns)    
 
         self.ww = pd.Series(res['x'][:mm], index=self.rrate.columns)
