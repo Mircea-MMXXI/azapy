@@ -106,7 +106,7 @@ print(f"rtype {rtype} for mu {mu} computation status {status}\n"
 
 #==============================================================================
 print("\n******************************************************************\n")
-print("*** Minimum risk porfolio ***")
+print("*** Minimum risk portfolio ***")
 rtype = 'MinRisk'
 ww = cr1.getWeights(rtype)
 status = cr1.status
@@ -137,7 +137,7 @@ prc = pd.DataFrame({'primary': primary_risk, 'test': primary_risk_test,
                    'diff': primary_risk - primary_risk_test})
 src = pd.DataFrame({'secondary': secondary_risk, 'test': secondary_risk_test,
                    'diff': secondary_risk - secondary_risk_test})
-print(f"optimal weigts\n{weights.round(4)}\n" + 
+print(f"optimal weights\n{weights.round(4)}\n" + 
       f"expected rate of return {RR:f} test {RR_test:f} diff {RR - RR_test}\n"
       f"risk {risk:f} test {risk_test:f} diff {risk - risk_test}\n"
       f"primary risk comp\n{prc}\n"
@@ -175,7 +175,7 @@ prc = pd.DataFrame({'primary': primary_risk, 'test': primary_risk_test,
 src = pd.DataFrame({'secondary': secondary_risk, 'test': secondary_risk_test,
                    'diff': secondary_risk - secondary_risk_test})
 print(f"test computation status {status_test} comp time {comp_time_test:f}\n\n"
-      f"optimal weigts\n{weights.round(4)}\n" 
+      f"optimal weights\n{weights.round(4)}\n" 
       f"expected rate of return {RR:f} test {RR_test:f} diff {RR - RR_test:f}\n"
       f"sharpe {sharpe:f} test {sharpe_test:f} diff {sharpe - sharpe_test:f}\n"
       f"risk {risk:f} test {risk_test:f} diff {risk - risk_test:f}\n"
@@ -199,7 +199,7 @@ prc = pd.DataFrame({'primary': primary_risk, 'test': primary_risk_test,
                    'diff': primary_risk - primary_risk_test})
 src = pd.DataFrame({'secondary': secondary_risk, 'test': secondary_risk_test,
                    'diff': secondary_risk - secondary_risk_test})
-print(f"optimal weigts\n{weights.round(4)}\n" 
+print(f"optimal weights\n{weights.round(4)}\n" 
       f"expected rate of return {RR:f} test {RR_test:f} diff {RR - RR_test:f}\n"
       f"sharpe {sharpe:f} test {sharpe_test:f} diff {sharpe - sharpe_test:f}\n"
       f"risk {risk:f} test {risk_test:f} diff {risk - risk_test:f}\n"
@@ -240,7 +240,7 @@ src = pd.DataFrame({'secondary': secondary_risk, 'test': secondary_risk_test,
                    'diff': secondary_risk - secondary_risk_test})
 print(f"rtype {rtype_test} computation status {status_test} "
       f"comp time {comp_time_test:f}\n\n"
-      f"optimal weigts\n{weights.round(4)}\n"
+      f"optimal weights\n{weights.round(4)}\n"
       f"expected rate of return {RR:f} test {RR_test:f} diff {RR - RR_test:f}\n"
       f"sharpe {sharpe:f} test {sharpe_test:f} diff {sharpe - sharpe_test:f}\n"
       f"risk {risk:f} test {risk_test:f} diff {risk - risk_test:f}\n"
@@ -286,7 +286,7 @@ src = pd.DataFrame({'secondary': secondary_risk, 'test': secondary_risk_test,
 
 print(f"test rtype {rtype_test} computation status {status_test} " 
       f"comp time {comp_time_test:f}\n\n" 
-      f"optimal weigts\n{weights.round(4)}\n" 
+      f"optimal weights\n{weights.round(4)}\n" 
       f"expected rate of return {RR:f} test {RR_test:f} diff {RR - RR_test:f}\n" 
       f"risk {risk:f} test {risk_test:f} diff {risk - risk_test:f}\n" 
       f"primary risk comp\n{prc.round(6)}\n" 
@@ -472,7 +472,7 @@ prc = pd.DataFrame({'primary': primary_risk, 'test': primary_risk_test,
                    'diff': primary_risk - primary_risk_test})
 src = pd.DataFrame({'secondary': secondary_risk, 'test': secondary_risk_test,
                    'diff': secondary_risk - secondary_risk_test})
-print(f"optimal weigts\n{weights.round(4)}\n" + 
+print(f"optimal weights\n{weights.round(4)}\n" + 
       f"expected rate of return {RR:f} test {RR_test:f} diff {RR - RR_test:f}\n"
       f"diversification factor {diverse:f} test {diverse_test:f} "
       f"diff {diverse - diverse_test:f}\n"
@@ -502,7 +502,7 @@ print(f"rtype {rtype} computation status {status} comp time {comp_time:f}\n")
 
 print("=== test1 - compare the diversification factors ===")
 diverse_test = cr1.getDiversification(ww0)
-print(f"diversfication {diverse:f} benchmark port {diverse_test:f} "
+print(f"diversification {diverse:f} benchmark port {diverse_test:f} "
       f"diff {diverse - diverse_test:f}\n")
 
 print("=== test2 - compare with optimal diversified portfolio for "
@@ -595,7 +595,7 @@ prc = pd.DataFrame({'primary': primary_risk, 'test': primary_risk_test,
                    'diff': primary_risk - primary_risk_test})
 src = pd.DataFrame({'secondary': secondary_risk, 'test': secondary_risk_test,
                    'diff': secondary_risk - secondary_risk_test})
-print(f"optimal weigts\n{weights.round(4)}\n" + 
+print(f"optimal weights\n{weights.round(4)}\n" + 
       f"expected rate of return {RR:f} test {RR_test:f} diff {RR - RR_test:f}\n"
       f"diversification factor {diverse:f} test {diverse_test:f} "
       f"diff {diverse - diverse_test:f}\n"
@@ -611,7 +611,7 @@ print("\n expected rate of return vs risk representation")
 rft = cr1.viewFrontiers(options=opt)
 print("\n Sharpe vs expected rate of return representation")
 _ = cr1.viewFrontiers(data=rft, fig_type='Sharpe_RR', options=opt)
-print("\n diverification factor vs expected rate of return")
+print("\n diversification factor vs expected rate of return")
 _ = cr1.viewFrontiers(data=rft, fig_type='Diverse_RR', options=opt)
 
 #==============================================================================
@@ -636,7 +636,7 @@ fd1 = cr1.viewFrontiers(minrisk=True, efficient=20, inefficient=20,
 print("\n Sharpe vs expected rate of return representation")
 _ = cr1.viewFrontiers(fig_type='Sharpe_RR', 
                       invNdiverse_label=None, data=fd1, options=opt)
-print("\n diverification factor vs expected rate of return")
+print("\n diversification factor vs expected rate of return")
 _ = cr1.viewFrontiers(fig_type='Diverse_RR', 
                       invNrisk_label=None, data=fd1, options=opt)
 
@@ -653,7 +653,7 @@ ns = pd.Series(100, index=symb)
 cash = 0.
 
 # new positions and rolling info
-# optimization strategie
+# optimization strategy
 rtype = 'Sharpe'
 mu0 = 0. # risk free rate
 

@@ -25,7 +25,7 @@ class CorrClusterSelector(NullSelector):
         ----------
         pname : `str`, optional
             Selector name. The default is 'DualMomentum'.
-        corr_thresold : `float`, optional
+        corr_threshold : `float`, optional
             Cluster correlation threshold (i.e., a cluster contains only symbols 
             with inter-correlation higher than `corr_threshold`. 
             The default is 0.95.
@@ -50,7 +50,7 @@ class CorrClusterSelector(NullSelector):
         hlength : 'float', optional
             History length in number of years used for calibration. A 
             fractional number will be rounded to an integer number of months.
-            The default is `3.25` years.
+            The default is `1` years.
             
         Returns
         -------
@@ -75,15 +75,15 @@ class CorrClusterSelector(NullSelector):
 
         Parameters
         ----------
-        mktdata : `pandas.DataFrme`
+        mktdata : `pandas.DataFrame`
             MkT data in the format produced by the `azapy` function `readMkT`.
         **params : `dict`, optional
             Other optional parameters:
-                **verbose** : Boolean, optional
+                **verbose** : `Boolean`, optional
                     When it is set to `True`, the selection symbols are printed.
                     The default is 'False'.
                 
-                **view** : Boolean, optional
+                **view** : `Boolean`, optional
                     If set to `True`, then the dendrogram of hierarchical 
                     classification is printed out. The default is `False`.
                     Note: the tree cutoff is at `1 - corr_threshold` level.
@@ -138,8 +138,8 @@ class CorrClusterSelector(NullSelector):
 
         verbose = params['verbose'] if 'verbose' in params.keys() else False
         if verbose: 
-            print(f"Selctor {self.pname} :\n\t capital {1}\n"
-                  f"\t selction {self.symb}")
+            print(f"Selector {self.pname} :\n\t capital {self.capital}\n"
+                  f"\t selection {self.symb}")
             
         self.mkt = mktdata[mktdata['symbol'].isin(self.symb)]
         self.symb_omitted = list(np.setdiff1d(mkt.columns, self.symb))
@@ -165,4 +165,3 @@ class CorrClusterSelector(NullSelector):
                           / mktd.iloc[-1]) ** (12 / nm) - 1) * ww[ii]
         
         return rrfilter / np.sum(ww)
-

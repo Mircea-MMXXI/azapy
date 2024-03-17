@@ -19,7 +19,7 @@ def _max_drawdown(uw):
     """
     Computes the maximum drawdown for an underwater vector
     """
-    draw_min = uw.idxmin()
+    draw_min = uw.idxmin(skipna=True)
     draw_val = uw[draw_min]
     draw_start = uw[:draw_min][uw[:draw_min] == 0].index[-1]
     try:
@@ -29,13 +29,14 @@ def _max_drawdown(uw):
 
     return draw_val, draw_min, draw_start, draw_end
 
+
 def max_drawdown(mktdata, col=None):
     """
     Computes the maximum drawdown for a time-series of prices.
 
     Parameters
     ----------
-    mktdata : `pandas.Series` or `pandas.DataFram`
+    mktdata : `pandas.Series` or `pandas.DataFrame`
         Time-series of prices as a `pandas.Series` or as column in a 
         pandas.DataFrame`
     col : `str`, optional
@@ -48,7 +49,7 @@ def max_drawdown(mktdata, col=None):
     (`float`, `pandas.Timestamp`, `pandas.Timestamp`, `pandas.Timestamp`) : Tuple 
         - value of the drawdown, 
         - maximum drawdown date, 
-        - drawdawn start date,
+        - drawdown start date,
         - drawdown end date. It is set to `nan` if the drawdown is still 
           in progress.
     """
@@ -83,7 +84,7 @@ def drawdown(mktdata, col=None, top=10):
 
     Returns
     -------
-    `pandas.DataFrama` : Table containing the drawdowns ordered from the 
+    `pandas.DataFrame` : Table containing the drawdowns ordered from the 
     largest to smallest.
         Table columns are:
 
@@ -114,5 +115,4 @@ def drawdown(mktdata, col=None, top=10):
         uw.drop(index=uw[i_start:i_end].index[:], inplace=True)
         if (len(uw) == 0) or (uw.min() == 0): break
 
-    return pd.DataFrame(dd,
-                        index=pd.Index(range(1, len(dd['DD']) + 1), name='No'))
+    return pd.DataFrame(dd, index=pd.Index(range(1, len(dd['DD']) + 1), name='No'))

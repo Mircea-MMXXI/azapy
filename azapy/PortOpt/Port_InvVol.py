@@ -26,7 +26,7 @@ class Port_InvVol(_Port_Generator):
             The length in year of the historical calibration period relative 
             to `'Dfix'`. A fractional number will be rounded to an integer number 
             of months. The default is `3.25` years. 
-        verbose : Boolean, optional
+        verbose : `Boolean`, optional
             Sets verbose mode. The default is `False`.
 
         Returns

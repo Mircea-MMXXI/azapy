@@ -6,13 +6,13 @@ print(f"azapy version {az.version()}", flush=True)
 # Collect market data
 mktdir = '../../MkTdata'
 sdate = '2012-01-01'
-edate = '2021-07-27'
+edate = 'today'
 symb = ['GLD', 'TLT', 'XLV', 'IHI', 'VGT']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #==============================================================================
-# buid a fixing schedule
+# build a fixing schedule
 fixing_schedule = az.schedule_simple(sdate, edate, 
                                      freq='M', noffset=-5, fixoffset=0)
 

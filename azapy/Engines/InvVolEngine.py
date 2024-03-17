@@ -26,11 +26,10 @@ class InvVolEngine(_RiskEngine):
             The default is `None`. 
         **params : other optional parameters
             Most common: \n
-            `verbose` : Boolean, optional
-                If it is set to `True`, then it will print a message when 
-                the optimal portfolio degenerates to a single asset.
-                The default is `False`.
-            `pclose` : Boolean, optional
+            `verbose` : `Boolean`, optional
+                If it is set to `True`, then it will print a computation
+                messages. The default is `False`.
+            `pclose` : `Boolean`, optional
                 If it is absent then the `mktdata` is considered to contain 
                 rates of return, with columns the asset symbols and indexed 
                 by the observation dates, \n

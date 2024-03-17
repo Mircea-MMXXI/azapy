@@ -1,6 +1,5 @@
 import numpy as np
 import scipy.sparse as sps
-import warnings
 import time
 
 from .MADAnalyzer import MADAnalyzer
@@ -22,7 +21,7 @@ class LSDAnalyzer(MADAnalyzer):
         * `secondary_risk_comp` : `list` - cumulative delta-risk components 
           of mLSD 
         * `sharpe` : `float` - mLSD-Sharpe ration if `rtype` is set to 
-          `'Shapre'` or `'Sharpe2'` otherwise `None`. 
+          `'Sharpe'` or `'Sharpe2'` otherwise `None`. 
         * `diverse` : `float` - diversification factor if `rtype` is set 
           to `'Divers'` or `'MaxDivers'` otherwise `None`.
         * `name` : `str` - portfolio name
@@ -30,14 +29,14 @@ class LSDAnalyzer(MADAnalyzer):
     Note the following 2 important methods:
         * `getWeights` : Computes the optimal portfolio weights.
           During its computations the following class members are also set:
-          `risk`, `primery_risk_comp`, `secondary_risk_comp`, `sharpe`,  `RR`, 
+          `risk`, `primary_risk_comp`, `secondary_risk_comp`, `sharpe`,  `RR`, 
           `divers`.
         * `getPositions` : Provides practical information regarding the portfolio
           rebalancing delta positions and costs.  
     """
     def __init__(self, coef=[1.], mktdata=None, colname='adjusted', freq='Q', 
                  hlength=3.25, name='LSD', rtype='Sharpe', mu=None, d=1, 
-                 mu0=0., aversion=None, ww0=None, method='ecos'):
+                 mu0=0., aversion=None, ww0=None, method='ecos', verbose=False):
         """
         Constructor
 
@@ -117,13 +116,16 @@ class LSDAnalyzer(MADAnalyzer):
         method : `str`, optional
             SOCP numerical method. Could be: `'ecos'` or `'cvxopt'`.
             The defualt is `'ecos'`.
+        verbose : `Boolean`, optional
+            If it is set to `True`, then various computation messages 
+            (meant as warnings) will be printed. The default is `False`.
 
         Returns
         -------
         The object.
         """
         super().__init__(coef, mktdata, colname, freq, hlength, name, 
-                         rtype, mu, d, mu0, aversion, ww0, method)
+                         rtype, mu, d, mu0, aversion, ww0, method, verbose)
         
         
     def _set_method(self, method):
@@ -224,8 +226,9 @@ class LSDAnalyzer(MADAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
         
         # mLSD
@@ -315,8 +318,9 @@ class LSDAnalyzer(MADAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
         
         # mLSD
@@ -407,8 +411,9 @@ class LSDAnalyzer(MADAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
         
         # mLSD-Sharpe
@@ -497,8 +502,9 @@ class LSDAnalyzer(MADAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
         
         # rate of return
@@ -583,8 +589,9 @@ class LSDAnalyzer(MADAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
         
         # optimal weights
@@ -681,8 +688,9 @@ class LSDAnalyzer(MADAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
         
         # mLSD-Divers
@@ -780,8 +788,9 @@ class LSDAnalyzer(MADAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
         
         t = res['x'][-1] 
@@ -869,8 +878,9 @@ class LSDAnalyzer(MADAnalyzer):
  
         self.status = res['status']
         if self.status != 0:
-            warnings.warn(f"Warning {self.name} on {self.rrate.index[-1]} :: "
-                          f"status {res['status']} :: {res['infostring']}")
+            if self.verbose:
+                print(f"Warning {self.name} on {self.rrate.index[-1]} :: "
+                      f"status {res['status']} :: {res['infostring']}")
             return np.array([np.nan] * mm)
         
         # rate of return

@@ -78,7 +78,7 @@ class Port_MV(_Port_Generator):
         method : `str`, optional
             Quadratic programming numerical method. Could be `'ecos'` or
             `'cvxopt'`. The default is `'ecos'`.
-        verbose : Boolean, optional
+        verbose : `Boolean`, optional
             If it set to `True` then it will print messages when the optimal
             portfolio degenerates to a single asset portfolio as a limited 
             case. 

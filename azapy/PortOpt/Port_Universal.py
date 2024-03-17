@@ -21,7 +21,7 @@ class Port_Universal(Port_Generator):
     """                  
     def set_model(self, mc_paths=100, nr_batches=16, 
                   variance_reduction=True, dirichlet_alpha=None, 
-                  mc_seed=None, verbose=False):
+                  mc_seed=None, verbose=False, **kwarg):
         """
         Sets model parameters and evaluates portfolio time-series.
 
@@ -35,7 +35,7 @@ class Port_Universal(Port_Generator):
             `mc_paths` simulations. The computation is multithreaded for 
             `nr_batches > 1`.
             The default is `16`.
-        variance_reduction : Boolean, optional
+        variance_reduction : `Boolean`, optional
             If set to `True`, then the antithetic variance reduction based on 
             all possible permutations of the basket components is deployed.
             In this case the total number of MC simulations is
@@ -56,7 +56,7 @@ class Port_Universal(Port_Generator):
             in a n-simplex is used (equivalent to Flat Dirichlet random 
             vector generator, i.e., alpha=[1] * n).
             The default is `None`.
-        verbose : Boolean, optional
+        verbose : `Boolean`, optional
             Logical flag triggering the verbose mode. The default is `False`.
 
         Returns
@@ -65,14 +65,21 @@ class Port_Universal(Port_Generator):
         'pcolname'.
         """
         self._set_schedule()
-        self.wwModel = UniversalEngine(mktdata=self.mktdata, 
-                                       schedule=self.schedule,
-                                       dirichlet_alpha=dirichlet_alpha)
-        ww = self.wwModel.getWeights(mc_paths=mc_paths,
-                                     nr_batches=nr_batches,
-                                     variance_reduction=variance_reduction,
-                                     mc_seed=mc_seed,
+        self.wwModel = UniversalEngine(schedule=self.schedule,
+                                       dirichlet_alpha=dirichlet_alpha,
+                                       variance_reduction=variance_reduction,
+                                       nr_batches=nr_batches,
+                                       mc_paths=mc_paths,
+                                       mc_seed=mc_seed,
+                                       )
+        ww = self.wwModel.getWeights(mktdata=self.mktdata, 
+                                     finalonly=False,
                                      verbose=verbose)
+        self.status = self.wwModel.status
+        if self.status != 0:
+            if verbose:
+                print(f"Error in weights computation - status {self.status}")
+            return None
         
         self.ww = pd.merge(self.schedule, ww, left_on='Dfix', right_index=True)
         if '_CASH_' not in self.ww.columns:

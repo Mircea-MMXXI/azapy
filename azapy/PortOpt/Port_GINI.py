@@ -17,7 +17,7 @@ class Port_GINI(_Port_Generator):
     other method.
     """       
     def set_model(self, rtype='Sharpe', mu=None, mu0=0, aversion=None, 
-                  ww0=None, hlength=3.25, method='ecos', verbose=False):
+                  ww0=None, hlength=1.25, method='ecos', verbose=False):
         """
         Sets model parameters and evaluates portfolio time-series.
 
@@ -74,13 +74,13 @@ class Port_GINI(_Port_Generator):
         hlength : `float`, optional
             The length in year of the historical calibration period relative
             to `'Dfix'`. A fractional number will be rounded to an integer 
-            number of months. The default is `3.25` years.
+            number of months. The default is `1.25` years.
         method : `str`, optional
             Linear programming numerical method.
             Could be: `'ecos'`, `'highs-ds'`, `'highs-ipm'`, `'highs'`,
             `'interior-point'`, `'glpk'` and `'cvxopt'`.
             The default is `'ecos'`.
-        verbose : Boolean, optional
+        verbose : `Boolean`, optional
             If it set to `True` then it will print messages when the optimal
             portfolio degenerates to a single asset portfolio as a limited 
             case. 

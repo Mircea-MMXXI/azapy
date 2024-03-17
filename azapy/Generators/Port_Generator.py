@@ -86,10 +86,10 @@ class Port_Generator(Port_Simple):
             Business calendar. If it is `None` then it will be set to NYSE
             business calendar. The default
             value is `None`.
-        multithreading : Boolean, optional
+        multithreading : `Boolean`, optional
             If it is `True` then the rebalancing weights will 
             be computed concurrent. The default is `True`.
-        nsh_round : Boolean, optional
+        nsh_round : `Boolean`, optional
             If it is `True` the invested numbers of shares are round to the 
             nearest integer and the residual cash capital 
             (positive or negative) is carried to the next reinvestment cycle. 
@@ -131,7 +131,7 @@ class Port_Generator(Port_Simple):
         ----------
         wwModel : `ModelPipeline` object
             Weights model
-        verbose : Boolean, optional
+        verbose : `Boolean`, optional
             Sets the verbose mode.
 
         Returns
@@ -157,6 +157,7 @@ class Port_Generator(Port_Simple):
     
     
     def _set_weights(self):
+        self.status = 0
         if self.multithreading:
             return self._set_weights_mt()
         return self._set_weights_sr()
@@ -169,8 +170,12 @@ class Port_Generator(Port_Simple):
                 return pd.Series(np.nan, index=self.mktdata['symbol'].unique())
             
             mm = self.mktdata.loc[self.mktdata.index <= Dfix]
-            return self.wwModel.getWeights(mm, pclose=False, 
-                                           verbose=self.verbose)
+            wei = self.wwModel.getWeights(mm, pclose=False, 
+                                          verbose=self.verbose)
+            if self.wwModel.status == 0:
+                return wei
+            self.status = self.wwModel.status
+            return pd.Series(np.nan, index=self.mktdata['symbol'].unique())
         
         w = pd.DataFrame([_fww(Dfix) for Dfix in self.schedule['Dfix'].tolist()])
         self.ww = pd.concat([self.schedule, w], axis=1)
@@ -185,11 +190,16 @@ class Port_Generator(Port_Simple):
             else:
                 mm = self.mktdata.loc[self.mktdata.index <= Dfix].copy()
                 wei = mod.getWeights(mm, pclose=False, verbose=self.verbose)
+                status.append(mod.status)
+                if mod.status != 0:
+                    wei = pd.Series(0, 
+                          index=list(self.mktdata['symbol'].unique()) + ['_CASH_'])
                 
             wei['Dfix'] = Dfix
             w.append(wei)
         
         w = []
+        status = []
         th = [threading.Thread(target=_fww, 
                                args=(k, copy.deepcopy(self.wwModel))) \
               for k in self.schedule['Dfix'].tolist()]
@@ -197,7 +207,8 @@ class Port_Generator(Port_Simple):
             th[i].start()
         for i in range(len(th)):
             th[i].join()
-
+            
+        self.status = max(abs(k) for k in status)
         self.ww = pd.merge(left=self.schedule, right=pd.DataFrame(w), 
                            on='Dfix', how='left')
         self.ww.loc[self.ww.Dfix > self.edate, 
@@ -268,7 +279,7 @@ class Port_Generator(Port_Simple):
 
         Parameters
         ----------
-        fancy : Boolean, optional
+        fancy : `Boolean`, optional
             - `False`: the values are reported in unaltered algebraic format. 
             - `True` : the values are reported rounded.
             
@@ -292,6 +303,12 @@ class Port_Generator(Port_Simple):
             each rolling period is assumed to be done separately by 
             the investor.*
         """
+        if self.status != 0:
+            if self.verbose:
+                print("Computation Error: no weights are available"
+                      f" - status {self.status}")
+            return None
+        
         acc_tab = self.nshares.copy()
         acc_tab['cash_invst'] = self.cash_invst
         acc_tab['cash_roll'] = self.cash_roll
@@ -311,7 +328,7 @@ class Port_Generator(Port_Simple):
 
         Parameters
         ----------
-        fancy : Boolean, optional
+        fancy : `Boolean`, optional
            - `False`: returns in algebraic form.
            - `True`: returns percentage rounded to 2 decimals.
            
@@ -323,6 +340,12 @@ class Port_Generator(Port_Simple):
             Each rolling  period is indicated by its start date, `'Droll'`. 
             Included are the fixing data, `'Dfix'`, and the portfolio weights.
         """
+        if self.status != 0:
+            if self.verbose:
+                print("Computation Error: no weights are available"
+                      f" - status {self.status}")
+            return None
+        
         # local function
         def frr(x):
             p2 = x.p1.shift(-1)
@@ -353,7 +376,7 @@ class Port_Generator(Port_Simple):
 
         Parameters
         ----------
-        fancy : Boolean, optional
+        fancy : `Boolean`, optional
            - `False`: returns in algebraic form.
            - `True`: returns percentage rounded to 2 decimals.
         The default is `False`.
@@ -361,7 +384,7 @@ class Port_Generator(Port_Simple):
         Returns
         -------
         `pandas.DataFrame` : 
-            - `'Droll'` – indicates the start of the period.
+            - `'Droll'` - indicates the start of the period.
             - `'RR'` - period rate of return.
             - `'RR_Min'` - minimum rolling rate of return in the period.
             - `'RR_Max'` - maximum rolling rate of return in the period.
@@ -370,6 +393,12 @@ class Port_Generator(Port_Simple):
             - `'RR_Max_Date'` - date of `'RR_Max'`.
             - `'DD_Max_Date'` - date of `'DD_Max'`.
         """
+        if self.status != 0:
+            if self.verbose:
+                print("Computation Error: no weights are available"
+                      f" - status {self.status}")
+            return None
+        
         nn = self.schedule.shape[0]
         rr = []
         rmin = []

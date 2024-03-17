@@ -1,5 +1,4 @@
 import os
-import warnings
 from azapy.MkT.MkTreader import MkTreader
 
 
@@ -26,7 +25,7 @@ def update_MkTdata(mktdir, source=None, api_key=None, param=None,
         The default is `None`.
     except_file : `list`, optional
         List of symbols to be omitted from the update. The default is [].
-    verbose : Boolean, optional
+    verbose : `Boolean`, optional
             - `True` will print a progress report,
             - `False` suppress any printing to the terminal.
         
@@ -46,7 +45,8 @@ def update_MkTdata(mktdir, source=None, api_key=None, param=None,
     are silently omitted from the update.
     """
     if not os.path.isdir(mktdir):
-        warnings.warn(f"Warning: doesn\'t exist dir: {mktdir}")
+        if verbose:
+            print(f"Warning: doesn\'t exist dir: {mktdir}")
         return 101
     if source is None:
         source = 'yahoo'
@@ -54,8 +54,8 @@ def update_MkTdata(mktdir, source=None, api_key=None, param=None,
                         'eodhistoricaldata', 'eodhistoricaldata_yahoo',
                         'alphavantage', 'alphavantage_yahoo',
                         'marketstack']:
-        warnings.warn(f"Unsupported mkt data source {source}")
-        return 102
+        raise ValueError(f"Unsupported mkt data source {source}")
+
     if except_file is None:
         except_file = []
     

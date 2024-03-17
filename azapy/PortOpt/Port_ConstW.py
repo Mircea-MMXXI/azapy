@@ -26,7 +26,7 @@ class Port_ConstW(_Port_Generator):
             Portfolio weights per symbol. If it is set to `None` then 
             the EWP (Equal Weighted Portfolio) will be considered.
             The default is `None`.
-        verbose : Boolean, optional
+        verbose : `Boolean`, optional
             Sets verbose mode. The default is `False`.
 
         Returns

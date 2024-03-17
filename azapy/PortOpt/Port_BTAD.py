@@ -81,7 +81,7 @@ class Port_BTAD(_Port_Generator):
             symbols (same symbols, not necessarily in the same order).
             If it is `None` then it will be set to equal weights.
             The default is `None`.
-        detrended : Boolean, optional
+        detrended : `Boolean`, optional
             If it set to `True` then the rates of return are detrended 
             (`mean=0`). The default value is `True`. 
         hlength : `float`, optional
@@ -93,7 +93,7 @@ class Port_BTAD(_Port_Generator):
             Could be: `'ecos'`, `'highs-ds'`, `'highs-ipm'`, `'highs'`,
             `'interior-point'`, `'glpk'` and `'cvxopt'`.
             The default is `'ecos'`.
-        verbose : Boolean, optional
+        verbose : `Boolean`, optional
             If it set to `True` then it will print messages when the optimal
             portfolio degenerates to a single asset portfolio as a limited 
             case. 

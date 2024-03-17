@@ -34,10 +34,11 @@ class Port_Simple:
 
         Parameters
         ----------
-        mktdata : `pandas.DataFrame`;
+        mktdata : `pandas.DataFrame`, `dict` of `pandas.DataFrame`, `list` of
+            `pandas.Series` or single column `pandas.DataFrame` of prices;
             MkT data in the format "symbol", "date", "open", "high", "low",
             "close", "volume", "adjusted", "divd", "split" (e.g., as returned
-            by `azapy.readMkT` function).
+            by `azapy.readMkT` function either as a dict or as a single DataFrame).
         symb : `list`, optional
             List of symbols for the basket components. All symbols MkT data
             should be included in `mktdata`. If set to `None` the `symb` will 
@@ -65,13 +66,37 @@ class Port_Simple:
         -------
         The object.
         """
-        if isinstance(mktdata, list):
-            mktdata = pd.concat(mktdata, axis=1, join='inner') \
-                .melt(var_name='symbol', value_name=col, ignore_index=False)
+        self.col = col
+        self.pname = pname
+        self.pcolname = self.pname if pcolname is None else pcolname
+        self.capital = capital
+        self._build_mktdata(mktdata, symb, sdate, edate)
 
+        self.ww = None
+        self.port = None
+        self.nshares = None
+        
+        self.options = None
+        
+        self.status = 1
+        self.verbose = False
+        
+        
+    def _build_mktdata(self, mktdata, symb, sdate, edate):
+        if isinstance(mktdata, dict):
+            mkt_symb = np.array(list(mktdata.keys()))
+            mkt_sdate = max([vv.index[0] for vv in mktdata.values()])
+            mkt_edate = min([vv.index[-1] for vv in mktdata.values()])
+        else:
+            if isinstance(mktdata, list):
+                mktdata = pd.concat(mktdata, axis=1, join='inner').melt(
+                    var_name='symbol', value_name=self.col, ignore_index=False)
+            mkt_symb = mktdata.symbol.unique()
+            gmkt = mktdata.groupby('symbol')
+            mkt_sdate = gmkt.apply(lambda x: x.index[0]).max()
+            mkt_edate = gmkt.apply(lambda x: x.index[-1]).min()
+            
         # set sdate
-        mkt_sdate = mktdata.groupby('symbol') \
-                           .apply(lambda x: x.index[0]).max()
         if sdate is None:
             self.sdate = mkt_sdate
         else:
@@ -80,9 +105,8 @@ class Port_Simple:
                 self.sdate = mkt_sdate
             else:
                 self.sdate = v_date
+                
         # set edate
-        mkt_edate = mktdata.groupby('symbol') \
-                           .apply(lambda x: x.index[-1]).min()
         if edate is None:
             self.edate = mkt_edate
         else:
@@ -91,34 +115,35 @@ class Port_Simple:
                 self.edate = mkt_edate
             else:
                 self.edate = v_date
+                
         # set symb
-        mkt_symb = mktdata.symbol.unique()
         if symb is None:
             self.symb = mkt_symb
         else:
             if not all(sy in mkt_symb for sy in symb):
                 raise ValueError(f"symb list {symb} incompatible"
                                  f" with mktdata {mkt_symb}")
-
             self.symb = pd.Series(symb)
+                
         # set mktdata
-        self.mktdata = mktdata[(mktdata.index >= self.sdate) &
-                               (mktdata.index <= self.edate) &
-                               mktdata.symbol.isin(self.symb)].copy()
+        if isinstance(mktdata, dict):
+            lvv = []
+            for kk, vv in mktdata.items():
+                if kk not in self.symb: continue
+                if 'symbol' in vv.columns:
+                    lv = vv
+                else:
+                    lv = vv.copy()
+                    lv['symbol'] = kk
+                lvv.append(lv[(lv.index >= self.sdate) & (lv.index <= self.edate)])
+            self.mktdata = pd.concat(lvv)
+        else:
+            self.mktdata = mktdata[(mktdata.index >= self.sdate) &
+                                   (mktdata.index <= self.edate) &
+                                   mktdata.symbol.isin(self.symb)].copy()
 
-        self.col = col
-        self.pname = pname
-        self.pcolname = self.pname if pcolname is None else pcolname
-        self.capital = capital
 
-        self.ww = None
-        self.port = None
-        self.nshares = None
-        
-        self.options = None
-
-
-    def set_model(self, ww=None):
+    def set_model(self, ww=None, verbose=False):
         """
         Set model parameters and evaluate the portfolio time-series.
 
@@ -130,12 +155,17 @@ class Port_Simple:
             `symb` order. If it is set to `None` than `ww` will be set 
             to equal weights.
             The default is `None`.
+        verbose: `Boolean`, optional
+            If it `True`, then various computational messages will be printed.
+            The default is `False`.
 
         Returns
         -------
         `pandas.DataFrame` : The portfolio time-series in the format "date", 
         "pcolname".
         """
+        self.status = 0
+        self.verbose = verbose
         # Validate the weights
         if ww is None:
             self.ww = pd.Series(1., index=self.symb)
@@ -157,6 +187,7 @@ class Port_Simple:
         self._port_calc()
         return self.port
 
+
     def _port_calc(self):
         mktdata = self.mktdata.pivot(columns='symbol', values=self.col)
         divid = self.ww / mktdata.iloc[0] * self.capital
@@ -172,6 +203,12 @@ class Port_Simple:
         -------
         `pandas.DataFrame` : portfolio time-series.
         """
+        if self.status != 0:
+            if self.verbose:
+                print("Computation Error: no weights are available"
+                      f" - status {self.status}")
+            return None
+        
         return self.port.copy()
     
     
@@ -181,7 +218,7 @@ class Port_Simple:
         
         Parameters
         ----------
-        fancy : Boolean, optional
+        fancy : `Boolean`, optional
             - `False`: reports the weights in algebraic format.
             - `True`: reports the weights in percentage rounded to 2 decimals.  
             
@@ -191,6 +228,12 @@ class Port_Simple:
         -------
         `pandas.DataFrame` : portfolio weights per symbol.
         """
+        if self.status != 0:
+            if self.verbose:
+                print("Computation Error: no weights are available"
+                      f" - status {self.status}")
+            return None
+        
         res = self.ww.copy()
         if not fancy:
             return res
@@ -198,6 +241,7 @@ class Port_Simple:
         res[self.symb] = res[self.symb].round(4).abs() * 100
         
         return res
+    
     
     def get_nshares(self):
         """
@@ -233,10 +277,10 @@ class Port_Simple:
         ----------
         emas : `list` of int, optional
             List of EMA durations. The default is [30, 200].
-        bollinger : Boolean, optional
+        bollinger : `Boolean`, optional
             If set `True` it adds the Bollinger bands. The default is `False`.    
         **opt : other optional parameters
-            * `fancy` : Boolean, optional
+            * `fancy` : `Boolean`, optional
                 - `False` : it uses the matplotlib capabilities.
                 - `True` : it uses `plotly` library for interactive time-series view.
     
@@ -251,6 +295,12 @@ class Port_Simple:
         -------
         `pandas.DataFrame` : Contains the time-series included in plot.
         """
+        if self.status != 0:
+            if self.verbose:
+                print("Computation Error: no weights are available"
+                      f" - status {self.status}")
+            return None
+        
         options = defaultdict(lambda: None, 
                               {'title': "Port performance",
                                'xlabel': "date", 
@@ -290,6 +340,7 @@ class Port_Simple:
                         
         return df
 
+
     def port_view_all(self, sdate=None, edate=None, componly=False, **opt):
         """
         Plots the portfolio and its component time-series on a relative basis.
@@ -304,13 +355,13 @@ class Port_Simple:
             End date of plotted time-series. If it set to `None`, then 
             the `edate` is set to the most recent date of the time-series.
             The default is `None`.
-        componly : Boolean, optional
+        componly : `Boolean`, optional
             - `True` : only the portfolio components time-series are plotted.
             - `False`: the portfolio and its components times-series are plotted.
 
             The default is `True`.
         **opt : other parameters
-            * `fancy` : Boolean, optional
+            * `fancy` : `Boolean`, optional
                 - `False` : it uses the pandas plot (matplotlib) capabilities.
                 - `True` : it uses `plotly` library for interactive time-series view.
 
@@ -325,8 +376,14 @@ class Port_Simple:
         -------
         `pandas.DataFrame` : A Data Frame containing the time-series.
         """
+        if self.status != 0:
+            if self.verbose:
+                print("Computation Error: no weights are available"
+                      f" - status {self.status}")
+            return None
+        
         options = defaultdict(lambda: None, 
-                              {'title': "Relative perfromance",
+                              {'title': "Relative performance",
                                'xlable': "date", 
                                'fancy': False})
         options.update(opt)
@@ -346,7 +403,6 @@ class Port_Simple:
         df = df.iloc[(df.index >= sdate) & (df.index <= edate)]
         if not componly:
             df = df.merge(self.port, on='date')
-        #df = df.apply(lambda x: x / x[0])
         df = df.apply(lambda x: x / x.iloc[0])
 
         if fancy:
@@ -365,7 +421,8 @@ class Port_Simple:
 
         return df
 
-    def port_drawdown(self, top=5, fancy=False):
+
+    def port_drawdown(self, top=5, fancy=False, withcomp=False, componly=False):
         """
         Computes the portfolio drawdowns.
 
@@ -374,13 +431,20 @@ class Port_Simple:
         top : `int`, optional
             The number of largest drawdowns that will be reported.
             The default is `5`.
-        fancy : Boolean, optional
+        fancy : `Boolean`, optional
             - `False` : The drawdowns values are reported in unaltered 
                algebraic format.
             - `True` : The drawdowns values are reported in percentage 
                rounded to 2 decimals.
 
             The default is `False`.
+        withcomp : `Boolean`, optional
+            If `True`, the portfolio components drawdowns are also reported.
+            The default is `False`.
+        componly : `Boolean`, optional
+            If `True`, only the portfolio components drawdowns are 
+            reported.
+            The flag is active only if `withcomp=True`. The default is `False`.
 
         Returns
         -------
@@ -391,11 +455,32 @@ class Port_Simple:
                 - `'Star'` : start date of the drawdown 
                 - `'End'` : end date of the drawdown
         """
-        res = drawdown(self.port, col=self.pcolname, top=top)
+        if self.status != 0:
+            if self.verbose:
+                print("Computation Error: no weights are available"
+                      f" - status {self.status}")
+            return None
+        
+        if withcomp:
+            sdd = self.mktdata.groupby("symbol").\
+                apply(lambda x: drawdown(x, col=self.col, top=top))
+            if componly:
+                res = sdd.swaplevel(0, 1).sort_index()
+            else:
+                res = drawdown(self.port, col=self.pcolname, top=top)
+                res['symbol'] = self.pname
+                res = pd.concat([res.reset_index(), sdd.reset_index()])
+                res['symbol'] = pd.Categorical(res['symbol'], 
+                      categories=[self.pname] + list(self.symb), ordered=True)
+                res = res.sort_values('symbol').set_index(['No','symbol']).sort_index()
+        else:
+            res = drawdown(self.port, col=self.pcolname, top=top)
+         
         if not fancy: return res
 
         res.DD = res.DD.round(4) * 100
         return res
+    
 
     def port_perf(self, componly=False, fancy=False):
         """
@@ -404,10 +489,10 @@ class Port_Simple:
 
         Parameters
         ----------
-        componly : Boolean, optional
+        componly : `Boolean`, optional
             If `True`, only the portfolio components maximum drawdowns
             are reported. The default is `False`.
-        fancy : Boolean, optional
+        fancy : `Boolean`, optional
             - `False` : The rate of returns and drawdown values are reported
               in unaltered algebraic format.
 
@@ -428,6 +513,12 @@ class Port_Simple:
                 - `'DD_end'` : end date of maximum drawdown
             
         """
+        if self.status != 0:
+            if self.verbose:
+                print("Computation Error: no weights are available"
+                      f" - status {self.status}")
+            return None
+        
         # local function
         def rinfo(df, col):
             rr = (df[col].iloc[-1] / df[col].iloc[0]) ** (252. / len(df)) - 1
@@ -437,9 +528,9 @@ class Port_Simple:
                columns=['RR', 'DD', 'RoMaD', 'DD_date', 'DD_start', 'DD_end' ])
 
         res = self.mktdata.groupby('symbol') \
-            .apply(rinfo, col=self.col) \
-            .droplevel(1) \
-            .sort_values(by='RoMaD', ascending=False)
+                  .apply(rinfo, col=self.col) \
+                  .droplevel(1) \
+                  .sort_values(by='RoMaD', ascending=False)
 
         if not componly:
             res2 = rinfo(self.port, self.pcolname)
@@ -459,14 +550,14 @@ class Port_Simple:
 
         Parameters
         ----------
-        withcomp : Boolean, optional
+        withcomp : `Boolean`, optional
             If `True`, adds the portfolio components annual returns to the
             report. The default is `False`.
-        componly : Boolean, optional
+        componly : `Boolean`, optional
             If `True`, only the portfolio components annual returns are 
             reported.
             The flag is active only if `withcomp=True`. The default is `False`.
-        fancy : Boolean, optional
+        fancy : `Boolean`, optional
             - `False` : The rates are reported in unaltered
               algebraic format.
             - `True` :The rates are reported in percentage rounded to 2 decimals
@@ -478,18 +569,22 @@ class Port_Simple:
         -------
         `pandas.DataFrame` : the report.
         """
-        # local function
-        def frrate(df):
-            return df.iloc[-1] / df.iloc[0] - 1
-
+        if self.status != 0:
+            if self.verbose:
+                print("Computation Error: no weights are available"
+                      f" - status {self.status}")
+            return None
+        
         if withcomp:
             zz = self.mktdata.pivot(columns='symbol', values=self.col) \
                 .loc[self.port.index]
             if not componly:
                 zz = self.port.merge(zz, on='date')
-            res = zz.resample('A', convention='end').apply(frrate)
+            res = zz.pct_change(1).resample('A', convention='end') \
+                .apply(lambda x: (x + 1).prod() - 1)
         else:
-            res = self.port.resample('A', convention='end').apply(frrate)
+            res = self.port.pct_change(1).resample('A', convention='end') \
+                .apply(lambda x: (x + 1).prod() - 1)
         res.index = res.index.year
         res.index.name = 'year'
 
@@ -506,14 +601,14 @@ class Port_Simple:
 
         Parameters
         ----------
-        withcomp : Boolean, optional
+        withcomp : `Boolean`, optional
             If `True`, adds the portfolio components monthly returns to the
             report. The default is `False`.
-        componly : Boolean, optional
+        componly : `Boolean`, optional
             If `True`, only the portfolio components monthly returns are
             reported. The flag is active only if `withcomp=True`.
             The default is `False`.
-        fancy : Boolean, optional
+        fancy : `Boolean`, optional
             - `False` : The rates are reported in unaltered
               algebraic format.
             - `True` : The rates are reported in percentage rounded to 2 decimals
@@ -525,25 +620,29 @@ class Port_Simple:
         -------
         `pandas.DataFrame` : the report.
         """
-        def frrate(df):
-            return df.iloc[-1] / df.iloc[0] - 1
-
-        # res = self.port.resample('M', convention='end').apply(frrate)
+        if self.status != 0:
+            if self.verbose:
+                print("Computation Error: no weights are available"
+                      f" - status {self.status}")
+            return None
+        
         if withcomp:
             zz = self.mktdata.pivot(columns='symbol', values=self.col) \
                 .loc[self.port.index]
             if not componly:
                 zz = self.port.merge(zz, on='date')
-            res = zz.resample('M', convention='end').apply(frrate)
+            res = zz.pct_change(1).resample('M', convention='end') \
+                .apply(lambda x: (x + 1).prod() - 1)
         else:
-            res = self.port.resample('M', convention='end').apply(frrate)
+            res = self.port.pct_change(1).resample('M', convention='end') \
+                .apply(lambda x: (x + 1).prod() - 1)
 
         if not fancy:
             return res
 
         res.index = pd.MultiIndex.from_arrays([res.index.year.to_list(),
                                                res.index.month.to_list()],
-                                              names= ['year', 'month'])
+                                               names= ['year', 'month'])
 
         if not withcomp:
             res = res.reset_index(level=0).pivot(columns='year',

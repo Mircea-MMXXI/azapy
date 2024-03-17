@@ -52,7 +52,7 @@ def random_simplex(rng, simplex_dim, size=1,
         Simplex dimension.
     size : positive `int`, optional
         Sample size. The default is 1.
-    antithetic : Boolean, optional
+    antithetic : `Boolean`, optional
         If it is set to `True`, then all the vector permutation will be added
         to the sample. The actual size of the sample will be 
         `size * factorial(simplex_dim)`. The default is `False`.

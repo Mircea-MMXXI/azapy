@@ -35,7 +35,7 @@ class NullSelector:
             `readMKT`.
         **params : `dict`, optional
             Additional optional parameters:
-                **verbose** : Boolean, optional
+                **verbose** : `Boolean`, optional
                   When it is set to `True`, the selection symbols are printed.
 
         Returns
@@ -46,6 +46,6 @@ class NullSelector:
         """
         verbose = params['verbose'] if 'verboss' in params.keys() else False
         if verbose: 
-            print(f"Selctor {self.pname} :\n\t capital {1}\n"
-                  "\t selction {mktdata['symbols'].unique()}")
+            print(f"Selector {self.pname} :\n\t capital {1}\n"
+                  "\t selection {mktdata['symbols'].unique()}")
         return 1, mktdata

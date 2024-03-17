@@ -5,11 +5,10 @@ class _Port_Generator(Port_Generator):
     
     def __init__(self, mktdata, symb=None, sdate=None, edate=None, 
                  col_price='close', col_divd='divd', col_ref='adjusted',
-                 col_calib='adjusted',
-                 pname='Port', pcolname=None, capital=100000, 
-                 schedule=None,
-                 freq='Q', noffset=-3, fixoffset=-1, histoffset=3.25, 
-                 calendar=None, multithreading=True, nsh_round=True):
+                 col_calib='adjusted', pname='Port', pcolname=None, 
+                 capital=100000, schedule=None, freq='Q', noffset=-3, 
+                 fixoffset=-1, histoffset=3.25, calendar=None, 
+                 multithreading=True, nsh_round=True):
         """
         Constructor
     
@@ -73,10 +72,10 @@ class _Port_Generator(Port_Generator):
             Business calendar. If it is `None` then it will be set to NYSE
             business calendar. The default
             value is `None`.
-        multitreading : Boolean, optional
+        multithreading : `Boolean`, optional
             If it is `True`, then the  rebalancing weights will 
             be computed concurrent. The default is `True`.
-        nsh_round : Boolean, optional
+        nsh_round : `Boolean`, optional
             If it is `True` the invested numbers of shares are round to the 
             nearest integer and the residual cash capital 
             (positive or negative) is carried to the next reinvestment cycle. 
@@ -89,12 +88,12 @@ class _Port_Generator(Port_Generator):
         """
         
         super().__init__(mktdata, symb=symb, sdate=sdate, edate=edate, 
-                     col_price=col_price, col_divd=col_divd, col_ref=col_ref,
-                     pname=pname, pcolname=pcolname, capital=capital, 
-                     schedule=schedule,
-                     freq=freq, noffset=noffset, fixoffset=fixoffset, 
-                     histoffset=histoffset, calendar=calendar,
-                     multithreading=multithreading, nsh_round=nsh_round)
+                         col_price=col_price, col_divd=col_divd, col_ref=col_ref,
+                         pname=pname, pcolname=pcolname, capital=capital, 
+                         schedule=schedule, freq=freq, noffset=noffset, 
+                         fixoffset=fixoffset, histoffset=histoffset, 
+                         calendar=calendar, multithreading=multithreading, 
+                         nsh_round=nsh_round)
         self.col_calib = col_calib
         
         
@@ -104,7 +103,7 @@ class _Port_Generator(Port_Generator):
         
         Parameters
         ----------
-        fancy : Boolean, optional
+        fancy : `Boolean`, optional
             - `False`: reports the weights in algebraic format.
             - `True`: reports the weights in percentage rounded to 2 decimals.  
             

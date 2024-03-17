@@ -14,7 +14,7 @@ symb = ['GLD', 'TLT', 'XLV', 'IHI', 'VGT', 'OIH']
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
-# Compute Omega optimal portfolio for alpha=0 (deafult) detrended 
+# Compute Omega optimal portfolio for alpha=0 (default) detrended 
 p1 = az.Port_BTAD(mktdata, pname='BTADPort') 
 
 tic = time.perf_counter()

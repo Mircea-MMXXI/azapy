@@ -20,7 +20,7 @@ class DualMomentumSelector(NullSelector):
           capital
     """
     def __init__(self, pname='DualMomentum', ftype='f13612w', fw=None, 
-                 nw=3, threshold=6, col_price='adjusted'):
+                 nw=3, threshold=6, col_price='adjusted', **kwargs):
         """
         Constructor
 
@@ -45,6 +45,8 @@ class DualMomentumSelector(NullSelector):
         col_price : `str`, optional
             Name of the price column in the `mktdata` to be used in the 
             momentum evaluations. The default is 'adjusted'.
+        **kwargs : `dict`, optional
+            Holder for other args.
 
         Returns
         -------
@@ -74,7 +76,7 @@ class DualMomentumSelector(NullSelector):
             MkT data in the format produced by the `azapy` function `readMkT`.
         **params : `dict`, optional
             Other optional parameters:
-                **verbose** : Boolean, optional
+                **verbose** : `Boolean`, optional
                     When it is set to `True`, the selection symbols are printed.
                     The default is `False`.
 
@@ -100,8 +102,8 @@ class DualMomentumSelector(NullSelector):
         self.symb_omitted = list(np.setdiff1d(self._mkt.columns, self.symb))
         
         if verbose: 
-            print(f"Selctor {self.pname} :\n\t capital {self.capital}\n"
-                  f"\t selction {self.symb}")
+            print(f"Selector {self.pname} :\n\t capital {self.capital}\n"
+                  f"\t selection {self.symb}")
             
         return self.capital, self.mkt
         

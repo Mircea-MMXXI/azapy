@@ -15,7 +15,7 @@ mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
 #=============================================================================
 # Compute optimal Kelly portfolio 
-# exponetial cone constraint programming solution - default
+# exponential cone constraint programming solution - default
 p4 = az.Port_Kelly(mktdata, pname='KellyPort')    
 
 tic = time.perf_counter()
@@ -35,13 +35,13 @@ nsh = p4.get_nshares()
 acc = p4.get_account(fancy=True)
 with pd.option_context('display.max_columns', None):
     print(f"Weights\n{ww.round(4)}")
-    print(f"Performace\n{performance.round(4)}")
-    print(f"Portfolio Historical Drowdawns\n{drawdowns.round(4)}")
+    print(f"Performance\n{performance.round(4)}")
+    print(f"Portfolio Historical Drawdowns\n{drawdowns.round(4)}")
     print(f"Portfolio Annual Returns\n{aret.round(4)}")
     print(f"Portfolio Monthly Returns\n{mret.round(4)}")
     print(f"Portfolio Period Returns\n{pret.round(2)}")
     print(f"Numbers of Shares Invested\n{nsh}")
-    print(f"Accontinf Info\n{acc}")
+    print(f"Account Info\n{acc}")
 
 # Test using the Port_Rebalanced weights = ww (from above)
 p2 = az.Port_Rebalanced(mktdata, pname='TestPort')
@@ -59,7 +59,7 @@ p5 = az.Port_Kelly(mktdata, pname='KellyApxPort-ecos')
 tic = time.perf_counter()
 port5 = p5.set_model(rtype='Order2')   
 toc = time.perf_counter()
-print(f"time 2-nd order aprox Kelly problem with ecos: {toc-tic:f}")
+print(f"time 2-nd order approx Kelly problem with ecos: {toc-tic:f}")
 
 # Compare with second order Taylor approximation of Kelly problem
 p6 = az.Port_Kelly(mktdata, pname='KellyApxPort-cvxopt')   
@@ -67,7 +67,7 @@ p6 = az.Port_Kelly(mktdata, pname='KellyApxPort-cvxopt')
 tic = time.perf_counter()
 port6 = p6.set_model(rtype='Order2', method='cvxopt')   
 toc = time.perf_counter()
-print(f"time 2-nd order aprox Kelly problem with cvxopt: {toc-tic:f}")
+print(f"time 2-nd order approx Kelly problem with cvxopt: {toc-tic:f}")
 
 # Compare with non-linear solution of full Kelly problem
 p7 = az.Port_Kelly(mktdata, pname='KellyFull')   

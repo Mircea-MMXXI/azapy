@@ -34,7 +34,7 @@ acc = p3.get_account(fancy=True)
 
 with pd.option_context('display.max_columns', None):
     print(f"Portfolio Drawdown\n{drawdown}")
-    print(f"Portfokio performance\n{perf}")
+    print(f"Portfolio performance\n{perf}")
     print(f"Annual Returns\n{annual}")
     print(f"Monthly Returns\n{monthly}")
     print(f"Investment Period Returns\n{period.round(4)}")

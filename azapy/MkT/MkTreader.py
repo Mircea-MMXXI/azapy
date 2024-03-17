@@ -1,11 +1,11 @@
 import pandas as pd
-import warnings
 import os
 import yfinance as yf
 import requests
 import numpy as np
 import pathlib
 import time
+import logging
 from copy import deepcopy
 
 from azapy.MkT.MkTcalendar import NYSEgen
@@ -27,10 +27,23 @@ class MkTreader:
         - `error_log` : contains lists of missing historical observation 
           dates. It is created together with `rout_status`.
     """
-    def __init__(self):
+    def __init__(self, verbose=True):
         '''
         Constructor
+        
+        Parameters
+        ----------
+        verbose : `Boolean`, optional
+            If set to `True`, additional information will be printed  during 
+            the loading of historical prices. The default value is `True`.
+
+        Returns
+        -------
+        The MkTreder object
         '''
+        self._verbose = False if verbose is None else verbose
+        self._set_verbose(self._verbose)
+            
         self.dsource = None
         self.delta_time = None
         self.rout = None
@@ -51,12 +64,9 @@ class MkTreader:
     def get(self, symbol=[], sdate="2012-01-01", edate='today', calendar=None,
             output_format='frame', source=None, force=False, save=True,
             file_dir="outDir", file_format='csv', api_key=None, param=None,  
-            verbose=True):
+            verbose=None):
         """
-        Retrieves market data for a set of stock symbols.\n
-        It is a wrapper for `MkTreader` class returning directly the requested
-        historical time series. The function call variables are the same as for 
-        'MkTreader' member function 'get'.
+        Retrieves market data for a set of stock symbols.
         
         Parameters
         ----------
@@ -114,7 +124,7 @@ class MkTreader:
             Similar for symbol 'SPY'. The instructions for the rest of the 
             symbols that may be specified in the 'symbol' variable will be
             set according to the values of the function call variables.
-        force : Boolean, optional
+        force : `Boolean`, optional
                 - `True`: will try to collect historical prices exclusive from
                   the market data providers.
                 - `False`: first it will try to load the historical 
@@ -125,7 +135,7 @@ class MkTreader:
             data is too short then it will try to collect the missing values 
             only from the market data provider.
             The default is `False`.
-        save : Boolean, optional
+        save : `Boolean`, optional
                 - `True`: It will try to save the historical price collected from 
                   the providers to a local file.
                 - `False`: No attempt to save the data is made.
@@ -160,11 +170,11 @@ class MkTreader:
             This is also the default vale for alphavantage, if `param` is set to 
             `None`.
             The default is `None`.   
-        verbose : Boolean, optional
-            If set to `True`, then additional information will be printed  
-            during the loading of historical prices.
-            The default is `True`.
-
+        verbose : `Boolean`, optional
+            If set `True`, the additional information will be printed  
+            during the loading of historical prices. If `None` it is 
+            ignored, otherwise it overwrites the value set by the constructor.
+            The default value is `None`.
 
         Returns
         -------
@@ -173,64 +183,70 @@ class MkTreader:
             `output_format`.
         """
         # Process the inputs
+        self._set_verbose(verbose)
+            
+        if (calendar is None) or (calendar == 'NYSE'):
+            calendar = NYSEgen()
+        if isinstance(calendar, np.busdaycalendar):
+            self._bday = pd.offsets.CustomBusinessDay(calendar=calendar)
+        elif isinstance(calendar, pd.offsets.CustomBusinessDay):
+            self._bday = calendar
+        else:
+            raise ValueError(f"Wrong calendar type {type(calendar)} "
+                             "must be numpy.busdaycalendar")
+            
+        self.sdate, self.edate = self._mkt_sedate(sdate, edate)
+        if self.sdate > self.edate:
+            raise ValueError("Wrong rage of dates -"
+                             f" start date {self.sdate} > end date {self.edate}")
+ 
+        outputFormats = ('frame', 'dict')
+        if output_format not in outputFormats:
+            raise ValueError( f"Wrong output format {output_format} -"
+                             f" must be one of {outputFormats}")
+        #self._output_format = output_format
+        
+        fileFormats = ('csv', 'json', 'feather')
+        if file_format not in fileFormats:
+            raise ValueError(f"Wrong file format {file_format} -"
+                             f" must be one of {fileFormats}")
+        #self._file_format = file_format
+
         if isinstance(symbol, str):
             symbol = [symbol]
         elif not isinstance(symbol, list):
-            warnings.warn(f"Wrong symbol type: {type(symbol)} "
-                          + "must be str or a list of str")
-            return pd.DataFrame()
+            raise ValueError(f"Wrong symbol type: {type(symbol)} "
+                             "must be str or a list of str")
+        elif not all([isinstance(sy, str) for sy in symbol]):
+            raise ValueError("Wrong element type in the symbol list"
+                             " - all must be str")
         
-        self.sdate = pd.to_datetime(sdate).normalize().tz_localize(None)
-        self.edate = pd.to_datetime(edate).normalize().tz_localize(None)
-        if self.sdate > self.edate:
-            warnings.warn("Wrong rage of dates -"
-                          + f" start date {sdate} > end date {edate} !!")
-            return pd.DataFrame()
-            
-        if calendar is None:
-            calendar = NYSEgen()
-        elif not isinstance(calendar, np.busdaycalendar):
-            warnings.warn(f"Wrong calendar type {type(calendar)} "
-                          + "must be numpy.busdaycalendar")
-            return pd.DataFrame()
-        
-        self._bday = pd.tseries.offsets.CustomBusinessDay(calendar=calendar)
-        
-        if source is None:
+        allSources = ('yahoo', 'alphavantage', 'eodhistoricaldata', 'marketstack',
+                      'alphavantage_yahoo', 'eodhistoricaldata_yahoo')
+        if (source is None) or isinstance(source, dict):
             lsource = 'yahoo'
-            self.dsource = {}
-        elif isinstance(source, str):
+        elif source in allSources:
             lsource = source
-            self.dsource = {}
-        elif isinstance(source, dict):
-            lsource = 'yahoo'
-            self.dsource = deepcopy(source)
         else:
-            warnings.warn(f"Wrong source type {type(source)}: "
-                          + "must be None, str, or dict")
-            return pd.DataFrame()
-    
-        for sy in symbol:
-            if not sy in self.dsource:
-                self.dsource[sy] = {}
-      
-        for sy in self.dsource.keys():
-            dsy = self.dsource[sy]
-            if not 'source'      in dsy: dsy['source']      = lsource
-            if not 'force'       in dsy: dsy['force']       = force 
-            if not 'save'        in dsy: dsy['save']        = save 
-            if not 'file_dir'    in dsy: dsy['file_dir']    = file_dir
-            if not 'file_format' in dsy: dsy['file_format'] = file_format
-            if not 'api_key'     in dsy: dsy['api_key']     = api_key
-            if not 'verbose'     in dsy: dsy['verbose']     = verbose
-            if not 'param'       in dsy: dsy['param']       = param 
-            dsy['error'] = None
-    
-        # prep computation
+            raise ValueError(f"Wrong source type {type(source)}: "
+                             "must be None, str, or dict")
+
+        sy_inf = {'source': lsource,
+                  'force': force,
+                  'save': save,
+                  'file_dir': file_dir,
+                  'file_format': file_format,
+                  'api_key': api_key,
+                  'param': param}
+        self.dsource = {sy: deepcopy(sy_inf) for sy in symbol}
+        if isinstance(source, dict):
+            self.dsource = source.update(self.dsource)
+
         dft = pd.DataFrame.from_dict(self.dsource, orient='index')
         dft.index.name = 'symbol'
         dft.reset_index(inplace=True)
-    
+
+        # prep computation
         def _srr2(nn):
             if (dft.loc[nn,'source'] == 'alphavantage') or \
                (dft.loc[nn,'source'] == 'alphavantage_yahoo'):
@@ -242,47 +258,82 @@ class MkTreader:
         
         # main computation loop
         tic = time.perf_counter()
-        self.rout = []
+        rout = []
         for nm, gr in dfg: 
-            if nm[1] == 'alpha':
-                xrout = self._alphavantage_process(gr)
-            elif nm[1] == 'regular':
-                xrout = self._regular_process(gr)
-            else:
-                warnings.warn(f"Unknown cathegory {nm}\n {gr}")
-                xrout = pd.DataFrame()
+            match nm[1]:
+                case 'alpha':
+                    rout.append(self._alphavantage_process(gr))
+                case 'regular':
+                    rout.append(self._regular_process(gr))
+                case _:
+                    # you should not be here - ever
+                    raise ValueError(f"Unknown category {nm}\n {gr}")
 
-            self.rout.append(xrout)
-
-        if len(self.rout) == 0:
-            if verbose:
-                warnings.warn("Warning: no mkt data was fund!")
-            if output_format == 'dict':
-                return {}
-            return pd.DataFrame()
+        if len(rout) == 0:
+            if self._verbose:
+                print("Warning: no mkt data was fund!")
+            return {} if output_format == 'dict' else pd.DataFrame()
         
-        self.rout = pd.concat(self.rout)
+        self.rout = pd.concat(rout)
         toc = time.perf_counter()
         self.delta_time = toc - tic
 
         # output
-        if verbose:
+        if self._verbose:
             self.get_request_status()
             with pd.option_context("display.max_columns", None):
                 print("\nRequest between "
-                      + f"{self.sdate.date()} : {self.edate.date()}\n"
-                      + f"{self.rout_status}\n"
-                      + f"extraction time {round(self.delta_time, 3)} s")
+                      f"{self.sdate.date()} : {self.edate.date()}\n"
+                      f"{self.rout_status}\n"
+                      f"extraction time {round(self.delta_time, 3)} s")
             
         if output_format == 'dict':
+            if self.rout.empty: return {}
             return dict(tuple(self.rout.groupby('symbol')))
     
         return self.rout
-  
     
-    def get_request_status(self):
+    
+    def _mkt_sedate(self, sdate, edate):
+        dn = pd.Timestamp.now(tz='America/New_York')
+        refdate = dn.replace(hour=16, minute=0, second=0, microsecond=0)
+        if dn > refdate:
+            refdate = self._bday.rollback(refdate).normalize().tz_localize(None)
+        else:
+            refdate = self._bday.rollback(refdate - pd.Timedelta(1, 'day')).normalize().tz_localize(None)
+
+        edate = self._bday.rollback(min(pd.to_datetime(edate).normalize().tz_localize(None), refdate))
+
+        if sdate == '': 
+            sdate = edate
+        elif isinstance(sdate, int) and (sdate <= 0):
+            sdate = edate + sdate * self._bday
+        else:
+            sdate = self._bday.rollforward(sdate).normalize().tz_localize(None)
+
+        return sdate, edate
+
+
+    def _set_verbose(self, verbose):
+        if verbose is None:
+            return
+        self._verbose = verbose
+        if self._verbose:
+            logging.getLogger('yfinance').setLevel(logging.INFO)
+        else:
+            logging.getLogger('yfinance').setLevel(logging.CRITICAL)
+
+    
+    def get_request_status(self, verbose=None):
         '''
         Reports abbreviated information about request status.
+        
+        verbose : `Boolean`, optional
+            If set to `True`, additional information will be printed  
+            during the function execution. In set to 'None', it will be 
+            ignored, otherwise it will overwrite the value set by the 
+            constructor.
+            The default value is `None`.
 
         Returns
         -------
@@ -297,8 +348,11 @@ class MkTreader:
               then the actual list of missing date per symbol can
               be obtained by calling `get_error_log`.
         '''
+        self._set_verbose(verbose)
+            
         if self.rout is None or self.rout.empty:
-            warnings.warn("Warning: request was returned empty")
+            if self._verbose:
+                print("Warning: request was returned empty")
             self.rout_status = pd.DataFrame(self.dsource)
             return self.rout_status
         
@@ -307,7 +361,7 @@ class MkTreader:
             sblock = self.rout.loc[self.rout['symbol'] == kk]
             if sblock.empty: continue
             if not self.rout_status[kk]['param'] is None: 
-                for pkk in self.rout_status[kk]['param']:
+                for pkk in self.rout_status[kk]['param'].keys():
                     self.rout_status[kk]['param:' + pkk] = \
                          self.rout_status[kk]['param'][pkk]
             del self.rout_status[kk]['param']
@@ -352,6 +406,10 @@ class MkTreader:
             errdif = lbday.difference(symbData.index)
             if errdif.empty: 
                 self.rout_status[symbol]['error'] = 'No'
+            elif symbData.empty:
+                self.rout_status[symbol]['error'] = 'Wrong symbol'
+                self.error_log[symbol] = {}
+                self.error_log[symbol]['mid'] = errdif
             else:
                 self.rout_status[symbol]['error'] = 'Yes'
                 self.error_log[symbol] = {}
@@ -394,7 +452,7 @@ class MkTreader:
             
             if counter >= max_rqs:
                 if timer < 60.:
-                    if py.verbose: 
+                    if self._verbose: 
                         print(f"time to sleep {60. - timer} s")
                         
                     time.sleep(60. - timer)
@@ -414,7 +472,7 @@ class MkTreader:
             kod, pri = self._reader_symb(py.symbol, py.source,
                                          py.force, py.save, 
                                          py.file_dir, py.file_format,
-                                         py.api_key, py.verbose)
+                                         py.api_key)
             if pri.empty: continue
             pri = pri.iloc[[self._bday.is_on_offset(x) for x in pri.index]]
             rout.append(pri)
@@ -428,21 +486,12 @@ class MkTreader:
     def _reader_symb(self, symbol, source, 
                      flag_web_only=True, flag_save=False,
                      file_dir="./", file_format='csv',
-                     api_key=None, verbose=True):
+                     api_key=None):
         kod_web = False
 
-        sdate_adj = self._bday.rollforward(self.sdate)
-        edate_adj = self._bday.rollback(self.edate)
-        
-        if sdate_adj > edate_adj:
-            warnings.warn("Warning: wrong date range - "
-                          + f"start busines day {sdate_adj} >"
-                          + f" end business day {edate_adj}")
-            return kod_web, pd.DataFrame()
-                
         if flag_web_only:
             kod_web = True
-            if verbose:
+            if self._verbose:
                 print(f"get {symbol} from {source} only")
                 
             rout_web = self._reader_web(source, symbol, api_key=api_key)
@@ -450,16 +499,17 @@ class MkTreader:
                 return kod_web, pd.DataFrame()
             
             if flag_save:
-                if verbose: 
+                if self._verbose: 
                     print(f"save {symbol} data to file")
                 rout_web['adjusetd'] = self._adjustDividend(rout_web)
                 self._writer_disk(rout_web, symbol, file_dir, file_format)
 
-            rout = rout_web.loc[sdate_adj:edate_adj].copy()
+            rout = rout_web.loc[self.sdate : self.edate].copy()
             if rout.empty:
-                warnings.warn("no data in the range "
-                              + f"{self.sdate.date()} : {self.edate.date()} "
-                              + f"for {symbol} from source {source}")
+                if self._verbose:
+                    print("no data in the range "
+                          f"{self.sdate.date()} : {self.edate.date()} "
+                          f"for {symbol} from source {source}")
                 return kod_web, pd.DataFrame()
             
             rout['adjusted'] = self._adjustDividend(rout)
@@ -467,40 +517,42 @@ class MkTreader:
         else:
             rout_disk = self._reader_disk(symbol, file_dir, file_format)
             if rout_disk.empty:
-                if verbose:
+                if self._verbose:
                     print(f"no saved data for {symbol}")
                 rout = pd.DataFrame()
                 sdate_web = pd.to_datetime("1900-01-01")
             else:
-                if verbose:
+                if self._verbose:
                     print(f"read {symbol} data from file")
                     
-                rout = rout_disk.loc[:edate_adj].copy()
+                rout = rout_disk.loc[:self.edate].copy()
                 rout['adjusted'] = self._adjustDividend(rout)   
                 sdate_web = rout_disk.index[-1] + self._bday
                 
-            if sdate_web <= edate_adj:
+            if sdate_web <= self.edate:
                 kod_web = True
-                if verbose:
+                if self._verbose:
                     print(f"get {symbol} updates from {source}")
                     
                 rout_web = self._reader_web(source, symbol, 
-                                            [sdate_web, edate_adj], api_key)
+                                            [sdate_web, self.edate], api_key)
                 if rout_web.empty:
-                    warnings.warn("{symbol}:{source} no data in range "
-                                  + f"{sdate_web.date()}:{edate_adj.date()}") 
+                    if self._verbose:
+                        print(f"{symbol}:{source} no data in range "
+                              f"{sdate_web.date()}:{self.edate.date()}") 
+                    return False, pd.DataFrame()
                 else:
                     rout = pd.concat([rout, rout_web])
                     
                     rout['adjusted'] = self._adjustDividend(rout)    
                     if flag_save:
-                        if verbose:
+                        if self._verbose:
                             print(f"save {symbol} updated data to file")
                             
                         self._writer_disk(rout[self._out_col], symbol, 
                                           file_dir, file_format)
                 
-            return kod_web, rout.loc[sdate_adj:, ['symbol'] + self._col]
+            return kod_web, rout.loc[self.sdate: , ['symbol'] + self._col]
       
         
     def _reader_web(self, source, symbol, drange=None, api_key=None):
@@ -517,8 +569,7 @@ class MkTreader:
         elif source == 'marketstack':
             price = self._marketstack(symbol, api_key)
         else:
-            warnings.warn(f"Unknown source {source}")
-            return pd.DataFrame()
+            raise ValueError(f"Unknown source {source}")
         
         if price.empty:
             return pd.DataFrame()
@@ -549,8 +600,8 @@ class MkTreader:
                price = pd.read_json(file_name).set_index('date')
                return price
             else:
-               warnings.warn(f"Unknown file foramt {file_format} "
-                             + "suported are: csv, ft and json")
+               raise ValueError(f"Unknown file format {file_format} "
+                                "supported are: csv, ft and json")
         
         return pd.DataFrame()
 
@@ -566,16 +617,16 @@ class MkTreader:
         elif file_format == 'json':
             data.reset_index()[['date'] + self._out_col].to_json(file_name)
         else:
-            warnings.wans(f"unknown output file format {file_format} "
-                          + "supported are: csv, ft and json")
+            raise ValueError(f"unknown output file format {file_format} "
+                             "supported are: csv, ft and json")
     
             
     def _yahoo_finance(self, symbol):
         '''returns maximum period adjusted for split only'''
+        
         ysymb = yf.Ticker(symbol)
         yrprice = ysymb.history(period="max", 
                                 auto_adjust=False, rounding=False)
-    
         if yrprice.empty:
             return pd.DataFrame()
     
@@ -599,8 +650,8 @@ class MkTreader:
         if api_key is None:
             api_key = os.getenv('EODHISTORICALDATA_API_KEY') 
             if api_key is None:
-                warnings.warn("Worning: no API key set as "
-                              + "global environment variable")
+                raise ValueError("Worning: no API key set as "
+                                 "global environment variable")
                 return pd.DataFrame()
                 
         eodh = ('https://eodhistoricaldata.com/api/eod/' 
@@ -609,8 +660,9 @@ class MkTreader:
         try:
             eeprice = pd.read_csv(eodh)[:-1]
         except:
-            warnings.warn(f"Warning: {symbol} "
-                          + "no price data in eodhistoricaldata")
+            if self._verbose:
+                print(f"Warning: {symbol} "
+                      "no price data in eodhistoricaldata")
             return pd.DataFrame()
         
         eeprice.rename(columns={'Date': 'date', 
@@ -627,8 +679,9 @@ class MkTreader:
         try:
             edprice = pd.read_csv(eodd)[:-1]
         except:
-            warnings.warn(f"Warning: {symbol} "
-                          + "no dividend data in eodhistoricaldata")
+            if self._verbose:
+                print(f"Warning: {symbol} "
+                      "no dividend data in eodhistoricaldata")
             return pd.DataFrame()
     
         if edprice.empty:
@@ -647,8 +700,9 @@ class MkTreader:
         try:
             esprice = pd.read_csv(eods)[:-1]
         except:
-            warnings.warn(f"Warning: {symbol} "
-                          + "no split data in eodhistoricaldata")
+            if self._verbose:
+                print(f"Warning: {symbol} "
+                      "no split data in eodhistoricaldata")
             return pd.DataFrame()
     
         if esprice.empty:
@@ -678,9 +732,8 @@ class MkTreader:
         if api_key is None:
             api_key = os.getenv('EODHISTORICALDATA_API_KEY') 
             if api_key is None:
-                warnings.warn("Worning: no API key set as "
-                              + "global environment variable")
-                return pd.DataFrame()
+                raise ValueError("Worning: no API key set as "
+                                 "global environment variable")
                 
         eodh = ('https://eodhistoricaldata.com/api/eod/' 
                 + symbol + '.US?api_token=' + api_key
@@ -688,8 +741,9 @@ class MkTreader:
         try:
             eeprice = pd.read_csv(eodh)[:-1]
         except:
-            warnings.warn(f"Warning: {symbol} "
-                          + "no price data in eodhistoricaldata")
+            if self._verbose:
+                print(f"Warning: {symbol} "
+                      "no price data in eodhistoricaldata")
             return pd.DataFrame()
         
         eeprice.rename(columns={'Date': 'date',
@@ -738,8 +792,8 @@ class MkTreader:
         if api_key is None:
             api_key = os.getenv('ALPHAVANTAGE_API_KEY')
             if api_key is None:
-                warnings.warn("Warning: no api_key is set as a "
-                              + "global environment variable")    
+                raise ValueError("Warning: no api_key is set as a "
+                                 "global environment variable")    
                 return pd.DataFrame()
                 
         url = ('https://www.alphavantage.co/query?'
@@ -750,13 +804,15 @@ class MkTreader:
     
         req = requests.get(url)
         if req.status_code != 200:
-            warnings.warn(f"request status code = {req.status_code} no data"
-                          + f" collected for {symbol} from alphavantage")
+            if self._verbose:
+                print(f"request status code = {req.status_code} no data"
+                      f" collected for {symbol} from alphavantage")
             return pd.DataFrame()
         
         rout = req.json()
         if len(rout.keys()) == 1:
-            warnings.warn(f"Warning: {symbol} no data in alphavantage")
+            if self._verbose:
+                print(f"Warning: {symbol} no data in alphavantage")
             return pd.DataFrame()
     
         avpp = pd.DataFrame.from_dict(rout['Time Series (Daily)'], 
@@ -784,14 +840,14 @@ class MkTreader:
         if api_key is None:
             api_key = os.getenv('ALPHAVANTAGE_API_KEY')
             if api_key is None:
-                warnings.warn("Worning: no API key set as "
-                              + "global environment variable")
+                raise ValueError("Worning: no API key set as "
+                                 "global environment variable")
                 return pd.DataFrame()
             
         url = ('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY'
-                + '&symbol=' + symbol 
-                + '&outputsize=full&datatype=csv'
-                + '&apikey=' + api_key)
+               + '&symbol=' + symbol 
+               + '&outputsize=full&datatype=csv'
+               + '&apikey=' + api_key)
     
         aprice = pd.read_csv(url)
         if aprice.shape[1] < 5:
@@ -839,8 +895,8 @@ class MkTreader:
         if api_key is None:
             api_key = os.getenv('MARKETSTACK_API_KEY')
             if api_key is None:
-                warnings.warn("Worning: no API key set as "
-                              + "global environment variable")
+                raise ValueError("Worning: no API key set as "
+                                 "global environment variable")
                 return pd.DataFrame()
                 
         params = {'access_key': api_key, 'limit': 1000, 'offset': 0}
@@ -848,14 +904,16 @@ class MkTreader:
         req = requests.get('http://api.marketstack.com/v1/tickers/'
                             + str(symbol) + '/eod', params)
         if req.status_code != 200:
-            warnings.warn(f"request status code = {req.status_code} no data"
-                          + f" collected for {symbol} from alphavantage")
+            if self._verbose:
+                print(f"request status code = {req.status_code} no data"
+                      f" collected for {symbol} from alphavantage")
             return pd.DataFrame()
         
         rout = req.json()
         if 'error' in rout.keys():
-            warnings.warn(f"Worning: {rout['error']['message']}"
-                          + f" with error code: {rout['error']['code']}")
+            if self._verbose:
+                print(f"Worning: {rout['error']['message']}"
+                      f" with error code: {rout['error']['code']}")
             return pd.DataFrame()
         
         pag = rout['pagination']
