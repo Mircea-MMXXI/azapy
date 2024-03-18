@@ -132,4 +132,4 @@ dmypy.json
 
 # working dir
 work/
-azapy_R20.code-workspace
+*.code-workspace
