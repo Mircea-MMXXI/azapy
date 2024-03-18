@@ -94,9 +94,9 @@ Package installation: `pip install azapy`
 * Update market data saved in a directory.
 * N-simplex random vectors generators.
 
-### Third-party packages used by **azapy** 1.2.1
+### Third-party packages used by **azapy** 1.2.3
 
-* python 3.11.2
+* python 3.11.8
 * pandas 2.1.4
 * numpy 1.26.2
 * scipy 1.11.4
