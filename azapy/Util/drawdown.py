@@ -24,10 +24,12 @@ def _max_drawdown(uw):
     draw_start = uw[:draw_min][uw[:draw_min] == 0].index[-1]
     try:
         draw_end = uw[draw_min:][uw[draw_min:] == 0].index[0]
+        draw_nrd = (draw_end - draw_start).days
     except IndexError:
         draw_end = np.nan  # drawdown not recovered
+        draw_nrd = (uw.index[-1] - draw_start).days
 
-    return draw_val, draw_min, draw_start, draw_end
+    return draw_val, draw_min, draw_start, draw_end, draw_nrd
 
 
 def max_drawdown(mktdata, col=None):
@@ -46,23 +48,24 @@ def max_drawdown(mktdata, col=None):
 
     Returns
     -------
-    (`float`, `pandas.Timestamp`, `pandas.Timestamp`, `pandas.Timestamp`) : Tuple 
+    (`float`, `pandas.Timestamp`, `pandas.Timestamp`, `pandas.Timestamp`, `int`) : Tuple 
         - value of the drawdown, 
         - maximum drawdown date, 
         - drawdown start date,
         - drawdown end date. It is set to `nan` if the drawdown is still 
           in progress.
+        - drawdown length in number of days
     """
     rdata = mktdata if col is None else mktdata[col]
 
-    val, i_min, i_start, i_end = _max_drawdown(_prep_uw(rdata))
+    val, i_min, i_start, i_end, i_nrd = _max_drawdown(_prep_uw(rdata))
 
     i_min = i_min.strftime('%Y-%m-%d')
     i_start = i_start.strftime('%Y-%m-%d')
     if not pd.isna(i_end):
         i_end = i_end.strftime('%Y-%m-%d')
 
-    return val, i_min, i_start, i_end
+    return val, i_min, i_start, i_end, i_nrd
 
 def drawdown(mktdata, col=None, top=10):
     """
@@ -92,6 +95,7 @@ def drawdown(mktdata, col=None, top=10):
             - 'Date': (`pandas.Timestamp`) drawdown max value date
             - 'Start': (`pandas.Timestamp`) drawdown start date
             - 'End': (`pandas.Timestamp`) drawdown recovery date
+            - 'NrDays': (`int`) drawdown length in number of days
             
         The number of rows is <= top
     """
@@ -101,7 +105,7 @@ def drawdown(mktdata, col=None, top=10):
     dd = defaultdict(lambda: [])
 
     for _ in range(top):
-        val, i_min, i_start, i_end = _max_drawdown(uw)
+        val, i_min, i_start, i_end, i_nrd = _max_drawdown(uw)
 
         dd['DD'].append(val)
         dd['Date'].append(i_min.strftime('%Y-%m-%d'))
@@ -111,6 +115,7 @@ def drawdown(mktdata, col=None, top=10):
         else:
             dd['End'].append(np.nan)
             i_end = uw.index[-1]
+        dd['NrDays'].append(i_nrd)
 
         uw.drop(index=uw[i_start:i_end].index[:], inplace=True)
         if (len(uw) == 0) or (uw.min() == 0): break

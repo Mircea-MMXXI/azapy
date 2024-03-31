@@ -1,4 +1,4 @@
-__version__ = "1.2.3"
+__version__ = "1.2.4"
 from .MkT import *
 from .Analyzers import *
 from .Engines import *
