@@ -16,6 +16,8 @@ Package installation: `pip install azapy`
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/D1D07G22H)
 
+A graphical user interface is provided by [**azapyGUI**](https://azapyGUI.readthedocs.io/en/latest) package. 
+
 ## Contents
 
 ### A. Risk-based portfolio optimization algorithms
@@ -30,7 +32,7 @@ Package installation: `pip install azapy`
   8. SD - standard deviation
   9. MV - variance (as in mean-variance model)
   10. mEVaR - mixture EVaR (Entropic Value at Risk)
-  <span style="color:red">(alpha version)</span>
+  <span style="color:blue">(beta version)</span>
 
 #### For each class of portfolio the following optimization strategies are available
 
@@ -70,12 +72,12 @@ Package installation: `pip install azapy`
 
   1. Kelly's portfolio (as in John Larry Kelly Jr. scientist 1923-1965) -
      maximization of portfolio log returns
-  2. Universal portfolio (Thomas M. Cover 1996) <span style="color:red">(alpha version)</span>
+  2. Universal portfolio (Thomas M. Cover 1996) <span style="color:blue">(beta version)</span>
 
 ### D. Market Selectors
 
-  1. Dual Momentum Selector <span style="color:red">(alpha version)</span>
-  2. Correlation Clustering Selector <span style="color:red">(alpha version)</span>
+  1. Dual Momentum Selector <span style="color:blue">(beta version)</span>
+  2. Correlation Clustering Selector <span style="color:blue">(beta version)</span>
 
 ### Utility functions:
 
