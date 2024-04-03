@@ -25,10 +25,12 @@ _ = p1.port_view_all()
 drawdown = p1.port_drawdown(fancy=True)
 perf = p1.port_perf(fancy=True)
 annual = p1.port_annual_returns()
+quarterly = p1.port_quarterly_returns()
 monthly = p1.port_monthly_returns()
 
 print(f"Portfolio Drawdown\n{drawdown}")
 print(f"Portfolio performance\n{perf}")
 print(f"Annual Returns\n{annual}")
+print(f"Quarterly Returns\n{quarterly}")
 print(f"Monthly Returns\n{monthly}")
 

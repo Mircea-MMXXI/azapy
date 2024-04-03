@@ -21,11 +21,11 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'azapy'
-copyright = '2023, Mircea Marinescu'
+copyright = '2024, Mircea Marinescu'
 author = 'Mircea Marinescu'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.1'
+release = '0.1.2'
 
 
 # -- General configuration ---------------------------------------------------

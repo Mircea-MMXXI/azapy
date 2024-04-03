@@ -17,7 +17,7 @@ symb = ['GLD', 'TLT', 'IHI', 'VGT', 'OIH',
         'QQQ', 'DIA', 'ILF', 'XSW', 'PGF', 
         'IDV', 'JNK', 'HYG', 'SDIV', 'VIG', 
         'SLV', 'AAPL', 'MSFT', 'AMZN', 'GOOG', 
-        'IYT', 'VIG', 'IWM', 'BRK-B', 'ITA']
+        'IYT', 'IWM', 'BRK-B', 'ITA', 'VUG']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir, 
                      verbose=False)

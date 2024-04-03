@@ -522,10 +522,10 @@ class Port_Simple:
         # local function
         def rinfo(df, col):
             rr = (df[col].iloc[-1] / df[col].iloc[0]) ** (252. / len(df)) - 1
-            dv, dd, ds, de = max_drawdown(df, col=col)
+            dv, dd, ds, de, dn = max_drawdown(df, col=col)
 
-            return pd.DataFrame([[rr, dv, np.abs(rr / dv), dd, ds, de]],
-               columns=['RR', 'DD', 'RoMaD', 'DD_date', 'DD_start', 'DD_end' ])
+            return pd.DataFrame([[rr, dv, np.abs(rr / dv), dd, ds, de, dn]],
+               columns=['RR', 'DD', 'RoMaD', 'DD_date', 'DD_start', 'DD_end', 'DD_days' ])
 
         res = self.mktdata.groupby('symbol') \
                   .apply(rinfo, col=self.col) \
@@ -543,6 +543,7 @@ class Port_Simple:
         res.RR = res.RR.round(4) * 100
         res.DD = res.DD.round(4) * 100
         return res
+
 
     def port_annual_returns(self, withcomp=False, componly=False, fancy=False):
         """
@@ -580,11 +581,9 @@ class Port_Simple:
                 .loc[self.port.index]
             if not componly:
                 zz = self.port.merge(zz, on='date')
-            res = zz.pct_change(1).resample('A', convention='end') \
-                .apply(lambda x: (x + 1).prod() - 1)
+            res = zz.pct_change(1).resample('YE').apply(lambda x: (x + 1).prod() - 1)
         else:
-            res = self.port.pct_change(1).resample('A', convention='end') \
-                .apply(lambda x: (x + 1).prod() - 1)
+            res = self.port.pct_change(1).resample('YE').apply(lambda x: (x + 1).prod() - 1)
         res.index = res.index.year
         res.index.name = 'year'
 
@@ -631,11 +630,9 @@ class Port_Simple:
                 .loc[self.port.index]
             if not componly:
                 zz = self.port.merge(zz, on='date')
-            res = zz.pct_change(1).resample('M', convention='end') \
-                .apply(lambda x: (x + 1).prod() - 1)
+            res = zz.pct_change(1).resample('ME').apply(lambda x: (x + 1).prod() - 1)
         else:
-            res = self.port.pct_change(1).resample('M', convention='end') \
-                .apply(lambda x: (x + 1).prod() - 1)
+            res = self.port.pct_change(1).resample('ME').apply(lambda x: (x + 1).prod() - 1)
 
         if not fancy:
             return res
@@ -643,6 +640,61 @@ class Port_Simple:
         res.index = pd.MultiIndex.from_arrays([res.index.year.to_list(),
                                                res.index.month.to_list()],
                                                names= ['year', 'month'])
+
+        if not withcomp:
+            res = res.reset_index(level=0).pivot(columns='year',
+                                                 values=self.pcolname).round(4)
+
+        return res.style.format("{:.2%}").map(_color_negative_red)
+    
+
+    def port_quarterly_returns(self, withcomp=False, componly=False,
+                               fancy=False):
+        """
+        Portfolio quarterly (calendar) rate of returns.
+
+        Parameters
+        ----------
+        withcomp : `Boolean`, optional
+            If `True`, adds the portfolio components monthly returns to the
+            report. The default is `False`.
+        componly : `Boolean`, optional
+            If `True`, only the portfolio components monthly returns are
+            reported. The flag is active only if `withcomp=True`.
+            The default is `False`.
+        fancy : `Boolean`, optional
+            - `False` : The rates are reported in unaltered
+              algebraic format.
+            - `True` : The rates are reported in percentage rounded to 2 decimals
+              and presented is color style.
+
+            The default is `False`.
+
+        Returns
+        -------
+        `pandas.DataFrame` : the report.
+        """
+        if self.status != 0:
+            if self.verbose:
+                print("Computation Error: no weights are available"
+                      f" - status {self.status}")
+            return None
+        
+        if withcomp:
+            zz = self.mktdata.pivot(columns='symbol', values=self.col) \
+                .loc[self.port.index]
+            if not componly:
+                zz = self.port.merge(zz, on='date')
+            res = zz.pct_change(1).resample('QE').apply(lambda x: (x + 1).prod() - 1)
+        else:
+            res = self.port.pct_change(1).resample('QE').apply(lambda x: (x + 1).prod() - 1)
+
+        if not fancy:
+            return res
+
+        res.index = pd.MultiIndex.from_arrays([res.index.year.to_list(),
+                                               ['Q' + str(k) for k in res.index.quarter]],
+                                               names= ['year', 'quarter'])
 
         if not withcomp:
             res = res.reset_index(level=0).pivot(columns='year',

@@ -104,7 +104,7 @@ class Port_Rebalanced(Port_Generator):
             set by the constructor. The default is `None`.
         
         verbose : `Boolean`, optional:
-            Sets teh verbose mode.
+            Sets the verbose mode.
 
         Returns
         -------
@@ -114,6 +114,7 @@ class Port_Rebalanced(Port_Generator):
         if schedule is not None:
             self.schedule = schedule
             
+        self.status = 0
         self.ww = self.schedule
         self.verbose = verbose
         self._port_calc()
