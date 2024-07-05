@@ -965,7 +965,7 @@ class MkTreader:
         of the market data will introduce a bias. If large amount of data is missing it is advisable to get  
         a different source for historical market data.  
 
-        The function will return the new corrected market data without altering the object state (the row market data is preserved). 
+        The function will return the new corrected market data without altering the object state (the raw market data is preserved). 
 
         Parameters: 
         ----------- 

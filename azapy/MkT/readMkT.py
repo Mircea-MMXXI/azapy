@@ -120,7 +120,7 @@ def readMkT(symbol=[], sdate="2012-01-01", edate='today', calendar=None,
         
         The default is `None`.
 
-        Note: It is recommended to call the function without `imputation` set and to analyze the quality of the row data. 
+        Note: It is recommended to call the function without `imputation` set and to analyze the quality of the raw data. 
         Apply an imputation algorithm only if the amount of missing data is small and in non critical areas of the time series. 
         In general, any imputation methodology will introduce bias in the final evaluations.
     verbose : `Boolean`, optional
