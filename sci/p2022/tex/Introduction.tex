@@ -1,0 +1,92 @@
+\section{Introduction}
+
+For a given portfolio, we can estimate its expectation of return. However, the actual return of an investment in this portfolio may be larger or smaller than this expectation.
+Therefore, the dispersion of outcomes is also a vital information for an investor.
+A smaller dispersion value may translate in lower probability for outcomes far below the expected return.
+
+A risk-based optimal portfolio is a portfolio that, in some sense, has the best combination between the expected return and the dispersion of outcomes.
+
+In the context of portfolio optimizations, the dispersion of outcomes is often called risk.\footnote{Do not confuse it with the risk
+notion in the context of risk management, where risk is understood as the amount of capital reserves needed to cover the potential losses of an investment,
+up to a certain level of confidence. These two notions are closely related to each other but different.}
+The quantity that measures the dispersion of outcomes is called dispersion or risk measure.\footnote{Some authors prefer to call
+the dispersion measure as deviation. However, we all refer to the same mathematical object.}
+Where there are no confusions, we will use both terms interchangeable.
+
+It was Markowitz in 1952 \cite{Markowitz} who pointed out that for a given expected rate of return
+there is a portfolio that has the smallest value of variance.
+He called this portfolio {\it efficient}. Moreover, for efficient portfolios the variance
+is increasing with the value of the expected rate of return.
+Therefore, an investment is subject to a tradeoff between the size of the expected payoff and the risk that is exposed to.
+In Markowitz's work, variance was playing the role of
+dispersion measure. And thus, the {\it Modern Portfolio Theory} was born. These days the variance based optimal strategies
+are often called mean-variance (\MV) strategies. They will be discussed in Sec.~\ref{S:MV}.
+
+Since 1952, many risk-based portfolio strategies were formulated simply by replacing the variance with other
+dispersion measures; sometimes more layers of mathematical refinements were added.
+
+In this paper the risk-based portfolio strategies are categorized by the families of underlining dispersion measures.
+We distinguish 5 such families: tail, downside, below threshold, inter-observations distance and central moment dispersion measures.
+In each case we seek the most general form in terms of $L^p$-norms.
+Numerical algorithms are presented for $p=1$ and $p=2$. In these cases, the portfolio optimizations are
+formulated as numerically efficient LP (Linear Programming), QP (Quadratic Programming)
+and SOCP (Second Order Cone Programming) problems.
+
+
+Section~\ref{strategies} presents the generic portfolio optimization strategies.
+We had identified the following strategies:
+\begin{itemize}
+  \item minimization of risk for targeted expected rate of return value,
+  \item minimum risk portfolio,
+  \item maximization of expected rate of return for targeted risk value,
+  \item maximization of expected rate of return for fixed risk-aversion factor,
+  \item maximization of generalized Sharpe ratio,
+  \item minimization of inverse generalized Sharpe ratio.
+\end{itemize}
+Although not all of them are mutually exclusive, they lead to different numerical algorithms.
+In the next sections, these generic strategies will be applied to the following dispersion measures:
+\begin{itemize}
+  \item mixture Conditional Value at Risk (\mCVaR),  Sec.~\ref{S:mCVaR},
+  \item mixture Second Moment Coherent Risk (\mSMCR),  Sec.~\ref{S:mSMCR},
+  \item m-level Mean Absolute Deviation, (\mMAD),  Sec.~\ref{S:mMAD},
+  \item m-level Lower Semi-Deviation (\mLSD),  Sec.~\ref{S:mLSD},
+  \item mixture Below Target Absolute Deviation (\mBTAD),  Sec.~\ref{S:mBTAD},
+  \item mixture Below Target Semi-Deviation (\mBTSD),  Sec.~\ref{S:mBTSD},
+  \item Gini index (\GINI),  Sec.~\ref{S:GINI},
+  \item standard deviation (\SD),  Sec.~\ref{S:SD},
+  \item variance (\VAR) - leading to Mean-Variance model, \MV,  Sec.~\ref{S:MV},
+\end{itemize}
+resulting in concrete numerical algorithms.
+
+Note that, some of the algorithms have well recognized popular names. An example is the
+Omega and Sortino optimal portfolios which in our classification are special cases
+of \mBTAD-Sharpe and \mBTSD-Sharpe optimal portfolios, respectively.
+In all cases we have adopted the popular names with the appropriate caveat regarding generalizations.
+Most of the algorithms have been previously mentioned in the literature, in one way or the other.
+However, for some of them we were not able to identify relevant literature. Given our systematic classification,
+we were able to fill in the gaps. For example, the  \mLSD\ based optimal portfolio strategies appear to be presented here for the first time,
+although they are clear extensions of \mMAD, where $L^1$ is replaced by $L^2$-norm and LP by SOCP problems.
+A complete list of all the algorithms is in the table of contents.
+
+We made available the implementation of these algorithms in an open-source Python package called \azapy.
+The package can be installed in a Python environment simple by calling {\bf pip install azapy}.
+The technical documentation of the library can be found at \azapydoc\ and its source code at \azapycode.
+
+Simple Python scripts illustrating the use of \azapy\ library are accompanying the portfolio optimization
+strategies as well as in-sample and out-of-sample portfolio simulations.
+A brief introduction to \azapy\ package is presented in Appendix~\ref{AZAPY}.
+Technical details about the portfolio backtesting (\ie\ out-of-sample testing) methodology are presented in Appendix~\ref{backtesting}.
+
+Regarding our terminology, the time horizon for a dispersion measure is simple defined as the duration of the rate of return argument (\ie\
+a monthly rate produces a dispersion measure with a time horizon of one month,
+etc.).
+The calibration period for a dispersion measure is the look-back period of historical observations used to evaluate the dispersion.
+Usually, it is measured in years. Often, in this paper are mentioned dispersion measures with time horizon of one quarter and
+calibration period of 3.25 years.
+
+Technical sections, presenting various optimization algorithms, are meant to be self-sufficient, with a minimum number of cross references to other parts of the paper. To facilitate the navigation of this document, at the end of each section there is a hyperlink pointing to the table of contents, from where one can jump to other sections.
+
+\BackToContents
+
+
+

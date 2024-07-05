@@ -95,7 +95,7 @@ Utility functions
    Rebalanced_th_doc
    readMkT_th_doc
    summary_MkTdata_th_doc
-   NYSEgen_th_doc
+   calendar_th_doc
    add_cash_security_th_doc
    update_MkTdata_th_doc
    schedule_th_doc

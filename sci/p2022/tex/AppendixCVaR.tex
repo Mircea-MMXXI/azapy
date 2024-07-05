@@ -1,0 +1,36 @@
+
+\section{CVaR LP analytical solution}\label{AppendixA}
+
+This appendix presents the proof of statement from Eqs.~(\ref{cvar3}).
+
+It is straightforward to show that,
+for $u \in (-x_{k+1}, -x_k]$ the objective function from Eq.~(\ref{cvar1:1})
+is given by
+\begin{equation}
+    g(u) = \frac{a-k}{a} u - \frac{1}{a} \sum_{i=1}^k x_i,
+    \label{a:cavr1}
+\end{equation}
+where $a=(1-\alpha)N$. Thus, $g(u)$ it is a continuous piecewise linear function in $u$. Therefore,
+its minimum occurs in one of the vertices $g_k= g(-x_k)$.
+
+We need to find $k^* \in \{1,\cdots,N\}$  such that $g_{k^*}$ has the smallest value.
+
+After simple algebraic manipulations, we can write
+\begin{equation}
+    g_{k+1} - g_{k} = \frac{k - a}{a} (x_{k+1} - x_{k}).
+    \label{apx:cvar:1}
+\end{equation}
+It follows\footnote{Recall that $\{x_i\}$ is $\{r_i\}$ sorted in ascending order. Therefore, $x_{k+1} - x_{k}$ is positive.}
+that, if $g_k \leq g_{k+1}$ then $k \geq a$.
+Similar, we have
+\begin{equation}
+    g_{k} - g_{k-1} = \frac{k - 1 - a}{a} (x_{k} - x_{k-1}),
+\end{equation}
+and if $g_k \leq g_{k-1}$ then $k \leq a + 1$.
+Therefore, $k^*$ is the integer value between $a$ and $a+1$.
+That is $k^* = \lceil a \rceil$. Also from Eq.~(\ref{apx:cvar:1}) it is clear that this minimum is unique.
+The rest follows.
+
+\BackToContents
+
+

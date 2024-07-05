@@ -1,0 +1,44 @@
+
+\section{Below threshold measures}
+Below threshold measures, \BTM, can be defined as
+\begin{equation}
+    \BTM^{(p)}_\alpha = \left\| \left(\alpha - r\right)^+ \right\|_p,
+    \label{btm1}
+\end{equation}
+where $\alpha \in \mR$ is the threshold and $\|\cdot\|_p = (\mE[|\cdot|^p])^{1/p}$ is the $L^p$-norm.
+
+The most popular members of \BTM\ family are the \BTAD, Below Threshold Absolute Deviation, for $p=1$, and
+\BTSD, Below Threshold Semi-Deviation, for $p=2$. However, famous are their corresponding generalized Sharpe ratios.
+For $\mu_0=\alpha$,
+\begin{itemize}
+  \item \BTAD-Sharpe ratio is the Omega ratio,
+  \item \BTSD-Sharpe ratio  is the Sortino ratio.
+\end{itemize}
+Both, Omega and Sortino optimal portfolio strategies are popular among practitioners.
+
+In general, \BTM\ can be defined in terms of both standard rates of return $r$, as in Eq.~(\ref{btm1}), and
+detrended rates of return, by replacing $r$ with $\br = r - \mE[r]$.
+Expressed in terms of detrended rate of return and for $\alpha=0$, $\BTAD_0$ is equivalent to the first level \mMAD, $\delta^{(1)}_1$ from Eq.~(\ref{mmad0}),
+while $\BTSD_0$ to the first level \mLSD, $\delta^{(2)}_1$ from Eq.~(\ref{LSD0}). In general, $\BTM^{(p)}_0$ (\ie\ for $\alpha=0$) with detrended rate of returns,
+is equivalent to the first level $\mHMDD^{(p)}$, $\delta^{(p)}_1$ from Eq.~(\ref{hmdd1}).
+
+Just as in the case of Tail dispersion measures, Eq.~(\ref{qq3}), \BTM\ can be extended to a mixture of $\BTM^{(p)}$ for different thresholds, \ie,
+\begin{equation}
+    \mBTM^{(p)} = \sum_{l=1}^L \cK_l \times \BTM^{(p)}_{\alpha_l},
+    \label{btm2}
+\end{equation}
+where $\{\cK_l\}_{l=1,\cdots,L}$ is a set of positive mixture coefficients normalized to unit and
+$\{\alpha_l\}_{l=1,\cdots,L}$ is a set of distinct thresholds.
+
+Unlike the Tail and Downside measures, $\mBTM^{(p)}$ are not genuine dispersion measures.
+They violate the positive homogeneity axiom and, in the case where standard rates of return are used, they also violate the location invariance.
+An exception is the case where $L=1$ and $\alpha_1=0$ with detrended rate of return.
+In this case $\mBTM^{(p)}$ becomes $\BTM^{(p)}_0$, which is a genuine dispersion measure.
+
+However, the methodologies of optimal portfolio construction outlined in Sec.~\ref{strategies} can formally be applied to \mBTM.
+They will be presented for \mBTAD\ (mixture \BTAD) and \mBTSD\ (mixture \BTSD) in the next two sections, respectively.
+
+\BackToContents
+
+\input{BTADBased}
+\input{BTSDBased} 

@@ -1,0 +1,57 @@
+
+\section{Portfolio backtesting}\label{backtesting}
+
+Backtesting, also called historical simulation or (recently borrowed from Machine Learning terminology) out-of-sample testing
+is the process of testing and measuring the predictive power of an investment strategy using historical data that are not part of the calibration set.
+
+In our case we have built an application to simulate, using historical data, an investment in a portfolio periodically rebalanced according with any of the
+optimal strategies mentioned in this paper. The weights are calibrated using a predefined historical period, prior to each of the rebalancing dates.
+The actual implementation can be accessed through \azapy\ package. In this paper, several simple Python script examples of backtesting were presented for Sharpe type of optimal
+portfolios. They can be easily extended to all other optimization strategies (see the documentation at \azapydoc).
+
+We had in mind a retail investor with limited computational resources and trading execution capabilities.\footnote{In contrast to an
+institutional investor with ultra-fast computation and execution capabilities. In this case most of the financial slippages mentioned here can be eliminated.}
+The portfolio is rebalanced quarterly, 3 business days before the calendar quarter end. The trading execution is assumed to
+be performed at the closing prices.
+The portfolio weights are computed after the close of the business day before the
+execution day.
+We have used the New York Stock Exchange business calendar.
+The offset of rebalancing date, the offset of weights calculation date, the length of the historical calibration period,
+the length of the entire historical simulation, etc. are parameters that can be adjusted in the \azapy\ implementation, see the documentation at \azapydoc.
+
+
+In this process there are several assumptions that in real life may lead to cash slippages. Let us list them.
+\begin{itemize}
+  \item The dividends are assumed to be available for reinvestment on the next rebalancing day after the ex-dividend date.
+  In general, there is a delay of a week or more for the cash dividend to be collected. Therefore, it is possible that not all 
+  cash dividends will be available for reinvestment on the rebalancing day. However, they will be available for the
+  next rebalancing day. This will create a reinvestment slippage that, we believe, is small enough to be
+  irrelevant to the overall investment performance.
+  \item The delay of one business day between the weights (and the number of shares) calculation and the trading execution. As we mentioned, we
+  are considering a realistic rebalancing schedule for a regular retail investor. Therefore, we assume that the new positions
+  (\ie\ the number of shares in the portfolio components) were calculated using the closing prices of the business day before the rebalancing day.
+  Therefore, there is a price slippage between the computation and the actual trading execution prices.
+  In general, the slippage is small, since often a rebalancing consists in readjusting existing positions by selling and buying
+  in roughly equal cash amounts. Although small, we keep track of this type of slippage in our investment model by
+  readjusting the capital at each rebalancing date. Its impact to the portfolio performance is small. \azapy\ implementation
+  offer a facility to view and keep track of these adjustments.
+  \item Execution price slippage between the actual trading execution and the closing prices. The model simulation assumes that all
+  the rebalancing trades are occurring at the closing prices. In real life, a typical retail investor may execute trades only through manually entered orders.
+  Although these orders can be placed in the last minutes of the trading day (say last 15 min) it cannot be assumed that they are executed
+  at the closing price of the day. This type of slippage is small enough to have no impact to the overall investment
+  performance.\footnote{Although not yet popular, several brokers offer Market-on-Close (MOC) orders for retail investors,
+  further reducing this type of  slippage.}
+  \item Rounding off to the nearest whole number of shares slippage. The model assumes that the portfolio positions are whole numbers of shares.
+  Although some brokers accept fractional orders, at the time when we are drafting this paper, it is not yet a widely available offer.
+  Our investment model keeps track of the resulting roundoff cash slippage as an adjustment to the capital on each rebalancing date.
+  In general, its impact to the portfolio performance is small.\footnote{Assuming that the share prices are
+  small relative to the total invested capital.} \azapy\ implementation
+  offer a facility to view and keep track of these adjustments.
+  \item We do not consider the impact of transaction costs. These days, all major brokers are waiving the transaction fees under reasonable
+  conditions for most of the US equity products (single shares and ETF's). If you are using a broker that is charging
+  transactions fees or trading in exotic products with transaction fees (\eg\ leveraged ETF's, etc.)
+  or using a margin account with borrowing costs, etc., then you should consider the impact of
+  these fees.
+\end{itemize}
+
+\BackToContents

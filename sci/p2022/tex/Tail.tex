@@ -1,0 +1,100 @@
+
+\section{Tail dispersion measures}
+
+The most famous member of this family is the Conditional Value at Risk (\CVaR).
+It was introduced in 2000 as a coherent risk measure\footnote{The coherent risk measures were introduced in 1999 by
+Artzner, Delbaen, Eber and Heath \cite{Artzner}.} by Rockafeller and Uryasev \cite{Uryasev} (see also \cite{Pflug}, \cite{Uryasev2}).
+Since then, \CVaR\ had gained in popularity with both practitioners and financial regulators
+as well as with the academic world. The literature surrounding \CVaR\ is vast and
+continue to grow (see for example \cite{Mansini} and references therein).
+
+In 2007, in an elegant paper \cite{Krokhmal}, Krokhmal introduced the Higher Moment Coherent Risk (\HMCR) measures.
+Relative to the \HMCR\ family, \CVaR\ is the First Moment Coherent Risk measure.
+We will follow the work of Krokhmal in introducing the main results regarding the tail dispersion measures.
+The technical proofs can be found in the original paper \cite{Krokhmal}.
+Later we will focus our presentation on the numerical techniques for
+portfolio optimization strategies based on \CVaR\ and \SMCR\ (Second Moment Coherent Risk) dispersion measures.
+
+For us, the key results from \cite{Krokhmal} are the following theorems.
+\begin{theorem}{Krokhmal}
+
+  \noindent Let $\Phi:\cG_T \rightarrow \mR$ be a function such that:
+  \begin{enumerate}
+    \item monotonicity - $\forall X\in \cG_T\ \text{with}\ X \leq 0\ \Rightarrow\ \Phi(X) \leq 0$,
+    \item subadditivity - $\forall X\ \text{and}\ Y \in \cG_T,\ \Phi(X + Y) \leq \Phi(X) + \Phi(Y)$,
+    \item positive homogeneity - $\forall X\in\cG_T\ \text{and}\ \lambda\in\mR^+,\ \Phi(\lambda X) = \lambda\Phi(X)$,
+    \item $\forall \eta\neq 0,\ \Phi(\eta) > \eta$,
+  \end{enumerate}
+  then
+  \begin{equation}
+    \rho(X) = \min_u \left[ u + \Phi\left(-X - u\right)\right],
+  \end{equation}
+  exists and it is a coherent risk measure.
+\end{theorem}
+
+\begin{theorem}{Higher Momentum Coherent Risk (\HMCR) measure}
+
+    \noindent Let $\cG_T = \cL_p(\Omega, \cF, P)$ and $\alpha \in(0,1)$ consider $\phi(X) = (1-\alpha)^{-1}\| (X)^+ \|_p$
+    where $\|\cdot\|_p= \left(\mE[(|\cdot|^p)]\right)^{1/p}$. Then,
+    \begin{equation}
+        \HMCR_{p,\alpha}(X) = \min_u\left[u + \frac{1}{1-\alpha}\|(-X - u)^+\|_p\right],
+        \label{qq0}
+    \end{equation}
+    is a coherent risk measure.
+
+    \noindent The optimal value $u^*$ is called Higher Moment Value at Risk ($\HMVaR_{p,\alpha}$).
+\end{theorem}
+
+\begin{corollary}{CVaR}
+
+    \noindent For $p=1$ we have
+    \begin{equation}
+        \HMCR_{1,\alpha}(X) = \min_u\left[u + \frac{1}{1-\alpha}\mE\left[ (-X - u)^+\right] \right].
+        \label{qq1}
+    \end{equation}
+    This is the definition of \CVaR\ introduced by Rockafaller and Uryasev in \cite{Uryasev}.
+    Thus, we have
+    \begin{align}
+        \CVaR_\alpha(X) &\equiv \HMCR_{1,\alpha}(X), \\
+        \VaR_\alpha(X) &\equiv \HMVaR_{1,\alpha}(X).
+    \end{align}
+\end{corollary}
+
+\begin{corollary}{SMCR}
+
+    \noindent For $p=2$ we have
+    \begin{equation}
+        \HMCR_{2,\alpha}(X) = \min_u\left[u + \frac{1}{1-\alpha}\left(\mE\left[ \left(\left(-X -u\right)^+\right)^2\right]\right)^{1/2} \right].
+        \label{qq2}
+    \end{equation}
+    Using Krokhmal terminology \cite{Krokhmal}, we call $\HMCR_{2,\alpha}(X)$ as $\SMCR_\alpha(X)$, and the optimal value $u^*$ as $\SMVaR_\alpha(X)$,
+    the associated Second Moment Value at Risk  measure.
+\end{corollary}
+
+The above results were formulated in terms of risk measures in the context of risk management. It is straightforward to
+export them to dispersion measures, relevant to portfolio optimizations. Since \HMCR's are coherent risk measures,
+it is sufficient to replace $X$, in the r.h.s. of Eq.~(\ref{qq0}), with its detrended version $\bX = X - \mE[X]$ to
+obtain a genuine dispersion measure (see \cite{MM}). From here on we refer to \HMCR\ dispersion measures.
+
+Further, we consider the generalization to a mixture of \HMCR\ measures.
+A mixture is a superposition of \HMCR's for different confidence levels, \ie,
+\begin{equation}
+    \mHMCR_p(X) = \sum_{l=1}^L \cK_l\times \HMCR_{p, \alpha_l}(X),
+    \label{qq3}
+\end{equation}
+where $\{\cK_l\}_{l=1,\cdots,L}$ is a set of positive coefficients normalized to unit (the mixture coefficients) and
+$\{\alpha_l\}_{l=1,\cdots,L}$ is a set of distinct confidence levels. A single \HMCR\ is a special case of \mHMCR\ for $L=1$ in Eq.~(\ref{qq3}).
+
+The next two subsections present the optimal portfolio strategies based on $\mHMCR_p$ for $p=1$ and $p=2$, respectively, \ie,
+\begin{align}
+    \mCVaR(X) &\equiv \mHMCR_1(X), \label{qq4} \\
+    \mSMCR(X) &\equiv \mHMCR_2(X). \label{qq5}
+\end{align}
+
+
+\BackToContents
+
+\input{CVaRBased}
+\input{SMCRBased}
+
+

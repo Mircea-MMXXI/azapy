@@ -1,0 +1,53 @@
+
+\section{Central moment dispersion measures}\label{CentralM}
+The central moment dispersion measures are defined as
+\begin{equation}
+    \CMDM^{(p)} = \left\| X - \mE[X] \right\|_p
+    \label{cmdm1}
+\end{equation}
+where $\|\cdot\|_p = (\mE[|\cdot|^p])^{1/p}$ is the $L^p$-norm.
+Note that $\CMDM^{(p)}$ is a genuine dispersion measure for any $p$.
+In contrast to the tail, downside and below threshold measures, \CMDM\ are
+symmetric. They do not provide an excess penalty to the downside
+events.
+
+For $p=1$ the \CMDM\ is equivalent to \MAD\ dispersion measure described in Sec.~\ref{S:mMAD}.
+
+However, the most famous member of this family is for $p=2$, the standard deviation, \SD.
+It is profoundly related to the 1952 Markowitz portfolio theory, \cite{Markowitz} and \cite{Markowitz2}.
+In the original work, Markowitz had used the variance (the square of standard deviation) as a dispersion measure. Often the
+variance based optimal portfolio strategies are called mean-variance, \MV.\footnote{Markowitz original terminology was E-V short
+for expected rate of return vs. variance. These days, E-V terminology is rarely used, it was replaced by mean-variance, \MV.}
+We will use the terminology {\it \MV-based optimal portfolio strategies} to designate portfolio strategies where variance is the dispersion measure.
+
+Obviously, the \SD\ and \MV\ optimal portfolios are identical. Therefore, the \SD\ and \MV\
+efficient frontiers are identical.\footnote{Two efficient frontiers are identical if and only if the composition of the portfolios
+belonging to them are identical.} However, there are slight differences between the two measures.
+Note that variance is not a genuine dispersion measure. It violates the positive homogeneity axiom. However, the formalism
+of optimal portfolio strategies, outlined in Sec.~\ref{strategies}, holds. As we will see in the next two subsections,
+the \SD\ and \MV\ optimization algorithms tend to be different.
+\MV\ portfolio optimization is often described as a QP while \SD\ as an SOCP problem. However,
+QP can be viewed as a special case of SOCP. In this sense the \SD\ and \MV\ optimal portfolio algorithms
+could be regarded as similar.
+
+Fundamental differences exist between the Sharpe type optimal portfolios.
+The \SD-Sharpe ratio is the original Sharpe ratio introduced in 1966 by Sharpe in \cite{Sharpe1966} (see also \cite{Sharpe1994}).
+For this reason, we will call \SD-Sharpe ratio simply as Sharpe ratio, preserving the original recognized terminology.
+The \MV-Sharpe ratio is different than the Sharpe ratio. Therefore, Sharpe and \MV-Sharpe optimal portfolios are different.
+However, since the \SD\ and \MV\ efficient frontiers are identical,
+the \MV-Sharpe optimal portfolio belongs to the \SD\ efficient frontier and vice versa.
+
+Similarly, the \SD\ and \MV\ optimal portfolios for the same risk-aversion factor value are different.
+In fact, $\lambda_\SD$ (\SD-aversion factor) and $\lambda_\MV$ (\MV-aversion factor)
+are two distinct parameterizations of the same efficient frontier.
+
+The next two subsections present the \SD\ and \MV\ based optimal portfolio strategies algorithms separately.
+We will point out along the way to the differences and similarities between the two approaches.
+Overall, we prefer the \SD\ representation since it met all the scalability properties provided by a genuine
+dispersion measure, especially for Sharpe optimal portfolios. However, the \MV\ representation is equally valid and
+numerically robust.
+
+\BackToContents
+
+\input{SDBased}
+\input{MVBased}

@@ -1,0 +1,43 @@
+
+\section{Inter-observations distance measures}
+The inter-observations distance measure can be expressed  as
+\begin{equation}
+    \HMOD^{(p)}(X) = \frac{1}{2^{1/p}}\left\| Y - Z \right\|_p,
+    \label{hmod1}
+\end{equation}
+where \HMOD\ stands for Higher Moment inter-Observations Distance,
+$\|\cdot\|_p = (\mE[|\cdot|^p])^{1/p}$ is the $L^p$-norm, and
+$Y$ and $Z$ are two \iid copies of $X$.
+
+$\HMOD^{(p)}$ are genuine dispersion measures. Further, they can
+be classified as symmetric dispersion measures, in the sense that they do not provide an excess penalty to downside events.
+
+Given a set of  historical observations $\{r_i\}_{i=1,\cdots,N}$, Eq.~(\ref{hmod1}) can be approximated by
+\begin{equation}
+    \HMOD^{(p)} = \frac{1}{N^{2/p}}\left( \sum_{i=1}^{N-1} \sum_{j=i+1}^N \left|r_i - r_j \right|^p \right)^{1/p}.
+    \label{hmod2}
+\end{equation}
+From a numerical point of view, the \HMOD-based portfolio optimizations pose a unique challenge. Since they are expressed in terms of pairwise
+observations, the computation effort tends to scale up quadratic in the number of historical observations.
+
+A famous member of this family is for $p=1$, the \GINI\
+dispersion measure. Historically, it was inspired by the \GINI\ index from
+sociology formulated by Corrado Gini in 1912 (see \cite{Giorgi}). It was introduced to finance in 1982 by Yitzhaki \cite{Yitzhaki}.
+Portfolio optimizations strategies based on the \GINI\ dispersion measure will be presented in the next subsection.
+
+For $p=2$ we have another famous dispersion measure. In this case $\HMOD^{(2)}$ reduces to the standard deviation, \SD, \ie,
+\begin{equation}
+    \HMOD^{(2)}(X) = \std(X),
+    \label{hmod3}
+\end{equation}
+where $\std(\cdot)$ is the standard deviation operator.
+
+The \SD\ optimal portfolio strategies can be expressed in terms of the covariance matrix between the portfolio components,
+avoiding an explicit pairwise formulation at the SOCP level.
+The computation complexity becomes quadratic in the number of portfolio components rather than in the number of historical observations.
+In this sense, $\HMOD^{(2)}$ is an exception among the \HMOD\ dispersion measures. This class of optimal portfolio
+strategies are presented in Sec.~\ref{S:SD}.
+
+\BackToContents
+
+\input{GINIBased}

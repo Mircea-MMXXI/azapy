@@ -1,0 +1,368 @@
+
+\subsection{MV-based optimization strategies}\label{S:MV}
+
+\subsubsection{MV dispersion measure}
+Variance is the dispersion measure for \MV-based optimal portfolios.
+For a portfolio defined by the vector of weights $w$, the variance can
+be expressed as
+\begin{equation}
+    \VAR = w^T \cdot C \cdot w,
+    \label{mv00}
+\end{equation}
+where $C$ is the covariance matrix between the portfolio components.
+Alternatively, assuming $C=U^T\cdot U$ factorization, \VAR\ can be rewritten in terms of Euclidian norm as
+\begin{equation}
+    \VAR = \|U \cdot w\|_2^2.
+    \label{mv0}
+\end{equation}
+We will use both expressions.
+
+\BackToContents
+
+\subsubsection{MV optimal portfolio}
+This optimization is described by Eqs.~(\ref{gg1}) from Sec~\ref{strategies} point~\ref{OptRisk},
+where $\rho$ is given by \VAR\ from Eq.~(\ref{mv00}).
+It is the following QP problem.
+
+\bigskip
+\noindent Minimize over $\{ \{w_k\}_{k=1,\cdots,M}, t\}$
+\begin{subequations}\label{mv1}
+\begin{align}
+    & g = \frac{1}{2} w^T C w, \label{mv1a} \\
+    \st & \sum_{k=1}^M w_k \mu_k \geq \mu_0, \label{mv1b} \\
+        & \sum_{k=1}^M w_k = 1, \label{mv1c} \\
+        & w_k \geq 0, \label{mv1d}
+\end{align}
+\end{subequations}
+
+\noindent where $\mu$, in Eq.~(\ref{mv1b}),
+is the targeted portfolio expected rate of return, while $\mu_k$ for $k=1,\cdots,M$
+are the portfolio components expected rate of returns.
+Then, we have
+\begin{subequations}\label{mv2}
+\begin{align}
+    \RR &= \sum_{k=1}^M w_k^* \mu_k, \label{mv2a} \\
+    \VAR &= 2 g^*, \label{mv2b}
+\end{align}
+\end{subequations}
+
+\noindent where $^*$ denotes the solution of QP problem.
+In addition to the optimal portfolio weights $\{w_k^*\}_{k=1,\cdots,M}$ and expected
+rate of return $\RR$, the
+QP solution provides information about the portfolio \VAR.
+
+The set of equations~(\ref{mv1}) are the most celebrated and the most printed set of equations in the world of portfolio optimizations.
+They are at the core of Markowitz pioneer work of portfolio theory \cite{Markowitz} and \cite{Markowitz2}. Up to the customary $1/2$ factor
+the solution of Eqs.~(\ref{mv1}) is the same as the solution of Eqs.~(\ref{sd1}). In fact, they illustrate the generic transformation of
+a QP into an SOCP problem.
+
+\bigskip
+\noindent Here is an example, using the \azapy\ package, of how to compute the \MV\ optimal portfolio.
+The \VAR\ time horizon was set to one quarter and the calibration is performed using 3.25 years of
+close-adjusted historical prices (default settings).
+For more details see the package documentation at \azapydoc.
+
+\lstinputlisting[language=Python]{../PyScripts/MV_RiskOptim.py}
+
+\BackToContents
+
+
+\subsubsection{Minimum \VAR\ portfolio}
+
+Following the results from Sec.~\ref{strategies} point~\ref{MinRisk},
+the algorithm to compute the portfolio with minimum \VAR\ is given by the QP problem from Eqs.~(\ref{mv1}) where
+$\mu$ from r.h.s. of Eq.~(\ref{mv1b}) is set to a value equal to the smallest expected rate of
+return among the portfolio components, \ie\ $\mu=\min_k\{\mu_k\}$.
+Note that minimum \VAR\ and minimum \SD\ portfolios are identical.
+
+\bigskip
+\noindent Here is an example, using the \azapy\ package, of how to compute the minimum \VAR\ optimal portfolio.
+The \VAR\ time horizon was set to one quarter and the calibration is performed using 3.25 years of
+close-adjusted historical prices (default settings).
+For more details see the package documentation at \azapydoc.
+
+\lstinputlisting[language=Python]{../PyScripts/MV_MinRisk.py}
+
+\BackToContents
+
+
+\subsubsection{MV optimal portfolio for targeted risk value}
+This optimization is described by Eqs.~(\ref{gg2}) from Sec.~\ref{strategies} point~\ref{TargetRisk},
+where $\rho$ given by \VAR\ from Eq.\ (\ref{mv0}).
+It is the following SOCP problem.
+
+\bigskip
+\noindent Maximize over $\{ w_k \}_{k=1,\cdots, M}$
+\begin{subequations}\label{mv3}
+\begin{align}
+    & g = \sum_{k=1}^M w_k \mu_k, \label{mv3a} \\
+    \st & \| U w\|_2 \leq \sqrt{\VAR_0}, \label{mv3b} \\
+        & \sum_{k=1}^M w_k = 1, \label{mv3c} \\
+        & w_k \geq 0, \label{mv3d}
+\end{align}
+\end{subequations}
+
+\noindent where $\VAR_0$ from Eq.~(\ref{mv3b}) is the targeted portfolio variance value.
+The portfolio expected rate of return is given by the value of the objective
+function, \ie,
+\begin{equation}
+    \RR = g^*, \label{mv4}
+\end{equation}
+
+\noindent and the optimal portfolio weights by $\{w^*_k\}_{k=1,\cdots,M}$. The superscript $^*$ denotes the
+solution of SOCP problem.
+
+By and large, these sets of equations are a reprint of Eqs.~(\ref{sd3}) and (\ref{sd4}).
+Therefore, the \MV\ and \SD\ optimal portfolios with similar targeted risk (\ie\ $\VAR_0 = \SD_0^2$) are identical.
+
+\bigskip
+\noindent Here is an example, using the \azapy\ package, of how to compute the optimal portfolio
+with the same \VAR\ as the equal weighted portfolio.
+The \VAR\ time horizon was set to one quarter and the calibration is performed using 3.25 years of
+close-adjusted historical prices (default settings).
+For more details see the package documentation at \azapydoc.
+
+\lstinputlisting[language=Python]{../PyScripts/MV_InvNrisk.py}
+
+\BackToContents
+
+
+\subsubsection{MV optimal portfolio for fixed risk-aversion factor}
+This optimization is described by Eqs.~(\ref{gg3}) from Sec.~\ref{strategies} point~\ref{RiskAverse},
+where $\rho$ is given by \VAR\ from Eq.\ (\ref{mv00}).
+It can be written as the following QP problem.
+
+\bigskip
+\noindent Minimize over $\{ w_k \}_{k=1,\cdots,M}$
+\begin{subequations}\label{mv5}
+\begin{align}
+    & g = \frac{1}{2}\left( w^T C w \right) - \frac{1}{2\lambda} \sum_{k=1}^M w_k \mu_k, \label{mv5a} \\
+    \st & \sum_{k=1}^M w_k =1, \label{mv5b} \\
+        & w_k \geq 0, \label{mv5c}
+\end{align}
+\end{subequations}
+
+\noindent where $\lambda$ from Eq.\ (\ref{mv5a}) is the risk-aversion factor.
+Then, we have
+\begin{subequations}\label{mv6}
+\begin{align}
+    \RR &= \sum_{k=1}^M w_k^* \mu_k, \label{mv6a} \\
+    \VAR &= 2 g^* + \frac{\RR}{\lambda}, \label{mv6b}
+\end{align}
+\end{subequations}
+
+\noindent where $^*$ denotes the solution of QP problem.
+In addition to the optimal portfolio weights $\{w_k^*\}_{k=1,\cdots,M}$ and expected rate of return $\RR$, the
+QP solution provides information about the portfolio \VAR.
+
+Note that, in this case, the \SD\ and \MV\ optimal portfolio for the same value of $\lambda$ are different.
+Both portfolios belong to the \MV\ efficient frontiers (identical with \SD\ efficient frontiers). However, $\lambda$
+in the \MV\ representation provides a different parametrization of the efficient frontiers than $\lambda$ in the
+\SD\ representation.
+
+\bigskip
+\noindent Here is an example, using the \azapy\ package, of how to compute the optimal portfolio
+for a given value of the risk-aversion factor $\lambda$.
+The \VAR\ time horizon was set to one quarter and the calibration is performed using 3.25 years of
+close-adjusted historical prices (default settings).
+For more details see the package documentation at \azapydoc.
+
+\lstinputlisting[language=Python]{../PyScripts/MV_Averse.py}
+
+\BackToContents
+
+
+\subsubsection{\MV-Sharpe optimal portfolio - maximization solution}
+This optimization targets the maximization of \MV-Sharpe ratio. It is based on
+Eqs.~(\ref{gg4}) from Sec.~\ref{strategies} point~\ref{MaxSharpe},
+where $\rho$ is given by \VAR\ from Eq.~(\ref{mv00}).
+The optimization can be formulated as an SOCP problem
+if Eq.~(\ref{gg4b}) can be expressed as a second order cone constraint.
+This can be achieved by
+introducing the variable transformations
+$\bw_k = t w_k$. Then, the SOCP problem can be written as follows.
+
+\bigskip
+\noindent Maximize over $\{ \{ \bw_k\}_{k=1,\cdots,M}, t\}$
+\begin{subequations}\label{mv7}
+\begin{align}
+    & g = \sum_{k=1}^M \bw_k \mu_k - \mu_0 t, \label{mv7a} \\
+    \st & \left\| \left(\bw^T \cdot U^T , t - \frac{1}{4} \right)^T \right\|_2 \leq t + \frac{1}{4}, \label{mv7b} \\
+        & \sum_{k=1}^M \bw_k - t = 0, \label{mv7c} \\
+        & t \geq 0, \label{mv7e} \\
+        & w_k \geq 0, \label{mv7d}
+\end{align}
+\end{subequations}
+
+\noindent where $\mu_0$ from Eq.~(\ref{sd7a}) is the risk-free rate accessible to the investor.
+
+Equation~(\ref{mv7b}) is the Euclidian norm representation of
+\begin{equation}
+    \bw^T \cdot C \cdot \bw \leq t,
+    \label{mv8}
+\end{equation}
+originated from Eq.~(\ref{gg6b}) after a multiplication by $t$ on both sides. Indeed, it is straightforward to show
+that, Eq.~(\ref{mv8}) is equivalent to
+\begin{equation}
+    \left[ \bw^T C \bw +\left(t - \frac{1}{4}\right)^2 \right]^{1/2} \leq t + \frac{1}{4}.
+    \label{mv9}
+\end{equation}
+The l.h.s. is the Euclidian norm of $\left(\bw^T \cdot U^T , t - \frac{1}{4} \right)^T$ vector, that enters
+in Eq.~(\ref{mv7b}).
+
+
+Then, we have
+\begin{subequations}\label{mv10}
+\begin{align}
+    w_k &= \frac{\bw_k^*}{t^*} , \label{mv10a} \\
+    \Sharpe &= g^*, \label{mv10b} \\
+    \RR &= \frac{g^*}{t^*} + \mu_0, \label{mv10c} \\
+    \VAR &= \frac{1}{t^*}, \label{mv10d}
+\end{align}
+\end{subequations}
+
+\noindent where $^*$ denotes the solution of SOCP problem.
+In addition to the optimal portfolio weights $\{w_k\}_{k=1,\cdots,M}$, expected rate of return $\RR$ and
+the \MV-Sharpe ratio $\Sharpe$,
+the SOCP solution provides information about the portfolio \VAR.
+
+
+\bigskip
+\noindent Here is an example, using the \azapy\ package, of how to compute the \MV-Sharpe optimal portfolio using the maximization
+of \MV-Sharpe ratio.
+The \VAR\ time horizon was set to one quarter and the calibration is performed using 3.25 years of
+close-adjusted historical prices (default settings).
+For more details see the package documentation at \azapydoc.
+
+\lstinputlisting[language=Python]{../PyScripts/MV_Sharpe.py}
+
+\BackToContents
+
+\subsubsection{\MV-Sharpe optimal portfolio - minimization solution}
+This optimization targets the minimization of the inverse of \MV-Sharpe ratio.
+It is described by Eqs.~(\ref{gg8}) from Sec.~\ref{strategies} point~\ref{MinSharpe}, where
+$\rho$ is given by \VAR\ from Eq.~(\ref{mv0}).
+The optimization can be formulated as an SOCP problem if Eq.~(\ref{gg8a}) can be expressed as a second order cone constraint. This can be achieved by
+introducing a new variable $\eta$ such that
+\begin{equation}
+    \eta \geq t w^T \cdot C \cdot w,
+    \label{mv11}
+\end{equation}
+and the variable transformations $\bw_k = t w_k$.
+Then, the SOCP problem can be written as follows.
+
+\bigskip
+\noindent Minimize over $\{ \{ \bw_k\}_{k=1,\cdots,M}, \eta, t\}$
+\begin{subequations}\label{mv12}
+\begin{align}
+    & g = \eta, \label{mv12a} \\
+    \st & \left\| \left( \bw^T \cdot U^T , \frac{\eta}{\sqrt{2}} , \frac{t}{\sqrt{2}}  \right)^T \right\|_2
+                \leq \frac{\eta}{\sqrt{2}}  + \frac{t}{\sqrt{2}} , \label{mv12b} \\
+        & \sum_{k=1}^m \bw_k \mu_k - \mu_0 t = 1, \label{mv12c} \\
+        & \sum_{k=1}^M \bw_k - t = 0, \label{mv12d} \\
+        &t \geq 0, \label{mv12e} \\
+        &\eta \geq 0, \label{mv12f} \\
+        &\bw_k \geq 0, \label{mv12g}
+ \end{align}
+\end{subequations}
+
+\noindent where $\mu_0$ from Eq.~(\ref{mv12c}) is the risk-free rate accessible to the investor.
+
+Equation~(\ref{mv12b}) is the Euclidian norm representation of Eq.~(\ref{mv11}), after
+an additional multiplication by $t$ on both sides, \ie,
+\begin{equation}
+    \bw^T\cdot C\cdot \bw \leq t\eta.
+    \label{mv13}
+\end{equation}
+Indeed, it is straightforward to show that, Eq.~(\ref{mv13}) is equivalent to
+\begin{equation}
+    \left( \bw^T C \bw + \frac{1}{2}\eta^2 + \frac{1}{2}t^2 \right)^{1/2} \leq \frac{\eta}{\sqrt{2}} + \frac{t}{\sqrt{2}}.
+    \label{mv14}
+\end{equation}
+The l.h.s. is the Euclidian norm of $\left( \bw^T \cdot U^T , \frac{\eta}{\sqrt{2}} , \frac{t}{\sqrt{2}}  \right)^T$ vector, that
+enters in Eq.~(\ref{mv12b}).
+
+Then, we have
+\begin{subequations}\label{mv15}
+\begin{align}
+    w_k &= \frac{\bw_k^*}{t^*}, \label{mv15a} \\
+    \RR &= \frac{1}{t^*} + \mu_0, \label{mv15c} \\
+    \Sharpe &= \frac{1}{g^*}, \label{mv15b} \\
+    \VAR &= \frac{g^*}{t^*}, \label{mv15d}
+ \end{align}
+\end{subequations}
+
+\noindent where $^*$ denotes the solution of SOCP problem.
+In addition to the optimal portfolio weights $\{w_k\}_{k=1,\cdots,M}$, expected rate of return $\RR$ and
+the \MV-Sharpe ratio $\Sharpe$,
+the SOCP solution provides information about the portfolio \VAR.
+
+\bigskip
+\noindent Here is an example, using the \azapy\ package, of how to compute the \MV-Sharpe optimal portfolio using the minimization
+of the inverse of \MV-Sharpe ratio.
+The \VAR\ time horizon was set to one quarter and the calibration is performed using 3.25 years of
+close-adjusted historical prices (default settings).
+For more details see the package documentation at \azapydoc.
+
+\lstinputlisting[language=Python]{../PyScripts/MV_InvSharpe.py}
+
+\BackToContents
+
+
+\subsubsection{MV frontiers}
+
+Here is an example of how to compute the \MV\ frontiers using the \azapy\
+package. The \VAR\ time horizon was set to one quarter and the calibration is performed using 3.25 years of
+close-adjusted historical prices (default settings).
+For more details see the package documentation at \azapydoc.
+
+The script produces the plots in Figs. \ref{MV_fig1a} and \ref{MV_fig1b}
+for historical data collected up to 2021-07-27.
+
+\lstinputlisting[language=Python]{../PyScripts/MV_frontiers.py}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.95\linewidth]{../figs/MVFrontier1.png}
+  \caption{Rate of return vs. \VAR}
+  \label{MV_fig1a}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.95\linewidth]{../figs/MVFrontier2.png}
+  \caption{\MV-Sharpe vs. rate of return}
+  \label{MV_fig1b}
+\end{subfigure}
+\caption{\MV\ frontiers.}
+\label{MV_fig1}
+\end{figure}
+
+\BackToContents
+
+
+\subsubsection{Backtesting MV-Sharpe optimal portfolio}
+
+Here is an example, using \azapy\ package, of computing a portfolio backtesting.
+For this example, we have chosen a portfolio quarterly rebalanced according
+to the maximization of \MV-Sharpe ratio. At each rebalancing date,
+the portfolio weights
+are calibrated based on 3.25 years of prior historical market data.
+
+Other rebalancing strategies can be considered
+by changing the value of {\it rtype} parameter in the call of {\it set\_model} function below.
+For more details see the package documentation at \azapydoc.
+
+\lstinputlisting[language=Python]{../PyScripts/MV_Port.py}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=.95\linewidth]{../figs/Port_MV_Sharpe.png}
+    \caption{Backtesting of quarterly rebalanced \MV-Sharpe optimal portfolio.}
+    \label{MV_Port_fig}
+\end{figure}
+
+\BackToContents
+
+

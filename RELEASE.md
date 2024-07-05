@@ -2,6 +2,7 @@
 
 | Version | Date | Comments |
 |---------|------|----------|
+| 1.2.5 | 20240604 | Add support for non USA markets |
 | 1.2.4 | 20240330 | Enhancements for graphical interface; compatible with pandas 2.2.0 etc |
 | 1.2.3 | 20230315 | Prep for graphical interface; fix some bugs |
 | 1.2.2 | 20231216 | Add facility to run w/o rounding number of shares; fix some bugs |

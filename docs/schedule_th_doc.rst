@@ -13,8 +13,8 @@ Schedules functions
 
 :ref:`TOP<schedule_top>`
 
-`Example schedule functions call <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/util/schedule_examples.py>`_
-**********************************************************************************************************************
+`Examples of schedule functions calls <https://github.com/Mircea-MMXXI/azapy/blob/main/scripts/util/schedule_examples.py>`_
+***************************************************************************************************************************
 
 .. literalinclude:: ../scripts/util/schedule_examples.py
   :language: py
