@@ -236,7 +236,7 @@ class UniversalEngine(_RiskEngine):
             rng = np.random.RandomState(mc_seed)
             
             bb = pd.DataFrame(random_simplex(rng, nsymb, mc_paths,
-                                             variance_reduction,
+                                             self.variance_reduction,
                                              self.dirichlet_alpha), 
                               columns=self.rrate.columns)
             pth = (self.rrate @ bb.T).cumprod(axis=0)

@@ -1,0 +1,36 @@
+
+\section{azapy package}\label{AZAPY}
+
+\azapy\ is an open-source Python package for portfolio optimizations.
+It is released under GNU General Public License v3.0 (GPL-3).
+Besides the set of algorithms presented in this paper, \azapy\ implements several other
+portfolio strategies. It is a work in progress free for everyone to use and explore.
+
+The package technical documentation is at  \azapydoc\ and its source code at
+\azapycode.
+It can be installed in a Python environment by calling
+\begin{lstlisting}[language=Python]
+    pip install azapy
+\end{lstlisting}
+The \azapy\ development has two major goals:
+\begin{itemize}
+  \item provide a technical environment to study and compare various portfolio optimizations (in-sample and out-of-sample),
+  \item provide an analytic library to support the maintenance of a portfolio rebalancing schedule for a retail type of investor.
+\end{itemize}
+
+The library has its own module to collect and maintain historical market data. Several market data providers
+are supported. Some of them are free while other require subscriptions.
+The list of current supported providers is present in the package documentation at \azapydoc.
+
+The optimization algorithms are using open-source packages for LP, QP and SCOP:
+\ecos~\cite{ecos}, \highs~\cite{highs-ds} through \linprog, \cvxopt, and \glpk.
+
+We would like to express our thanks to all developers who were generous to give us unselfish access to their work and imagination.
+
+All the optimization algorithms presented in this paper are accompanied by a simple illustrative Python script.
+A set of more complex Python and Jupyter Notebook scripts are present at \azapycode\ under directories {\tt scripts} and {\tt jpy-scripts}, respectively.
+The idea is to use them as examples for calling various \azapy\ functionalities as well as sources of inspiration in your work.
+
+If you like to comment or contribute to this project, feel free to contact us (details are at PyPi page \azapy).
+
+\BackToContents 

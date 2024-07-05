@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from collections import defaultdict 
 
-from .MkTcalendar import NYSEgen
+from .MkTcalendar import _set_calendar_exchange
 
 
 def summary_MkTdata(mktdata, calendar=None, sdate=None, edate=None):
@@ -19,14 +19,17 @@ def summary_MkTdata(mktdata, calendar=None, sdate=None, edate=None):
     ----------
     mktdata : `pandas.DataFrame` or a dict of `pandas.DataFrame`
         Market Data in the format returned by `azapy.readMkT` function.
-    calendar : `numpy.busdaycalendar`, optional
-        Business days calendar. If is set to None it will 
-        default to NYSE business calendar.
-    sdate : `pandas.Timestamp`, optional
+    calendar : `str` or `numpy.busdaycalendar`, optional
+            Business calendar. It can be the exchange calendar name as a `str` or 
+            a `numpy.busdaycalendar` object.
+            If it is `None` then it will be set to NYSE
+            business calendar. The default
+            value is `None`.
+    sdate : date like, optional
         Time-series start date. If it is `None` then `sdate` will be set to the 
         earliest date in mktdata.
         The default is `None`.
-    edate : `pandas.Timestamp`, optional
+    edate : date like, optional
         Time-series end date. If it is `None` then `edate` will be set to 
         the most recent date in mktdata.
         The default is `None`.
@@ -43,26 +46,12 @@ def summary_MkTdata(mktdata, calendar=None, sdate=None, edate=None):
         - `na_e` : number of missing records at the end
         - `cont` : total number of missing records
     """
-    if isinstance(mktdata, dict):
-        gite = mktdata.items()
-    else:
-        gite = mktdata.groupby('symbol')
+    gite =  mktdata.items() if isinstance(mktdata, dict) else mktdata.groupby('symbol')
+    sdate = np.datetime64(sdate) if sdate is not None else min([np.datetime64(v.index[0]) for _, v in gite])
+    edate = np.datetime64(edate) if edate is not None else max([np.datetime64(v.index[-1]) for _, v in gite])
     
-    sds = []
-    eds = []
-    for _ , v in gite:
-        sds.append(v.index[0])
-        eds.append(v.index[-1])
-    msds = min(sds)
-    meds = max(eds)
-    if (sdate is None) or (sdate > msds): sdate = msds
-    if (edate is None) or (edate < meds): edate = meds
-    
-    if calendar is None: 
-        calendar = NYSEgen()
-
-    hd = pd.DatetimeIndex([dd  for dd in pd.date_range(sdate, edate) \
-                           if np.is_busday(dd.date(), busdaycal=calendar)])
+    calendar = _set_calendar_exchange(calendar)
+    hd = pd.DatetimeIndex(pd.bdate_range(sdate, edate, freq='C', holidays=calendar.holidays))
     
     res = defaultdict(lambda: [])
     for k, v in gite:

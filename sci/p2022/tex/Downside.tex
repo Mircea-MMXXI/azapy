@@ -1,0 +1,35 @@
+
+\section{Downside dispersion measures}\label{mHMDD}
+
+The m-level High Moment Downside Dispersion measure is defined as
+\begin{equation}
+    \mHMDD^{(p)}(r) = \sum_{l=1}^L \cK_l \times \delta^{(p)}_l(r),
+    \label{hmdd1}
+\end{equation}
+where $\{\cK_l\}_{l=1,\cdots,L}$ is a positive non-increasing set of parameters normalized to unit
+and $\delta^{(p)}_l$ is the $l$-th level delta-risk of rank $p$, recursively defined as
+\begin{align}
+    \delta^{(p)}_1(r) &= \left\| \left( -\br \right)^+ \right\|_p, \label{hmdd3} \\
+    \cdots & \nonumber \\
+    \delta^{(p)}_L(r)  &= \left\| \left( -\br - \sum_{j=1}^{L-1} \delta^{(p)}_j \right)^+ \right\|_p, \label{hmdd2}
+\end{align}
+where $\br = r - \mE[r]$ is the detrended rate of return and
+$\|\cdot\|_p= \left(\mE[(|\cdot|^p)]\right)^{1/p}$ is the $L^p$-norm.
+$\mHMDD^{(p)}$ are genuine dispersion measures.
+
+The most famous member of this family of dispersion measures is the m-level Mean Absolute Deviation, \mMAD,
+introduced in 2001 by Michalowski and Ogryczak \cite{Ogryczak}.
+Another important member is m-level Lower Semi-Deviation, \mLSD.
+
+Relative to the family of downside dispersion measures, \mMAD\ and \mLSD\ are the first, $p=1$, and
+second, $p=2$, moment downside dispersion measures, respectively, \ie,
+\begin{align}
+    \mMAD(r) &\equiv \mHMDD^{(1)}(r), \label{hmdd4} \\
+    \mLSD(r) &\equiv \mHMDD^{(2)}(r). \label{hmdd5}
+\end{align}
+Optimal portfolio strategies based on these two measures are presented separately in the next two subsections.
+
+\BackToContents
+
+\input{MADBased}
+\input{LSDBased}

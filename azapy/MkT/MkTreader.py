@@ -8,7 +8,7 @@ import time
 import logging
 from copy import deepcopy
 
-from azapy.MkT.MkTcalendar import NYSEgen
+from azapy.MkT.MkTcalendar import  _set_calendar_exchange
 
 
 class MkTreader:
@@ -79,11 +79,12 @@ class MkTreader:
         edate : date like, optional
             The end date of historical time series (must: `sdate` >= `edate`)
             The default is `'today'`.
-        calendar : `numpy.busdaycalendar`, optional
-            Exchange business day calendar. If set to `None` it will default to 
-            the NY stock exchange business calendar (provided by the azapy 
-            function NYSEgen).
-            The default is `None`.
+        calendar : `str` or `numpy.busdaycalendar`, optional
+            Business calendar. It can be the exchange calendar name as a `str` or 
+            a `numpy.busdaycalendar` object.
+            If it is `None` then it will be set to NYSE
+            business calendar. The default
+            value is `None`.
         output_format : `str`, optional
             The function output format. It can be:
                 - `'frame'` - `pandas.DataFrame`
@@ -178,23 +179,16 @@ class MkTreader:
 
         Returns
         -------
-        `pandas.DataFrame` or 'dict' `pandas.DataFrame` : Historical market data. 
+        `pandas.DataFrame` or 'dict' of `pandas.DataFrame` : Historical market data. 
             The output format is designated by the value of the input parameter 
             `output_format`.
         """
         # Process the inputs
         self._set_verbose(verbose)
-            
-        if (calendar is None) or (calendar == 'NYSE'):
-            calendar = NYSEgen()
-        if isinstance(calendar, np.busdaycalendar):
-            self._bday = pd.offsets.CustomBusinessDay(calendar=calendar)
-        elif isinstance(calendar, pd.offsets.CustomBusinessDay):
-            self._bday = calendar
-        else:
-            raise ValueError(f"Wrong calendar type {type(calendar)} "
-                             "must be numpy.busdaycalendar")
-            
+         
+        calendar = _set_calendar_exchange(calendar)
+        self._bday = pd.offsets.CustomBusinessDay(calendar=calendar)
+        
         self.sdate, self.edate = self._mkt_sedate(sdate, edate)
         if self.sdate > self.edate:
             raise ValueError("Wrong rage of dates -"
@@ -204,13 +198,12 @@ class MkTreader:
         if output_format not in outputFormats:
             raise ValueError( f"Wrong output format {output_format} -"
                              f" must be one of {outputFormats}")
-        #self._output_format = output_format
+        self._output_format = output_format
         
         fileFormats = ('csv', 'json', 'feather')
         if file_format not in fileFormats:
             raise ValueError(f"Wrong file format {file_format} -"
                              f" must be one of {fileFormats}")
-        #self._file_format = file_format
 
         if isinstance(symbol, str):
             symbol = [symbol]
@@ -272,7 +265,7 @@ class MkTreader:
         if len(rout) == 0:
             if self._verbose:
                 print("Warning: no mkt data was fund!")
-            return {} if output_format == 'dict' else pd.DataFrame()
+            return {} if self._output_format == 'dict' else pd.DataFrame()
         
         self.rout = pd.concat(rout)
         toc = time.perf_counter()
@@ -287,7 +280,7 @@ class MkTreader:
                       f"{self.rout_status}\n"
                       f"extraction time {round(self.delta_time, 3)} s")
             
-        if output_format == 'dict':
+        if self._output_format == 'dict':
             if self.rout.empty: return {}
             return dict(tuple(self.rout.groupby('symbol')))
     
@@ -961,3 +954,48 @@ class MkTreader:
         # A(i-1) = [ Z(i-1) - D(i)] * A(i) / Z(i)
         return (1 - data[divd].shift(-1, fill_value=0.) 
                 / data[field])[::-1].cumprod()[::-1] * data[field]
+    
+
+    def set_imputation(self, method='linear'):
+        """
+        Historical market data imputation, i.e., filling missing values according to the imputation method. 
+        The missing data at the beginning or the end of the time series remains unchanged.
+
+        Please use with cautions, for cases where small amount of data needs to be filled in. Any change  
+        of the market data will introduce a bias. If large amount of data is missing it is advisable to get  
+        a different source for historical market data.  
+
+        The function will return the new corrected market data without altering the object state (the raw market data is preserved). 
+
+        Parameters: 
+        ----------- 
+        method: `str`, optional
+            Indicates the method type. The default is `'linear'`. 
+            For now, only `'linear'` imputation is implemented.
+
+        Returns 
+        ------- 
+        `pandas.DataFrame` or `dict` of `pandas.DataFrame`, as it was set in the constructor by the input parameter  
+            `output_format`. 
+        """
+        if method == 'linear':
+            mdata = self.rout.groupby(by='symbol')
+            if self._output_format == 'dict':
+                return {name: self._imputation_liner(v) for name, v in mdata}
+            else:
+                return pd.concat([self._imputation_liner(v) for _, v in mdata])
+        
+        raise ValueError(f"Unknown imputation method: {method}")
+
+
+    def _imputation_liner(self, mdata):
+        wd = pd.DatetimeIndex(pd.bdate_range(mdata.index[0], mdata.index[-1], 
+                              freq='C', holidays=self._bday.holidays))
+        dd = pd.DatetimeIndex(set(wd) - set(mdata.index))
+        ndf = pd.DataFrame(np.nan, index=dd, columns=mdata.columns)
+        ndf.index.name = 'date'
+        ndf.symbol = mdata.symbol.iloc[0]
+        rout = pd.concat([mdata, ndf]).sort_index()
+        rout.iloc[:, rout.columns != 'symbol'] = rout.iloc[:, rout.columns != 'symbol'].interpolate(method='linear')
+
+        return rout

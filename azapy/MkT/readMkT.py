@@ -3,7 +3,7 @@ from .MkTreader import MkTreader
 def readMkT(symbol=[], sdate="2012-01-01", edate='today', calendar=None,
             output_format='frame', source=None, force=False, save=True,
             file_dir="outDir", file_format='csv', api_key=None, param=None,  
-            verbose=True):
+            imputation=None, verbose=True):
     """
     Retrieves market data for a set of stock symbols.\n
     It is a wrapper for `MkTreader` class returning directly the requested
@@ -21,11 +21,12 @@ def readMkT(symbol=[], sdate="2012-01-01", edate='today', calendar=None,
     edate : date like, optional
         The end date of historical time series (must: `sdate` >= `edate`)
         The default is `'today'`.
-    calendar : `numpy.busdaycalendar`, optional
-        Exchange business day calendar. If set to `None` it will default to 
-        the NY stock exchange business calendar (provided by the azapy 
-        function NYSEgen).
-        The default is `None`.
+    calendar : `str` or `numpy.busdaycalendar`, optional
+            Business calendar. It can be the exchange calendar name as a `str` or 
+            a `numpy.busdaycalendar` object.
+            If it is `None` then it will be set to NYSE
+            business calendar. The default
+            value is `None`.
     output_format : `str`, optional
         The function output format. It can be:
             - `'frame'` - `pandas.DataFrame`
@@ -112,11 +113,21 @@ def readMkT(symbol=[], sdate="2012-01-01", edate='today', calendar=None,
         This is also the default vale for alphavantage, if `param` is set to 
         `None`.
         The default is `None`.   
+    imputation : `str`, optional
+        Method to fill missing data. Valid values are,
+            - `"linear"` - filling with linearly interpolated values. The missing data at the ends of the time-series are not modified. 
+            - `None` - no imputation. However, missing data may halt further computations.
+        
+        The default is `None`.
+
+        Note: It is recommended to call the function without `imputation` set and to analyze the quality of the raw data. 
+        Apply an imputation algorithm only if the amount of missing data is small and in non critical areas of the time series. 
+        In general, any imputation methodology will introduce bias in the final evaluations.
     verbose : `Boolean`, optional
         If set to `True`, then additional information will be printed  
-        during the loading of historical prices.
+        during the loading of historical prices, prior to imputation.
         The default is `True`.
-
+        Note: The quality of the market data after an imputation may be asses using `azapy` function `summary_MkTdata`.
 
     Returns
     -------
@@ -124,8 +135,13 @@ def readMkT(symbol=[], sdate="2012-01-01", edate='today', calendar=None,
         The output format is designated by the value of the input parameter 
         `output_format`.
     """
-    return MkTreader().get(symbol=symbol, sdate=sdate, edate=edate, 
+    mkt = MkTreader()
+    mktdata = mkt.get(symbol=symbol, sdate=sdate, edate=edate, 
                            calendar=calendar, output_format=output_format, 
                            source=source, force=force, save=save, 
                            file_dir=file_dir, file_format=file_format, 
                            api_key=api_key, param=param,  verbose=verbose)
+    if imputation is None:
+        return mktdata
+    else:
+        return mkt.set_imputation(method=imputation)

@@ -1,0 +1,224 @@
+\documentclass[10pt]{article}
+
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{xcolor}
+\usepackage[colorlinks,citecolor=blue]{hyperref}
+\usepackage{listings}
+\usepackage{nameref}
+\usepackage{standalone,import,pgfplots,pdfpages,graphicx,float}
+
+\pgfplotsset{compat=1.18}
+
+\usepgfplotslibrary{external}
+\tikzexternalize
+
+\makeatletter
+\let\orgdescriptionlabel\descriptionlabel
+\renewcommand*{\descriptionlabel}[1]{%
+  \let\orglabel\label
+  \let\label\@gobble
+  \phantomsection
+  \edef\@currentlabel{#1}%
+  \let\label\orglabel
+  \orgdescriptionlabel{#1}%
+}
+\makeatother
+
+\numberwithin{equation}{section}
+
+\def\mE{{\mathbb E}}
+\def\mR{{\mathbb R}}
+\def\cG{{\cal G}}
+\def\cL{{\cal L}}
+\def\cF{{\cal F}}
+\def\cK{{\cal K}}
+\def\cO{{\cal O}}
+
+\def\CVaR{{\rm CVaR}}
+\def\mCVaR{{\rm mCVaR}}
+\def\VaR{{\rm VaR}}
+
+\def\SMCR{{\rm SMCR}}
+\def\mSMCR{{\rm mSMCR}}
+\def\SMVaR{{\rm SMVaR}}
+
+\def\HMCR{{\rm HMCR}}
+\def\mHMCR{{\rm mHMCR}}
+\def\HMVaR{{\rm HMVaR}}
+
+\def\mHMDD{{\rm mHMDD}}
+\def\MAD{{\rm MAD}}
+\def\mMAD{{\rm mMAD}}
+
+\def\LSD{{\rm LSD}}
+\def\mLSD{{\rm mLSD}}
+
+\def\HMOD{{\rm HMOD}}
+\def\GINI{{\rm Gini}}
+
+\def\BTM{{\rm BTM}}
+\def\mBTM{{\rm mBTM}}
+
+\def\BTAD{{\rm BTAD}}
+\def\mBTAD{{\rm mBTAD}}
+
+\def\BTSD{{\rm BTSD}}
+\def\mBTSD{{\rm mBTSD}}
+
+\def\OMEGA{{\rm Omega}}
+\def\mOMEGA{{\rm mOmega}}
+
+\def\CMDM{{\rm CMDM}}
+\def\MV{{\rm MV}}
+\def\SD{{\rm SD}}
+
+\def\RR{{\rm RR}}
+\def\VAR{{\rm VAR}}
+
+\def\Sortino{{\cal S}}
+\def\Sharpe{{\gamma}}
+
+
+\newcommand\azapy{\href{https://pypi.org/project/azapy}{\bf azapy}}
+\newcommand\azapydoc{\url{https://azapy.readthedocs.io/en/latest}}
+\newcommand\azapycode{\url{https://github.com/Mircea-MMXXI/azapy}}
+\newcommand\ecos{\href{https://github.com/embotech/ecos}{\bf ecos}}
+\newcommand\cvxopt{\href{https://cvxopt.org/index.html}{\bf cvxopt}}
+\newcommand\linprog{\href{https://docs.scipy.org/doc/scipy/reference/optimize.linprog-highs.html}{\bf scipy.linprog}}
+\newcommand\highs{\href{https://highs.dev}{\bf highs}}
+\newcommand\glpk{\href{https://www.gnu.org/software/glpk/}{\bf glpk}}
+
+\def\ie{{\it i.e.}}
+\def\eg{{\it e.g.}}
+\def\st{{\it s.t.\ \ \ }}
+\def\iid{{\it iid\ }}
+\def\std{{\rm std}}
+
+
+\def\br{{\bar r}}
+\def\bff{{\bar f}}
+\def\bu{{\bar u}}
+\def\bs{{\bar s}}
+\def\bw{{\bar w}}
+\def\bbeta{{\bar \eta}}
+\def\bg{{\bar g}}
+\def\bx{{\bar x}}
+\def\bq{{\bar q}}
+\def\bU{{\bar U}}
+\def\bG{{\bar G}}
+\def\bA{{\bar A}}
+\def\bX{{\bar X}}
+
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\newtheorem{definition}{Def.}
+\newtheorem{proposition}{P}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+
+
+\usepackage{lipsum}
+\usepackage[most]{tcolorbox}
+\definecolor{bg}{RGB}{240,255,255}
+
+\newtcolorbox{codebox}[1][]{%
+enhanced jigsaw,
+oversize,
+colback=bg,
+boxrule=0pt,
+overlay unbroken and first ={%
+\draw[line width=0.2pt,double=bg,draw=bg!70!black,
+    double distance=1pt,] (frame.north west) -- (frame.north east);
+\draw[line width=0.2pt,double=bg,draw=bg!70!black,
+    double distance=1pt,] (frame.south west) -- (frame.south east);},
+breakable,
+arc=0pt,outer arc=0pt,
+#1}%
+
+
+\newcommand\BackToContents{%
+\bigskip
+\noindent \hyperref[content]{\it Back to Contents}
+}%
+
+
+\definecolor{codecomment}{rgb}{0.5,0.5,0.8}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{RGB}{240,255,255}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codecomment},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+
+\begin{document}
+
+
+\bigskip
+
+\title{Risk-Based Optimal Portfolio Strategies: \\
+       A Compendium}
+
+\author{Mircea Marinescu}
+
+\date{August 30, 2022}
+
+\maketitle
+
+\begin{abstract}
+\input{Abstract}
+\end{abstract}
+
+\break
+\tableofcontents
+\label{content}
+\break
+
+\input{Introduction}
+\input{Strategies}
+\input{Tail}
+\input{Downside}
+\input{BelowTarget}
+\input{InterObs}
+\input{CentralM}
+
+\pagebreak
+\input{Bibliography}
+\BackToContents
+
+\pagebreak
+\appendix
+\addcontentsline{toc}{section}{Appendices}
+\section*{Appendices}
+
+\input{AppendixAzapy}
+\input{AppendixBacktesting}
+\input{AppendixCVaR}
+
+
+\end{document}

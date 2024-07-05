@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 import pandas.tseries.offsets as pt
 
-from azapy.MkT.MkTcalendar import NYSEgen
+from azapy.MkT.MkTcalendar import _set_calendar_exchange
 
 
 def schedule_simple(sdate='2010-01-01',
@@ -38,10 +38,12 @@ def schedule_simple(sdate='2010-01-01',
     fixoffset : `int`, optional
         Offset in number of business days for `Dfix` relative to `Droll`. It 
         must be <=0. The default is `-1`.
-    calendar : `numpy.busdaycalendar`, optional
-        Business days calendar. If is it `None` then the calendar will be set
-        to NYSE business calendar.
-        The default is `None`.
+    calendar : `str` or `numpy.busdaycalendar`, optional
+        Business calendar. It can be the exchange calendar name as a `str` or 
+        a `numpy.busdaycalendar` object.
+        If it is `None` then it will be set to NYSE
+        business calendar. The default
+        value is `None`.
 
     Returns
     -------
@@ -54,8 +56,7 @@ def schedule_simple(sdate='2010-01-01',
     elif freq == 'M': edate = pd.to_datetime(edate) + pt.MonthEnd(1)
     else: raise ValueError("Wrong freq, Must be 'Q' or 'M'")
     
-    if calendar is None:
-        calendar = NYSEgen()
+    calendar = _set_calendar_exchange(calendar)
     
     tedx = pd.date_range(start=sdate, end=edate, freq=freq + 'E')\
              .to_numpy(dtype='<M8[D]')
@@ -112,8 +113,7 @@ def schedule_roll(sdate='2010-01-01',
     """
     sdate = pd.to_datetime(sdate)
     edate = pd.to_datetime(edate)
-    if calendar is None:
-        calendar = NYSEgen()
+    calendar = _set_calendar_exchange(calendar)
     sch = schedule_simple(sdate, edate, freq, noffset, fixoffset, calendar)
     sch['Dhist'] = sch['Dfix'] - pd.offsets \
         .DateOffset(months=round(hlength * 12, 0))
@@ -172,8 +172,7 @@ def schedule_offset(sdate='2010-01-01',
     """
     sdate = np.datetime64(pd.to_datetime(sdate).date())
     edate = np.datetime64(pd.to_datetime(edate).date())
-    if calendar is None:
-        calendar = NYSEgen()
+    calendar = _set_calendar_exchange(calendar)
     sdate = sdate + pd.offsets.DateOffset(months=round(hlength * 12, 0))
     sdate = np.busday_offset(np.array(sdate, dtype='<M8[D]'), 
                              0, roll='forward', busdaycal=calendar)

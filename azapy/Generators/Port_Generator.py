@@ -5,7 +5,7 @@ import copy
 
 from .Port_Simple import Port_Simple
 from azapy.Util.schedule import schedule_offset
-from azapy.MkT.MkTcalendar import NYSEgen
+from azapy.MkT.MkTcalendar import _set_calendar_exchange
 from azapy.Util.drawdown import max_drawdown
 
 
@@ -82,8 +82,10 @@ class Port_Generator(Port_Simple):
             Number of business day offset of fixing date `'Dfix'` relative to
             the rebalancing date `'Droll'`. It can be 0 or negative. It is
             relevant only if the schedule is `None`. The default is `-1`.
-        calendar : `numpy.busdaycalendar`, optional
-            Business calendar. If it is `None` then it will be set to NYSE
+        calendar : `str` or `numpy.busdaycalendar`, optional
+            Business calendar. It can be the exchange calendar name as a `str` or 
+            a `numpy.busdaycalendar` object.
+            If it is `None` then it will be set to NYSE
             business calendar. The default
             value is `None`.
         multithreading : `Boolean`, optional
@@ -115,10 +117,8 @@ class Port_Generator(Port_Simple):
         self.noffset = noffset
         self.fixoffset = fixoffset
         self.histoffset = histoffset
-        self.calendar = calendar
+        self.calendar = _set_calendar_exchange(calendar)
         self.verbose = False
-        if self.calendar is None: 
-            self._default_calendar()
         self.multithreading = multithreading
         self.shares_round = 0 if nsh_round else 16
         
@@ -266,11 +266,7 @@ class Port_Generator(Port_Simple):
         self.nshares = pd.DataFrame(self.nshares,
                                     index=self.ww.Droll[:len(self.nshares)]) 
   
-    
-    def _default_calendar(self):
-        self.calendar = NYSEgen()
-        
-    
+
     def get_account(self, fancy=False):
         """
         Returns additional bookkeeping information regarding rebalancing 

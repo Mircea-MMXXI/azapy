@@ -4,7 +4,7 @@
 
 ### An open-source python library for everybody
 
-![TimeSeries](graphics/Portfolio_1.png)
+![TimeSeries](https://github.com/Mircea-MMXXI/azapy/blob/main/graphics/Portfolio_1.png?raw=true)
 
 Author: Mircea Marinescu
 
@@ -89,8 +89,7 @@ A graphical user interface is provided by [**azapyGUI**](https://azapyGUI.readth
   + alphavantage.co
   + marketstack.com
   
-* Generate business calendars. At this point only NYSE business calendar
-  is implemented.
+* Generate business calendars for all major exchanges across the world.
 * Generate rebalancing portfolio schedules.
 * Append a cash-like security to an existing market data object.
 * Update market data saved in a directory.
