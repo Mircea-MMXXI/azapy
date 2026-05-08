@@ -8,7 +8,7 @@ import azapy as az
 mktdir = '../../MkTdata'
 sdate = '2012-01-01'
 edate = 'today'
-symb = ['GLD', 'TLT', 'XLV', 'IHI', 'VGT', 'OIH']
+symb = ['GLD', 'TLT', 'XLV', 'IHI', 'OIH', 'SPY']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
@@ -18,7 +18,7 @@ ww = az.schedule_simple(sdate=sdate, edate=edate, freq='Q')
 ww[symb] = 1 / len(symb)
 
 with pd.option_context('display.max_columns', None):
-    print(f"Rebalancing schedule:\n{ww.round(4)}\n")
+    print(f"Rebalancing schedule:\n{ww.round({c: 4 for c in ww.select_dtypes(include='number').columns })}\n")
     
 #=============================================================================
 # Compute portfolio
@@ -46,6 +46,6 @@ with pd.option_context('display.max_columns', None):
     print(f"Annual Returns\n{annual}")
     print(f"Quarterly Returns\n{monthly}")
     print(f"Monthly Returns\n{monthly}")
-    print(f"Investment Period Returns\n{period.round(4)}")
+    print(f"Investment Period Returns\n{period.round({c: 4 for c in period.select_dtypes(include='number').columns })}")
     print(f"Number of Shares invested\n{nsh}")
     print(f"Accounting Info\n{acc}")

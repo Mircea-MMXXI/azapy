@@ -8,7 +8,7 @@ print(f"azapy version {az.version()}", flush=True)
 mktdir = '../../MkTdata'
 sdate = '2012-01-01'
 edate = 'today'
-symb = ['GLD', 'TLT', 'XLV', 'IHI', 'VGT', 'OIH']
+symb = ['GLD', 'TLT', 'XLV', 'IHI', 'OIH', 'SPY']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
@@ -48,14 +48,14 @@ with pd.option_context('display.max_columns', None):
     print(f"Portfolio Annual Returns\n{aret.round(4)}")
     print(f"Portfolio Quarterly Returns\n{qret.round(4)}")
     print(f"Portfolio Monthly Returns\n{mret.round(4)}")
-    print(f"Portfolio Period Returns\n{pret.round(2)}")
+    print(f"Portfolio Period Returns\n{pret.round({c: 2 for c in pret.select_dtypes(include='number').columns })}")
 
 # accounting information
 ww = p4.get_weights()
 nshares = p4.get_nshares()
 accinfo = p4.get_account()
 with pd.option_context('display.max_columns', None):
-    print(f"Portfolio Historical Weights\n{ww.round(4)}")
+    print(f"Portfolio Historical Weights\n{ww.round({c: 4 for c in ww.select_dtypes(include='number').columns })}")
     print(f"Portfolio Numbers of Shares\n{nshares}")
     print(f"Portfolio Rolling Accounting Information\n{accinfo.round(0)}")
 
@@ -122,14 +122,14 @@ with pd.option_context('display.max_columns', None):
     print(f"Portfolio Annual Returns\n{aret.round(4)}")
     print(f"Portfolio Quarterly Returns\n{qret.round(4)}")
     print(f"Portfolio Monthly Returns\n{mret.round(4)}")
-    print(f"Portfolio Period Returns\n{pret.round(2)}")
+    print(f"Portfolio Period Returns\n{pret.round({c: 2 for c in pret.select_dtypes(include='number').columns })}")
 
 # accounting information
 ww = p4.get_weights()
 nshares = p4.get_nshares()
 accinfo = p4.get_account()
 with pd.option_context('display.max_columns', None):
-    print(f"Portfolio Historical Weights\n{ww.round(4)}")
+    print(f"Portfolio Historical Weights\n{ww.round({c: 4 for c in ww.select_dtypes(include='number').columns })}")
     print(f"Portfolio Numbers of Shares\n{nshares}")
     print(f"Portfolio Rolling Accounting Information\n{accinfo.round(0)}")
     
@@ -158,14 +158,14 @@ with pd.option_context('display.max_columns', None):
     print(f"Portfolio Annual Returns\n{aret.round(4)}")
     print(f"Portfolio Quarterly Returns\n{qret.round(4)}")
     print(f"Portfolio Monthly Returns\n{mret.round(4)}")
-    print(f"Portfolio Period Returns\n{pret.round(2)}")
+    print(f"Portfolio Period Returns\n{pret.round({c: 2 for c in pret.select_dtypes(include='number').columns })}")
 
 # accounting information
 ww = p4.get_weights()
 nshares = p4.get_nshares()
 accinfo = p4.get_account()
 with pd.option_context('display.max_columns', None):
-    print(f"Portfolio Historical Weights\n{ww.round(4)}")
+    print(f"Portfolio Historical Weights\n{ww.round({c: 4 for c in ww.select_dtypes(include='number').columns })}")
     print(f"Portfolio Numbers of Shares\n{nshares}")
     print(f"Portfolio Rolling Accounting Information\n{accinfo.round(0)}")
     
@@ -194,14 +194,14 @@ with pd.option_context('display.max_columns', None):
     print(f"Portfolio Annual Returns\n{aret.round(4)}")
     print(f"Portfolio Quarterly Returns\n{qret.round(4)}")
     print(f"Portfolio Monthly Returns\n{mret.round(4)}")
-    print(f"Portfolio Period Returns\n{pret.round(2)}")
+    print(f"Portfolio Period Returns\n{pret.round({c: 2 for c in pret.select_dtypes(include='number').columns })}")
 
 # accounting information
 ww = p4.get_weights()
 nshares = p4.get_nshares()
 accinfo = p4.get_account()
 with pd.option_context('display.max_columns', None):
-    print(f"Portfolio Historical Weights\n{ww.round(4)}")
+    print(f"Portfolio Historical Weights\n{ww.round({c: 4 for c in ww.select_dtypes(include='number').columns })}")
     print(f"Portfolio Numbers of Shares\n{nshares}")
     print(f"Portfolio Rolling Accounting Information\n{accinfo.round(0)}")
     

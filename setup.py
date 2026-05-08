@@ -1,12 +1,11 @@
 import setuptools
-#from azapy import __version__
 
 with open("README.md", "r", encoding="utf-8") as readme:
     long_description = readme.read()
 
 setuptools.setup(
     name="azapy",
-    version="1.2.5",
+    version="1.2.6",
     author="Mircea Marinescu",
     author_email="mircea.marinescu@outlook.com",
     description="Financial Portfolio Optimization Algorithms",
@@ -26,19 +25,21 @@ setuptools.setup(
     ],
     package_dir={"": "."},
     packages=setuptools.find_packages(),
-    python_requires=">=3.11",
+    python_requires=">=3.14",
     install_requires=[
-          'numpy>=1.26.0',
-          'pandas>=2.2.0',
-          'scipy>=1.12.0',
-          'plotly>=5.19.0',
-          'matplotlib>=3.8.0',
-          'requests>=2.31.0',
-          'ecos>=2.0.0',
-          'pandas_market_calendars>=4.4.0',
-          'cvxopt>=1.3.2',
+          'numpy>=2.4.4',
+          'pandas>=3.0.2',
+          'scipy>=1.17.1',
+          'plotly>=6.6.0',
+          'matplotlib>=3.10.8',
+          'requests>=2.31.1',
+          'ecos>=2.0.14',
+          'pandas_market_calendars>=5.3.2',
+          'cvxopt>=1.3.3',
           'ta>=0.11.0',
-          'yfinance>=0.2.37',
-          'statsmodels>=0.14.0'
+          'yfinance>=1.3.0',
+          'statsmodels>=0.14.6',
+          'jinja2>=3.1.6',
+          'nbformat>=5.10.4'
       ],
 )

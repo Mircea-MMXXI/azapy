@@ -95,18 +95,19 @@ A graphical user interface is provided by [**azapyGUI**](https://azapyGUI.readth
 * Update market data saved in a directory.
 * N-simplex random vectors generators.
 
-### Third-party packages used by **azapy** 1.2.4
+### Third-party packages used by **azapy** 1.2.6
 
-* python 3.11.8
-* pandas 2.1.4
-* numpy 1.26.2
-* scipy 1.11.4
-* statsmodels 0.14.0
-* matplotlib 3.8.0
-* plotly 5.9.0
-* requests 2.31.0
-* pandas_market_calendars 4.3.2
-* ecos 2.0.12
-* cvxopt 1.3.2
+* python 3.14.4
+* pandas 3.0.2
+* numpy 2.4.4
+* scipy 1.17.1
+* statsmodels 0.14.6
+* matplotlib 3.10.8
+* requests 2.31.1
+* nbformat 5.10.4
+* jinja2 3.1.6
+* ecos 2.0.14
+* cvxopt 1.3.3
+* pandas_market_calendars 5.3.2
 * ta 0.11.0
-* yfinance 0.2.33
+* yfinance 1.3.0

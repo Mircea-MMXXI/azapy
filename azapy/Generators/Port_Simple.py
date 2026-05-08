@@ -219,7 +219,7 @@ class Port_Simple:
         Parameters
         ----------
         fancy : `Boolean`, optional
-            - `False`: reports the weights in algebraic format.
+            - `False`: reports the weights in algebraic format. 
             - `True`: reports the weights in percentage rounded to 2 decimals.  
             
             The default is `False`.
@@ -238,9 +238,8 @@ class Port_Simple:
         if not fancy:
             return res
         
-        res[self.symb] = res[self.symb].round(4).abs() * 100
-        
-        return res
+        res.loc[:, self.symb] = res[self.symb].round(4).abs() * 100
+        return res 
     
     
     def get_nshares(self):
