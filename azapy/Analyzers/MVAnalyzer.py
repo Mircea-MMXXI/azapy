@@ -206,9 +206,9 @@ class MVAnalyzer(_RiskAnalyzer):
         # build c 
         c_data = list(-self.muk) + [self.mu] 
 
-        # biuld G
+        # build G
         # ww > 0 and t > 0
-        dd = sps.diags([-1] * (nn + 1), format='coo')
+        dd = sps.diags([-1.] * (nn + 1), format='coo')
         
         # cone
         xx = sps.coo_matrix(([-1.], ([0], [nn])), shape=(1, nn + 1))
@@ -220,7 +220,7 @@ class MVAnalyzer(_RiskAnalyzer):
             
         G = sps.vstack([dd, xx, pp])
         
-        # biuld dims
+        # build dims
         dims = {'l': nn + 1, 'q': [nn + 2]}
         
         # build h
@@ -279,7 +279,7 @@ class MVAnalyzer(_RiskAnalyzer):
 
         # build G
         # ww > 0 and u > 0 and t > 0
-        dd = sps.diags([-1] * (nn + 2), format='coo')
+        dd = sps.diags([-1.] * (nn + 2), format='coo')
         
         # cone
         xx = sps.coo_matrix(([sq2, sq2], ([0, 0], [nn, nn + 1])), 
@@ -463,7 +463,7 @@ class MVAnalyzer(_RiskAnalyzer):
         yy = sps.coo_matrix(list(-self.muk * d) + [0., self.mu * d])
         
         # ww > 0 and u > 0 and t > 0
-        dd = sps.diags([-1] * (nn + 2))
+        dd = sps.diags([-1.] * (nn + 2))
         
         # cone
         xx = sps.coo_matrix(([sq2, sq2], ([0, 0], [nn, nn + 1])), 

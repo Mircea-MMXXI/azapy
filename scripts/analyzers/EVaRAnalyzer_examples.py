@@ -10,7 +10,7 @@ mktdir = '../../MkTdata'
 sdate = '2012-01-01'
 edate = '2021-07-27'
 
-symb = ['GLD', 'TLT', 'XLV', 'IHI', 'VGT']
+symb = ['GLD', 'TLT', 'XLV', 'IHI', 'SPY']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 

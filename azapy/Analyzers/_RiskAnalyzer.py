@@ -23,9 +23,8 @@ class _RiskAnalyzer:
         * getDiversification
         * viewFrontiers
         * set_rrate
-        * set_method
-        * set_mktdata
         * set_rtype
+        * set_mktdata
         * set_random_seed
     **Attributes**
         * status
@@ -190,6 +189,12 @@ class _RiskAnalyzer:
         
         
     def _reset_output(self):
+        """
+        Resets the output attributes to their initial state.
+
+        This method clears the results of previous computations, preparing
+        the object for a new calculation.
+        """
         self.status = 1
         self.ww = None
         self.risk = None
@@ -341,6 +346,21 @@ class _RiskAnalyzer:
     
     
     def _calc_Risk(self, mu, d):
+        """
+        Calculates the optimal risk portfolio for a targeted expected return.
+
+        Parameters
+        ----------
+        mu : float
+            Targeted expected rate of return.
+        d : int
+            Frontier type: 1 for efficient, -1 for inefficient.
+
+        Raises
+        ------
+        ValueError
+            If mu is None.
+        """
         mu_max = self.muk.max(numeric_only=True)
         mu_min = self.muk.min(numeric_only=True)
         if mu is None:
@@ -721,19 +741,37 @@ class _RiskAnalyzer:
 
     def set_rrate(self, rrate):
         """
-        Sets portfolio components historical rates of return.
-        It will overwrite the value computed by the constructor from mktdata.
+        Sets the portfolio components' historical rates of return.
+
+        This method allows overriding the rates of return computed from market
+        data in the constructor. It updates the internal rate matrix and resets
+        risk component calculations.
 
         Parameters
         ----------
-        rrate : `pandas.DataFrame`
-            Portfolio components historical rates of return. The
-            columns are asset symbols and indexed by observation dates.
-            
+        rrate : pandas.DataFrame or None
+            Portfolio components' historical rates of return. Columns should
+            be asset symbols, indexed by observation dates. If None, no changes
+            are made.
+
         Returns
         -------
-        `None`
+        None
+            This method does not return a value; it updates the object's state.
+
+        Raises
+        ------
+        ValueError
+            If rrate is provided but invalid (e.g., not a DataFrame).
         """
+        if rrate is None:
+            # nothing to do
+            return
+        
+        self._flag_risk_comp_calc = False
+        self.nn, self.mm = rrate.shape
+        self.muk = rrate.mean(numeric_only=True)
+        self.rrate = rrate - self.muk
         if rrate is None:
             # noting to do
             return
@@ -1871,11 +1909,21 @@ class _RiskAnalyzer:
     
     def getRiskComp(self):
         """
-        Returns the risk of each portfolio component.
+        Computes and returns the risk of each individual portfolio component.
+
+        This method calculates the risk measure for each asset in isolation
+        (i.e., a portfolio consisting of 100% in one asset). The results are
+        cached to avoid recomputation.
 
         Returns
         -------
-        `pandas.Series` : risk per symbol.
+        pandas.Series
+            Risk values for each symbol, indexed by asset symbols.
+
+        Notes
+        -----
+        If computation fails for any component, the status is set accordingly,
+        and the corresponding risk value is None.
         """
         if self._flag_risk_comp_calc: 
             self.status = self._status_risk_comp_calc

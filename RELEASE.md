@@ -2,6 +2,7 @@
 
 | Version | Date | Comments |
 |---------|------|----------|
+| 1.2.6 | 20260507 | update for Python 3.14.4 |
 | 1.2.5 | 20240604 | Add support for non USA markets |
 | 1.2.4 | 20240330 | Enhancements for graphical interface; compatible with pandas 2.2.0 etc |
 | 1.2.3 | 20230315 | Prep for graphical interface; fix some bugs |

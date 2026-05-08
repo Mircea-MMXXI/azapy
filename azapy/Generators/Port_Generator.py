@@ -313,7 +313,7 @@ class Port_Generator(Port_Simple):
         if not fancy: return acc_tab
         
         acc_tab = acc_tab.round(2)
-        acc_tab[self.symb] = acc_tab[self.symb].astype('int')
+        acc_tab.loc[:, self.symb] = acc_tab[self.symb].astype('int')
         
         return acc_tab
 
@@ -359,7 +359,7 @@ class Port_Generator(Port_Simple):
             return rww
         
         rww['RR'] = rww['RR'].round(4) * 100
-        rww[self.symb] = rww[self.symb].round(4).abs() * 100
+        rww.loc[:, self.symb] = rww[self.symb].round(4).abs() * 100
         
         return rww
     

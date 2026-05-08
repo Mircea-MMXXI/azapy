@@ -9,7 +9,7 @@ print(f"azapy version {az.version()}", flush=True)
 mktdir = '../../MkTdata'
 sdate = '2012-01-01'
 edate = 'today'
-symb = ['GLD', 'TLT', 'XLV', 'IHI', 'VGT', 'OIH']
+symb = ['GLD', 'TLT', 'XLV', 'IHI', 'OIH', 'SPY']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
@@ -35,13 +35,13 @@ pret = p4.port_period_returns()
 nsh = p4.get_nshares()
 acc = p4.get_account(fancy=True)
 with pd.option_context('display.max_columns', None):
-    print(f"Weights\n{ww.round(4)}")
+    print(f"Weights\n{ww.round({c: 4 for c in ww.select_dtypes(include='number').columns })}")
     print(f"Performance\n{performance.round(4)}")
     print(f"Portfolio Historical Drawdowns\n{drawdowns.round(4)}")
     print(f"Portfolio Annual Returns\n{aret.round(4)}")
     print(f"Portfolio Quarterly Returns\n{qret.round(4)}")
     print(f"Portfolio Monthly Returns\n{mret.round(4)}")
-    print(f"Portfolio Period Returns\n{pret.round(2)}")
+    print(f"Portfolio Period Returns\n{pret.round({c: 2 for c in pret.select_dtypes(include='number').columns })}")
     print(f"Numbers of Shares Invested\n{nsh}")
     print(f"Account Info\n{acc}")
 

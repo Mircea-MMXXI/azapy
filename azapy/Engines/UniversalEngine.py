@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import time
+import math
 import scipy.optimize as sopt
 import threading
 from functools import reduce
@@ -247,7 +248,7 @@ class UniversalEngine(_RiskEngine):
         if self.verbose:
             if self.variance_reduction:
                 print("nr simulations: "
-                      f"{self.mc_paths * self.nr_batches * np.math.factorial(self.nsymb)}")
+                      f"{self.mc_paths * self.nr_batches * math.factorial(self.nsymb)}")
             else:
                 print(f"nr simulations: {self.mc_paths * self.nr_batches}")
                 

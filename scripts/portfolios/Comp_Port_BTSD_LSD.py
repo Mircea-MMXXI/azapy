@@ -9,7 +9,7 @@ print(f"azapy version {az.version()}", flush=True)
 mktdir = '../../MkTdata'
 sdate = '2012-01-01'
 edate = 'today'
-symb = ['GLD', 'TLT', 'XLV', 'IHI', 'VGT', 'OIH']
+symb = ['GLD', 'TLT', 'XLV', 'IHI', 'OIH', 'SPY']
 
 mktdata = az.readMkT(symb, sdate=sdate, edate=edate, file_dir=mktdir)
 
@@ -34,4 +34,5 @@ print(f"time LSD-Sharpe: {toc-tic}")
 #=============================================================================
 # Compare - they should be the same up to numerical precision
 pp = az.Port_Simple([port1, port2])
-pp.port_view_all(componly=True)
+_ = pp.set_model()
+_ = pp.port_view_all(componly=True)
