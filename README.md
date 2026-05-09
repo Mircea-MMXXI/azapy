@@ -102,6 +102,7 @@ A graphical user interface is provided by [**azapyGUI**](https://azapyGUI.readth
 * numpy 2.4.4
 * scipy 1.17.1
 * statsmodels 0.14.6
+* plotly 6.6.0
 * matplotlib 3.10.8
 * requests 2.31.1
 * nbformat 5.10.4
